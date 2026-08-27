@@ -48,6 +48,8 @@ const foundations: DocsPage[] = [
 
 const actions = [
   component("Button", "Triggers an action or submits a form.", "Actions", ["cta"]),
+  component("Button Group", "Groups related actions into a single visual control.", "Actions", ["actions"], "ButtonGroup"),
+  component("Toggle", "Switches an action between pressed and unpressed states.", "Actions", ["button toggle"]),
   component("Copy Button", "Copies a provided value with visible feedback.", "Actions", ["clipboard"], "CopyButton"),
   component("Info Button", "An accessible icon-only information action.", "Actions", ["icon button"], "InfoButton"),
   component("Billing Interval Toggle", "Switches between monthly and annual billing intervals.", "Actions", [], "BillingIntervalToggle"),
@@ -66,16 +68,25 @@ const forms = [
   component("OTP Input", "Collects fixed-length one-time passcodes.", "Forms", ["code", "verification"], "OtpInput"),
   component("File Upload", "Selects one or more local files.", "Forms", ["dropzone"], "FileUpload"),
   component("Date Picker", "Selects a date through an input and calendar.", "Forms", ["date"], "DatePicker"),
+  component("Time Picker", "Selects a time with native keyboard and mobile controls.", "Forms", ["time"], "TimePicker"),
   component("Calendar", "Displays selectable month and week calendar views.", "Forms"),
   component("Label", "Provides an accessible label for a form control.", "Forms"),
   component("Form Field", "Composes labels, descriptions, errors, and controls.", "Forms", [], "FormField"),
+  component("Toggle Group", "Selects one or multiple options in a compact button group.", "Forms", ["segmented control"], "ToggleGroup"),
+  component("Rating", "Collects a rating with accessible radio controls.", "Forms", ["stars", "review"]),
 ]
 
 const display = [
+  component("Aspect Ratio", "Constrains media and previews to a consistent proportion.", "Display", ["responsive media"], "AspectRatio"),
   component("Badge", "Displays compact status or category metadata.", "Display", ["pill"]),
   component("Avatar", "Represents a person with an image or initials fallback.", "Display"),
+  component("Avatar Group", "Displays a compact collection of people and overflow count.", "Display", ["people stack"], "AvatarGroup"),
+  component("Blockquote", "Presents a quotation with optional source attribution.", "Display", ["quote"]),
   component("Card", "Groups related content and actions.", "Display", ["panel"]),
   component("Callout", "Highlights a note, warning, or important instruction.", "Display", ["note"]),
+  component("Currency", "Formats monetary values by currency and locale.", "Display", ["money", "amount", "price"]),
+  component("Description List", "Displays structured term and value metadata.", "Display", ["details", "metadata"], "DescriptionList"),
+  component("Divider", "Separates content with responsive horizontal or vertical rules.", "Display", ["separator", "rule"]),
   component("Tag", "Displays removable or static taxonomy values.", "Display", ["chip"]),
   component("Kbd", "Displays keyboard shortcuts and key sequences.", "Display", ["keyboard"]),
   component("Status Dot", "Communicates presence or operational status.", "Display", [], "StatusDot"),
@@ -84,6 +95,7 @@ const display = [
   component("List", "Renders structured lists with consistent density.", "Display"),
   component("Timeline", "Displays chronological events.", "Display", ["activity"]),
   component("Tree", "Displays expandable hierarchical data.", "Display", ["filesystem"]),
+  component("Scroll Area", "Provides a bounded, keyboard-scrollable content region.", "Display", ["overflow"], "ScrollArea"),
 ]
 
 const feedback = [
@@ -137,6 +149,13 @@ const editors = [
   component("Terminal", "Displays terminal output and an interactive shell emulator.", "Editors", ["console"], "TerminalEmulator"),
 ]
 
+const typography = [
+  component("Heading", "Renders semantic, responsively scaled headings.", "Typography", ["title"]),
+  component("Text", "Renders interface copy plus localized date and time text.", "Typography", ["paragraph", "copy", "date", "time"]),
+  component("Prose", "Styles responsive long-form document content.", "Typography", ["article", "content"]),
+  component("Inline Code", "Displays inline code and technical tokens.", "Typography", ["code"], "InlineCode"),
+]
+
 export const componentGroups: DocsGroup[] = [
   { label: "Actions", pages: actions },
   { label: "Forms", pages: forms },
@@ -145,6 +164,7 @@ export const componentGroups: DocsGroup[] = [
   { label: "Overlays", pages: overlays },
   { label: "Navigation", pages: navigation },
   { label: "Data", pages: data },
+  { label: "Typography", pages: typography },
   { label: "Editors", pages: editors },
 ]
 

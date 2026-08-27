@@ -2,9 +2,9 @@ import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { describe, expect, it, vi } from "vitest"
 import {
-  Accordion, Alert, BillingIntervalToggle, Button, Collapsible, ConfirmDialog,
+  Accordion, Alert, BillingIntervalToggle, Button, ButtonGroup, Collapsible, ConfirmDialog,
   IconButton, NumberInput, Pagination, Popover, PopoverContent, Tabs, TabsContent,
-  TabsList, TabsTrigger, Tag, Tree,
+  TabsList, TabsTrigger, Tag, Toggle, ToggleGroup, ToggleGroupItem, Tree,
 } from "@/index"
 
 describe("interactive component contracts", () => {
@@ -49,6 +49,57 @@ describe("interactive component contracts", () => {
     render(<><Tabs defaultValue="one"><TabsList><TabsTrigger value="one">One</TabsTrigger><TabsTrigger value="two">Two</TabsTrigger></TabsList><TabsContent value="one">First</TabsContent><TabsContent value="two">Second</TabsContent></Tabs><Tree nodes={[{ id: "root", label: "Root", children: [{ id: "child", label: "Child" }] }]} defaultExpanded={["root"]} onSelect={selected} /></>)
     await user.click(screen.getByRole("tab", { name: "Two" })); expect(screen.getByText("Second")).toBeInTheDocument()
     await user.click(screen.getByText("Child")); expect(selected).toHaveBeenCalledWith("child")
+  })
+
+  it("supports controlled and uncontrolled toggle buttons", async () => {
+    const user = userEvent.setup()
+    const onPressedChange = vi.fn()
+    render(<><Toggle defaultPressed onPressedChange={onPressedChange}>Bold</Toggle><Toggle pressed={false}>Italic</Toggle></>)
+
+    const bold = screen.getByRole("button", { name: "Bold" })
+    expect(bold).toHaveAttribute("aria-pressed", "true")
+    await user.click(bold)
+    expect(bold).toHaveAttribute("aria-pressed", "false")
+    expect(onPressedChange).toHaveBeenCalledWith(false)
+
+    const italic = screen.getByRole("button", { name: "Italic" })
+    await user.click(italic)
+    expect(italic).toHaveAttribute("aria-pressed", "false")
+  })
+
+  it("groups related buttons without changing their native behavior", async () => {
+    const user = userEvent.setup()
+    const save = vi.fn()
+    render(<ButtonGroup aria-label="Document actions" orientation="vertical"><Button variant="secondary" onClick={save}>Save</Button><Button variant="secondary">Share</Button></ButtonGroup>)
+
+    expect(screen.getByRole("group", { name: "Document actions" })).toHaveAttribute("data-orientation", "vertical")
+    await user.click(screen.getByRole("button", { name: "Save" }))
+    expect(save).toHaveBeenCalledOnce()
+  })
+
+  it("selects toggle group values and provides arrow-key focus movement", async () => {
+    const user = userEvent.setup()
+    const onValueChange = vi.fn()
+    render(
+      <ToggleGroup type="multiple" defaultValue={["bold"]} onValueChange={onValueChange} aria-label="Formatting">
+        <ToggleGroupItem value="bold">Bold</ToggleGroupItem>
+        <ToggleGroupItem value="italic">Italic</ToggleGroupItem>
+        <ToggleGroupItem value="strike" disabled>Strike</ToggleGroupItem>
+      </ToggleGroup>,
+    )
+
+    const bold = screen.getByRole("button", { name: "Bold" })
+    const italic = screen.getByRole("button", { name: "Italic" })
+    expect(bold).toHaveAttribute("aria-pressed", "true")
+    await user.click(italic)
+    expect(italic).toHaveAttribute("aria-pressed", "true")
+    expect(onValueChange).toHaveBeenCalledWith(["bold", "italic"])
+
+    bold.focus()
+    await user.keyboard("{ArrowRight}")
+    expect(italic).toHaveFocus()
+    await user.keyboard("{ArrowRight}")
+    expect(bold).toHaveFocus()
   })
 
   it("moves through tabs with arrow, Home, and End keys", async () => {

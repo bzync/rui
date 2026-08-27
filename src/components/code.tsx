@@ -1,7 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/cn"
-import { useRef, useState, KeyboardEvent } from "react"
+import { HTMLAttributes, KeyboardEvent, forwardRef, useRef, useState } from "react"
 
 // ─── Tokeniser ────────────────────────────────────────────────────────────────
 
@@ -205,13 +205,16 @@ export function CodeBlock({ code, language = "js", filename, showLineNumbers = f
 
 // ─── InlineCode ───────────────────────────────────────────────────────────────
 
-export function InlineCode({ children, className }: { children: string; className?: string }) {
-  return (
-    <code className={cn("font-mono text-[0.85em] px-1.5 py-0.5 rounded-md bg-black/6 dark:bg-white/8 border border-black/[0.07] dark:border-white/[0.07] text-slate-700 dark:text-slate-300", className)}>
-      {children}
-    </code>
-  )
-}
+export interface InlineCodeProps extends HTMLAttributes<HTMLElement> {}
+
+export const InlineCode = forwardRef<HTMLElement, InlineCodeProps>(({ className, ...props }, ref) => (
+  <code
+    ref={ref}
+    className={cn("break-words rounded-md border border-border bg-surface-muted px-1.5 py-0.5 font-mono text-[0.85em] text-foreground", className)}
+    {...props}
+  />
+))
+InlineCode.displayName = "InlineCode"
 
 // ─── CodeEditor ───────────────────────────────────────────────────────────────
 

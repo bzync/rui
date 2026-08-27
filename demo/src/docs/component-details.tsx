@@ -156,6 +156,145 @@ const chartProps = api(
 )
 
 export const supplementalDetails: Record<string, () => SupplementalDetail> = {
+  "components/heading": () => detail(
+    `<Heading as="h1" size="xl">Operational clarity at every scale.</Heading>`,
+    <R.Heading as="h2" size="xl" className="max-w-2xl">Operational clarity at every scale.</R.Heading>,
+    api(["as", '"h1" | "h2" | "h3" | "h4" | "h5" | "h6"', "Semantic heading level.", '"h2"'], ["size", '"xs" | "sm" | "md" | "lg" | "xl" | "2xl"', "Responsive visual scale; defaults from the heading level."], ["tone", '"default" | "muted" | "accent"', "Semantic text color.", '"default"'], ["weight", '"normal" | "medium" | "semibold" | "bold"', "Font weight.", '"semibold"'], ["balance", "boolean", "Balances multi-line headings where supported.", "true"]),
+    "The as prop preserves the document outline independently from visual size. Choose levels in logical order and do not select them only for appearance.",
+  ),
+  "components/text": () => detail(
+    `<Text variant="lead">Monitor deployments without losing operational context.</Text>
+<Text variant="date" value="2026-08-27" />
+<Text variant="time" value="13:45" hour12 />
+<Text variant="currency" value={12840.5} currency="USD" />`,
+    <div className="demo-stack max-w-lg"><R.Text variant="lead">Monitor deployments without losing operational context.</R.Text><R.Text>Semantic styles keep interface copy readable from mobile through wide operational screens.</R.Text><div className="demo-row"><R.Text variant="date" value="2026-08-27" /><R.Text variant="time" value="13:45" hour12 /><R.Text variant="time" value="13:45" hour12={false} /><R.Text variant="currency" value={12840.5} currency="USD" /></div><R.Text variant="overline">Live operations</R.Text><R.Text variant="caption">Updated 2 minutes ago</R.Text></div>,
+    api(["as", '"p" | "span" | "div" | "time"', "Rendered element; date/time variants default to time."], ["variant", '"body" | "lead" | "muted" | "caption" | "overline" | "date" | "time" | "currency"', "Purpose-oriented or formatted-value style.", '"body"'], ["value", "Date | number | bigint | string", "Value formatted by date, time, and currency variants."], ["locale / timeZone", "string", "Locale and IANA timezone for temporal formatting."], ["hour12", "boolean", "Forces 12- or 24-hour time output."], ["formatOptions", "Intl.DateTimeFormatOptions", "Date/time formatting options."], ["currency / accounting", "string / boolean", "Currency code and negative-value notation."], ["currencyOptions", "CurrencyFormatOptions", "Intl currency formatting options."], ["size", '"xs" | "sm" | "md" | "lg"', "Optional size override."], ["weight", '"normal" | "medium" | "semibold" | "bold"', "Optional weight override."], ["align", '"left" | "center" | "right"', "Text alignment.", '"left"'], ["wrap", '"normal" | "nowrap" | "balance" | "pretty"', "Wrapping and truncation behavior."]),
+    "Text keeps HTML semantics explicit through as. Date and time variants render a machine-readable time element by default; calendar-only YYYY-MM-DD values do not shift across timezones.",
+  ),
+  "components/prose": () => detail(
+    `<Prose as="article" width="sm">
+  <h2>Deployment policy</h2>
+  <p>Every production change requires an audit trail.</p>
+</Prose>`,
+    <R.Prose className="w-full" as="article" width="sm"><h2>Deployment policy</h2><p>Every production change requires an audit trail and a documented recovery path.</p><ul><li>Review the release diff.</li><li>Confirm health checks and rollback ownership.</li></ul><blockquote>Reliable operations favor explicit state over hidden assumptions.</blockquote></R.Prose>,
+    api(["as", '"div" | "article" | "section"', "Document container element.", '"article"'], ["size", '"sm" | "md" | "lg"', "Long-form reading scale.", '"md"'], ["width", '"none" | "sm" | "md" | "lg"', "Maximum reading width.", '"sm"'], ["className", "string", "Composes content layout styles."]),
+    "Prose styles semantic child markup without changing it. Keep heading order logical, describe images, and use table headers for tabular content.",
+  ),
+  "components/inline-code": () => detail(
+    `<Text>Run <InlineCode>npm run release:check</InlineCode> before publishing.</Text>`,
+    <R.Text>Run <R.InlineCode>npm run release:check</R.InlineCode> before publishing.</R.Text>,
+    api(["children", "ReactNode", "Inline technical content."], ["className", "string", "Composes one-off text and surface styles."], ["...props", "HTMLAttributes<HTMLElement>", "Native code-element attributes."]),
+    "Renders a semantic code element and allows long tokens to wrap instead of forcing viewport overflow.",
+  ),
+  "components/time-picker": () => detail(
+    `<TimePicker
+  label="Deployment time"
+  defaultValue="09:30"
+  minuteStep={15}
+  hint="Times use the workspace timezone"
+/>`,
+    <R.TimePicker className="w-full max-w-xs" label="Deployment time" defaultValue="09:30" minuteStep={15} hint="Times use the workspace timezone" />,
+    api(["value / defaultValue", "string", "Controlled or initial HH:mm or HH:mm:ss value."], ["onValueChange", "(value: string) => void", "Called after Apply or Clear."], ["format", '"12" | "24"', "Displayed hour format.", '"12"'], ["minuteStep", "number", "Minute selection increment from 1 through 30.", "5"], ["showSeconds", "boolean", "Adds a seconds column.", "false"], ["min / max", "string", "Inclusive selectable time boundaries."], ["side", '"top" | "bottom"', "Popover placement.", '"bottom"'], ["label / hint / error", "string", "Accessible field messaging."], ["name", "string", "Adds a hidden form submission value."]),
+    "The custom trigger controls a labeled dialog. Time columns expose listbox/option semantics with arrow, Home, and End navigation; Escape dismisses and restores trigger focus.",
+  ),
+  "components/currency": () => detail(
+    `<Currency value={12840.5} currency="USD" />
+<Currency value={-920} currency="EUR" locale="de-DE" accounting />
+<Currency value={1840000} options={{ notation: "compact" }} />`,
+    <div className="demo-row"><R.Currency value={12840.5} currency="USD" /><R.Currency value={-920} currency="EUR" locale="de-DE" accounting /><R.Currency value={1840000} options={{ notation: "compact", maximumFractionDigits: 1 }} tone="positive" /></div>,
+    api(["value", "number | bigint", "Monetary value to format."], ["currency", "string", "ISO 4217 currency code.", '"USD"'], ["locale", "Intl.LocalesArgument", "Formatting locale.", '"en-US"'], ["accounting", "boolean", "Uses accounting notation for negative values.", "false"], ["options", "CurrencyFormatOptions", "Intl number-format options such as notation and fraction digits."], ["tone", '"auto" | "default" | "positive" | "negative" | "muted"', "Semantic text treatment.", '"auto"'], ["fallback", "ReactNode", "Content shown for invalid values or format options.", '"—"']),
+    "Currency renders readable text and tabular numerals. Compact notation receives a full-value accessible label, while negative values use the destructive semantic token by default.",
+  ),
+  "components/avatar-group": () => detail(
+    `<AvatarGroup aria-label="Project members">
+  <Avatar name="Maya Chen" />
+  <Avatar name="Jordan Kim" />
+  <AvatarGroupOverflow count={4} />
+</AvatarGroup>`,
+    <R.AvatarGroup aria-label="Project members"><R.Avatar name="Maya Chen" /><R.Avatar name="Jordan Kim" /><R.Avatar name="Sam Rivera" /><R.AvatarGroupOverflow count={4} /></R.AvatarGroup>,
+    api(["spacing", '"tight" | "normal" | "loose"', "Amount of overlap between avatars.", '"normal"'], ["children", "ReactNode", "Avatar and AvatarGroupOverflow elements."], ["className", "string", "Composes layout styles."], ["AvatarGroupOverflow.count", "number", "Number of additional people not shown."]),
+    "The root is a named group. AvatarGroupOverflow exposes a readable label such as “4 more people” instead of only its visual +4 text.",
+  ),
+  "components/button-group": () => detail(
+    `<ButtonGroup aria-label="Document actions">
+  <Button variant="secondary">Save</Button>
+  <Button variant="secondary">Duplicate</Button>
+  <Button variant="secondary">Archive</Button>
+</ButtonGroup>`,
+    <R.ButtonGroup aria-label="Document actions"><R.Button variant="secondary">Save</R.Button><R.Button variant="secondary">Duplicate</R.Button><R.Button variant="secondary">Archive</R.Button></R.ButtonGroup>,
+    api(["orientation", '"horizontal" | "vertical"', "Visual grouping direction.", '"horizontal"'], ["children", "ReactNode", "Related button controls."], ["className", "string", "Composes group layout styles."], ["aria-label", "string", "Accessible name describing the related actions."]),
+    "Uses role=\"group\" while preserving each child button's native keyboard and disabled behavior. Give the group a concise accessible name.",
+  ),
+  "components/description-list": () => detail(
+    `<DescriptionList columns={2}>
+  <DescriptionItem>
+    <DescriptionTerm>Region</DescriptionTerm>
+    <DescriptionDetails>US East</DescriptionDetails>
+  </DescriptionItem>
+</DescriptionList>`,
+    <R.DescriptionList className="w-full max-w-lg" columns={2}><R.DescriptionItem><R.DescriptionTerm>Region</R.DescriptionTerm><R.DescriptionDetails>US East</R.DescriptionDetails></R.DescriptionItem><R.DescriptionItem><R.DescriptionTerm>Runtime</R.DescriptionTerm><R.DescriptionDetails>Node.js 22</R.DescriptionDetails></R.DescriptionItem><R.DescriptionItem><R.DescriptionTerm>Status</R.DescriptionTerm><R.DescriptionDetails><R.Badge variant="success" size="sm">Healthy</R.Badge></R.DescriptionDetails></R.DescriptionItem><R.DescriptionItem><R.DescriptionTerm>Version</R.DescriptionTerm><R.DescriptionDetails>v2.4.1</R.DescriptionDetails></R.DescriptionItem></R.DescriptionList>,
+    api(["columns", "1 | 2 | 3", "Responsive column count.", "1"], ["density", '"compact" | "default" | "relaxed"', "Space between entries.", '"default"'], ["DescriptionItem.orientation", '"stacked" | "inline"', "Term/value arrangement.", '"stacked"'], ["className", "string", "Composes list layout styles."]),
+    "Renders native dl, dt, and dd elements so term/value relationships remain available to assistive technology.",
+  ),
+  "components/rating": () => detail(
+    `<Rating label="Service rating" defaultValue={4} showValue onValueChange={setRating} />`,
+    <R.Rating label="Service rating" defaultValue={4} showValue />,
+    api(["label", "string", "Required accessible group label."], ["value / defaultValue", "number", "Controlled or initial rating."], ["onValueChange", "(value: number) => void", "Rating selection callback."], ["max", "number", "Number of rating choices.", "5"], ["readOnly", "boolean", "Prevents changes while preserving the value for reading.", "false"], ["size", '"sm" | "md" | "lg"', "Star size.", '"md"']),
+    "Uses a labeled native radio group. Every choice has a textual star count, supports standard radio-keyboard behavior, and exposes read-only state.",
+  ),
+  "components/blockquote": () => detail(
+    `<Blockquote
+  variant="accent"
+  cite="https://example.com/report"
+  source="2026 reliability report"
+  sourceHref="/reports/reliability"
+>
+  Reliable systems make failure visible.
+</Blockquote>`,
+    <R.Blockquote className="w-full max-w-lg" variant="accent" source="2026 reliability report">Reliable systems make failure visible, understandable, and recoverable.</R.Blockquote>,
+    api(["variant", '"default" | "accent" | "subtle"', "Visual treatment.", '"default"'], ["size", '"sm" | "md" | "lg"', "Quote typography and spacing.", '"md"'], ["cite", "string", "Native URL identifying the quotation source."], ["source", "ReactNode", "Visible source attribution."], ["sourceHref", "string", "Optional link for the visible attribution."]),
+    "Renders a semantic blockquote. The native cite attribute identifies the source in markup; source renders a visible attribution and can be linked.",
+  ),
+  "components/toggle": () => detail(
+    `<Toggle defaultPressed onPressedChange={setBold}>Bold</Toggle>`,
+    <div className="demo-row"><R.Toggle defaultPressed>Bold</R.Toggle><R.Toggle variant="outline">Italic</R.Toggle><R.Toggle disabled>Disabled</R.Toggle></div>,
+    api(["pressed / defaultPressed", "boolean", "Controlled or initial pressed state."], ["onPressedChange", "(pressed: boolean) => void", "Called when the user changes the pressed state."], ["variant", '"default" | "outline"', "Visual treatment.", '"default"'], ["size", '"sm" | "md" | "lg" | "icon"', "Control density.", '"md"']),
+    "Uses a native button with aria-pressed, visible focus treatment, and native disabled behavior.",
+  ),
+  "components/toggle-group": () => detail(
+    `<ToggleGroup type="multiple" defaultValue={["bold"]} aria-label="Formatting">
+  <ToggleGroupItem value="bold">Bold</ToggleGroupItem>
+  <ToggleGroupItem value="italic">Italic</ToggleGroupItem>
+  <ToggleGroupItem value="underline">Underline</ToggleGroupItem>
+</ToggleGroup>`,
+    <R.ToggleGroup type="multiple" defaultValue={["bold"]} variant="outline" aria-label="Formatting"><R.ToggleGroupItem value="bold">Bold</R.ToggleGroupItem><R.ToggleGroupItem value="italic">Italic</R.ToggleGroupItem><R.ToggleGroupItem value="underline">Underline</R.ToggleGroupItem></R.ToggleGroup>,
+    api(["type", '"single" | "multiple"', "Selection behavior.", '"single"'], ["value / defaultValue", "string | string[]", "Controlled or initial selected values."], ["onValueChange", "(value: string | string[]) => void", "Selection callback."], ["orientation", '"horizontal" | "vertical"', "Layout and arrow-key axis.", '"horizontal"'], ["loop", "boolean", "Wraps arrow-key focus at group boundaries.", "true"]),
+    "The group and native toggle buttons expose pressed states. Arrow keys move focus along the configured orientation; Home and End move to the boundaries.",
+  ),
+  "components/aspect-ratio": () => detail(
+    `<AspectRatio ratio={16 / 9} className="rounded-xl bg-surface-muted">
+  <img src="/dashboard.png" alt="Deployment dashboard" />
+</AspectRatio>`,
+    <R.AspectRatio ratio={16 / 9} className="w-full max-w-lg rounded-xl border border-border bg-surface-muted"><div className="flex h-full w-full items-center justify-center text-sm text-muted-foreground">16:9 application preview</div></R.AspectRatio>,
+    api(["ratio", "number", "Width divided by height.", "16 / 9"], ["className", "string", "Composes sizing, surface, and overflow styles."], ["style", "CSSProperties", "Native inline styles merged after the computed ratio."], ["children", "ReactNode", "Media or content constrained by the ratio."]),
+    "AspectRatio is a visual layout primitive. Give contained images meaningful alt text, or empty alt text when decorative.",
+  ),
+  "components/scroll-area": () => detail(
+    `<ScrollArea className="h-52" aria-label="Recent deployments">
+  {deployments.map(deployment => <DeploymentRow key={deployment.id} />)}
+</ScrollArea>`,
+    <R.ScrollArea className="h-52 w-full max-w-sm rounded-xl border border-border bg-surface p-2" aria-label="Recent deployments"><div className="demo-stack">{Array.from({ length: 8 }, (_, index) => <div className="flex items-center justify-between rounded-lg bg-surface-muted px-3 py-2 text-sm" key={index}><span>Deployment #{842 - index}</span><R.Badge variant={index < 2 ? "success" : "muted"} size="sm">{index < 2 ? "Ready" : "Archived"}</R.Badge></div>)}</div></R.ScrollArea>,
+    api(["orientation", '"vertical" | "horizontal" | "both"', "Allowed scroll axis.", '"vertical"'], ["hideScrollbar", "boolean", "Visually hides the native scrollbar while retaining scrolling.", "false"], ["keyboardNavigable", "boolean", "Adds the region to the tab order for keyboard scrolling.", "true"], ["className", "string", "Sets the region dimensions and composes visual styles."]),
+    "Keyboard navigation is enabled by default. Supply aria-label or aria-labelledby when the scroll area is a meaningful standalone region.",
+  ),
+  "components/divider": () => detail(
+    `<Divider label="OR" />
+<Divider orientation="vertical" aria-label="Section divider" />
+<Divider variant="dashed" spacing="lg" />`,
+    <div className="demo-stack w-full max-w-lg"><div className="rounded-xl border border-border bg-surface p-4"><p className="text-sm text-muted-foreground">Deployment pipeline</p><R.Divider label="Production gate" /><p className="text-sm text-muted-foreground">Release ready</p></div><div className="flex h-24 items-stretch gap-4 rounded-xl border border-border bg-surface p-4"><span className="text-sm">Build</span><R.Divider orientation="vertical" decorative={false} aria-label="Section divider" /><span className="text-sm">Deploy</span></div></div>,
+    api(["orientation", '"horizontal" | "vertical"', "Rule direction.", '"horizontal"'], ["variant", '"solid" | "dashed" | "dotted"', "Line style.", '"solid"'], ["spacing", '"none" | "sm" | "md" | "lg"', "Outer margin.", '"md"'], ["label", "ReactNode", "Optional centered label."], ["decorative", "boolean", "Hides the rule from assistive technology.", "true"]),
+    "Divider renders presentational rules by default. Set decorative={false} and provide an accessible name when the separation conveys meaning.",
+  ),
   "components/copy-button": () => detail(
     `<CopyButton value="sk_live_abc123" label="Copy API key" />`,
     <div className="demo-row"><code>sk_live_abc123</code><R.CopyButton value="sk_live_abc123" label="Copy API key" /></div>,

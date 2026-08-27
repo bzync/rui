@@ -28,6 +28,8 @@ import "@bzync/rui/styles.css" // once, near app root
 | `IconButton` / `InfoButton` | `label` (aria), icon |
 | `CopyButton` | `text`, `onCopy` |
 | `BillingIntervalToggle` | `value: monthly\|yearly`, `onChange` |
+| `ButtonGroup` | `orientation: horizontal\|vertical`, `aria-label`, wraps `Button` children, `role=group` |
+| `Toggle` / `ToggleGroup` / `ToggleGroupItem` | `pressed/defaultPressed`, `onPressedChange`, `variant: default\|outline`, `size: sm\|md\|lg\|icon`, `type: single\|multiple`, `orientation`, `loop`, `aria-pressed` |
 
 ## Forms
 
@@ -50,6 +52,9 @@ import "@bzync/rui/styles.css" // once, near app root
 | `FormField` | `label`, `htmlFor`, `required`, `hint`, `error` |
 | `Kbd` | children (keys) |
 | `Stepper` | steps, activeStep |
+| `TimePicker` | `label`, `value/defaultValue`, `onValueChange`, `format: 12\|24`, `minuteStep`, `showSeconds`, `min/max`, `side: top\|bottom`, `clearable`, `placeholder`, dialog + `listbox/option` time columns |
+| `Rating` | `label`, `value/defaultValue`, `onValueChange`, `max`, `size: sm\|md\|lg`, `readOnly`, `showLabel/showValue`, `radiogroup` + `radio` |
+| `ToggleGroup` | see Actions — `ToggleGroup` / `ToggleGroupItem` |
 
 ## Display
 
@@ -65,11 +70,19 @@ import "@bzync/rui/styles.css" // once, near app root
 | `Alert` | `title`, `variant`, `dismissable`, `onDismiss` |
 | `Tooltip` | `content`, trigger |
 | `Link` | `href`, `variant` |
-| `Code` / `InlineCode` / `CodeBlock` / `CodeEditor` | `code`, `filename`, `showLineNumbers`, `value/onChange` |
+| `Code` / `InlineCode` / `CodeBlock` / `CodeEditor` | `code`, `filename`, `showLineNumbers`, `value/onChange`, `InlineCode` is `forwardRef<HTMLElement>` + `break-words` |
+| `Heading` / `Text` / `Prose` / `Time` | `Heading: as h1..h6, size xs..2xl, tone, weight, balance`, `Text: variant body\|lead\|muted\|caption\|overline\|date\|time\|currency, size, weight, align, wrap, value/locale/timeZone/hour12/formatOptions/currency`, `Prose: as div\|article\|section, size, width`, `Time: value→<time datetime>`, tabular-nums |
 | `EmptyState` / `ErrorState` | `title`, `description`, `error`, actions |
 | `Skeleton` family | `Skeleton`, `SkeletonAvatar/Card/Table/Text/Topbar` |
 | `Spinner` | `size` |
 | `Progressbar` | `value`, `max` |
+| `AspectRatio` | `ratio: number`, `style`, `data-ratio`, `relative w-full overflow-hidden` |
+| `AvatarGroup` / `AvatarGroupOverflow` | `spacing: tight\|normal\|loose`, `count`, `size: xs\|sm\|md\|lg\|xl`, `role=group` + `aria-label` |
+| `Blockquote` | `variant: default\|accent\|subtle`, `size: sm\|md\|lg`, `cite`, `source/sourceHref`, footer link |
+| `Currency` | `value: number\|bigint`, `currency`, `locale`, `accounting`, `options: CurrencyFormatOptions`, `tone: auto\|default\|positive\|negative\|muted`, `size`, `fallback` |
+| `DescriptionList` / `DescriptionItem/Term/Details` | `columns: 1\|2\|3`, `density: compact\|default\|relaxed`, `orientation: stacked\|inline`, `dl/dt/dd` |
+| `Divider` | `orientation: horizontal\|vertical`, `variant: solid\|dashed\|dotted`, `spacing: none\|sm\|md\|lg`, `label`, `decorative`, `separator` / `presentation` |
+| `ScrollArea` | `orientation: vertical\|horizontal\|both`, `hideScrollbar`, `keyboardNavigable`, `data-orientation`, overscroll-contain |
 | `Separator` | `orientation` |
 | `List` / `ListItem` | items |
 | `Timeline` | items |

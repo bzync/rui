@@ -1,8 +1,8 @@
-import { render, screen } from "@testing-library/react"
+import { render, screen, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { useState } from "react"
 import { describe, expect, it, vi } from "vitest"
-import { Checkbox, Input, Radio, RadioGroup, Switch, Textarea } from "@/index"
+import { Checkbox, Input, Radio, RadioGroup, Rating, Switch, Textarea, TimePicker } from "@/index"
 
 describe("form controls", () => {
   it("toggles an uncontrolled checkbox and emits the native change", async () => {
@@ -61,5 +61,68 @@ describe("form controls", () => {
     const checkbox = screen.getByRole("checkbox", { name: "Select all rows" }) as HTMLInputElement
     expect(checkbox.indeterminate).toBe(true)
     expect(checkbox).toHaveAttribute("aria-checked", "mixed")
+  })
+
+  it("selects a rating with native radio semantics", async () => {
+    const user = userEvent.setup()
+    const changed = vi.fn()
+    function Example() {
+      const [value, setValue] = useState(2)
+      return <Rating label="Service rating" value={value} onValueChange={(next) => { changed(next); setValue(next) }} showValue />
+    }
+    render(<Example />)
+
+    const group = screen.getByRole("radiogroup", { name: "Service rating" })
+    expect(group).toBeInTheDocument()
+    expect(screen.getByRole("radio", { name: "2 stars" })).toBeChecked()
+    await user.click(screen.getByRole("radio", { name: "4 stars" }))
+    expect(screen.getByRole("radio", { name: "4 stars" })).toBeChecked()
+    expect(screen.getByText("4/5")).toBeInTheDocument()
+    expect(changed).toHaveBeenCalledWith(4)
+  })
+
+  it("prevents changes to a read-only rating", async () => {
+    const user = userEvent.setup()
+    const changed = vi.fn()
+    render(<Rating label="Readonly rating" defaultValue={3} readOnly onValueChange={changed} />)
+
+    await user.click(screen.getByRole("radio", { name: "5 stars" }))
+    expect(screen.getByRole("radio", { name: "3 stars" })).toBeChecked()
+    expect(screen.getByRole("radiogroup", { name: "Readonly rating" })).toHaveAttribute("aria-readonly", "true")
+    expect(changed).not.toHaveBeenCalled()
+  })
+
+  it("selects custom time values and associates field errors", async () => {
+    const user = userEvent.setup()
+    const changed = vi.fn()
+    function Example() {
+      const [value, setValue] = useState("09:30")
+      return <TimePicker label="Start time" name="startTime" value={value} onValueChange={(next) => { changed(next); setValue(next) }} minuteStep={15} error="Choose a business hour" required />
+    }
+    render(<Example />)
+
+    const trigger = screen.getByRole("button", { name: /Start time/ })
+    expect(trigger).toHaveAccessibleDescription("Choose a business hour")
+    expect(trigger).toHaveAttribute("aria-invalid", "true")
+    await user.click(trigger)
+    const dialog = screen.getByRole("dialog", { name: "Choose start time" })
+    await user.click(within(within(dialog).getByRole("listbox", { name: "Hour" })).getByRole("option", { name: "11" }))
+    await user.click(within(within(dialog).getByRole("listbox", { name: "Minute" })).getByRole("option", { name: "45" }))
+    await user.click(within(dialog).getByRole("button", { name: "Apply" }))
+    expect(trigger).toHaveTextContent("11:45 AM")
+    expect(changed).toHaveBeenCalledWith("11:45")
+    expect(document.querySelector('input[name="startTime"]')).toHaveValue("11:45")
+    expect(trigger).toHaveFocus()
+  })
+
+  it("dismisses the custom time picker with Escape and restores focus", async () => {
+    const user = userEvent.setup()
+    render(<TimePicker label="End time" defaultValue="17:00" format="24" />)
+    const trigger = screen.getByRole("button", { name: "End time" })
+    await user.click(trigger)
+    expect(screen.getByRole("dialog", { name: "Choose end time" })).toBeInTheDocument()
+    await user.keyboard("{Escape}")
+    expect(screen.queryByRole("dialog", { name: "Choose end time" })).not.toBeInTheDocument()
+    expect(trigger).toHaveFocus()
   })
 })
