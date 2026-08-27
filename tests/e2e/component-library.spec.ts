@@ -1,4 +1,32 @@
-import { expect, test } from "@playwright/test"
+import { expect, test, type Locator } from "@playwright/test"
+
+async function expectCopyControlInline(button: Locator) {
+  const layout = await button.evaluate((element) => {
+    const icon = element.querySelector("svg")?.getBoundingClientRect()
+    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT)
+    let textNode: Node | null = null
+    while (walker.nextNode()) {
+      if (walker.currentNode.textContent?.trim()) {
+        textNode = walker.currentNode
+        break
+      }
+    }
+    if (!icon || !textNode) return null
+    const textRange = document.createRange()
+    textRange.selectNodeContents(textNode)
+    const label = textRange.getBoundingClientRect()
+    return {
+      iconRight: icon.right,
+      iconCenterY: icon.top + icon.height / 2,
+      labelLeft: label.left,
+      labelCenterY: label.top + label.height / 2,
+    }
+  })
+
+  expect(layout).not.toBeNull()
+  expect(layout!.labelLeft).toBeGreaterThanOrEqual(layout!.iconRight)
+  expect(Math.abs(layout!.labelCenterY - layout!.iconCenterY)).toBeLessThan(3)
+}
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/#/docs/introduction")
@@ -152,8 +180,17 @@ test("search supports arrow-key result selection", async ({ page }) => {
 
 test("copy interaction provides visible feedback", async ({ page }) => {
   const copy = page.getByRole("button", { name: "Copy command" }).first()
+  await expectCopyControlInline(copy)
   await copy.click()
-  await expect(page.getByRole("button", { name: "Copied command" }).first()).toContainText("Copied")
+  const copied = page.getByRole("button", { name: "Copied command" }).first()
+  await expect(copied).toContainText("Copied")
+  await expectCopyControlInline(copied)
+
+  await page.goto("/#/components/code-block")
+  await expectCopyControlInline(page.getByRole("button", { name: "Copy code" }).first())
+
+  await page.goto("/#/components/copy-button")
+  await expectCopyControlInline(page.getByRole("button", { name: "Copy API key" }))
 })
 
 test("light, dark, and system preferences are selectable and persistent", async ({ page }) => {

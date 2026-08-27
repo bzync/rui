@@ -159,8 +159,14 @@ export function CopyCommand({ children }: { children: string }) {
   return (
     <div className="copy-command">
       <code>{children}</code>
-      <Button variant="ghost" size="sm" onClick={copy} aria-label={copied ? "Copied command" : "Copy command"}>
-        {copied ? <Check size={14} aria-hidden="true" /> : <Copy size={14} aria-hidden="true" />}
+      <Button
+        variant="ghost"
+        size="sm"
+        className="shrink-0"
+        icon={copied ? <Check size={14} aria-hidden="true" /> : <Copy size={14} aria-hidden="true" />}
+        onClick={copy}
+        aria-label={copied ? "Copied command" : "Copy command"}
+      >
         {copied ? "Copied" : "Copy"}
       </Button>
     </div>

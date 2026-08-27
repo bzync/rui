@@ -46,7 +46,7 @@ export function CopyButton({ value, timeout = 2000, label, size = "sm", classNam
       type="button"
       onClick={copy}
       className={cn(
-        "inline-flex items-center font-medium transition-colors select-none",
+        "inline-flex shrink-0 items-center justify-center whitespace-nowrap font-medium transition-colors select-none",
         "border border-black/10 dark:border-white/10",
         copied
           ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
@@ -58,12 +58,12 @@ export function CopyButton({ value, timeout = 2000, label, size = "sm", classNam
     >
       <AnimatePresence mode="wait" initial={false}>
         {copied ? (
-          <motion.span key="check" initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }} transition={{ duration: 0.1 }} className="flex items-center gap-1">
+          <motion.span key="check" initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }} transition={{ duration: 0.1 }} className="inline-flex items-center gap-1 whitespace-nowrap">
             <CheckIcon />
             {label && "Copied"}
           </motion.span>
         ) : (
-          <motion.span key="copy" initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }} transition={{ duration: 0.1 }} className="flex items-center gap-1">
+          <motion.span key="copy" initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }} transition={{ duration: 0.1 }} className="inline-flex items-center gap-1 whitespace-nowrap">
             <CopyIcon />
             {label && label}
           </motion.span>
