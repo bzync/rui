@@ -6,7 +6,7 @@ export interface RuiBrandMarkProps {
 export function RuiBrandMark({ className, size = 28 }: RuiBrandMarkProps) {
   return (
     <img
-      src="/rui-icon-192.png"
+      src={`${import.meta.env.BASE_URL}rui-icon-192.png`}
       alt=""
       aria-hidden="true"
       className={className}

@@ -1,4 +1,4 @@
-const CACHE_NAME = "rui-docs-v1"
+const CACHE_NAME = "rui-docs-v2"
 const APP_SHELL = [
   "./",
   "./manifest.webmanifest",
