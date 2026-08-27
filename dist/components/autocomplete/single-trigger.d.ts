@@ -1,0 +1,21 @@
+import { InputHTMLAttributes, KeyboardEvent, ReactNode } from 'react';
+export declare function SingleTrigger({ inputRef, inputId, listId, open, activeIdx, inputText, prefix, placeholder, disabled, error, loading, showClear, onInputChange, onFocus, onKeyDown, onClear, messageId, inputProps, }: {
+    inputRef: React.Ref<HTMLInputElement>;
+    inputId: string;
+    listId: string;
+    open: boolean;
+    activeIdx: number;
+    inputText: string;
+    prefix?: ReactNode;
+    placeholder?: string;
+    disabled?: boolean;
+    error?: string;
+    loading: boolean;
+    showClear: boolean;
+    onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    onFocus: () => void;
+    onKeyDown: (e: KeyboardEvent<HTMLInputElement>) => void;
+    onClear: () => void;
+    messageId?: string;
+    inputProps?: Omit<InputHTMLAttributes<HTMLInputElement>, "id" | "value" | "onChange" | "onFocus" | "onKeyDown" | "disabled" | "prefix">;
+}): import("react").JSX.Element;

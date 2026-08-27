@@ -1,0 +1,1 @@
+let e=require("react");function t(t){let n=(0,e.useRef)(t);return(0,e.useLayoutEffect)(()=>{n.current=t}),(0,e.useCallback)(((...e)=>n.current(...e)),[])}Object.defineProperty(exports,"t",{enumerable:!0,get:function(){return t}});

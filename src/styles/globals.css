@@ -1,0 +1,301 @@
+/* Only generate utilities used by the library source. Automatic source detection
+   also sees the demo and generated dist files when consumers build from a packed
+   workspace, which makes the published stylesheet needlessly large. */
+@import "tailwindcss" source(none);
+@source "../components";
+@source "../lib";
+
+/* class-based dark mode for Tailwind v4 */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Named utility instead of an inline pb-[env(safe-area-inset-bottom,0px)]
+   arbitrary value — that exact bracket+comma form corrupts the generated
+   stylesheet under Turbopack's CSS pipeline (garbles into stray control
+   characters a few thousand lines into the build output). Same rule,
+   sidesteps the parser bug. */
+@utility pb-safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+@theme {
+  /* ── Brand navy palette ── */
+  --color-navy-950: #040912;
+  --color-navy-900: #060c1a;
+  --color-navy-800: #0a1427;
+  --color-navy-700: #0e1e3a;
+  --color-navy-600: #142850;
+
+  /* Semantic aliases. Components should use these rather than coupling their
+     public appearance to Tailwind's blue/red palette names. */
+  --color-accent-50: var(--color-blue-50);
+  --color-accent-100: var(--color-blue-100);
+  --color-accent-200: var(--color-blue-200);
+  --color-accent-300: var(--color-blue-300);
+  --color-accent-400: var(--color-blue-400);
+  --color-accent-500: var(--color-blue-500);
+  --color-accent-600: var(--color-blue-600);
+  --color-accent-700: var(--color-blue-700);
+  --color-accent-800: var(--color-blue-800);
+  --color-accent-900: var(--color-blue-900);
+  --color-accent-950: var(--color-blue-950);
+  /* Semantic application colors. These are intentionally complete enough that
+     components do not need to know which neutral or status palette is active. */
+  --color-foreground: #18202d;
+  --color-surface-raised: #ffffff;
+  --color-surface-muted: #f2f4f7;
+  --color-border: #d9dee7;
+  --color-border-strong: #b8c1ce;
+  --color-muted: #eef1f5;
+  --color-muted-foreground: #667085;
+  --color-primary: var(--color-accent-600);
+  --color-primary-hover: var(--color-accent-700);
+  --color-primary-foreground: #ffffff;
+  --color-destructive: var(--color-red-600);
+  --color-destructive-hover: var(--color-red-700);
+  --color-destructive-foreground: #ffffff;
+  --color-success: var(--color-emerald-600);
+  --color-warning: var(--color-amber-600);
+  --color-info: var(--color-sky-600);
+  --color-overlay: rgb(2 6 23 / 0.52);
+  --color-danger: var(--color-destructive);
+  --color-danger-50: var(--color-red-50);
+  --color-danger-100: var(--color-red-100);
+  --color-danger-500: var(--color-red-500);
+  --color-danger-600: var(--color-red-600);
+  --color-focus-ring: var(--color-accent-500);
+
+  /* ── Radius scale — consumer overridable via ThemeProvider tokens ── */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 12px;
+  --radius-2xl: 14px;
+
+  /* ── Semantic surface tokens (light values; overridden under .dark below) ── */
+  --color-bg: #f8fafc;
+  --color-surface: #ffffff;
+
+  /* ── Typography ── */
+  --font-sans: "Inter Variable", Inter, "SF Pro Text", "Segoe UI Variable Text", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono Variable", "Cascadia Code", "SFMono-Regular", Consolas, ui-monospace, monospace;
+  --font-display: "Manrope Variable", "Inter Variable", Inter, ui-sans-serif, system-ui, sans-serif;
+
+  /* ── Shadow scale ── */
+  --shadow-xs:   0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-sm:   0 1px 3px 0 rgba(0, 0, 0, 0.08), 0 1px 2px -1px rgba(0, 0, 0, 0.06);
+  --shadow-md:   0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+  --shadow-lg:   0 10px 20px -4px rgba(0, 0, 0, 0.10), 0 4px 8px -4px rgba(0, 0, 0, 0.06);
+  --shadow-xl:   0 20px 40px -8px rgba(0, 0, 0, 0.14), 0 8px 16px -8px rgba(0, 0, 0, 0.08);
+  --shadow-2xl:  0 30px 60px -12px rgba(0, 0, 0, 0.22);
+  --shadow-raised: 0 1px 2px rgba(15, 23, 42, 0.05), 0 6px 18px -14px rgba(15, 23, 42, 0.24);
+  --shadow-floating: 0 12px 30px -14px rgba(15, 23, 42, 0.28), 0 3px 8px -4px rgba(15, 23, 42, 0.12);
+  --shadow-overlay: 0 24px 60px -24px rgba(15, 23, 42, 0.42), 0 8px 20px -12px rgba(15, 23, 42, 0.20);
+}
+
+.dark {
+  --color-bg: #090d14;
+  --color-foreground: #f3f5f7;
+  --color-surface: #111720;
+  --color-surface-raised: #161e29;
+  --color-surface-muted: #1a2330;
+  --color-border: #2b3543;
+  --color-border-strong: #414d5d;
+  --color-muted: #1c2532;
+  --color-muted-foreground: #9ba7b6;
+  --color-overlay: rgb(0 0 0 / 0.66);
+  --shadow-raised: 0 1px 1px rgb(0 0 0 / 0.28), 0 8px 20px -16px rgb(0 0 0 / 0.75);
+  --shadow-floating: 0 16px 36px -14px rgb(0 0 0 / 0.72), 0 4px 10px -5px rgb(0 0 0 / 0.60);
+  --shadow-overlay: 0 28px 72px -24px rgb(0 0 0 / 0.86), 0 10px 24px -12px rgb(0 0 0 / 0.70);
+}
+
+/* ─── Base ────────────────────────────────────────────────────────────────── */
+
+:where(.rui-theme, .rtui-theme) {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  letter-spacing: 0;
+  color: var(--color-foreground);
+  background-color: var(--color-bg);
+}
+
+:where(.rui-theme, .rtui-theme).dark {
+  color: var(--color-foreground);
+}
+
+:where(.rui-theme, .rtui-theme) code:not([class]),
+:where(.rui-theme, .rtui-theme) samp {
+  font-family: var(--font-mono, ui-monospace);
+  font-size: 0.875em;
+}
+
+:where(.rui-theme, .rtui-theme) pre,
+:where(.rui-theme, .rtui-theme) .font-mono {
+  font-family: var(--font-mono, ui-monospace);
+}
+
+:where(.rui-theme, .rtui-theme) kbd {
+  font-family: var(--font-mono, ui-monospace);
+  font-size: 0.8125em;
+}
+
+:where(.rui-theme, .rtui-theme) :where(h1, h2, h3, h4, h5, h6) {
+  font-family: var(--rui-heading-family, var(--rtui-heading-family, var(--font-display)));
+  letter-spacing: 0;
+}
+
+:where(.rui-theme, .rtui-theme) :where(button, input, textarea, select) {
+  font: inherit;
+  letter-spacing: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(.rui-theme, .rtui-theme) *,
+  :where(.rui-theme, .rtui-theme) *::before,
+  :where(.rui-theme, .rtui-theme) *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ─── Portal UI Tokens ───────────────────────────────────────────────────── */
+
+.portal-shell {
+  background: var(--color-bg);
+}
+
+.dark .portal-shell {
+  background: var(--color-bg);
+}
+
+.portal-surface {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-raised);
+}
+
+.dark .portal-surface {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-raised);
+}
+
+.portal-panel {
+  background: var(--color-surface-raised);
+  border-color: var(--color-border);
+}
+
+.dark .portal-panel {
+  background: var(--color-surface-raised);
+  border-color: var(--color-border);
+}
+
+.portal-topbar {
+  background: color-mix(in srgb, var(--color-bg) 92%, transparent);
+  border-color: var(--color-border);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--color-border) 72%, transparent);
+}
+
+.dark .portal-topbar {
+  background: color-mix(in srgb, var(--color-bg) 92%, transparent);
+  border-color: var(--color-border);
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--color-border) 72%, transparent);
+}
+
+/* ─── Selection ───────────────────────────────────────────────────────────── */
+
+:where(.rui-theme, .rtui-theme) ::selection {
+  background: rgba(59, 130, 246, 0.22);
+}
+
+:where(.rui-theme, .rtui-theme).dark ::selection {
+  background: rgba(96, 165, 250, 0.28);
+}
+
+/* ─── Scrollbars ──────────────────────────────────────────────────────────── */
+
+:where(.rui-theme, .rtui-theme) * {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.14) transparent;
+}
+
+:where(.rui-theme, .rtui-theme).dark * {
+  scrollbar-color: rgba(255, 255, 255, 0.13) transparent;
+}
+
+:where(.rui-theme, .rtui-theme) ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+:where(.rui-theme, .rtui-theme) ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+:where(.rui-theme, .rtui-theme) ::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.14);
+  border: 1px solid transparent;
+  background-clip: padding-box;
+  border-radius: 99px;
+  transition: background-color 0.15s ease;
+}
+
+:where(.rui-theme, .rtui-theme).dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.13);
+  background-clip: padding-box;
+}
+
+:where(.rui-theme, .rtui-theme) ::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.26);
+  background-clip: padding-box;
+}
+
+:where(.rui-theme, .rtui-theme).dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.22);
+  background-clip: padding-box;
+}
+
+:where(.rui-theme, .rtui-theme) ::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* ─── Utilities ───────────────────────────────────────────────────────────── */
+
+.scrollbar-none {
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Focus ring utility ── */
+:where(.rui-theme, .rtui-theme) .focus-ring {
+  outline: none;
+}
+:where(.rui-theme, .rtui-theme) .focus-ring:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-focus-ring) 72%, transparent);
+  outline-offset: 2px;
+}
+
+/* ── Date/time input picker icon (invisible in dark mode by default — WebKit
+   renders it black regardless of surrounding text color) ── */
+:where(.rui-theme, .rtui-theme).dark input[type="date"]::-webkit-calendar-picker-indicator,
+:where(.rui-theme, .rtui-theme).dark input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+:where(.rui-theme, .rtui-theme).dark input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  opacity: 0.7;
+}
+:where(.rui-theme, .rtui-theme).dark input[type="date"]::-webkit-calendar-picker-indicator:hover,
+:where(.rui-theme, .rtui-theme).dark input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover,
+:where(.rui-theme, .rtui-theme).dark input[type="time"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+/* ── Muted surface (tables, code blocks, subtle fills) ── */
+:where(.rui-theme, .rtui-theme) .surface-muted {
+  background: var(--color-surface-muted);
+}

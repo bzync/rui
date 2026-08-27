@@ -1,0 +1,1 @@
+"use client";Object.defineProperty(exports,Symbol.toStringTag,{value:`Module`});const e=require("../datatable-BB3v__r5.cjs");exports.DataTable=e.t;

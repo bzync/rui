@@ -1,0 +1,1 @@
+Object.defineProperty(exports,Symbol.toStringTag,{value:`Module`});const e=require("../terminal-CpraMs50.cjs");exports.TerminalBlock=e.n,exports.TerminalEmulator=e.t;

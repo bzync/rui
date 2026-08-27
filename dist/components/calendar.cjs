@@ -1,0 +1,1 @@
+"use client";Object.defineProperty(exports,Symbol.toStringTag,{value:`Module`});const e=require("../calendar-Bnld4G59.cjs");exports.Calendar=e.t;

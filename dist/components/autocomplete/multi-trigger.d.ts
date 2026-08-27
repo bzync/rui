@@ -1,0 +1,25 @@
+import { InputHTMLAttributes, KeyboardEvent, ReactNode } from 'react';
+import { AutocompleteOption } from './types';
+export declare function MultiTrigger<V>({ inputRef, inputId, listId, open, activeIdx, inputText, prefix, placeholder, disabled, error, loading, showClear, selected, onContainerClick, onInputChange, onFocus, onKeyDown, onRemove, onClearAll, messageId, inputProps, }: {
+    inputRef: (node: HTMLInputElement | null) => void;
+    inputId: string;
+    listId: string;
+    open: boolean;
+    activeIdx: number;
+    inputText: string;
+    prefix?: ReactNode;
+    placeholder?: string;
+    disabled?: boolean;
+    error?: string;
+    loading: boolean;
+    showClear: boolean;
+    selected: AutocompleteOption<V>[];
+    onContainerClick: () => void;
+    onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    onFocus: () => void;
+    onKeyDown: (e: KeyboardEvent<HTMLInputElement>) => void;
+    onRemove: (opt: AutocompleteOption<V>) => void;
+    onClearAll: () => void;
+    messageId?: string;
+    inputProps?: Omit<InputHTMLAttributes<HTMLInputElement>, "id" | "value" | "onChange" | "onFocus" | "onKeyDown" | "disabled" | "prefix">;
+}): import("react").JSX.Element;

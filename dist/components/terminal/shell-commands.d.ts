@@ -1,0 +1,16 @@
+import { CmdResult, ShellState } from './types';
+export declare function parseArgs(input: string): string[];
+export declare function expandEnv(s: ShellState, str: string): string;
+export declare function err(msg: string): CmdResult;
+export declare function out(...lines: string[]): CmdResult;
+export declare function cmdLs(s: ShellState, args: string[]): CmdResult;
+export declare function cmdCd(s: ShellState, args: string[]): CmdResult;
+export declare function cmdCat(s: ShellState, args: string[]): CmdResult;
+export declare function cmdMkdir(s: ShellState, args: string[]): CmdResult;
+export declare function cmdTouch(s: ShellState, args: string[]): CmdResult;
+export declare function cmdRm(s: ShellState, args: string[]): CmdResult;
+export declare function cmdCpMv(s: ShellState, args: string[], move: boolean): CmdResult;
+export declare function cmdGrep(s: ShellState, args: string[]): CmdResult;
+export declare function cmdFind(s: ShellState, args: string[]): CmdResult;
+export declare function cmdWc(s: ShellState, args: string[]): CmdResult;
+export declare function cmdHeadTail(s: ShellState, args: string[], tail: boolean): CmdResult;
