@@ -1,0 +1,60 @@
+name: Bug report
+description: Report a reproducible problem with @bzync/rui
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for helping improve @bzync/rui. Do not report security vulnerabilities here.
+  - type: input
+    id: version
+    attributes:
+      label: Package version
+      description: The exact @bzync/rui version where the problem occurs.
+      placeholder: 0.0.2
+    validations:
+      required: true
+  - type: dropdown
+    id: react-version
+    attributes:
+      label: React version
+      options:
+        - React 19
+        - React 18.2
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Provide a minimal repository, sandbox, or exact steps that reproduce the problem.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Include browser, operating system, bundler, and relevant configuration.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Pre-submission checks
+      options:
+        - label: I searched existing issues for duplicates.
+          required: true
+        - label: This report does not contain private vulnerability details.
+          required: true

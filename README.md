@@ -65,17 +65,25 @@ import { Button } from "@bzync/rui/button"
 
 The root export remains available for convenience. React 18.2 and React 19 are supported.
 
+## Documentation
+
+The component documentation and live demos are published to
+[bzync.github.io/rui](https://bzync.github.io/rui/). A push to `main` deploys
+the latest documentation through GitHub Pages; maintainers can also run the
+**Deploy documentation** workflow manually from the Actions tab.
+
 ## Releasing to npm
 
 Add an npm publishing token to the GitHub repository as an Actions secret named
 `NPM_TOKEN`. The release workflow runs when a `v*` tag is pushed and requires the
 tag to match the version in `package.json` exactly.
 
-To publish the current `0.0.1` version:
+To publish the version currently declared in `package.json`:
 
 ```sh
-git tag -a v0.0.1 -m "Release v0.0.1"
-git push origin v0.0.1
+VERSION="$(node --print "require('./package.json').version")"
+git tag -a "v${VERSION}" -m "Release v${VERSION}"
+git push origin "v${VERSION}"
 ```
 
 For later patch releases, commit all pending changes and run:
@@ -88,4 +96,20 @@ git push origin HEAD --follow-tags
 `npm version patch` updates `package.json` and `package-lock.json`, creates a
 release commit, and creates the matching version tag. Use `minor` or `major`
 instead of `patch` when appropriate. Before publishing, GitHub Actions runs the
-complete release check and generates npm provenance for the package.
+complete release check. It also generates npm provenance when the source
+repository is public; npm does not support provenance from private GitHub
+repositories.
+
+### Retrying a failed release
+
+Do not move or reuse an existing version tag after its workflow fails. Commit
+the fixes, create the next patch version, and push its new tag:
+
+```sh
+git add .
+git commit -m "Fix npm release workflow"
+npm version patch
+git push origin HEAD --follow-tags
+```
+
+For example, because `v0.0.2` failed, this creates and publishes `v0.0.3`.

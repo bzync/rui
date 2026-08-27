@@ -54,6 +54,13 @@ jobs:
       # package.json's prepublishOnly script runs the complete release:check
       # before npm uploads the package.
       - name: Publish package
-        run: npm publish --access public --provenance
+        shell: bash
+        run: |
+          if [[ "${REPOSITORY_VISIBILITY}" == "public" ]]; then
+            npm publish --access public --provenance
+          else
+            npm publish --access public
+          fi
         env:
+          REPOSITORY_VISIBILITY: ${{ github.event.repository.visibility }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
