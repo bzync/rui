@@ -42,8 +42,11 @@ jobs:
             exit 1
           fi
 
-      - name: Install dependencies
+      - name: Install library dependencies
         run: npm ci
+
+      - name: Install demo dependencies
+        run: npm --prefix demo ci
 
       - name: Install Playwright browser
         run: npx playwright install --with-deps chromium

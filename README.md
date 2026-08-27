@@ -64,3 +64,28 @@ import { Button } from "@bzync/rui/button"
 ```
 
 The root export remains available for convenience. React 18.2 and React 19 are supported.
+
+## Releasing to npm
+
+Add an npm publishing token to the GitHub repository as an Actions secret named
+`NPM_TOKEN`. The release workflow runs when a `v*` tag is pushed and requires the
+tag to match the version in `package.json` exactly.
+
+To publish the current `0.0.1` version:
+
+```sh
+git tag -a v0.0.1 -m "Release v0.0.1"
+git push origin v0.0.1
+```
+
+For later patch releases, commit all pending changes and run:
+
+```sh
+npm version patch
+git push origin HEAD --follow-tags
+```
+
+`npm version patch` updates `package.json` and `package-lock.json`, creates a
+release commit, and creates the matching version tag. Use `minor` or `major`
+instead of `patch` when appropriate. Before publishing, GitHub Actions runs the
+complete release check and generates npm provenance for the package.
