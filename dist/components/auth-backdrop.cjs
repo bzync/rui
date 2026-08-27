@@ -1,1 +1,0 @@
-Object.defineProperty(exports,Symbol.toStringTag,{value:`Module`});let e=require("react/jsx-runtime");function t(){return(0,e.jsx)(`div`,{"aria-hidden":`true`,className:`pointer-events-none fixed inset-0 -z-10 bg-accent-500/[0.03] dark:bg-blue-400/[0.04]`})}exports.AuthBackdrop=t;
