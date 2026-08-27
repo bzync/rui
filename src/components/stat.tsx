@@ -20,7 +20,7 @@ export interface StatProps extends HTMLAttributes<HTMLDivElement> {
 
 const trendStyles: Record<Trend, { color: string; icon: ReactNode }> = {
   up: {
-    color: "text-emerald-400",
+    color: "text-emerald-700 dark:text-emerald-400",
     icon: (
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
         <path d="m18 15-6-6-6 6" />
@@ -28,7 +28,7 @@ const trendStyles: Record<Trend, { color: string; icon: ReactNode }> = {
     ),
   },
   down: {
-    color: "text-red-400",
+    color: "text-red-700 dark:text-red-400",
     icon: (
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
         <path d="m6 9 6 6 6-6" />
@@ -36,7 +36,7 @@ const trendStyles: Record<Trend, { color: string; icon: ReactNode }> = {
     ),
   },
   neutral: {
-    color: "text-slate-500",
+    color: "text-muted-foreground",
     icon: (
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
         <path d="M5 12h14" />
@@ -49,27 +49,27 @@ export function Stat({ label, value, unit, valueClassName, trend, trendValue, ic
   return (
     <div
       className={cn(
-        "flex flex-col gap-1 rounded-xl border border-black/[0.08] dark:border-white/[0.08] bg-white dark:bg-navy-900 p-4 shadow-sm shadow-black/[0.04] dark:shadow-none",
+        "flex flex-col gap-1 rounded-[var(--radius-xl)] border border-border bg-surface p-4 shadow-xs",
         className,
       )}
       {...props}
     >
       <div className="flex items-start justify-between gap-2">
-        <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-[0.07em]">{label}</p>
+        <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.06em]">{label}</p>
         <span className="flex items-center gap-1.5 shrink-0">
           {action}
           {icon && (
-            <span className="text-slate-400 dark:text-slate-500">
+            <span className="text-muted-foreground">
               {icon}
             </span>
           )}
         </span>
       </div>
       <div className="flex items-baseline gap-1.5 mt-1.5">
-        <span className={cn("text-[26px] font-semibold tabular-nums text-slate-900 dark:text-white leading-none tracking-tight", valueClassName)}>
+        <span className={cn("text-[26px] font-semibold tabular-nums text-foreground leading-none tracking-tight", valueClassName)}>
           {value}
         </span>
-        {unit && <span className="text-sm text-slate-500">{unit}</span>}
+        {unit && <span className="text-sm text-muted-foreground">{unit}</span>}
       </div>
       {(trend || description) && (
         <div className="flex items-center gap-1.5 mt-1">

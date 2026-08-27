@@ -11,7 +11,7 @@ export interface CardProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 export const cardVariants: Record<CardVariant, string> = {
-  default: "rounded-[var(--radius-xl)] border border-border bg-surface shadow-raised",
+  default: "rounded-[var(--radius-xl)] border border-border bg-surface shadow-xs",
   elevated: "rounded-[var(--radius-xl)] border border-border bg-surface-raised shadow-floating",
   bordered: "rounded-[var(--radius-xl)] border border-border bg-transparent",
   glass: "portal-panel rounded-[var(--radius-xl)] border",
@@ -50,7 +50,7 @@ export function CardHeader({
   return (
     <div
       className={cn(
-        "px-4 py-3 sm:px-5 sm:py-4",
+        "px-4 py-3 sm:px-5 sm:py-3.5",
         "border-b border-border",
         className,
       )}
@@ -101,7 +101,7 @@ export function CardBody({
   ...props
 }: HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={cn("px-4 py-3 sm:px-5 sm:py-4", className)} {...props}>
+    <div className={cn("px-4 py-3.5 sm:px-5 sm:py-4", className)} {...props}>
       {children}
     </div>
   )

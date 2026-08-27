@@ -24,6 +24,7 @@ import {
   Sun,
 } from "lucide-react"
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react"
+import { RuiBrandMark } from "./_shared/brand"
 import { allPages, docsGroups, getPage, hrefFor, orderedPages, readHash, type DocsPage } from "./docs/catalog"
 
 const DocsPageContent = lazy(() => import("./docs/pages").then(module => ({ default: module.DocsPageContent })))
@@ -325,8 +326,8 @@ function DocsShell() {
           <div className="docs-header-inner">
             <div className="docs-header-left">
               <Button variant="ghost" size="icon" className="docs-mobile-menu" onClick={() => setMobileOpen(true)} aria-label="Open documentation navigation"><Menu size={18} /></Button>
-              <a className="docs-brand" href={hrefFor("docs/introduction")} aria-label="@bzync/rui documentation home"><span aria-hidden="true">b</span><strong>@bzync/rui</strong></a>
-              <Badge variant="muted" size="sm" className="docs-version">v0.0.1</Badge>
+              <a className="docs-brand" href={hrefFor("docs/introduction")} aria-label="@bzync/rui documentation home"><RuiBrandMark size={26} /><strong>@bzync/rui</strong></a>
+              <Badge variant="muted" size="sm" className="docs-version">v0.0.3</Badge>
               <nav className="docs-primary-nav" aria-label="Primary">
                 <a href={hrefFor("docs/introduction")} aria-current={primaryArea === "docs" ? "page" : undefined}>Docs</a>
                 <a href={hrefFor("components")} aria-current={primaryArea === "components" ? "page" : undefined}>Components</a>
@@ -361,12 +362,18 @@ function DocsShell() {
             </article>
             <PagePager page={page} />
             <footer className="docs-footer">
-              <span>Built with @bzync/rui</span>
-              <nav aria-label="Footer">
-                <a href={hrefFor("foundations/accessibility")}>Accessibility</a>
-                <a href={hrefFor("resources/contributing")}>Contributing</a>
-                <a href={repoUrl} target="_blank" rel="noreferrer">GitHub</a>
-              </nav>
+              <div className="docs-footer-meta">
+                <span className="docs-footer-brand"><RuiBrandMark size={16} />Built with @bzync/rui</span>
+                <span>Not accepting collaboration requests at this time.</span>
+              </div>
+              <div className="docs-footer-links">
+                <a className="docs-support-link" href="https://buymeacoffee.com/adminjw" target="_blank" rel="noreferrer">Support development</a>
+                <nav aria-label="Footer">
+                  <a href={hrefFor("foundations/accessibility")}>Accessibility</a>
+                  <a href={hrefFor("resources/contributing")}>Contributing</a>
+                  <a href={repoUrl} target="_blank" rel="noreferrer">GitHub</a>
+                </nav>
+              </div>
             </footer>
           </main>
           <OnThisPage sections={sections} activeSection={sections.includes(activeSection) ? activeSection : (sections[0] ?? "")} />

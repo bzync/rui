@@ -118,7 +118,7 @@ export function DataTable<T extends { id: string | number }>({
           <thead className="border-b border-border bg-surface-muted">
             <tr>
               {columns.map((col) => (
-                <th key={col.key} scope="col" aria-sort={sortKey === col.key ? (sortDir === "asc" ? "ascending" : sortDir === "desc" ? "descending" : "none") : undefined} style={{ width: col.width }} className={cn("px-4 py-2.5 text-xs font-medium text-muted-foreground group-data-[density=compact]/table:px-3 group-data-[density=compact]/table:py-2", alignClass[col.align ?? "left"])}>
+                <th key={col.key} scope="col" aria-sort={sortKey === col.key ? (sortDir === "asc" ? "ascending" : sortDir === "desc" ? "descending" : "none") : undefined} style={{ width: col.width }} className={cn("px-4 py-2.5 text-[11px] font-semibold text-muted-foreground group-data-[density=compact]/table:px-3 group-data-[density=compact]/table:py-2", alignClass[col.align ?? "left"])}>
                   {col.sortable ? <button type="button" className="inline-flex items-center gap-1 rounded-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring/35" onClick={() => handleSort(col.key)}>{col.header}<SortIcon dir={sortKey === col.key ? sortDir : null} /></button> : col.header}
                 </th>
               ))}
@@ -129,7 +129,7 @@ export function DataTable<T extends { id: string | number }>({
               <tr><td colSpan={columns.length} className="px-4 py-12 text-center text-sm text-muted-foreground">{query ? `No results for “${query}”` : emptyMessage}</td></tr>
             ) : paginated.map((row) => (
                 <tr key={row.id} tabIndex={onRowClick ? 0 : undefined} aria-label={getRowLabel?.(row)} className={cn("transition-colors duration-100 hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus-ring/35", onRowClick && "cursor-pointer")} onClick={onRowClick ? () => onRowClick(row) : undefined} onKeyDown={onRowClick ? (event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); onRowClick(row) } } : undefined}>
-                  {columns.map((col) => (<td key={col.key} className={cn("px-4 py-3 text-sm text-foreground group-data-[density=compact]/table:px-3 group-data-[density=compact]/table:py-2", alignClass[col.align ?? "left"])}>{col.cell(row)}</td>))}
+                  {columns.map((col) => (<td key={col.key} className={cn("px-4 py-3 text-sm tabular-nums text-foreground group-data-[density=compact]/table:px-3 group-data-[density=compact]/table:py-2", alignClass[col.align ?? "left"])}>{col.cell(row)}</td>))}
                 </tr>
               ))}
           </tbody>

@@ -55,14 +55,49 @@ test("every component page includes a live preview, copyable code, and API refer
 })
 
 test("homepage gets developers from installation to a working preview", async ({ page }) => {
-  await expect(page.getByRole("heading", { level: 1, name: "Build product UI without rebuilding the basics." })).toBeVisible()
-  await expect(page.getByLabel("Example operations dashboard built with rui")).toBeVisible()
+  await expect(page.getByRole("heading", { level: 1, name: "Components for operational software." })).toBeVisible()
+  await expect(page.getByLabel("Example order operations dashboard built with rui")).toBeVisible()
   await expect(page.getByText("npm install @bzync/rui framer-motion", { exact: true })).toBeVisible()
-  await expect(page.getByRole("button", { name: "Create project" })).toBeVisible()
+  await expect(page.getByRole("button", { name: "Review orders" })).toBeVisible()
+  await expect(page.getByText("Not accepting collaboration requests at this time.")).toBeVisible()
+  await expect(page.getByRole("link", { name: "Support development" })).toHaveAttribute("href", "https://buymeacoffee.com/adminjw")
 
-  await page.getByRole("button", { name: "Browse components" }).click()
+  await page.getByRole("button", { name: "View components" }).click()
   await expect(page).toHaveURL(/#\/components$/)
   await expect(page.getByRole("heading", { level: 1, name: "Component overview" })).toBeVisible()
+})
+
+test("demo publishes installable PWA metadata and branded icons", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop-1280", "PWA assets only need one browser audit")
+
+  await expect(page.locator('link[rel="icon"]')).toHaveAttribute("href", "/favicon-32.png")
+  await expect(page.locator('link[rel="manifest"]')).toHaveAttribute("href", "/manifest.webmanifest")
+  await expect(page.locator('.docs-brand img[src="/rui-icon-192.png"]')).toBeVisible()
+  await expect(page.locator('.docs-footer-brand img[src="/rui-icon-192.png"]')).toBeVisible()
+
+  await page.goto("/#/components/navigation")
+  await expect(page.locator('.component-preview-canvas img[src="/rui-icon-192.png"]')).toBeVisible()
+
+  await page.goto("/#/examples/authentication")
+  await expect(page.locator('.auth-brand img[src="/rui-icon-192.png"]')).toBeVisible()
+  await expect(page.locator(".auth-brand")).toContainText("@bzync/rui")
+
+  const faviconResponse = await page.request.get("/favicon-32.png")
+  expect(faviconResponse.ok()).toBe(true)
+  const manifestResponse = await page.request.get("/manifest.webmanifest")
+  expect(manifestResponse.ok()).toBe(true)
+  const manifest = await manifestResponse.json()
+  expect(manifest).toMatchObject({
+    name: "@bzync/rui Component Library",
+    display: "standalone",
+    start_url: "/#/docs/introduction",
+  })
+  expect(manifest.icons).toEqual(expect.arrayContaining([
+    expect.objectContaining({ src: "/rui-icon-192.png", sizes: "192x192" }),
+    expect.objectContaining({ src: "/rui-icon-512.png", sizes: "512x512" }),
+  ]))
+
+  await expect.poll(async () => (await page.request.get("/sw.js")).ok()).toBe(true)
 })
 
 test("component catalog filters by text and category", async ({ page }) => {

@@ -3,7 +3,7 @@
 export const fieldRootStyles = "flex w-full flex-col gap-1.5"
 
 export const fieldLabelStyles =
-  "text-sm font-medium leading-5 text-foreground"
+  "text-xs font-semibold leading-5 text-foreground"
 
 export const fieldDescriptionStyles =
   "text-xs leading-5 text-muted-foreground"
@@ -15,7 +15,7 @@ export const controlBaseStyles = [
   "border border-border bg-surface text-foreground shadow-xs",
   "transition-[border-color,box-shadow,background-color] duration-150",
   "hover:border-border-strong",
-  "focus-within:border-accent-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-focus-ring/20",
+  "focus-within:border-accent-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-focus-ring/15",
   "has-[:disabled]:cursor-not-allowed has-[:disabled]:bg-surface-muted has-[:disabled]:opacity-60",
   "has-[:read-only]:bg-surface-muted",
 ].join(" ")

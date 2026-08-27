@@ -3,6 +3,7 @@
 import * as R from "@bzync/rui"
 import { Activity, Box, ChevronRight, Database, Home, Settings, Trash2 } from "lucide-react"
 import { Fragment, type ReactNode, useState } from "react"
+import { RuiBrandMark } from "../_shared/brand"
 import type { ApiProp } from "./primitives"
 
 export interface SupplementalDetail {
@@ -60,7 +61,7 @@ function TreePreview() {
 function NavigationPreview() {
   const [active, setActive] = useState("overview")
   const items: R.NavigationItem[] = [{ id: "overview", label: "Overview", href: "#overview", icon: <Home size={15} /> }, { id: "projects", label: "Projects", href: "#projects", icon: <Box size={15} /> }, { id: "activity", label: "Activity", href: "#activity", icon: <Activity size={15} /> }]
-  return <R.Navbar className="w-full rounded-xl" items={items} activeId={active} onSelect={setActive}><R.BrandLink href="#overview" mark={<span className="grid size-7 place-items-center rounded-md bg-primary text-primary-foreground">B</span>}>bzync</R.BrandLink></R.Navbar>
+  return <R.Navbar className="w-full rounded-xl" items={items} activeId={active} onSelect={setActive}><R.BrandLink href="#overview" mark={<RuiBrandMark />}>@bzync/rui</R.BrandLink></R.Navbar>
 }
 
 function CodeEditorPreview() {
@@ -342,7 +343,7 @@ export const supplementalDetails: Record<string, () => SupplementalDetail> = {
     "Text labels identify completed, current, and upcoming steps without relying on color alone.",
   ),
   "components/navigation": () => detail(
-    `<Navbar items={items} activeId={active} onSelect={setActive}>\n  <BrandLink href="/">bzync</BrandLink>\n</Navbar>`,
+    `<Navbar items={items} activeId={active} onSelect={setActive}>\n  <BrandLink href="/" mark={<img src="/rui-icon-192.png" alt="" />}>\n    @bzync/rui\n  </BrandLink>\n</Navbar>`,
     <NavigationPreview />,
     api(["items", "NavigationItem[]", "Links with IDs, labels, hrefs, icons, and badges."], ["activeId", "string", "Current navigation item ID."], ["onSelect", "(id: string) => void", "Selection callback."], ["header / footer", "ReactNode", "Sidebar composition slots."]),
     "Navigation primitives use native landmarks and anchors, with aria-current on the active destination.",

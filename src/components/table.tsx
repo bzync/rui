@@ -79,7 +79,7 @@ export function TableHead({
   return (
     <th
       className={cn(
-        "px-4 py-2.5 text-left text-xs font-medium text-muted-foreground whitespace-nowrap group-data-[density=compact]/table:px-3 group-data-[density=compact]/table:py-2",
+        "px-4 py-2.5 text-left text-[11px] font-semibold text-muted-foreground whitespace-nowrap group-data-[density=compact]/table:px-3 group-data-[density=compact]/table:py-2",
         className,
       )}
       {...props}
@@ -95,7 +95,7 @@ export function TableCell({
   ...props
 }: TdHTMLAttributes<HTMLTableCellElement>) {
   return (
-    <td className={cn("px-4 py-3 text-sm text-foreground whitespace-nowrap group-data-[density=compact]/table:px-3 group-data-[density=compact]/table:py-2", className)} {...props}>
+    <td className={cn("px-4 py-3 text-sm tabular-nums text-foreground whitespace-nowrap group-data-[density=compact]/table:px-3 group-data-[density=compact]/table:py-2", className)} {...props}>
       {children}
     </td>
   )

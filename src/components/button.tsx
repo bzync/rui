@@ -23,7 +23,7 @@ export const buttonVariants: Record<ButtonVariant, string> = {
   primary: [
     "bg-primary hover:bg-primary-hover active:bg-primary-hover",
     "text-primary-foreground font-semibold",
-    "border border-transparent shadow-xs",
+    "border border-primary shadow-xs",
   ].join(" "),
 
   secondary: [
@@ -89,7 +89,7 @@ const ButtonInner = forwardRef<HTMLButtonElement, ButtonProps>(
         data-loading={loading || undefined}
         className={cn(
           "inline-flex items-center justify-center cursor-pointer select-none whitespace-nowrap",
-          "transition-[color,background-color,border-color,box-shadow,transform] duration-150 active:enabled:translate-y-px",
+          "transition-[color,background-color,border-color,box-shadow] duration-150",
           "disabled:opacity-40 disabled:cursor-not-allowed",
           focusRingStyles,
           buttonVariants[variant],

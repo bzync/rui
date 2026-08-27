@@ -36,20 +36,24 @@ import {
 } from "@bzync/rui"
 import {
   Check,
-  ChartNoAxesCombined,
   ChevronRight,
   CircleHelp,
   Database,
+  FileCheck2,
   KeyRound,
   Layers3,
   Mail,
   MoreHorizontal,
+  PackageCheck,
   Plus,
   Search,
   ShieldCheck,
+  ShoppingCart,
+  Truck,
   UserPlus,
 } from "lucide-react"
 import { type ReactNode, useMemo, useRef, useState } from "react"
+import { RuiBrandMark } from "../_shared/brand"
 import { componentGroups, hrefFor, type DocsPage } from "./catalog"
 import { supplementalDetails } from "./component-details"
 import {
@@ -69,7 +73,7 @@ import { Button, ThemeProvider } from "@bzync/rui"
 export default function App() {
   return (
     <ThemeProvider defaultTheme="system" applyToRoot>
-      <Button>Create project</Button>
+      <Button>Review orders</Button>
     </ThemeProvider>
   )
 }`
@@ -82,34 +86,52 @@ function IntroductionPage() {
   return <>
     <div className="docs-home-hero">
       <PageIntro
-        eyebrow="React component library"
-        title="Build product UI without rebuilding the basics."
-        badge="v0.0.1"
-        description="Accessible, typed React components with scoped theming and practical application patterns—ready for React 18 and 19."
+        eyebrow="Application UI for React"
+        title="Components for operational software."
+        description="A typed UI foundation for ERP, finance, commerce, logistics, and admin products. Built for real data density, accessible workflows, and long-lived applications."
       >
-        <Button onClick={() => { window.location.hash = "/docs/installation" }}>Get started</Button>
-        <Button variant="secondary" onClick={() => { window.location.hash = "/components" }}>Browse components</Button>
-        <span className="docs-hero-note"><ShieldCheck size={14} aria-hidden="true" /> Keyboard-ready by default</span>
+        <Button onClick={() => { window.location.hash = "/docs/installation" }}>Start building</Button>
+        <Button variant="secondary" onClick={() => { window.location.hash = "/components" }}>View components</Button>
+        <span className="docs-hero-note"><ShieldCheck size={14} aria-hidden="true" /> React 18.2 and 19</span>
       </PageIntro>
-      <div className="docs-hero-preview" aria-label="Example operations dashboard built with rui">
+      <div className="docs-hero-preview" aria-label="Example order operations dashboard built with rui">
         <div className="docs-hero-preview-top">
-          <div><span className="docs-hero-mark" aria-hidden="true">b</span><strong>Workspace</strong></div>
-          <Badge variant="success" dot>All systems normal</Badge>
+          <div className="docs-hero-workspace">
+            <span className="docs-hero-mark" aria-hidden="true">N</span>
+            <span><strong>Northstar Trading</strong><small>Order operations</small></span>
+          </div>
+          <Badge variant="success" dot>Live data</Badge>
         </div>
         <div className="docs-hero-metrics">
-          <div><span>Requests</span><strong>2.4M</strong><small>+18.2%</small></div>
-          <div><span>Latency</span><strong>82ms</strong><small>−12.4%</small></div>
-          <div><span>Uptime</span><strong>99.99%</strong><small>30 days</small></div>
+          <div><span>Net sales</span><strong>$1.84M</strong><small className="positive">+8.4% vs plan</small></div>
+          <div><span>Open orders</span><strong>1,248</strong><small>86 need review</small></div>
+          <div><span>Fill rate</span><strong>96.8%</strong><small>Target 97.5%</small></div>
+          <div><span>Backorders</span><strong>37</strong><small className="attention">12 due today</small></div>
         </div>
-        <div className="docs-hero-chart">
-          <div className="docs-hero-chart-title"><span><ChartNoAxesCombined size={14} aria-hidden="true" /> API traffic</span><small>Last 7 days</small></div>
-          <div className="docs-hero-bars" aria-hidden="true">
-            {[42, 56, 48, 72, 64, 86, 78, 92, 74, 96, 82, 100].map((height, index) => <span key={index} style={{ height: `${height}%` }} />)}
-          </div>
+        <div className="docs-hero-operations">
+          <section className="docs-hero-panel" aria-label="Today's fulfillment progress">
+            <header><strong>Fulfillment</strong><small>Today</small></header>
+            {[
+              ["Allocated", "842", "88%"],
+              ["Packed", "616", "64%"],
+              ["Shipped", "431", "45%"],
+            ].map(([label, value, width]) => (
+              <div className="docs-hero-progress" key={label}>
+                <span><small>{label}</small><strong>{value}</strong></span>
+                <i aria-hidden="true"><b style={{ width }} /></i>
+              </div>
+            ))}
+          </section>
+          <section className="docs-hero-panel docs-hero-exceptions" aria-label="Order exceptions">
+            <header><strong>Exceptions</strong><Badge variant="warning" size="sm">4 open</Badge></header>
+            <div className="docs-hero-order"><span><strong>SO-80321</strong><small>Northwind Retail</small></span><span><Badge variant="warning" size="sm">Credit hold</Badge><strong>$8,920</strong></span></div>
+            <div className="docs-hero-order"><span><strong>SO-80318</strong><small>Fabrikam Stores</small></span><span><Badge variant="error" size="sm">Stockout</Badge><strong>$12,480</strong></span></div>
+            <div className="docs-hero-order"><span><strong>PO-10482</strong><small>Contoso Supply</small></span><span><Badge variant="info" size="sm">Approval</Badge><strong>$6,240</strong></span></div>
+          </section>
         </div>
         <div className="docs-hero-preview-footer">
-          <div className="docs-hero-avatars" aria-label="3 active collaborators"><Avatar size="sm" name="Avery Kim" /><Avatar size="sm" name="Riley Morgan" /><Avatar size="sm" name="Jordan Lee" /></div>
-          <span>Updated just now</span>
+          <span>Last sync 11:42 AM</span>
+          <span>Amounts in USD</span>
         </div>
       </div>
     </div>
@@ -119,20 +141,20 @@ function IntroductionPage() {
       <p>React 18.2 or React 19 and React DOM are peer dependencies. Import the stylesheet once at your application root.</p>
     </DocsSection>
 
-    <DocsSection id="first-component" title="Your first component" description="The provider scopes theme tokens to its children. Use applyToRoot when overlays and the whole document should share the theme.">
-      <ComponentPreview title="Quick start" code={quickStartCode}>
+    <DocsSection id="first-component" title="Your first workflow" description="The provider scopes theme tokens to its children. Use applyToRoot when overlays and the whole document should share the theme.">
+      <ComponentPreview title="Approval queue" code={quickStartCode}>
         <div className="intro-preview-copy">
-          <div><span className="intro-preview-kicker">Projects</span><strong>Create a new workspace</strong></div>
-          <Button icon={<Plus size={15} aria-hidden="true" />}>Create project</Button>
+          <div><span className="intro-preview-kicker">Procurement / Approvals</span><strong>2 purchase orders need review</strong></div>
+          <Button icon={<FileCheck2 size={15} aria-hidden="true" />}>Review orders</Button>
         </div>
       </ComponentPreview>
     </DocsSection>
 
     <DocsSection id="package-architecture" title="Package architecture">
       <div className="docs-fact-grid">
-        <div><strong>React 18.2 + 19</strong><span>Compatible peer range</span></div>
+        <div><strong>60+ components</strong><span>Forms, data, overlays, charts, and navigation</span></div>
+        <div><strong>React 18.2 + 19</strong><span>Stable compatibility across application stacks</span></div>
         <div><strong>ESM + CJS</strong><span>Root and component entry points</span></div>
-        <div><strong>Tailwind CSS v4</strong><span>One generated stylesheet</span></div>
         <div><strong>TypeScript</strong><span>Declarations for every public entry</span></div>
       </div>
       <DocsCallout title="CSS is included once">
@@ -140,8 +162,14 @@ function IntroductionPage() {
       </DocsCallout>
     </DocsSection>
 
-    <DocsSection id="principles" title="Designed for application work">
-      <div className="docs-link-grid">
+    <DocsSection id="principles" title="Built for operational complexity" description="The same primitives scale from internal tools to customer-facing commerce without forcing a single product aesthetic.">
+      <div className="enterprise-use-cases">
+        <article><span><FileCheck2 size={16} /></span><div><strong>Finance and ERP</strong><p>Approval queues, journal workflows, account controls, and auditable status changes.</p></div></article>
+        <article><span><ShoppingCart size={16} /></span><div><strong>Commerce operations</strong><p>Orders, returns, promotions, customer records, and catalog management.</p></div></article>
+        <article><span><Truck size={16} /></span><div><strong>Supply chain</strong><p>Inventory positions, purchase orders, fulfillment exceptions, and vendor data.</p></div></article>
+        <article><span><PackageCheck size={16} /></span><div><strong>Internal platforms</strong><p>Dense administration screens with consistent permissions, feedback, and navigation.</p></div></article>
+      </div>
+      <div className="docs-link-grid docs-principle-links">
         <PageLink slug="foundations/accessibility" title="Accessible interactions" description="Focus management, keyboard behavior, and native semantics." />
         <PageLink slug="docs/configuration" title="Scoped theming" description="Accent, neutral, semantic, and mode-specific tokens." />
         <PageLink slug="examples/settings" title="Production compositions" description="See components combined in realistic application screens." />
@@ -594,7 +622,7 @@ function SettingsExample() {
 function AuthenticationExample() {
   return <>
     <PageIntro eyebrow="Examples" title="Authentication" description="A focused sign-in screen with visible labels, password recovery, and a single primary action." />
-    <DocsSection id="preview" title="Preview"><div className="auth-canvas"><Card className="auth-card"><CardHeader><div className="auth-mark">b</div><CardTitle as="h2" className="mt-4 text-base">Sign in to your account</CardTitle><CardDescription>Use your work email to continue.</CardDescription></CardHeader><CardBody><form className="pattern-form" onSubmit={(event) => event.preventDefault()}><Input label="Email" type="email" autoComplete="email" placeholder="you@company.com" prefix={<Mail size={14} />} required /><div><div className="field-inline"><label htmlFor="docs-password">Password</label><a href="#recover">Forgot password?</a></div><Input id="docs-password" type="password" autoComplete="current-password" prefix={<KeyRound size={14} />} required /></div><Button className="w-full" type="submit">Sign in</Button></form></CardBody></Card></div></DocsSection>
+    <DocsSection id="preview" title="Preview"><div className="auth-canvas"><Card className="auth-card"><CardHeader><div className="auth-brand"><RuiBrandMark size={38} /><span>@bzync/rui</span></div><CardTitle as="h2" className="mt-4 text-base">Sign in to your account</CardTitle><CardDescription>Use your work email to continue.</CardDescription></CardHeader><CardBody><form className="pattern-form" onSubmit={(event) => event.preventDefault()}><Input label="Email" type="email" autoComplete="email" placeholder="you@company.com" prefix={<Mail size={14} />} required /><div><div className="field-inline"><label htmlFor="docs-password">Password</label><a href="#recover">Forgot password?</a></div><Input id="docs-password" type="password" autoComplete="current-password" prefix={<KeyRound size={14} />} required /></div><Button className="w-full" type="submit">Sign in</Button></form></CardBody></Card></div></DocsSection>
     <DocsSection id="implementation" title="Implementation"><p>The form uses native email and password inputs, browser autocomplete tokens, visible labels, and a submit button. Authentication errors should appear next to the affected field or as a concise form-level alert.</p></DocsSection>
   </>
 }

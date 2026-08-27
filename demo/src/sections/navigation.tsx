@@ -18,6 +18,7 @@ import {
 } from "@bzync/rui"
 import { Section } from "../_shared/section"
 import { Group } from "../_shared/group"
+import { RuiBrandMark } from "../_shared/brand"
 
 const items: NavigationItem[] = [
   { id: "overview", label: "Overview", href: "#overview", icon: <Home size={16} /> },
@@ -28,8 +29,8 @@ const items: NavigationItem[] = [
 
 function Brand() {
   return (
-    <BrandLink href="#navbar" mark={<span className="grid size-7 place-items-center rounded-md bg-slate-950 text-xs text-white dark:bg-white dark:text-slate-950">B</span>}>
-      bzync
+    <BrandLink href="#navbar" mark={<RuiBrandMark />}>
+      @bzync/rui
     </BrandLink>
   )
 }
