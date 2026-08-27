@@ -269,7 +269,7 @@ function DocsShell() {
     }
     meta.content = `${page.title} documentation for @bzync/rui. ${page.description}`
     window.scrollTo({ top: 0, behavior: "instant" })
-  }, [page, sections])
+  }, [page])
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -347,7 +347,7 @@ function DocsShell() {
         <aside className="docs-sidebar"><SidebarNavigation activeSlug={activeSlug} /></aside>
 
         <Drawer open={mobileOpen} onClose={() => setMobileOpen(false)} title="Documentation" width="min(21rem, 88vw)" panelClassName="docs-mobile-drawer">
-          <div className="mobile-drawer-search"><Button variant="secondary" onClick={() => { setMobileOpen(false); setSearchOpen(true) }}><Search size={15} />Search documentation</Button></div>
+          <div className="mobile-drawer-search"><Button variant="secondary" icon={<Search size={15} aria-hidden="true" />} onClick={() => { setMobileOpen(false); setSearchOpen(true) }}>Search documentation</Button></div>
           <SidebarNavigation activeSlug={activeSlug} onNavigate={() => setMobileOpen(false)} />
         </Drawer>
 

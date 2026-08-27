@@ -239,10 +239,24 @@ test("mobile navigation is a touch-usable drawer", async ({ page }, testInfo) =>
   await page.getByRole("button", { name: "Open documentation navigation" }).click()
   const drawer = page.getByRole("dialog", { name: "Documentation" })
   await expect(drawer).toBeVisible()
+  const search = drawer.getByRole("button", { name: "Search documentation" })
+  const searchIcon = search.locator("svg")
+  const searchLabel = search.locator(":scope > span").last()
+  const [iconBox, labelBox] = await Promise.all([searchIcon.boundingBox(), searchLabel.boundingBox()])
+  expect(iconBox).not.toBeNull()
+  expect(labelBox).not.toBeNull()
+  expect(Math.abs((iconBox!.y + iconBox!.height / 2) - (labelBox!.y + labelBox!.height / 2))).toBeLessThanOrEqual(1)
   await drawer.getByRole("link", { name: "Button", exact: true }).click()
   await expect(drawer).toBeHidden()
   await expect(page).toHaveURL(/#\/components\/button$/)
   await expect(page.getByRole("heading", { level: 1, name: "Button" })).toBeVisible()
+})
+
+test("mobile documentation pages remain vertically scrollable", async ({ page }, testInfo) => {
+  test.skip(!testInfo.project.name.startsWith("mobile"), "Vertical touch scrolling is only checked on mobile projects")
+  await expect(page.getByRole("heading", { level: 1, name: "Components for operational software." })).toBeVisible()
+  await page.mouse.wheel(0, 500)
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0)
 })
 
 test("wide component previews remain horizontally scrollable on mobile", async ({ page }, testInfo) => {
