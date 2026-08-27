@@ -114,7 +114,7 @@ Requirement: handle searchable/filter, pagination, empty state, and loading skel
 ## 7. Review a PR
 
 ```
-Review this PR against @bzync/rui contracts (AGENTS.md §4-6 + SKILLS.md rtui-review).
+Review this PR against @bzync/rui contracts (AGENTS.md §4-6 + SKILLS.md rui-review).
 
 Check:
 - className via cn() everywhere, "use client" where needed, forwardRef/displayName

@@ -84,6 +84,7 @@ test("every component page includes a live preview, copyable code, and API refer
 
 test("homepage gets developers from installation to a working preview", async ({ page }) => {
   await expect(page.getByRole("heading", { level: 1, name: "Components for operational software." })).toBeVisible()
+  await expect(page.getByRole("link", { name: "Open @bzync/rui repository" })).toHaveAttribute("href", "https://github.com/bzync/rui")
   await expect(page.getByLabel("Example order operations dashboard built with rui")).toBeVisible()
   await expect(page.getByText("npm install @bzync/rui framer-motion", { exact: true })).toBeVisible()
   await expect(page.getByRole("button", { name: "Review orders" })).toBeVisible()

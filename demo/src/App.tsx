@@ -56,7 +56,7 @@ function getPageSections(page: DocsPage) {
   return pageSectionMap[page.slug] ?? (page.kind === "component" ? ["usage", "accessibility", "api-reference"] : ["overview"])
 }
 
-const repoUrl = "https://github.com/bzync/rtui"
+const repoUrl = "https://github.com/bzync/rui"
 
 function navigate(slug: string) {
   window.location.hash = `/${slug}`
