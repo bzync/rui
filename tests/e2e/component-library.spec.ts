@@ -90,11 +90,11 @@ test("demo publishes installable PWA metadata and branded icons", async ({ page 
   expect(manifest).toMatchObject({
     name: "@bzync/rui Component Library",
     display: "standalone",
-    start_url: "/#/docs/introduction",
+    start_url: "./#/docs/introduction",
   })
   expect(manifest.icons).toEqual(expect.arrayContaining([
-    expect.objectContaining({ src: "/rui-icon-192.png", sizes: "192x192" }),
-    expect.objectContaining({ src: "/rui-icon-512.png", sizes: "512x512" }),
+    expect.objectContaining({ src: "rui-icon-192.png", sizes: "192x192" }),
+    expect.objectContaining({ src: "rui-icon-512.png", sizes: "512x512" }),
   ]))
 
   await expect.poll(async () => (await page.request.get("/sw.js")).ok()).toBe(true)
@@ -206,6 +206,40 @@ test("mobile navigation is a touch-usable drawer", async ({ page }, testInfo) =>
   await expect(drawer).toBeHidden()
   await expect(page).toHaveURL(/#\/components\/button$/)
   await expect(page.getByRole("heading", { level: 1, name: "Button" })).toBeVisible()
+})
+
+test("wide component previews remain horizontally scrollable on mobile", async ({ page }, testInfo) => {
+  test.skip(!testInfo.project.name.startsWith("mobile"), "Wide preview overflow is only relevant on mobile projects")
+
+  for (const route of ["calendar", "tabs", "navigation", "table", "gantt-chart", "code-block"]) {
+    await page.goto(`/#/components/${route}`)
+
+    const canvas = page.locator(".component-preview-canvas")
+    const rootBounds = await canvas.evaluate((element) => {
+      const canvasRect = element.getBoundingClientRect()
+      const rootRect = element.firstElementChild?.getBoundingClientRect()
+      return {
+        canvasLeft: canvasRect.left,
+        canvasRight: canvasRect.right,
+        rootLeft: rootRect?.left ?? 0,
+        rootRight: rootRect?.right ?? 0,
+      }
+    })
+    expect(rootBounds.rootLeft, `${route} preview starts inside its canvas`).toBeGreaterThanOrEqual(rootBounds.canvasLeft - 1)
+    expect(rootBounds.rootRight, `${route} preview ends inside its canvas`).toBeLessThanOrEqual(rootBounds.canvasRight + 1)
+
+    const scroller = canvas.locator(".overflow-x-auto").first()
+    await expect(scroller).toBeVisible()
+    const scrollState = await scroller.evaluate((element) => {
+      element.scrollLeft = 40
+      return {
+        available: element.scrollWidth - element.clientWidth,
+        position: element.scrollLeft,
+      }
+    })
+    expect(scrollState.available, `${route} does not report negative overflow`).toBeGreaterThanOrEqual(0)
+    expect(scrollState.position, `${route} fits or its horizontal overflow can scroll`).toBe(Math.min(40, scrollState.available))
+  }
 })
 
 test("documentation stays within the responsive viewport", async ({ page }) => {

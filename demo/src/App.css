@@ -360,6 +360,7 @@ code, pre, kbd { font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo,
 .component-preview-tabs button { padding: 4px 9px; font-size: 11px; }
 .component-preview-canvas {
   display: flex;
+  min-width: 0;
   min-height: 240px;
   align-items: center;
   justify-content: center;
@@ -369,6 +370,7 @@ code, pre, kbd { font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo,
   background-image: radial-gradient(color-mix(in srgb, var(--color-border) 70%, transparent) .65px, transparent .65px);
   background-size: 14px 14px;
 }
+.component-preview-canvas > * { min-width: 0; max-width: 100%; }
 .component-preview-canvas.items-start { align-items: flex-start; }
 .component-preview-code { margin-top: 0 !important; }
 .component-preview-code > div { border: 0 !important; border-radius: 0 !important; }
