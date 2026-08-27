@@ -72,6 +72,11 @@ The component documentation and live demos are published to
 the latest documentation through GitHub Pages; maintainers can also run the
 **Deploy documentation** workflow manually from the Actions tab.
 
+## Support
+
+If `@bzync/rui` is useful to you, you can support its continued development on
+[Buy Me a Coffee](https://buymeacoffee.com/adminjw).
+
 ## Releasing to npm
 
 Add an npm publishing token to the GitHub repository as an Actions secret named
