@@ -74,7 +74,23 @@ export const Heading = forwardRef<HTMLHeadingElement, HeadingProps>(({
 Heading.displayName = "Heading"
 
 export type TextElement = "p" | "span" | "div" | "time"
-export type TextVariant = "body" | "lead" | "muted" | "caption" | "overline" | "date" | "time" | "currency"
+export type TextVariant =
+  | "body"
+  | "lead"
+  | "label"
+  | "helper"
+  | "muted"
+  | "caption"
+  | "overline"
+  | "success"
+  | "warning"
+  | "danger"
+  | "info"
+  | "date"
+  | "time"
+  | "number"
+  | "percent"
+  | "currency"
 export type TextSize = "xs" | "sm" | "md" | "lg"
 export type TextAlign = "left" | "center" | "right"
 export type TextWrap = "normal" | "nowrap" | "balance" | "pretty"
@@ -82,11 +98,19 @@ export type TextWrap = "normal" | "nowrap" | "balance" | "pretty"
 const textVariants: Record<TextVariant, string> = {
   body: "text-base leading-7 text-foreground",
   lead: "text-lg leading-8 text-muted-foreground",
+  label: "text-xs leading-5 font-semibold text-foreground",
+  helper: "text-xs leading-5 text-muted-foreground",
   muted: "text-sm leading-6 text-muted-foreground",
   caption: "text-xs leading-5 text-muted-foreground",
   overline: "text-xs leading-5 font-semibold uppercase tracking-wider text-muted-foreground",
+  success: "text-sm leading-6 font-medium text-success",
+  warning: "text-sm leading-6 font-medium text-warning",
+  danger: "text-sm leading-6 font-medium text-destructive",
+  info: "text-sm leading-6 font-medium text-info",
   date: "text-sm leading-6 text-foreground tabular-nums",
   time: "text-sm leading-6 text-foreground tabular-nums",
+  number: "text-sm leading-6 text-foreground tabular-nums",
+  percent: "text-sm leading-6 text-foreground tabular-nums",
   currency: "text-sm leading-6 font-medium text-foreground tabular-nums",
 }
 
@@ -183,6 +207,23 @@ function formatTextValue(
   }
 }
 
+function formatNumberTextValue(
+  variant: "number" | "percent",
+  value: number | bigint,
+  locale: Intl.LocalesArgument,
+  numberOptions?: Intl.NumberFormatOptions,
+) {
+  if (typeof value === "number" && !Number.isFinite(value)) return null
+  try {
+    return new Intl.NumberFormat(locale, {
+      ...numberOptions,
+      style: variant === "percent" ? "percent" : "decimal",
+    }).format(value)
+  } catch {
+    return null
+  }
+}
+
 export interface TextProps extends Omit<HTMLAttributes<HTMLElement>, "children"> {
   as?: TextElement
   variant?: TextVariant
@@ -196,6 +237,7 @@ export interface TextProps extends Omit<HTMLAttributes<HTMLElement>, "children">
   timeZone?: string
   hour12?: boolean
   formatOptions?: Intl.DateTimeFormatOptions
+  numberOptions?: Intl.NumberFormatOptions
   currency?: string
   accounting?: boolean
   currencyOptions?: CurrencyFormatOptions
@@ -216,6 +258,7 @@ export const Text = forwardRef<HTMLElement, TextProps>(({
   timeZone,
   hour12,
   formatOptions,
+  numberOptions,
   currency = "USD",
   accounting = false,
   currencyOptions,
@@ -225,16 +268,22 @@ export const Text = forwardRef<HTMLElement, TextProps>(({
   ...props
 }, ref) => {
   const temporalVariant = variant === "date" || variant === "time" ? variant : null
+  const numberVariant = variant === "number" || variant === "percent" ? variant : null
   const currencyVariant = variant === "currency"
-  const Component = (as ?? (temporalVariant ? "time" : currencyVariant ? "span" : "p")) as ElementType
+  const Component = (as ?? (temporalVariant ? "time" : numberVariant || currencyVariant ? "span" : "p")) as ElementType
   const result = temporalVariant && value !== undefined
     ? formatTextValue(temporalVariant, value, locale, timeZone, hour12, formatOptions)
     : null
   const currencyResult = currencyVariant && (typeof value === "number" || typeof value === "bigint")
     ? formatCurrency(value, { currency, locale, accounting, options: currencyOptions })
     : null
-  const formattedVariant = temporalVariant !== null || currencyVariant
-  const invalid = formattedVariant && value !== undefined && (temporalVariant ? result?.formatted === null : currencyResult === null)
+  const numberResult = numberVariant && (typeof value === "number" || typeof value === "bigint")
+    ? formatNumberTextValue(numberVariant, value, locale, numberOptions)
+    : null
+  const formattedVariant = temporalVariant !== null || numberVariant !== null || currencyVariant
+  const invalid = formattedVariant && value !== undefined && (
+    temporalVariant ? result?.formatted === null : numberVariant ? numberResult === null : currencyResult === null
+  )
   const resolvedWrap = wrap ?? (formattedVariant ? "nowrap" : "normal")
   return (
     <Component
@@ -255,20 +304,15 @@ export const Text = forwardRef<HTMLElement, TextProps>(({
     >
       {temporalVariant && value !== undefined
         ? result?.formatted ?? fallback
-        : currencyVariant && value !== undefined
-          ? currencyResult ?? fallback
-          : children}
+        : numberVariant && value !== undefined
+          ? numberResult ?? fallback
+          : currencyVariant && value !== undefined
+            ? currencyResult ?? fallback
+            : children}
     </Component>
   )
 })
 Text.displayName = "Text"
-
-export type TimeProps = Omit<TextProps, "variant" | "currency" | "currencyOptions" | "accounting">
-
-export const Time = forwardRef<HTMLElement, TimeProps>((props, ref) => (
-  <Text ref={ref} variant="time" {...props} />
-))
-Time.displayName = "Time"
 
 export type ProseElement = "div" | "article" | "section"
 export type ProseSize = "sm" | "md" | "lg"

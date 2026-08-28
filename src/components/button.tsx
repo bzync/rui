@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/cn"
 import { focusRingStyles } from "@/lib/component-styles"
+import { Slot } from "@/components/slot"
 import { ButtonHTMLAttributes, ReactNode, forwardRef, memo } from "react"
 
 export type ButtonVariant = "primary" | "secondary" | "ghost" | "outline" | "destructive" | "link"
@@ -17,6 +18,8 @@ export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement
   /** End-to-end override */
   variantClassName?: string
   unstyled?: boolean
+  /** When true, merges props onto the single child via Slot (Radix-style). */
+  asChild?: boolean
 }
 
 export const buttonVariants: Record<ButtonVariant, string> = {
@@ -71,6 +74,7 @@ const ButtonInner = forwardRef<HTMLButtonElement, ButtonProps>(
       iconPosition = "left",
       variantClassName,
       unstyled = false,
+      asChild = false,
       children,
       disabled,
       type = "button",
@@ -79,56 +83,77 @@ const ButtonInner = forwardRef<HTMLButtonElement, ButtonProps>(
     ref,
   ) => {
     const isDisabled = disabled || loading
+    // Loading with children: preserve width via invisible duplicate; spinner centered (§24).
+    const loadingWithChildren = loading && children != null && children !== ""
+
     if (unstyled) {
+      if (asChild) return <Slot ref={ref as any} className={cn(className, variantClassName)} {...(props as any)}>{children}</Slot>
       return <button ref={ref} type={type} disabled={isDisabled} className={cn(className, variantClassName)} {...props}>{loading ? "Loading…" : children}</button>
     }
+
+    const buttonClassName = cn(
+      "inline-flex items-center justify-center cursor-pointer select-none whitespace-nowrap",
+      "transition-[color,background-color,border-color,box-shadow] duration-150",
+      "disabled:opacity-40 disabled:cursor-not-allowed",
+      focusRingStyles,
+      buttonVariants[variant],
+      variantClassName,
+      buttonSizes[size],
+      loadingWithChildren && "relative",
+      className,
+    )
+
+    if (asChild) {
+      return (
+        <Slot
+          ref={ref as any}
+          className={buttonClassName}
+          data-loading={loading || undefined}
+          aria-busy={loading || undefined}
+          aria-disabled={isDisabled || undefined}
+          {...(props as any)}
+        >
+          {children as any}
+        </Slot>
+      )
+    }
+
     return (
       <button
         ref={ref}
         type={type}
         data-loading={loading || undefined}
-        className={cn(
-          "inline-flex items-center justify-center cursor-pointer select-none whitespace-nowrap",
-          "transition-[color,background-color,border-color,box-shadow] duration-150",
-          "disabled:opacity-40 disabled:cursor-not-allowed",
-          focusRingStyles,
-          buttonVariants[variant],
-          variantClassName,
-          buttonSizes[size],
-          className,
-        )}
+        className={buttonClassName}
         disabled={isDisabled}
         aria-busy={loading || undefined}
         {...props}
       >
-        {loading && (
-          <svg
-            className="animate-spin shrink-0 w-3.5 h-3.5"
-            viewBox="0 0 24 24"
-            fill="none"
-            aria-hidden="true"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            />
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-            />
-          </svg>
-        )}
-        {!loading && icon && iconPosition === "left" && (
-          <span className="shrink-0">{icon}</span>
-        )}
-        {children && <span>{children}</span>}
-        {!loading && icon && iconPosition === "right" && (
-          <span className="shrink-0">{icon}</span>
+        {loadingWithChildren ? (
+          <>
+            <span className="invisible inline-flex items-center gap-2">
+              {icon && iconPosition === "left" && <span className="shrink-0 w-3.5 h-3.5" />}
+              <span>{children}</span>
+              {icon && iconPosition === "right" && <span className="shrink-0 w-3.5 h-3.5" />}
+            </span>
+            <span className="absolute inset-0 inline-flex items-center justify-center">
+              <svg className="animate-spin w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+            </span>
+          </>
+        ) : (
+          <>
+            {loading && (
+              <svg className="animate-spin shrink-0 w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+            )}
+            {!loading && icon && iconPosition === "left" && <span className="shrink-0">{icon}</span>}
+            {children && <span>{children}</span>}
+            {!loading && icon && iconPosition === "right" && <span className="shrink-0">{icon}</span>}
+          </>
         )}
       </button>
     )

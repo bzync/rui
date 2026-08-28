@@ -3,9 +3,10 @@
 import { cn } from "@/lib/cn"
 import { iconButtonStyles } from "@/lib/component-styles"
 import { AnimatePresence, motion } from "framer-motion"
-import { HTMLAttributes, ReactNode, useEffect, useId, useRef } from "react"
+import { transitions } from "@/lib/motion"
+import { HTMLAttributes, ReactNode, useId, useRef } from "react"
 import { useEventCallback } from "@/hooks/use-event-callback"
-import { getFocusable } from "@/utils/focus"
+import { useFocusTrap, useRestoreFocus } from "@/hooks/use-focus-trap"
 
 export interface ModalProps {
   open: boolean
@@ -57,85 +58,30 @@ export function Modal({
   closeOnOverlayClick = true,
 }: ModalProps) {
   const panelRef = useRef<HTMLDivElement>(null)
-  const previouslyFocusedRef = useRef<HTMLElement | null>(null)
-  const wasOpenRef = useRef(open)
   const titleId = useId()
   const descriptionId = useId()
   const onCloseStable = useEventCallback(onClose)
+  const { previouslyFocusedRef, restoreNow } = useRestoreFocus(open)
 
-  if (open && !wasOpenRef.current && typeof document !== "undefined" && document.activeElement instanceof HTMLElement) {
-    previouslyFocusedRef.current = document.activeElement
-  }
-  wasOpenRef.current = open
-
-  useEffect(() => {
-    if (open) return
-    const rememberFocus = (event: FocusEvent) => {
-      if (event.target instanceof HTMLElement) previouslyFocusedRef.current = event.target
-    }
-    if (!previouslyFocusedRef.current && document.activeElement instanceof HTMLElement) previouslyFocusedRef.current = document.activeElement
-    document.addEventListener("focusin", rememberFocus)
-    return () => document.removeEventListener("focusin", rememberFocus)
-  }, [open])
-
-  useEffect(() => {
-    if (!open) return
-    if (!previouslyFocusedRef.current && document.activeElement instanceof HTMLElement) previouslyFocusedRef.current = document.activeElement
-    const previousOverflow = document.body.style.overflow
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && closeOnEscape) { e.preventDefault(); onCloseStable(); return }
-      if (e.key !== "Tab" || !panelRef.current) return
-      const focusable = getFocusable(panelRef.current)
-      if (focusable.length === 0) { e.preventDefault(); panelRef.current.focus(); return }
-      const first = focusable[0]; const last = focusable[focusable.length - 1]
-      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus() }
-      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus() }
-    }
-    document.addEventListener("keydown", onKey)
-    document.body.style.overflow = "hidden"
-    const focusInitial = () => {
-      const firstFocusable =
-        panelRef.current?.querySelector<HTMLElement>("[data-autofocus]") ??
-        panelRef.current?.querySelector<HTMLElement>("[data-modal-content] a[href],[data-modal-content] button:not([disabled]),[data-modal-content] input:not([disabled]),[data-modal-content] select:not([disabled]),[data-modal-content] textarea:not([disabled]),[data-modal-content] [tabindex]:not([tabindex=\"-1\"])") ??
-        panelRef.current?.querySelector<HTMLElement>("a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex=\"-1\"])")
-      ;(firstFocusable ?? panelRef.current)?.focus()
-    }
-    focusInitial()
-    const timer = window.setTimeout(focusInitial, 0)
-    return () => {
-      window.clearTimeout(timer)
-      document.removeEventListener("keydown", onKey)
-      document.body.style.overflow = previousOverflow
-    }
-  }, [closeOnEscape, open, onCloseStable])
-
-  // Framer Motion keeps the exiting panel mounted briefly. Restore after its
-  // exit duration so the browser cannot move focus back to body when the
-  // focused panel is finally removed.
-  useEffect(() => {
-    if (open || !previouslyFocusedRef.current) return
-    const previouslyFocused = previouslyFocusedRef.current
-    const timer = window.setTimeout(() => previouslyFocused.focus(), 240)
-    return () => window.clearTimeout(timer)
-  }, [open])
+  useFocusTrap(panelRef, {
+    active: open,
+    onEscape: onCloseStable,
+    closeOnEscape,
+  })
 
   if (unstyled) {
     return open ? <div ref={panelRef} role="dialog" aria-modal="true" className={cn(className, panelClassName)}>{children}</div> : null
   }
 
   return (
-    <AnimatePresence onExitComplete={() => {
-      const previouslyFocused = previouslyFocusedRef.current
-      previouslyFocusedRef.current = null
-      window.setTimeout(() => previouslyFocused?.focus(), 0)
-    }}>
+    <AnimatePresence onExitComplete={restoreNow}>
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            transition={transitions.overlay}
             className={cn("absolute inset-0 bg-overlay", overlayClassName)}
             onClick={closeOnOverlayClick ? onCloseStable : undefined}
           />
@@ -144,7 +90,7 @@ export function Modal({
             initial={{ opacity: 0, scale: 0.98, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.98, y: 10 }}
-            transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+            transition={transitions.panelEnter}
             role="dialog"
             aria-modal="true"
             aria-labelledby={title ? titleId : undefined}

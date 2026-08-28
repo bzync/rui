@@ -8,6 +8,10 @@ export interface EmptyStateProps {
   action?: ReactNode;
   className?: string;
   size?: "sm" | "md" | "lg";
+  /** Density adjusts vertical padding for tight layouts (tables, cards). */
+  density?: "compact" | "comfortable";
+  /** Optional density alias — density wins if both provided */
+  variant?: "default" | "compact";
 }
 
 const sizes = {
@@ -56,13 +60,17 @@ export function EmptyState({
   action,
   className,
   size = "md",
+  density,
+  variant,
 }: EmptyStateProps) {
+  const resolvedDensity = density ?? (variant === "compact" ? "compact" : "comfortable")
   const s = sizes[size];
+  const densityWrap = resolvedDensity === "compact" ? "py-4" : s.wrap
   return (
     <div
       className={cn(
         "flex flex-col items-center justify-center text-center px-4",
-        s.wrap,
+        densityWrap,
         className,
       )}
     >

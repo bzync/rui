@@ -4,6 +4,7 @@ import { cn } from "@/lib/cn"
 import { focusRingStyles } from "@/lib/component-styles"
 import { getFocusable } from "@/utils/focus"
 import { AnimatePresence, motion } from "framer-motion"
+import { transitions } from "@/lib/motion"
 import {
   KeyboardEvent,
   ReactNode,
@@ -176,7 +177,7 @@ export function CommandPalette({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
+            transition={transitions.fade}
             className="absolute inset-0 bg-overlay"
             onClick={() => setOpen(false)}
             aria-hidden="true"

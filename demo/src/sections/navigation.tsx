@@ -76,7 +76,7 @@ export function NavigationSection() {
 
       <Section id="bottombar" title="BottomBar" description="Thumb-friendly navigation for compact screens, including safe-area padding." importPath='import { BottomBar } from "@bzync/rui"' meta={["mobile first", "safe area", "controlled selection"]}>
         <Group label="Mobile navigation" col>
-          <div className="mx-auto w-full max-w-md overflow-hidden rounded-2xl border border-black/[0.08] dark:border-white/[0.08]">
+          <div className="mx-auto w-full max-w-md overflow-hidden rounded-lg border border-black/[0.08] dark:border-white/[0.08]">
             <div className="grid h-40 place-items-center bg-white text-sm text-slate-400 dark:bg-navy-950">Page content</div>
             <BottomBar items={items} activeId={active} onSelect={setActive} className="border-x-0 border-b-0" />
           </div>

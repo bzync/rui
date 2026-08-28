@@ -3,7 +3,7 @@
 import { cn } from "@/lib/cn"
 import { controlBaseStyles, controlInvalidStyles, fieldDescriptionStyles, fieldErrorStyles, fieldLabelStyles, fieldRootStyles, iconButtonStyles } from "@/lib/component-styles"
 import { AnimatePresence, motion } from "framer-motion"
-import { useEffect, useId, useRef, useState } from "react"
+import { type CSSProperties, type HTMLAttributes, type KeyboardEvent as ReactKeyboardEvent, forwardRef, useEffect, useId, useImperativeHandle, useLayoutEffect, useRef, useState } from "react"
 
 const DAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]
 const MONTHS = [
@@ -27,7 +27,11 @@ function isSameDay(a: Date, b: Date): boolean {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate()
 }
 
-export interface DatePickerProps {
+function dateKey(date: Date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`
+}
+
+export interface DatePickerProps extends Omit<HTMLAttributes<HTMLDivElement>, "onChange"> {
   value?: Date | null
   onChange?: (date: Date | null) => void
   label?: string
@@ -38,10 +42,9 @@ export interface DatePickerProps {
   clearable?: boolean
   minDate?: Date
   maxDate?: Date
-  className?: string
 }
 
-export function DatePicker({
+export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(({
   value: controlledValue,
   onChange,
   label,
@@ -53,7 +56,8 @@ export function DatePicker({
   minDate,
   maxDate,
   className,
-}: DatePickerProps) {
+  ...props
+}, forwardedRef) => {
   const [localValue, setLocalValue] = useState<Date | null>(null)
   const value = controlledValue !== undefined ? controlledValue : localValue
 
@@ -61,38 +65,98 @@ export function DatePicker({
   const [open, setOpen] = useState(false)
   const [viewYear, setViewYear] = useState((value ?? today).getFullYear())
   const [viewMonth, setViewMonth] = useState((value ?? today).getMonth())
+  const [focusDate, setFocusDate] = useState(value ?? today)
+  const [panelPosition, setPanelPosition] = useState<CSSProperties>({ visibility: "hidden" })
   const containerRef = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const panelRef = useRef<HTMLDivElement>(null)
+  useImperativeHandle(forwardedRef, () => containerRef.current as HTMLDivElement)
   const triggerId = useId()
+  const dialogId = `${triggerId}-dialog`
   const messageId = `${triggerId}-message`
+
+  function isUnavailable(date: Date) {
+    return Boolean((minDate && date < minDate) || (maxDate && date > maxDate))
+  }
+
+  function focusCalendarDate(date: Date) {
+    if (isUnavailable(date)) return
+    const staysInView = date.getFullYear() === viewYear && date.getMonth() === viewMonth
+    setFocusDate(date)
+    setViewYear(date.getFullYear())
+    setViewMonth(date.getMonth())
+    if (staysInView) {
+      panelRef.current?.querySelector<HTMLButtonElement>(`[data-date="${dateKey(date)}"]`)?.focus({ preventScroll: true })
+      return
+    }
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      panelRef.current?.querySelector<HTMLButtonElement>(`[data-date="${dateKey(date)}"]`)?.focus({ preventScroll: true })
+    }))
+  }
+
+  function getInitialFocusDate() {
+    if (value && !isUnavailable(value)) return value
+    if (!isUnavailable(today)) return today
+    if (minDate && (!maxDate || minDate <= maxDate)) return minDate
+    return maxDate ?? today
+  }
+
+  function openCalendar() {
+    const initial = getInitialFocusDate()
+    setFocusDate(initial)
+    setViewYear(initial.getFullYear())
+    setViewMonth(initial.getMonth())
+    setPanelPosition({ visibility: "hidden" })
+    setOpen(true)
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      panelRef.current?.querySelector<HTMLButtonElement>(`[data-date="${dateKey(initial)}"]`)?.focus({ preventScroll: true })
+    }))
+  }
+
+  function closeCalendar(restoreFocus = false) {
+    setOpen(false)
+    if (restoreFocus) requestAnimationFrame(() => triggerRef.current?.focus())
+  }
 
   function select(date: Date) {
     if (controlledValue === undefined) setLocalValue(date)
     onChange?.(date)
-    setOpen(false)
+    closeCalendar(true)
   }
 
-  function clear(e: React.MouseEvent) {
-    e.stopPropagation()
+  function clear() {
     if (controlledValue === undefined) setLocalValue(null)
     onChange?.(null)
   }
 
-  function prevMonth() {
-    if (viewMonth === 0) { setViewMonth(11); setViewYear((y) => y - 1) }
-    else setViewMonth((m) => m - 1)
+  function monthHasAvailableDates(year: number, month: number) {
+    const first = new Date(year, month, 1)
+    const last = new Date(year, month + 1, 0, 23, 59, 59, 999)
+    return !(minDate && minDate > last) && !(maxDate && maxDate < first)
   }
 
-  function nextMonth() {
-    if (viewMonth === 11) { setViewMonth(0); setViewYear((y) => y + 1) }
-    else setViewMonth((m) => m + 1)
+  function moveMonth(offset: -1 | 1) {
+    const target = new Date(viewYear, viewMonth + offset, 1)
+    const targetYear = target.getFullYear()
+    const targetMonth = target.getMonth()
+    if (!monthHasAvailableDates(targetYear, targetMonth)) return
+    let nextFocus = new Date(targetYear, targetMonth, Math.min(focusDate.getDate(), daysInMonth(targetYear, targetMonth)))
+    if (minDate && nextFocus < minDate && minDate.getFullYear() === targetYear && minDate.getMonth() === targetMonth) nextFocus = new Date(targetYear, targetMonth, minDate.getDate())
+    if (maxDate && nextFocus > maxDate && maxDate.getFullYear() === targetYear && maxDate.getMonth() === targetMonth) nextFocus = new Date(targetYear, targetMonth, maxDate.getDate())
+    setViewYear(targetYear)
+    setViewMonth(targetMonth)
+    setFocusDate(nextFocus)
   }
 
   useEffect(() => {
     function onOutside(e: MouseEvent) {
-      if (!containerRef.current?.contains(e.target as Node)) setOpen(false)
+      if (!containerRef.current?.contains(e.target as Node)) closeCalendar()
     }
-    function onKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") setOpen(false)
+    function onKeyDown(e: globalThis.KeyboardEvent) {
+      if (e.key === "Escape" && open) {
+        e.preventDefault()
+        closeCalendar(true)
+      }
     }
     document.addEventListener("mousedown", onOutside)
     document.addEventListener("keydown", onKeyDown)
@@ -100,7 +164,58 @@ export function DatePicker({
       document.removeEventListener("mousedown", onOutside)
       document.removeEventListener("keydown", onKeyDown)
     }
-  }, [])
+  }, [open])
+
+  useLayoutEffect(() => {
+    if (!open) return
+    const updatePosition = () => {
+      const trigger = triggerRef.current
+      const panel = panelRef.current
+      if (!trigger || !panel) return
+      const viewportPadding = 16
+      const gap = 6
+      const panelRect = panel.getBoundingClientRect()
+      if (window.innerWidth < 640) {
+        setPanelPosition({ insetInline: 8, bottom: 8, top: "auto", width: "auto", visibility: "visible" })
+        return
+      }
+      const triggerRect = trigger.getBoundingClientRect()
+      const left = Math.min(Math.max(triggerRect.left, viewportPadding), Math.max(viewportPadding, window.innerWidth - panelRect.width - viewportPadding))
+      const below = triggerRect.bottom + gap
+      const above = triggerRect.top - panelRect.height - gap
+      const top = below + panelRect.height <= window.innerHeight - viewportPadding || above < viewportPadding ? below : above
+      setPanelPosition({ left, top: Math.min(Math.max(top, viewportPadding), Math.max(viewportPadding, window.innerHeight - panelRect.height - viewportPadding)), visibility: "visible" })
+    }
+    updatePosition()
+    window.addEventListener("resize", updatePosition)
+    document.addEventListener("scroll", updatePosition, true)
+    return () => {
+      window.removeEventListener("resize", updatePosition)
+      document.removeEventListener("scroll", updatePosition, true)
+    }
+  }, [open])
+
+  useEffect(() => {
+    if (!open || window.innerWidth >= 640) return
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = "hidden"
+    return () => { document.body.style.overflow = previousOverflow }
+  }, [open])
+
+  function handleDayKeyDown(event: ReactKeyboardEvent<HTMLButtonElement>, date: Date) {
+    let next: Date | undefined
+    if (event.key === "ArrowLeft") next = new Date(date.getFullYear(), date.getMonth(), date.getDate() - 1)
+    else if (event.key === "ArrowRight") next = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1)
+    else if (event.key === "ArrowUp") next = new Date(date.getFullYear(), date.getMonth(), date.getDate() - 7)
+    else if (event.key === "ArrowDown") next = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 7)
+    else if (event.key === "Home") next = new Date(date.getFullYear(), date.getMonth(), date.getDate() - date.getDay())
+    else if (event.key === "End") next = new Date(date.getFullYear(), date.getMonth(), date.getDate() + (6 - date.getDay()))
+    else if (event.key === "PageUp") next = new Date(date.getFullYear(), date.getMonth() - 1, Math.min(date.getDate(), daysInMonth(date.getFullYear(), date.getMonth() - 1)))
+    else if (event.key === "PageDown") next = new Date(date.getFullYear(), date.getMonth() + 1, Math.min(date.getDate(), daysInMonth(date.getFullYear(), date.getMonth() + 1)))
+    if (!next) return
+    event.preventDefault()
+    focusCalendarDate(next)
+  }
 
   const totalDays = daysInMonth(viewYear, viewMonth)
   const startDay = startDayOfMonth(viewYear, viewMonth)
@@ -110,26 +225,23 @@ export function DatePicker({
   ]
 
   return (
-    <div ref={containerRef} className={cn("relative", fieldRootStyles, className)}>
+    <div ref={containerRef} className={cn("relative", fieldRootStyles, className)} {...props}>
       {label && (
         <label htmlFor={triggerId} className={fieldLabelStyles}>{label}</label>
       )}
+      <div className={cn("flex h-11 w-full items-center rounded-[var(--radius-md)] sm:h-9", controlBaseStyles, error && controlInvalidStyles, disabled && "cursor-not-allowed opacity-50")}>
       <button
+        ref={triggerRef}
         type="button"
         id={triggerId}
         aria-expanded={open}
         aria-haspopup="dialog"
+        aria-controls={dialogId}
         aria-invalid={error ? true : undefined}
         aria-describedby={error || hint ? messageId : undefined}
         disabled={disabled}
-        onClick={() => setOpen((o) => !o)}
-        className={cn(
-          "flex h-9 w-full items-center gap-2 rounded-[var(--radius-md)] px-3 text-left outline-none",
-          controlBaseStyles,
-          "focus:border-accent-500 focus:ring-2 focus:ring-focus-ring/20",
-          error && controlInvalidStyles,
-          disabled && "opacity-50 cursor-not-allowed",
-        )}
+        onClick={() => open ? closeCalendar() : openCalendar()}
+        className="flex h-full min-w-0 flex-1 items-center gap-2 rounded-[var(--radius-md)] px-3 text-left outline-none focus-visible:ring-2 focus-visible:ring-focus-ring/35"
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-500 shrink-0">
           <rect width="18" height="18" x="3" y="4" rx="2" ry="2" /><line x1="16" x2="16" y1="2" y2="6" /><line x1="8" x2="8" y1="2" y2="6" /><line x1="3" x2="21" y1="10" y2="10" />
@@ -137,38 +249,34 @@ export function DatePicker({
         <span className={cn("flex-1 text-sm truncate", value ? "text-foreground" : "text-muted-foreground")}>
           {value ? formatDate(value) : placeholder}
         </span>
-        {clearable && value && !disabled && (
-          <span
-            role="button"
-            tabIndex={-1}
-            onClick={clear}
-            className="shrink-0 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
-          >
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M18 6 6 18M6 6l12 12" />
-            </svg>
-          </span>
-        )}
       </button>
+      {clearable && value && !disabled && <button type="button" aria-label={`Clear ${label?.toLowerCase() ?? "date"}`} onClick={clear} className={cn(iconButtonStyles, "mr-1 size-9 sm:size-7")}><svg aria-hidden="true" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12" /></svg></button>}
+      </div>
 
       <AnimatePresence>
         {open && (
+          <>
+          <motion.div aria-hidden="true" className="fixed inset-0 z-40 bg-overlay sm:hidden" onMouseDown={() => closeCalendar(true)} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} />
           <motion.div
+            ref={panelRef}
+            id={dialogId}
             initial={{ opacity: 0, y: -4, scaleY: 0.97 }}
             animate={{ opacity: 1, y: 0, scaleY: 1 }}
             exit={{ opacity: 0, y: -4, scaleY: 0.97 }}
             transition={{ duration: 0.13 }}
-            style={{ originY: 0 }}
             role="dialog"
-            aria-label="Choose date"
-            className="absolute left-0 top-full z-50 mt-1.5 w-[min(18rem,calc(100vw-2rem))] rounded-[var(--radius-lg)] border border-border bg-surface-raised p-3 shadow-floating"
+            aria-label={label ? `Choose ${label.toLowerCase()}` : "Choose date"}
+            className="fixed z-50 w-[min(18rem,calc(100vw-2rem))] max-h-[calc(100dvh-1rem)] overflow-y-auto rounded-[var(--radius-lg)] border border-border bg-surface-raised p-3 shadow-floating"
+            style={{ ...panelPosition, originY: 0 }}
           >
+            <div className="mb-2 flex items-center justify-between gap-3 sm:hidden"><strong className="text-sm text-foreground">{label ? `Choose ${label.toLowerCase()}` : "Choose date"}</strong><button type="button" onClick={() => closeCalendar(true)} className={cn(iconButtonStyles, "size-11")} aria-label="Close date picker"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12" /></svg></button></div>
             <div className="flex items-center justify-between mb-3">
               <button
                 type="button"
-                onClick={prevMonth}
+                onClick={() => moveMonth(-1)}
+                disabled={!monthHasAvailableDates(new Date(viewYear, viewMonth - 1, 1).getFullYear(), new Date(viewYear, viewMonth - 1, 1).getMonth())}
                 aria-label="Previous month"
-                className={cn(iconButtonStyles, "size-7")}
+                className={cn(iconButtonStyles, "size-11 disabled:cursor-not-allowed disabled:opacity-35 sm:size-7")}
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="m15 18-6-6 6-6" />
@@ -179,9 +287,10 @@ export function DatePicker({
               </span>
               <button
                 type="button"
-                onClick={nextMonth}
+                onClick={() => moveMonth(1)}
+                disabled={!monthHasAvailableDates(new Date(viewYear, viewMonth + 1, 1).getFullYear(), new Date(viewYear, viewMonth + 1, 1).getMonth())}
                 aria-label="Next month"
-                className={cn(iconButtonStyles, "size-7")}
+                className={cn(iconButtonStyles, "size-11 disabled:cursor-not-allowed disabled:opacity-35 sm:size-7")}
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="m9 18 6-6-6-6" />
@@ -190,7 +299,7 @@ export function DatePicker({
             </div>
             <div className="grid grid-cols-7 gap-0.5 mb-1">
               {DAYS.map((d) => (
-                <div key={d} aria-hidden="true" className="text-center text-[10px] font-semibold text-muted-foreground py-1">
+                <div key={d} aria-hidden="true" className="py-1 text-center text-[10px] font-semibold text-muted-foreground">
                   {d}
                 </div>
               ))}
@@ -201,8 +310,7 @@ export function DatePicker({
                 const date = new Date(viewYear, viewMonth, day)
                 const isSelected = value ? isSameDay(date, value) : false
                 const isToday = isSameDay(date, today)
-                const isDisabled =
-                  (minDate && date < minDate) || (maxDate && date > maxDate)
+                const isDisabled = isUnavailable(date)
 
                 return (
                   <button
@@ -210,11 +318,15 @@ export function DatePicker({
                     type="button"
                     disabled={!!isDisabled}
                     onClick={() => select(date)}
+                    onFocus={() => setFocusDate(date)}
+                    onKeyDown={(event) => handleDayKeyDown(event, date)}
+                    data-date={dateKey(date)}
+                    tabIndex={isSameDay(date, focusDate) ? 0 : -1}
                     aria-label={date.toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
                     aria-pressed={isSelected}
                     aria-current={isToday ? "date" : undefined}
                     className={cn(
-                      "h-8 w-full rounded-md text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring/35",
+                      "h-11 w-full rounded-md text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring/35 sm:h-8",
                       isSelected
                         ? "bg-primary text-primary-foreground font-medium"
                         : isToday
@@ -228,11 +340,14 @@ export function DatePicker({
                 )
               })}
             </div>
+            <div className={cn("mt-3 flex items-center border-t border-border pt-3", isUnavailable(today) ? "justify-end" : "justify-between")}>{!isUnavailable(today) && <button type="button" onClick={() => focusCalendarDate(today)} className="h-11 rounded-md px-3 text-xs font-medium text-accent-700 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring/35 sm:h-10 dark:text-accent-300">Today</button>}<button type="button" onClick={() => closeCalendar(true)} className="h-11 rounded-md px-3 text-xs font-medium text-muted-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring/35 sm:h-10">Cancel</button></div>
           </motion.div>
+          </>
         )}
       </AnimatePresence>
       {error && <p id={messageId} aria-live="polite" className={fieldErrorStyles}>{error}</p>}
       {hint && !error && <p id={messageId} className={fieldDescriptionStyles}>{hint}</p>}
     </div>
   )
-}
+})
+DatePicker.displayName = "DatePicker"

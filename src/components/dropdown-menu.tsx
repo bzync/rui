@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/cn"
 import { AnimatePresence, motion } from "framer-motion"
+import { transitions } from "@/lib/motion"
 import { HTMLAttributes, MouseEvent as ReactMouseEvent, ReactElement, ReactNode, cloneElement, isValidElement, useEffect, useRef, useState } from "react"
 
 export interface DropdownMenuItem {
@@ -154,7 +155,7 @@ export function DropdownMenu({
             initial={{ opacity: 0, scaleY: 0.96, ...enterFrom[side] }}
             animate={{ opacity: 1, scaleY: 1, y: 0 }}
             exit={{ opacity: 0, scaleY: 0.96, ...enterFrom[side] }}
-            transition={{ duration: 0.13 }}
+            transition={transitions.fade}
             style={{ originY: side === "bottom" ? 0 : 1 }}
             className={cn(
               "absolute z-50 min-w-[180px] rounded-[var(--radius-lg)] border border-border bg-surface-raised shadow-floating",

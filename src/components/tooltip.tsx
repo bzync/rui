@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/cn"
 import { AnimatePresence, motion } from "framer-motion"
+import { transitions } from "@/lib/motion"
 import { FocusEvent, HTMLAttributes, MouseEvent, ReactElement, ReactNode, cloneElement, isValidElement, useEffect, useId, useRef, useState } from "react"
 
 type Position = "top" | "bottom" | "left" | "right"
@@ -85,7 +86,7 @@ export function Tooltip({
             initial={{ opacity: 0, ...initial }}
             animate={{ opacity: 1, y: 0, x: 0 }}
             exit={{ opacity: 0, ...initial }}
-            transition={{ duration: 0.12 }}
+            transition={transitions.fade}
             className={cn(
               "absolute z-50 pointer-events-none",
               "max-w-[min(20rem,calc(100vw-2rem))] rounded-md px-2.5 py-1.5 text-xs font-medium leading-4",

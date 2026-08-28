@@ -44,12 +44,9 @@ import {
   Layers3,
   Mail,
   MoreHorizontal,
-  PackageCheck,
   Plus,
   Search,
   ShieldCheck,
-  ShoppingCart,
-  Truck,
   UserPlus,
 } from "lucide-react"
 import { type ReactNode, useMemo, useRef, useState } from "react"
@@ -82,63 +79,53 @@ const subpathCode = `import "@bzync/rui/styles.css"
 import { Button } from "@bzync/rui/button"
 import { Select } from "@bzync/rui/select"`
 
+const componentCount = componentGroups.reduce((count, group) => count + group.pages.length, 0)
+
+function IntroductionExample() {
+  const [requiresApproval, setRequiresApproval] = useState(true)
+  const [saved, setSaved] = useState(false)
+
+  return (
+    <div className="docs-home-example" aria-label="Interactive project settings example built with rui">
+      <div className="docs-home-example-header">
+        <div><strong>Project access</strong><span>Real rui components</span></div>
+        <a href={hrefFor("components/input")}>View component</a>
+      </div>
+      <form onSubmit={(event) => { event.preventDefault(); setSaved(true) }}>
+        <Input label="Project name" defaultValue="api-gateway" onChange={() => setSaved(false)} />
+        <Switch
+          checked={requiresApproval}
+          onCheckedChange={(checked) => { setRequiresApproval(checked); setSaved(false) }}
+          label="Require deployment approval"
+          description="A reviewer must approve production changes."
+        />
+        <div className="docs-home-example-actions">
+          <span role="status" aria-live="polite">{saved ? "Changes saved." : "Ready to configure."}</span>
+          <Button type="submit" size="sm">Save changes</Button>
+        </div>
+      </form>
+    </div>
+  )
+}
+
 function IntroductionPage() {
   return <>
-    <div className="docs-home-hero">
+    <div className="docs-home-intro">
       <PageIntro
-        eyebrow="Application UI for React"
-        title="Components for operational software."
-        description="A typed UI foundation for ERP, finance, commerce, logistics, and admin products. Built for real data density, accessible workflows, and long-lived applications."
+        eyebrow="React + Tailwind CSS"
+        title="@bzync/rui"
+        description="Production-ready React components built with Tailwind CSS. Typed APIs, scoped theming, accessible interaction patterns, and explicit package entry points."
       >
-        <Button onClick={() => { window.location.hash = "/docs/installation" }}>Start building</Button>
-        <Button variant="secondary" onClick={() => { window.location.hash = "/components" }}>View components</Button>
+        <Button asChild><a href={hrefFor("docs/installation")}>Get started</a></Button>
+        <Button asChild variant="secondary"><a href={hrefFor("components")}>Browse components</a></Button>
         <span className="docs-hero-note"><ShieldCheck size={14} aria-hidden="true" /> React 18.2 and 19</span>
       </PageIntro>
-      <div className="docs-hero-preview" aria-label="Example order operations dashboard built with rui">
-        <div className="docs-hero-preview-top">
-          <div className="docs-hero-workspace">
-            <span className="docs-hero-mark" aria-hidden="true">N</span>
-            <span><strong>Northstar Trading</strong><small>Order operations</small></span>
-          </div>
-          <Badge variant="success" dot>Live data</Badge>
-        </div>
-        <div className="docs-hero-metrics">
-          <div><span>Net sales</span><strong>$1.84M</strong><small className="positive">+8.4% vs plan</small></div>
-          <div><span>Open orders</span><strong>1,248</strong><small>86 need review</small></div>
-          <div><span>Fill rate</span><strong>96.8%</strong><small>Target 97.5%</small></div>
-          <div><span>Backorders</span><strong>37</strong><small className="attention">12 due today</small></div>
-        </div>
-        <div className="docs-hero-operations">
-          <section className="docs-hero-panel" aria-label="Today's fulfillment progress">
-            <header><strong>Fulfillment</strong><small>Today</small></header>
-            {[
-              ["Allocated", "842", "88%"],
-              ["Packed", "616", "64%"],
-              ["Shipped", "431", "45%"],
-            ].map(([label, value, width]) => (
-              <div className="docs-hero-progress" key={label}>
-                <span><small>{label}</small><strong>{value}</strong></span>
-                <i aria-hidden="true"><b style={{ width }} /></i>
-              </div>
-            ))}
-          </section>
-          <section className="docs-hero-panel docs-hero-exceptions" aria-label="Order exceptions">
-            <header><strong>Exceptions</strong><Badge variant="warning" size="sm">4 open</Badge></header>
-            <div className="docs-hero-order"><span><strong>SO-80321</strong><small>Northwind Retail</small></span><span><Badge variant="warning" size="sm">Credit hold</Badge><strong>$8,920</strong></span></div>
-            <div className="docs-hero-order"><span><strong>SO-80318</strong><small>Fabrikam Stores</small></span><span><Badge variant="error" size="sm">Stockout</Badge><strong>$12,480</strong></span></div>
-            <div className="docs-hero-order"><span><strong>PO-10482</strong><small>Contoso Supply</small></span><span><Badge variant="info" size="sm">Approval</Badge><strong>$6,240</strong></span></div>
-          </section>
-        </div>
-        <div className="docs-hero-preview-footer">
-          <span>Last sync 11:42 AM</span>
-          <span>Amounts in USD</span>
-        </div>
-      </div>
+      <IntroductionExample />
     </div>
 
-    <DocsSection id="install" title="Install">
+    <DocsSection id="install" title="Install and import">
       <CopyCommand>npm install @bzync/rui framer-motion</CopyCommand>
-      <p>React 18.2 or React 19 and React DOM are peer dependencies. Import the stylesheet once at your application root.</p>
+      <p>React 18.2 or React 19 and React DOM are peer dependencies. Import <code>@bzync/rui/styles.css</code> once at your application root, then import from the root package or a component subpath.</p>
     </DocsSection>
 
     <DocsSection id="first-component" title="Your first workflow" description="The provider scopes theme tokens to its children. Use applyToRoot when overlays and the whole document should share the theme.">
@@ -152,7 +139,7 @@ function IntroductionPage() {
 
     <DocsSection id="package-architecture" title="Package architecture">
       <div className="docs-fact-grid">
-        <div><strong>60+ components</strong><span>Forms, data, overlays, charts, and navigation</span></div>
+        <div><strong>{componentCount} documented APIs</strong><span>Forms, data, overlays, charts, and navigation</span></div>
         <div><strong>React 18.2 + 19</strong><span>Stable compatibility across application stacks</span></div>
         <div><strong>ESM + CJS</strong><span>Root and component entry points</span></div>
         <div><strong>TypeScript</strong><span>Declarations for every public entry</span></div>
@@ -162,19 +149,18 @@ function IntroductionPage() {
       </DocsCallout>
     </DocsSection>
 
-    <DocsSection id="principles" title="Built for operational complexity" description="The same primitives scale from internal tools to customer-facing commerce without forcing a single product aesthetic.">
-      <div className="enterprise-use-cases">
-        <article><span><FileCheck2 size={16} /></span><div><strong>Finance and ERP</strong><p>Approval queues, journal workflows, account controls, and auditable status changes.</p></div></article>
-        <article><span><ShoppingCart size={16} /></span><div><strong>Commerce operations</strong><p>Orders, returns, promotions, customer records, and catalog management.</p></div></article>
-        <article><span><Truck size={16} /></span><div><strong>Supply chain</strong><p>Inventory positions, purchase orders, fulfillment exceptions, and vendor data.</p></div></article>
-        <article><span><PackageCheck size={16} /></span><div><strong>Internal platforms</strong><p>Dense administration screens with consistent permissions, feedback, and navigation.</p></div></article>
-      </div>
-      <div className="docs-link-grid docs-principle-links">
-        <PageLink slug="foundations/accessibility" title="Accessible interactions" description="Focus management, keyboard behavior, and native semantics." />
-        <PageLink slug="docs/configuration" title="Scoped theming" description="Accent, neutral, semantic, and mode-specific tokens." />
-        <PageLink slug="examples/settings" title="Production compositions" description="See components combined in realistic application screens." />
-        <PageLink slug="resources/component-api" title="Typed APIs" description="Browse the public inventory and source-derived contracts." />
-      </div>
+    <DocsSection id="principles" title="Designed for product work" description="The package favors explicit behavior, compact product interfaces, and composition over a prescriptive application aesthetic.">
+      <dl className="docs-principles-list">
+        <div><dt>Accessible interactions</dt><dd>Focus management, keyboard behavior, labels, and native semantics are part of the component contract.</dd></div>
+        <div><dt>Scoped theming</dt><dd>Accent, neutral, semantic, and mode-specific values are expressed as CSS variables inside ThemeProvider.</dd></div>
+        <div><dt>Predictable distribution</dt><dd>Typed ESM and CommonJS entries are available from the root package and explicit component subpaths.</dd></div>
+      </dl>
+      <nav className="docs-related-links" aria-label="Related documentation">
+        <a href={hrefFor("foundations/accessibility")}><span>Accessibility</span><small>Focus, keyboard behavior, semantics, and verification.</small></a>
+        <a href={hrefFor("docs/configuration")}><span>Theme configuration</span><small>Accent, neutral, semantic, and mode-specific tokens.</small></a>
+        <a href={hrefFor("examples/settings")}><span>Application examples</span><small>Components composed in realistic product interfaces.</small></a>
+        <a href={hrefFor("resources/component-api")}><span>Component API</span><small>Public inventory and source-verified contracts.</small></a>
+      </nav>
     </DocsSection>
   </>
 }
@@ -268,6 +254,38 @@ const semanticColors = [
   ["Success", "bg-success", "var(--color-success)"], ["Warning", "bg-warning", "var(--color-warning)"],
 ]
 
+const radiusTokens = [
+  { name: "sm", value: "4px", usage: "Compact controls" },
+  { name: "md", value: "6px", usage: "Inputs and buttons" },
+  { name: "lg", value: "8px", usage: "Panels and previews" },
+  { name: "xl", value: "10px", usage: "Menus and dialogs" },
+  { name: "2xl", value: "12px", usage: "Large surfaces" },
+] as const
+
+const shadowTokens = [
+  {
+    name: "raised",
+    level: "Low",
+    usage: "Controls and static raised surfaces",
+    light: "0 1px 2px rgba(15, 23, 42, 0.05)",
+    dark: "0 1px 1px rgb(0 0 0 / 0.28), 0 8px 20px -16px rgb(0 0 0 / 0.75)",
+  },
+  {
+    name: "floating",
+    level: "Medium",
+    usage: "Menus, popovers, and floating controls",
+    light: "0 10px 28px -12px rgba(15, 23, 42, 0.22), 0 3px 8px -4px rgba(15, 23, 42, 0.10)",
+    dark: "0 16px 36px -14px rgb(0 0 0 / 0.72), 0 4px 10px -5px rgb(0 0 0 / 0.60)",
+  },
+  {
+    name: "overlay",
+    level: "High",
+    usage: "Modal and drawer surfaces",
+    light: "0 24px 60px -24px rgba(15, 23, 42, 0.42), 0 8px 20px -12px rgba(15, 23, 42, 0.20)",
+    dark: "0 28px 72px -24px rgb(0 0 0 / 0.86), 0 10px 24px -12px rgb(0 0 0 / 0.70)",
+  },
+] as const
+
 function FoundationPage({ page }: { page: DocsPage }) {
   if (page.slug === "foundations/colors") return <>
     <PageIntro eyebrow="Foundations" title="Colors" description="Components use semantic color roles backed by customizable palettes and mode-specific theme values." />
@@ -288,8 +306,28 @@ function FoundationPage({ page }: { page: DocsPage }) {
   </>
   if (page.slug === "foundations/radius") return <>
     <PageIntro eyebrow="Foundations" title="Radius & shadows" description="Shape and depth clarify hierarchy without turning every section into a floating card." />
-    <DocsSection id="radius" title="Radius"><div className="radius-grid">{[["sm","6px"],["md","8px"],["lg","10px"],["xl","12px"],["2xl","14px"]].map(([name,size]) => <div key={name}><span style={{ borderRadius: `var(--radius-${name})` }} /><code>--radius-{name}</code><small>{size}</small></div>)}</div></DocsSection>
-    <DocsSection id="shadows" title="Shadows"><div className="shadow-grid">{["raised","floating","overlay"].map(name => <div key={name} style={{ boxShadow: `var(--shadow-${name})` }}><strong>{name}</strong><code>--shadow-{name}</code></div>)}</div></DocsSection>
+    <DocsSection id="radius" title="Radius" description="Each specimen uses the published token on the same 88 × 64px shape, so only the corner geometry changes.">
+      <div className="radius-grid">
+        {radiusTokens.map(({ name, value, usage }) => (
+          <figure key={name}>
+            <div className="radius-swatch" style={{ borderRadius: `var(--radius-${name})` }}><span aria-hidden="true" /></div>
+            <figcaption><code>--radius-{name}</code><strong>{value}</strong><small>{usage}</small></figcaption>
+          </figure>
+        ))}
+      </div>
+    </DocsSection>
+    <DocsSection id="shadows" title="Shadows" description="The library uses separate light and dark elevation recipes. Compare each published token side by side; the page theme does not hide the opposite mode.">
+      <div className="shadow-comparison">
+        <div className="shadow-comparison-head" aria-hidden="true"><span>Token</span><span>Light</span><span>Dark</span></div>
+        {shadowTokens.map(({ name, level, usage, light, dark }) => (
+          <div className="shadow-comparison-row" key={name}>
+            <div className="shadow-meta"><strong>{level} elevation</strong><code>--shadow-{name}</code><small>{usage}</small></div>
+            <div className="shadow-mode-cell light-sample" aria-label={`${level} elevation in light mode`}><span className="shadow-swatch" style={{ boxShadow: light }} /></div>
+            <div className="shadow-mode-cell dark-sample" aria-label={`${level} elevation in dark mode`}><span className="shadow-swatch" style={{ boxShadow: dark }} /></div>
+          </div>
+        ))}
+      </div>
+    </DocsSection>
   </>
   return <AccessibilityPage />
 }

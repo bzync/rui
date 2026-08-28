@@ -24,6 +24,7 @@ import {
   Sun,
 } from "lucide-react"
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react"
+import packageMetadata from "../../package.json"
 import { RuiBrandMark } from "./_shared/brand"
 import { allPages, docsGroups, getPage, hrefFor, orderedPages, readHash, type DocsPage } from "./docs/catalog"
 
@@ -60,6 +61,18 @@ const repoUrl = "https://github.com/bzync/rui"
 
 function navigate(slug: string) {
   window.location.hash = `/${slug}`
+}
+
+function prefersReducedMotion() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches
+}
+
+function scrollToSection(id: string) {
+  document.getElementById(id)?.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "start" })
+}
+
+function scrollToDocumentTop() {
+  window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? "auto" : "smooth" })
 }
 
 function ThemeMenu() {
@@ -124,6 +137,7 @@ function SearchDialog({ open, onClose }: { open: boolean; onClose: () => void })
       .slice(0, 12)
     return ranked
   }, [query])
+  const activeResultId = results[activeIndex] ? `docs-search-result-${results[activeIndex].page.slug.replace(/\//g, "-")}` : undefined
 
   function select(page: DocsPage) {
     navigate(page.slug)
@@ -149,6 +163,11 @@ function SearchDialog({ open, onClose }: { open: boolean; onClose: () => void })
           onChange={(event) => { setQuery(event.target.value); setActiveIndex(0) }}
           placeholder="Search components and docs…"
           aria-label="Search components and docs"
+          role="combobox"
+          aria-autocomplete="list"
+          aria-expanded="true"
+          aria-controls="docs-search-results"
+          aria-activedescendant={activeResultId}
           onKeyDown={(event) => {
             if (event.key === "ArrowDown") {
               event.preventDefault()
@@ -158,14 +177,20 @@ function SearchDialog({ open, onClose }: { open: boolean; onClose: () => void })
               setActiveIndex(index => Math.max(index - 1, 0))
             } else if (event.key === "Enter" && results[activeIndex]) {
               select(results[activeIndex].page)
+            } else if (event.key === "Home") {
+              event.preventDefault()
+              setActiveIndex(0)
+            } else if (event.key === "End") {
+              event.preventDefault()
+              setActiveIndex(Math.max(results.length - 1, 0))
             }
           }}
         />
         <kbd>Esc</kbd>
       </div>
-      <div className="docs-search-results" role="listbox" aria-label="Search results">
+      <div id="docs-search-results" className="docs-search-results" role="listbox" aria-label="Search results">
         {results.length ? results.map(({ page }, index) => (
-          <button type="button" role="option" aria-selected={index === activeIndex} key={page.slug} onMouseEnter={() => setActiveIndex(index)} onClick={() => select(page)}>
+          <button id={`docs-search-result-${page.slug.replace(/\//g, "-")}`} type="button" role="option" aria-selected={index === activeIndex} key={page.slug} onMouseEnter={() => setActiveIndex(index)} onClick={() => select(page)}>
             <span><strong>{page.title}</strong><small>{page.description}</small></span>
             <Badge variant="muted" size="sm">{page.group}</Badge>
           </button>
@@ -186,7 +211,7 @@ function OnThisPage({ sections, activeSection }: { sections: string[]; activeSec
             <button
               type="button"
               className={activeSection === id ? "active" : undefined}
-              onClick={() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" })}
+              onClick={() => scrollToSection(id)}
             >
               {id.replace(/-/g, " ")}
             </button>
@@ -207,7 +232,7 @@ function MobileOnThisPage({ sections, activeSection }: { sections: string[]; act
             type="button"
             key={id}
             aria-current={activeSection === id ? "location" : undefined}
-            onClick={() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" })}
+            onClick={() => scrollToSection(id)}
           >
             {id.replace(/-/g, " ")}
           </button>
@@ -218,11 +243,14 @@ function MobileOnThisPage({ sections, activeSection }: { sections: string[]; act
 }
 
 function Breadcrumbs({ page }: { page: DocsPage }) {
+  const isComponentPage = page.kind === "component" || page.slug === "components"
+  const showGroup = !isComponentPage && page.group !== "Getting Started"
   return (
     <nav aria-label="Breadcrumb" className="docs-breadcrumbs">
-      <a href={hrefFor(page.kind === "component" ? "components" : "docs/introduction")}>{page.kind === "component" ? "Components" : "Docs"}</a>
+      <a href={hrefFor(isComponentPage ? "components" : "docs/introduction")}>{isComponentPage ? "Components" : "Docs"}</a>
       <span aria-hidden="true">/</span>
       {page.kind === "component" && <><span>{page.group}</span><span aria-hidden="true">/</span></>}
+      {showGroup && <><span>{page.group}</span><span aria-hidden="true">/</span></>}
       <span aria-current="page">{page.title}</span>
     </nav>
   )
@@ -327,7 +355,7 @@ function DocsShell() {
             <div className="docs-header-left">
               <Button variant="ghost" size="icon" className="docs-mobile-menu" onClick={() => setMobileOpen(true)} aria-label="Open documentation navigation"><Menu size={18} /></Button>
               <a className="docs-brand" href={hrefFor("docs/introduction")} aria-label="@bzync/rui documentation home"><RuiBrandMark size={26} /><strong>@bzync/rui</strong></a>
-              <Badge variant="muted" size="sm" className="docs-version">v0.0.3</Badge>
+              <Badge variant="muted" size="sm" className="docs-version">v{packageMetadata.version}</Badge>
               <nav className="docs-primary-nav" aria-label="Primary">
                 <a href={hrefFor("docs/introduction")} aria-current={primaryArea === "docs" ? "page" : undefined}>Docs</a>
                 <a href={hrefFor("components")} aria-current={primaryArea === "components" ? "page" : undefined}>Components</a>
@@ -364,7 +392,7 @@ function DocsShell() {
             <footer className="docs-footer">
               <div className="docs-footer-meta">
                 <span className="docs-footer-brand"><RuiBrandMark size={16} />Built with @bzync/rui</span>
-                <span>Not accepting collaboration requests at this time.</span>
+                <span>React 18.2–19 · TypeScript · ESM + CJS</span>
               </div>
               <div className="docs-footer-links">
                 <a className="docs-support-link" href="https://buymeacoffee.com/adminjw" target="_blank" rel="noreferrer">Support development</a>
@@ -385,7 +413,7 @@ function DocsShell() {
           className={cn("docs-back-to-top", showBackToTop && "visible")}
           aria-label="Back to top"
           tabIndex={showBackToTop ? 0 : -1}
-          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          onClick={scrollToDocumentTop}
         >
           <ArrowUp size={16} aria-hidden="true" />
         </button>

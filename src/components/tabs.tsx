@@ -3,6 +3,7 @@
 import { cn } from "@/lib/cn"
 import { focusRingStyles } from "@/lib/component-styles"
 import { AnimatePresence, motion } from "framer-motion"
+import { transitions } from "@/lib/motion"
 import { HTMLMotionProps } from "framer-motion"
 import {
   HTMLAttributes,
@@ -35,6 +36,9 @@ export interface TabsProps {
   children: ReactNode
   className?: string
   orientation?: "horizontal" | "vertical"
+  /** Preferred — called when the active tab changes. */
+  onValueChange?: (value: string) => void
+  /** @deprecated Use onValueChange */
   onChange?: (value: string) => void
 }
 
@@ -44,6 +48,7 @@ export function Tabs({
   children,
   className,
   orientation = "horizontal",
+  onValueChange,
   onChange,
 }: TabsProps) {
   const [localActive, setLocalActive] = useState(defaultValue)
@@ -52,6 +57,7 @@ export function Tabs({
 
   const handleSet = (v: string) => {
     if (value === undefined) setLocalActive(v)
+    onValueChange?.(v)
     onChange?.(v)
   }
 
@@ -154,7 +160,7 @@ export function TabsTrigger({
         <motion.span
           layoutId={`tab-bg-${tabsId}`}
           className="absolute inset-0 rounded-md border border-border bg-surface shadow-xs"
-          transition={{ type: "spring", stiffness: 450, damping: 32 }}
+          transition={transitions.tabIndicator}
         />
       )}
       {icon && (
@@ -187,7 +193,7 @@ export function TabsContent({
           initial={orientation === "vertical" ? { opacity: 0, x: 6 } : { opacity: 0, y: 4 }}
           animate={orientation === "vertical" ? { opacity: 1, x: 0 } : { opacity: 1, y: 0 }}
           exit={orientation === "vertical" ? { opacity: 0, x: -6 } : { opacity: 0, y: -4 }}
-          transition={{ duration: 0.15 }}
+          transition={transitions.fade}
           role="tabpanel"
           id={`${tabsId}-panel-${safeValue}`}
           aria-labelledby={`${tabsId}-tab-${safeValue}`}

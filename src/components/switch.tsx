@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/cn"
 import { motion } from "framer-motion"
+import { transitions } from "@/lib/motion"
 import {
   InputHTMLAttributes,
   forwardRef,
@@ -94,7 +95,7 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(
               boxShadow: "0 1px 4px rgba(0,0,0,0.22), 0 0 0 0.5px rgba(0,0,0,0.06)",
             }}
             animate={{ x: thumbX }}
-            transition={{ type: "spring", stiffness: 600, damping: 35 }}
+            transition={transitions.switchThumb}
           />
         </div>
         {(label || description) && (

@@ -37,7 +37,6 @@ export function Skeleton({
     />
   )
 }
-
 // ─── Text lines ─────────────────────────────────────────────────────────────────
 
 export interface SkeletonTextProps {
@@ -171,16 +170,19 @@ export function SkeletonTopbar({
 export interface SkeletonTableProps {
   rows?: number
   cols?: number
+  density?: "compact" | "comfortable"
   className?: string
 }
 
 export function SkeletonTable({
   rows = 5,
   cols = 4,
+  density = "comfortable",
   className,
 }: SkeletonTableProps) {
   return (
     <div
+      data-density={density}
       className={cn("overflow-hidden rounded-[var(--radius-lg)] border border-border", className)}
       aria-hidden="true"
     >
@@ -197,6 +199,58 @@ export function SkeletonTable({
           {Array.from({ length: cols }).map((_, c) => (
             <Skeleton key={c} height={13} width={`${55 + ((r + c) * 11) % 45}%`} />
           ))}
+        </div>
+      ))}
+    </div>
+  )
+}
+// ─── List skeleton ────────────────────────────────────────────────────────────
+
+export interface SkeletonListProps {
+  items?: number
+  hasAvatar?: boolean
+  density?: "compact" | "comfortable"
+  className?: string
+}
+
+export function SkeletonList({
+  items = 4,
+  hasAvatar = false,
+  density = "comfortable",
+  className,
+}: SkeletonListProps) {
+  const py = density === "compact" ? "py-2" : "py-3"
+  return (
+    <div className={cn("divide-y divide-border rounded-[var(--radius-lg)] border border-border bg-surface", className)} aria-hidden="true">
+      {Array.from({ length: items }).map((_, i) => (
+        <div key={i} className={cn("flex items-center gap-3 px-4", py)}>
+          {hasAvatar && <SkeletonAvatar size="sm" />}
+          <div className="flex-1 space-y-1.5">
+            <Skeleton height={12} width={`${60 + (i * 7) % 30}%`} />
+            <Skeleton height={10} width={`${40 + (i * 11) % 30}%`} />
+          </div>
+          <Skeleton height={20} width={48} rounded="full" />
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// ─── Stat skeleton ────────────────────────────────────────────────────────────
+
+export interface SkeletonStatProps {
+  count?: number
+  className?: string
+}
+
+export function SkeletonStat({ count = 3, className }: SkeletonStatProps) {
+  return (
+    <div className={cn("grid gap-4", count === 2 ? "grid-cols-2" : count === 4 ? "grid-cols-4" : "grid-cols-3", className)} aria-hidden="true">
+      {Array.from({ length: count }).map((_, i) => (
+        <div key={i} className="rounded-[var(--radius-lg)] border border-border bg-surface p-4 space-y-3">
+          <Skeleton height={10} width={64} />
+          <Skeleton height={20} width={96} />
+          <Skeleton height={10} width={120} />
         </div>
       ))}
     </div>

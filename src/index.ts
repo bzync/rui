@@ -83,3 +83,7 @@ export * from "./errors/error-boundary"
 export * from "./lifecycle"
 
 export * from "./components/seo"
+export * from "./components/visually-hidden"
+export * from "./components/slot"
+export * from "./components/overlay"
+export * from "./lib/motion"

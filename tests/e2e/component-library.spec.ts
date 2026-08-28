@@ -83,15 +83,20 @@ test("every component page includes a live preview, copyable code, and API refer
 })
 
 test("homepage gets developers from installation to a working preview", async ({ page }) => {
-  await expect(page.getByRole("heading", { level: 1, name: "Components for operational software." })).toBeVisible()
+  await expect(page.getByRole("heading", { level: 1, name: "@bzync/rui" })).toBeVisible()
+  await expect(page.getByText("Production-ready React components built with Tailwind CSS.", { exact: false })).toBeVisible()
   await expect(page.getByRole("link", { name: "Open @bzync/rui repository" })).toHaveAttribute("href", "https://github.com/bzync/rui")
-  await expect(page.getByLabel("Example order operations dashboard built with rui")).toBeVisible()
+  await expect(page.getByLabel("Interactive project settings example built with rui")).toBeVisible()
   await expect(page.getByText("npm install @bzync/rui framer-motion", { exact: true })).toBeVisible()
   await expect(page.getByRole("button", { name: "Review orders" })).toBeVisible()
-  await expect(page.getByText("Not accepting collaboration requests at this time.")).toBeVisible()
+  await expect(page.getByText("React 18.2–19 · TypeScript · ESM + CJS")).toBeVisible()
+  await expect(page.locator(".docs-version")).toHaveText("v0.0.5")
   await expect(page.getByRole("link", { name: "Support development" })).toHaveAttribute("href", "https://buymeacoffee.com/adminjw")
 
-  await page.getByRole("button", { name: "View components" }).click()
+  await page.getByRole("button", { name: "Save changes" }).click()
+  await expect(page.getByRole("status")).toHaveText("Changes saved.")
+
+  await page.getByRole("link", { name: "Browse components" }).click()
   await expect(page).toHaveURL(/#\/components$/)
   await expect(page.getByRole("heading", { level: 1, name: "Component overview" })).toBeVisible()
 })
@@ -162,7 +167,7 @@ test("command search recognizes component aliases and opens a result", async ({ 
   await page.keyboard.up(modifier)
   const dialog = page.getByRole("dialog", { name: "Search documentation" })
   await expect(dialog).toBeVisible()
-  const input = dialog.getByRole("textbox", { name: "Search components and docs" })
+  const input = dialog.getByRole("combobox", { name: "Search components and docs" })
   await input.fill("dialog")
   await expect(dialog.getByRole("option", { name: /Modal/ })).toBeVisible()
   await input.press("Enter")
@@ -173,7 +178,7 @@ test("command search recognizes component aliases and opens a result", async ({ 
 test("search supports arrow-key result selection", async ({ page }) => {
   await page.getByRole("button", { name: "Search documentation" }).click()
   const dialog = page.getByRole("dialog", { name: "Search documentation" })
-  const input = dialog.getByRole("textbox", { name: "Search components and docs" })
+  const input = dialog.getByRole("combobox", { name: "Search components and docs" })
   await input.fill("theme")
   await input.press("ArrowDown")
   await expect(dialog.getByRole("option").nth(1)).toHaveAttribute("aria-selected", "true")
@@ -235,6 +240,87 @@ test("select and tabs retain keyboard interaction inside the docs", async ({ pag
   await expect(page.getByText("The latest deployment completed 8 minutes ago.")).toBeVisible()
 })
 
+test("custom time picker and formatted text remain usable at every viewport", async ({ page }) => {
+  await page.goto("/#/components/time-picker")
+  const trigger = page.getByRole("button", { name: "Deployment time" })
+  await trigger.click()
+  const dialog = page.getByRole("dialog", { name: "Choose deployment time" })
+  await expect(dialog).toBeVisible()
+
+  const bounds = await dialog.boundingBox()
+  const viewport = page.viewportSize()
+  expect(bounds).not.toBeNull()
+  expect(viewport).not.toBeNull()
+  expect(bounds!.x).toBeGreaterThanOrEqual(0)
+  expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(viewport!.width + 1)
+  expect(bounds!.y).toBeGreaterThanOrEqual(0)
+  expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(viewport!.height + 1)
+
+  if (viewport!.width < 640) {
+    expect(Math.abs(viewport!.height - (bounds!.y + bounds!.height) - 8)).toBeLessThanOrEqual(2)
+    await expect(page.locator(".fixed.inset-0.bg-overlay")).toBeVisible()
+    for (const control of [dialog.getByRole("button", { name: "Now" }), dialog.getByRole("button", { name: "Cancel" }), dialog.getByRole("button", { name: "Apply" })]) {
+      expect((await control.boundingBox())!.height).toBeGreaterThanOrEqual(40)
+    }
+    expect((await dialog.getByRole("listbox", { name: "Hour" }).getByRole("option", { name: "09" }).boundingBox())!.height).toBeGreaterThanOrEqual(44)
+  }
+
+  await dialog.getByRole("listbox", { name: "Hour" }).getByRole("option", { name: "11" }).click()
+  await dialog.getByRole("listbox", { name: "Minute" }).getByRole("option", { name: "45" }).click()
+  await dialog.getByRole("button", { name: "Apply" }).click()
+  await expect(trigger).toContainText("11:45 AM")
+  await expect(trigger).toBeFocused()
+
+  await page.goto("/#/components/text")
+  await expect(page.locator(".component-preview-canvas time")).toHaveCount(2)
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
+  expect(overflow, "formatted text does not cause horizontal viewport overflow").toBeLessThanOrEqual(1)
+})
+
+test("date picker stays within the viewport and supports calendar keyboard navigation", async ({ page }) => {
+  await page.goto("/#/components/date-picker")
+  const trigger = page.getByRole("button", { name: "Deployment date", exact: true })
+  await trigger.click()
+  const dialog = page.getByRole("dialog", { name: "Choose deployment date" })
+  await expect(dialog).toBeVisible()
+
+  const bounds = await dialog.boundingBox()
+  const viewport = page.viewportSize()
+  expect(bounds).not.toBeNull()
+  expect(viewport).not.toBeNull()
+  expect(bounds!.x).toBeGreaterThanOrEqual(0)
+  expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(viewport!.width + 1)
+  expect(bounds!.y).toBeGreaterThanOrEqual(0)
+  expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(viewport!.height + 1)
+
+  const selected = dialog.locator('[data-date="2026-09-18"]')
+  await expect(selected).toBeFocused()
+  if (viewport!.width < 640) {
+    await expect.poll(async () => {
+      const settledBounds = await dialog.boundingBox()
+      return Math.abs(viewport!.height - (settledBounds!.y + settledBounds!.height) - 8)
+    }).toBeLessThanOrEqual(2)
+    expect((await selected.boundingBox())!.height).toBeGreaterThanOrEqual(40)
+  }
+  await selected.press("ArrowRight")
+  const nextDay = dialog.locator('[data-date="2026-09-19"]')
+  await expect(nextDay).toBeFocused()
+  await nextDay.press("Enter")
+  await expect(trigger).toContainText("Sep 19, 2026")
+  await expect(trigger).toBeFocused()
+})
+
+test("info button provides contextual help without an ambiguous target", async ({ page }) => {
+  await page.goto("/#/components/info-button")
+  const trigger = page.getByRole("button", { name: "Learn about monthly request limits" })
+  await expect(trigger).toBeVisible()
+  await trigger.click()
+  const dialog = page.getByRole("dialog", { name: "Monthly request limit" })
+  await expect(dialog).toContainText("Successful API requests count")
+  await dialog.getByRole("button", { name: "Got it" }).click()
+  await expect(dialog).toBeHidden()
+})
+
 test("mobile navigation is a touch-usable drawer", async ({ page }, testInfo) => {
   test.skip(!testInfo.project.name.startsWith("mobile"), "Mobile drawer is only shown on mobile projects")
   await page.getByRole("button", { name: "Open documentation navigation" }).click()
@@ -255,7 +341,7 @@ test("mobile navigation is a touch-usable drawer", async ({ page }, testInfo) =>
 
 test("mobile documentation pages remain vertically scrollable", async ({ page }, testInfo) => {
   test.skip(!testInfo.project.name.startsWith("mobile"), "Vertical touch scrolling is only checked on mobile projects")
-  await expect(page.getByRole("heading", { level: 1, name: "Components for operational software." })).toBeVisible()
+  await expect(page.getByRole("heading", { level: 1, name: "@bzync/rui" })).toBeVisible()
   await page.mouse.wheel(0, 500)
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0)
 })

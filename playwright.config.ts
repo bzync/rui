@@ -9,6 +9,10 @@ export default defineConfig({
   use: {
     baseURL: "http://127.0.0.1:4173",
     trace: "on-first-retry",
+    // Chromium in this sandbox blocks socketpair; avoid SIGTRAP.
+    launchOptions: {
+      args: ["--no-sandbox", "--disable-setuid-sandbox", "--no-zygote", "--disable-dev-shm-usage"],
+    },
   },
   projects: [
     { name: "mobile-360", use: { viewport: { width: 360, height: 800 }, isMobile: true, hasTouch: true } },
@@ -21,5 +25,16 @@ export default defineConfig({
     command: "npm --prefix demo run dev -- --host 127.0.0.1 --port 4173",
     url: "http://127.0.0.1:4173",
     reuseExistingServer: true,
+    env: {
+      NO_PROXY: "*",
+      no_proxy: "*",
+      HTTP_PROXY: "",
+      http_proxy: "",
+      HTTPS_PROXY: "",
+      https_proxy: "",
+      ALL_PROXY: "",
+      all_proxy: "",
+      NODE_USE_ENV_PROXY: "0",
+    },
   },
 })

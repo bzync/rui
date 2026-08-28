@@ -6,7 +6,7 @@ import {
   Currency, DescriptionDetails, DescriptionItem, DescriptionList, DescriptionTerm, Divider, Heading, InlineCode, Link, List, ListItem, Progressbar, Prose, ScrollArea, Separator, Skeleton, SkeletonAvatar, SkeletonCard,
   SkeletonTable, SkeletonText, SkeletonTopbar, Spinner, Stat, StatusDot, Stepper,
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow, Textarea, Timeline,
-  AppShell, AppShellBody, AppShellHeader, AppShellMain, Container, Footer, Inline, PageHeader, Stack, Text, Time,
+  AppShell, AppShellBody, AppShellHeader, AppShellMain, Container, Footer, Inline, PageHeader, Stack, Text,
 } from "@/index"
 
 describe("display and layout components", () => {
@@ -163,17 +163,35 @@ describe("display and layout components", () => {
     expect(screen.getByText("npm run build")).toHaveAttribute("data-language", "shell")
   })
 
-  it("formats semantic time text and handles invalid values", () => {
+  it("formats semantic date, time, number, percent, and currency text", () => {
     render(<>
-      <Time value="13:05" hour12 data-testid="time-12" />
-      <Time value="13:05" hour12={false} data-testid="time-24" />
-      <Time value="not-a-time" fallback="Unknown" data-testid="time-invalid" />
+      <Text variant="date" value="2026-08-27" data-testid="date" />
+      <Text variant="time" value="13:05" hour12 data-testid="time-12" />
+      <Text variant="time" value="13:05" hour12={false} data-testid="time-24" />
+      <Text variant="number" value={12480} data-testid="number" />
+      <Text variant="percent" value={0.962} numberOptions={{ maximumFractionDigits: 1 }} data-testid="percent" />
+      <Text variant="currency" value={-920} currency="USD" accounting data-testid="text-currency" />
+      <Text variant="success" data-testid="success">Operational</Text>
+      <Text variant="warning" data-testid="warning">Capacity warning</Text>
+      <Text variant="danger" data-testid="danger">Deployment failed</Text>
+      <Text variant="info" data-testid="info">Maintenance scheduled</Text>
+      <Text variant="time" value="not-a-time" fallback="Unknown" data-testid="time-invalid" />
     </>)
 
+    expect(screen.getByTestId("date")).toHaveTextContent("Aug 27, 2026")
+    expect(screen.getByTestId("date")).toHaveAttribute("datetime", "2026-08-27")
     expect(screen.getByTestId("time-12")).toHaveTextContent("1:05 PM")
     expect(screen.getByTestId("time-12").tagName).toBe("TIME")
     expect(screen.getByTestId("time-12")).toHaveAttribute("datetime", "13:05")
     expect(screen.getByTestId("time-24")).toHaveTextContent("13:05")
+    expect(screen.getByTestId("number")).toHaveTextContent("12,480")
+    expect(screen.getByTestId("percent")).toHaveTextContent("96.2%")
+    expect(screen.getByTestId("text-currency")).toHaveTextContent("($920.00)")
+    expect(screen.getByTestId("text-currency")).toHaveClass("text-destructive")
+    expect(screen.getByTestId("success")).toHaveClass("text-success")
+    expect(screen.getByTestId("warning")).toHaveClass("text-warning")
+    expect(screen.getByTestId("danger")).toHaveClass("text-destructive")
+    expect(screen.getByTestId("info")).toHaveClass("text-info")
     expect(screen.getByTestId("time-invalid")).toHaveTextContent("Unknown")
     expect(screen.getByTestId("time-invalid")).toHaveAttribute("data-invalid", "true")
   })

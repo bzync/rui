@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/cn"
 import { AnimatePresence, motion } from "framer-motion"
+import { transitions } from "@/lib/motion"
 import { HTMLAttributes, MouseEvent as ReactMouseEvent, ReactElement, ReactNode, cloneElement, isValidElement, useEffect, useId, useRef, useState } from "react"
 
 type PopoverSide = "top" | "bottom" | "left" | "right"
@@ -106,7 +107,7 @@ export function Popover({
             initial={{ opacity: 0, ...initial }}
             animate={{ opacity: 1, y: 0, x: 0 }}
             exit={{ opacity: 0, ...initial }}
-            transition={{ duration: 0.13 }}
+            transition={transitions.fade}
             className={cn(
               "absolute z-50 min-w-[180px] rounded-[var(--radius-lg)] border border-border bg-surface-raised shadow-floating",
               container,

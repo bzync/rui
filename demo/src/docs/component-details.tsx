@@ -1,5 +1,8 @@
 "use client"
 
+/* This module is a lazy documentation registry containing live JSX factories, not a Fast Refresh boundary. */
+/* eslint-disable react-refresh/only-export-components */
+
 import * as R from "@bzync/rui"
 import { Activity, Box, ChevronRight, Database, Home, Settings, Trash2 } from "lucide-react"
 import { Fragment, type ReactNode, useState } from "react"
@@ -32,6 +35,59 @@ const detail = (code: string, preview: ReactNode, props: ApiProp[], accessibilit
 function BillingPreview() {
   const [value, setValue] = useState<R.BillingInterval>("yearly")
   return <R.BillingIntervalToggle value={value} onChange={setValue} options={[{ value: "monthly", label: "Monthly" }, { value: "quarterly", label: "Quarterly" }, { value: "yearly", label: "Annually", badge: "Save 20%" }]} />
+}
+
+function InfoButtonPreview() {
+  const [open, setOpen] = useState(false)
+  return <>
+    <div className="info-button-demo">
+      <div><strong>Monthly request limit</strong><p>Requests reset on the first day of each month.</p></div>
+      <R.Tooltip content="Learn about monthly request limits">
+        <R.InfoButton label="Learn about monthly request limits" onClick={() => setOpen(true)} />
+      </R.Tooltip>
+    </div>
+    <R.Modal open={open} onClose={() => setOpen(false)} title="Monthly request limit" description="How usage is calculated" size="sm">
+      <p className="text-sm leading-6 text-muted-foreground">Successful API requests count toward the workspace limit. Failed authentication attempts and health checks do not.</p>
+      <div className="mt-5 flex justify-end"><R.Button size="sm" onClick={() => setOpen(false)}>Got it</R.Button></div>
+    </R.Modal>
+  </>
+}
+
+function DatePickerPreview() {
+  const [date, setDate] = useState<Date | null>(new Date(2026, 8, 18))
+  const formattedDate = date?.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })
+
+  return <div className="temporal-demo">
+    <div className="temporal-demo-heading"><strong>Schedule release</strong><p>Choose a date within the approved deployment window.</p></div>
+    <R.DatePicker
+      label="Deployment date"
+      value={date}
+      onChange={setDate}
+      minDate={new Date(2026, 8, 1)}
+      maxDate={new Date(2026, 9, 31)}
+      hint="September 1–October 31, 2026"
+    />
+    <div className="temporal-demo-footer"><span role="status">{formattedDate ? `Selected: ${formattedDate}` : "No date selected"}</span><R.Button size="sm" disabled={!date}>Continue</R.Button></div>
+  </div>
+}
+
+function TimePickerPreview() {
+  const [value, setValue] = useState("09:30")
+  const [confirmedValue, setConfirmedValue] = useState("09:30")
+
+  return <div className="temporal-demo">
+    <div className="temporal-demo-heading"><strong>Deployment window</strong><p>Schedule the release during staffed support hours.</p></div>
+    <R.TimePicker
+      label="Deployment time"
+      value={value}
+      onValueChange={setValue}
+      minuteStep={15}
+      min="08:00"
+      max="18:00"
+      hint="Workspace timezone · 08:00–18:00"
+    />
+    <div className="temporal-demo-footer"><span role="status">Confirmed: {confirmedValue || "Not set"}</span><R.Button size="sm" disabled={!value} onClick={() => setConfirmedValue(value)}>Confirm time</R.Button></div>
+  </div>
 }
 
 function SnackbarPreview() {
@@ -164,12 +220,15 @@ export const supplementalDetails: Record<string, () => SupplementalDetail> = {
   ),
   "components/text": () => detail(
     `<Text variant="lead">Monitor deployments without losing operational context.</Text>
+<Text variant="success">All systems operational</Text>
 <Text variant="date" value="2026-08-27" />
 <Text variant="time" value="13:45" hour12 />
+<Text variant="number" value={12480} />
+<Text variant="percent" value={0.962} />
 <Text variant="currency" value={12840.5} currency="USD" />`,
-    <div className="demo-stack max-w-lg"><R.Text variant="lead">Monitor deployments without losing operational context.</R.Text><R.Text>Semantic styles keep interface copy readable from mobile through wide operational screens.</R.Text><div className="demo-row"><R.Text variant="date" value="2026-08-27" /><R.Text variant="time" value="13:45" hour12 /><R.Text variant="time" value="13:45" hour12={false} /><R.Text variant="currency" value={12840.5} currency="USD" /></div><R.Text variant="overline">Live operations</R.Text><R.Text variant="caption">Updated 2 minutes ago</R.Text></div>,
-    api(["as", '"p" | "span" | "div" | "time"', "Rendered element; date/time variants default to time."], ["variant", '"body" | "lead" | "muted" | "caption" | "overline" | "date" | "time" | "currency"', "Purpose-oriented or formatted-value style.", '"body"'], ["value", "Date | number | bigint | string", "Value formatted by date, time, and currency variants."], ["locale / timeZone", "string", "Locale and IANA timezone for temporal formatting."], ["hour12", "boolean", "Forces 12- or 24-hour time output."], ["formatOptions", "Intl.DateTimeFormatOptions", "Date/time formatting options."], ["currency / accounting", "string / boolean", "Currency code and negative-value notation."], ["currencyOptions", "CurrencyFormatOptions", "Intl currency formatting options."], ["size", '"xs" | "sm" | "md" | "lg"', "Optional size override."], ["weight", '"normal" | "medium" | "semibold" | "bold"', "Optional weight override."], ["align", '"left" | "center" | "right"', "Text alignment.", '"left"'], ["wrap", '"normal" | "nowrap" | "balance" | "pretty"', "Wrapping and truncation behavior."]),
-    "Text keeps HTML semantics explicit through as. Date and time variants render a machine-readable time element by default; calendar-only YYYY-MM-DD values do not shift across timezones.",
+    <div className="demo-stack max-w-lg"><R.Text variant="lead">Monitor deployments without losing operational context.</R.Text><R.Text>Semantic styles keep interface copy readable from mobile through wide operational screens.</R.Text><div className="demo-row"><R.Text variant="label">Environment</R.Text><R.Text variant="helper">Used for deployment targeting.</R.Text><R.Text variant="success">All systems operational</R.Text><R.Text variant="warning">Capacity nearing limit</R.Text><R.Text variant="danger">Deployment failed</R.Text><R.Text variant="info">Maintenance at 02:00 UTC</R.Text></div><div className="demo-row"><R.Text variant="date" value="2026-08-27" /><R.Text variant="time" value="13:45" hour12 /><R.Text variant="number" value={12480} /><R.Text variant="percent" value={0.962} numberOptions={{ maximumFractionDigits: 1 }} /><R.Text variant="currency" value={12840.5} currency="USD" /></div><R.Text variant="overline">Live operations</R.Text><R.Text variant="caption">Updated 2 minutes ago</R.Text></div>,
+    api(["as", '"p" | "span" | "div" | "time"', "Rendered element; date/time variants default to time."], ["variant", '"body" | "lead" | "label" | "helper" | "muted" | "caption" | "overline" | "success" | "warning" | "danger" | "info" | "date" | "time" | "number" | "percent" | "currency"', "Purpose-oriented or formatted-value style.", '"body"'], ["value", "Date | number | bigint | string", "Value formatted by date, time, number, percent, and currency variants."], ["locale / timeZone", "string", "Locale and IANA timezone for temporal formatting."], ["hour12", "boolean", "Forces 12- or 24-hour time output."], ["formatOptions", "Intl.DateTimeFormatOptions", "Date/time formatting options."], ["numberOptions", "Intl.NumberFormatOptions", "Number and percent formatting options."], ["currency / accounting", "string / boolean", "Currency code and negative-value notation."], ["currencyOptions", "CurrencyFormatOptions", "Intl currency formatting options."], ["size", '"xs" | "sm" | "md" | "lg"', "Optional size override."], ["weight", '"normal" | "medium" | "semibold" | "bold"', "Optional weight override."], ["align", '"left" | "center" | "right"', "Text alignment.", '"left"'], ["wrap", '"normal" | "nowrap" | "balance" | "pretty"', "Wrapping and truncation behavior."]),
+    "Text keeps HTML semantics explicit through as. Date and time variants render a machine-readable time element by default; calendar-only YYYY-MM-DD values do not shift across timezones. Formatted values fall back safely instead of throwing on invalid input.",
   ),
   "components/prose": () => detail(
     `<Prose as="article" width="sm">
@@ -187,14 +246,19 @@ export const supplementalDetails: Record<string, () => SupplementalDetail> = {
     "Renders a semantic code element and allows long tokens to wrap instead of forcing viewport overflow.",
   ),
   "components/time-picker": () => detail(
-    `<TimePicker
+    `const [time, setTime] = useState("09:30")
+
+<TimePicker
   label="Deployment time"
-  defaultValue="09:30"
+  value={time}
+  onValueChange={setTime}
   minuteStep={15}
-  hint="Times use the workspace timezone"
+  min="08:00"
+  max="18:00"
+  hint="Workspace timezone · 08:00–18:00"
 />`,
-    <R.TimePicker className="w-full max-w-xs" label="Deployment time" defaultValue="09:30" minuteStep={15} hint="Times use the workspace timezone" />,
-    api(["value / defaultValue", "string", "Controlled or initial HH:mm or HH:mm:ss value."], ["onValueChange", "(value: string) => void", "Called after Apply or Clear."], ["format", '"12" | "24"', "Displayed hour format.", '"12"'], ["minuteStep", "number", "Minute selection increment from 1 through 30.", "5"], ["showSeconds", "boolean", "Adds a seconds column.", "false"], ["min / max", "string", "Inclusive selectable time boundaries."], ["side", '"top" | "bottom"', "Popover placement.", '"bottom"'], ["label / hint / error", "string", "Accessible field messaging."], ["name", "string", "Adds a hidden form submission value."]),
+    <TimePickerPreview />,
+    api(["value / defaultValue", "string", "Controlled or initial HH:mm or HH:mm:ss value."], ["onValueChange", "(value: string) => void", "Called after Apply or Clear."], ["format", '"12" | "24"', "Displayed hour format.", '"12"'], ["minuteStep", "number", "Minute selection increment from 1 through 30.", "5"], ["showSeconds", "boolean", "Adds a seconds column.", "false"], ["min / max", "string", "Inclusive selectable time boundaries."], ["side", '"top" | "bottom"', "Vertical panel placement.", '"bottom"'], ["align", '"start" | "end"', "Horizontal panel alignment for viewport-edge placement.", '"start"'], ["label / hint / error", "string", "Accessible field messaging."], ["name", "string", "Adds a hidden form submission value."]),
     "The custom trigger controls a labeled dialog. Time columns expose listbox/option semantics with arrow, Home, and End navigation; Escape dismisses and restores trigger focus.",
   ),
   "components/currency": () => detail(
@@ -302,10 +366,18 @@ export const supplementalDetails: Record<string, () => SupplementalDetail> = {
     "Uses a native button and announces its copied state through visible button text.",
   ),
   "components/info-button": () => detail(
-    `<InfoButton label="About usage limits" onClick={openHelp} />`,
-    <R.InfoButton label="About usage limits" onClick={() => {}} />,
-    api(["label", "string", "Accessible name for the icon-only button."], ["onClick", "() => void", "Action invoked on activation."]),
-    "Requires a descriptive label because its icon has no text alternative.",
+    `<div className="setting-row">
+  <span>Monthly request limit</span>
+  <Tooltip content="Learn about monthly request limits">
+    <InfoButton
+      label="Learn about monthly request limits"
+      onClick={() => setHelpOpen(true)}
+    />
+  </Tooltip>
+</div>`,
+    <InfoButtonPreview />,
+    api(["label", "string", "Required accessible name describing the information that opens."], ["onClick", "MouseEventHandler<HTMLButtonElement>", "Action invoked on activation."], ["className", "string", "Composes sizing and visual overrides."], ["...props", "ButtonHTMLAttributes<HTMLButtonElement>", "Native button attributes except children and aria-label."]),
+    "Uses a 32px native button with a visible focus ring and required descriptive name. Pair it with nearby subject text; a Tooltip can make the action visible on hover and focus, while activation should open useful contextual content.",
   ),
   "components/billing-interval-toggle": () => detail(
     `<BillingIntervalToggle value={interval} onChange={setInterval} options={[\n  { value: "monthly", label: "Monthly" },\n  { value: "yearly", label: "Annually", badge: "Save 20%" },\n]} />`,
@@ -344,10 +416,19 @@ export const supplementalDetails: Record<string, () => SupplementalDetail> = {
     "Uses a labeled native file input and exposes validation through aria-invalid and associated messages.",
   ),
   "components/date-picker": () => detail(
-    `<DatePicker label="Deployment date" value={date} onChange={setDate} />`,
-    <R.DatePicker className="w-full max-w-xs" label="Deployment date" hint="Choose a release window" />,
+    `const [date, setDate] = useState<Date | null>(null)
+
+<DatePicker
+  label="Deployment date"
+  value={date}
+  onChange={setDate}
+  minDate={new Date(2026, 8, 1)}
+  maxDate={new Date(2026, 9, 31)}
+  hint="September 1–October 31, 2026"
+/>`,
+    <DatePickerPreview />,
     api(["value", "Date | null", "Controlled selected date."], ["onChange", "(date: Date | null) => void", "Selection callback."], ["minDate / maxDate", "Date", "Selectable date boundaries."], ["clearable", "boolean", "Allows clearing the value.", "true"]),
-    "The trigger exposes dialog state, field messages are associated, and Escape dismisses the calendar.",
+    "The trigger exposes dialog state and associated field messages. Calendar days use roving focus with arrow, Home, End, Page Up, and Page Down navigation; Escape dismisses and restores trigger focus.",
   ),
   "components/calendar": () => detail(
     `<Calendar defaultValue={new Date()} defaultView="month" events={events} />`,

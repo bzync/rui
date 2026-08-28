@@ -1,8 +1,8 @@
-import { render, screen, within } from "@testing-library/react"
+import { render, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { useState } from "react"
 import { describe, expect, it, vi } from "vitest"
-import { Checkbox, Input, Radio, RadioGroup, Rating, Switch, Textarea, TimePicker } from "@/index"
+import { Checkbox, DatePicker, Input, Radio, RadioGroup, Rating, Switch, Textarea, TimePicker } from "@/index"
 
 describe("form controls", () => {
   it("toggles an uncontrolled checkbox and emits the native change", async () => {
@@ -115,6 +115,38 @@ describe("form controls", () => {
     expect(trigger).toHaveFocus()
   })
 
+  it("navigates calendar days by keyboard, commits a date, and restores trigger focus", async () => {
+    const user = userEvent.setup()
+    const changed = vi.fn()
+    function Example() {
+      const [value, setValue] = useState<Date | null>(new Date(2026, 8, 18))
+      return <DatePicker label="Deployment date" value={value} onChange={(next) => { changed(next); setValue(next) }} />
+    }
+    render(<Example />)
+
+    const trigger = screen.getByRole("button", { name: "Deployment date" })
+    await user.click(trigger)
+    const dialog = screen.getByRole("dialog", { name: "Choose deployment date" })
+    const selectedDay = dialog.querySelector<HTMLButtonElement>('[data-date="2026-09-18"]')
+    expect(selectedDay).not.toBeNull()
+    await waitFor(() => expect(selectedDay).toHaveFocus())
+    await user.keyboard("{ArrowRight}{Enter}")
+
+    expect((changed.mock.calls[changed.mock.calls.length - 1]?.[0] as Date).getDate()).toBe(19)
+    expect(trigger).toHaveTextContent("Sep 19, 2026")
+    await waitFor(() => expect(trigger).toHaveFocus())
+  })
+
+  it("clears a selected date without opening the calendar", async () => {
+    const user = userEvent.setup()
+    const changed = vi.fn()
+    render(<DatePicker label="Deployment date" value={new Date(2026, 8, 18)} onChange={changed} />)
+
+    await user.click(screen.getByRole("button", { name: "Clear deployment date" }))
+    expect(changed).toHaveBeenCalledWith(null)
+    expect(screen.queryByRole("dialog", { name: "Choose deployment date" })).not.toBeInTheDocument()
+  })
+
   it("dismisses the custom time picker with Escape and restores focus", async () => {
     const user = userEvent.setup()
     render(<TimePicker label="End time" defaultValue="17:00" format="24" />)
@@ -124,5 +156,30 @@ describe("form controls", () => {
     await user.keyboard("{Escape}")
     expect(screen.queryByRole("dialog", { name: "Choose end time" })).not.toBeInTheDocument()
     expect(trigger).toHaveFocus()
+  })
+
+  it("enforces time boundaries and creates unique column labels per picker", async () => {
+    const user = userEvent.setup()
+    render(<>
+      <TimePicker label="Window start" defaultValue="08:30:45" minuteStep={15} min="09:00" max="17:00" align="end" />
+      <TimePicker label="Window end" defaultValue="17:00" format="24" />
+    </>)
+
+    const startTrigger = screen.getByRole("button", { name: "Window start" })
+    await user.click(startTrigger)
+    const startDialog = screen.getByRole("dialog", { name: "Choose window start" })
+    const startHour = within(startDialog).getByRole("listbox", { name: "Hour" })
+    const startLabelId = startHour.getAttribute("aria-labelledby")
+    expect(startLabelId).toBeTruthy()
+    expect(startDialog).toHaveAttribute("data-align", "end")
+    expect(within(startDialog).getByRole("status")).toHaveTextContent("at or after 9:00 AM")
+    expect(within(startDialog).getByRole("button", { name: "Apply" })).toBeDisabled()
+
+    await user.keyboard("{Escape}")
+    await user.click(screen.getByRole("button", { name: "Window end" }))
+    const endDialog = screen.getByRole("dialog", { name: "Choose window end" })
+    const endLabelId = within(endDialog).getByRole("listbox", { name: "Hour" }).getAttribute("aria-labelledby")
+    expect(endLabelId).toBeTruthy()
+    expect(endLabelId).not.toBe(startLabelId)
   })
 })

@@ -51,7 +51,7 @@ const actions = [
   component("Button Group", "Groups related actions into a single visual control.", "Actions", ["actions"], "ButtonGroup"),
   component("Toggle", "Switches an action between pressed and unpressed states.", "Actions", ["button toggle"]),
   component("Copy Button", "Copies a provided value with visible feedback.", "Actions", ["clipboard"], "CopyButton"),
-  component("Info Button", "An accessible icon-only information action.", "Actions", ["icon button"], "InfoButton"),
+  component("Info Button", "Opens contextual information from a compact icon action.", "Actions", ["icon button", "help"], "InfoButton"),
   component("Billing Interval Toggle", "Switches between monthly and annual billing intervals.", "Actions", [], "BillingIntervalToggle"),
 ]
 
@@ -68,7 +68,7 @@ const forms = [
   component("OTP Input", "Collects fixed-length one-time passcodes.", "Forms", ["code", "verification"], "OtpInput"),
   component("File Upload", "Selects one or more local files.", "Forms", ["dropzone"], "FileUpload"),
   component("Date Picker", "Selects a date through an input and calendar.", "Forms", ["date"], "DatePicker"),
-  component("Time Picker", "Selects a time with native keyboard and mobile controls.", "Forms", ["time"], "TimePicker"),
+  component("Time Picker", "Selects a time through a responsive custom picker.", "Forms", ["time"], "TimePicker"),
   component("Calendar", "Displays selectable month and week calendar views.", "Forms"),
   component("Label", "Provides an accessible label for a form control.", "Forms"),
   component("Form Field", "Composes labels, descriptions, errors, and controls.", "Forms", [], "FormField"),
@@ -151,7 +151,7 @@ const editors = [
 
 const typography = [
   component("Heading", "Renders semantic, responsively scaled headings.", "Typography", ["title"]),
-  component("Text", "Renders interface copy plus localized date and time text.", "Typography", ["paragraph", "copy", "date", "time"]),
+  component("Text", "Renders semantic interface copy and localized date, time, number, percent, and currency values.", "Typography", ["paragraph", "copy", "status", "date", "time", "number", "percent", "currency"]),
   component("Prose", "Styles responsive long-form document content.", "Typography", ["article", "content"]),
   component("Inline Code", "Displays inline code and technical tokens.", "Typography", ["code"], "InlineCode"),
 ]
@@ -187,10 +187,12 @@ const resources: DocsPage[] = [
   { slug: "resources/contributing", title: "Contributing", description: "Repository conventions and verification commands.", kind: "resource", group: "Resources" },
 ]
 
+const componentOverview: DocsPage = { slug: "components", title: "Overview", description: "Browse every public component by category.", kind: "doc", group: "Components", aliases: ["all components"] }
+
 export const docsGroups: DocsGroup[] = [
   { label: "Getting Started", pages: gettingStarted },
   { label: "Foundations", pages: foundations },
-  { label: "Components", pages: [{ slug: "components", title: "Overview", description: "Browse every public component by category.", kind: "doc", group: "Components", aliases: ["all components"] }] },
+  { label: "Components", pages: [componentOverview] },
   ...componentGroups,
   { label: "Patterns", pages: patterns },
   { label: "Examples", pages: examples },
@@ -201,6 +203,7 @@ export const allPages = docsGroups.flatMap((group) => group.pages)
 export const orderedPages = [
   ...gettingStarted,
   ...foundations,
+  componentOverview,
   ...componentGroups.flatMap((group) => group.pages),
   ...patterns,
   ...examples,
