@@ -72,6 +72,13 @@ export interface CommandPaletteProps {
   placeholder?: string
   emptyText?: string
   ariaLabel?: string
+  className?: string
+  overlayClassName?: string
+  searchClassName?: string
+  inputClassName?: string
+  listClassName?: string
+  itemClassName?: string
+  emptyClassName?: string
 }
 
 export function CommandPalette({
@@ -79,6 +86,13 @@ export function CommandPalette({
   placeholder = "Search commands…",
   emptyText = "No results found.",
   ariaLabel = "Command palette",
+  className,
+  overlayClassName,
+  searchClassName,
+  inputClassName,
+  listClassName,
+  itemClassName,
+  emptyClassName,
 }: CommandPaletteProps) {
   const { open, setOpen } = useCommand()
   const [query, setQuery] = useState("")
@@ -178,7 +192,7 @@ export function CommandPalette({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={transitions.fade}
-            className="absolute inset-0 bg-overlay"
+            className={cn("absolute inset-0 bg-overlay", overlayClassName)}
             onClick={() => setOpen(false)}
             aria-hidden="true"
           />
@@ -192,9 +206,9 @@ export function CommandPalette({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: -8 }}
             transition={{ type: "spring", stiffness: 400, damping: 30 }}
-            className="relative w-full max-w-lg overflow-hidden rounded-[var(--radius-xl)] border border-border bg-surface-raised shadow-overlay"
+            className={cn("relative w-full max-w-lg overflow-hidden rounded-[var(--radius-xl)] border border-border bg-surface-raised shadow-overlay", className)}
           >
-            <div className="flex items-center gap-3 border-b border-border px-4">
+            <div className={cn("flex items-center gap-3 border-b border-border px-4", searchClassName)}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400 shrink-0">
                 <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
               </svg>
@@ -211,15 +225,15 @@ export function CommandPalette({
                 onChange={(e) => { setQuery(e.target.value); setActiveIdx(0) }}
                 onKeyDown={handleKeyDown}
                 placeholder={placeholder}
-                className="min-w-0 flex-1 bg-transparent py-3.5 text-sm text-foreground outline-none placeholder:text-muted-foreground"
+                className={cn("min-w-0 flex-1 bg-transparent py-3.5 text-sm text-foreground outline-none placeholder:text-muted-foreground", inputClassName)}
               />
               <kbd className="shrink-0 rounded-[var(--radius-sm)] border border-border-strong bg-surface-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
                 ESC
               </kbd>
             </div>
-            <div id={listId} ref={listRef} role="listbox" aria-label="Commands" className="max-h-80 overflow-y-auto py-1.5">
+            <div id={listId} ref={listRef} role="listbox" aria-label="Commands" className={cn("max-h-80 overflow-y-auto py-1.5", listClassName)}>
               {filtered.length === 0 ? (
-                <p className="py-10 text-center text-sm text-muted-foreground">{emptyText}</p>
+                <p className={cn("py-10 text-center text-sm text-muted-foreground", emptyClassName)}>{emptyText}</p>
               ) : (
                 Array.from(groups.entries()).map(([group, groupItems]) => (
                   <div key={group} role="group" aria-label={group || undefined}>
@@ -247,6 +261,7 @@ export function CommandPalette({
                             isActive
                               ? "bg-surface-muted"
                               : "hover:bg-surface-muted/70",
+                            itemClassName,
                           )}
                         >
                           {item.icon && (

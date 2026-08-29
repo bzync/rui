@@ -52,7 +52,7 @@ const actions = [
   component("Toggle", "Switches an action between pressed and unpressed states.", "Actions", ["button toggle"]),
   component("Copy Button", "Copies a provided value with visible feedback.", "Actions", ["clipboard"], "CopyButton"),
   component("Info Button", "Opens contextual information from a compact icon action.", "Actions", ["icon button", "help"], "InfoButton"),
-  component("Billing Interval Toggle", "Switches between monthly and annual billing intervals.", "Actions", [], "BillingIntervalToggle"),
+  component("Billing Interval Toggle", "Switches between monthly, quarterly, and annual billing intervals.", "Actions", [], "BillingIntervalToggle"),
 ]
 
 const forms = [

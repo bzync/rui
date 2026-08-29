@@ -20,6 +20,11 @@ export interface DrawerProps {
   className?: string
   overlayClassName?: string
   panelClassName?: string
+  headerClassName?: string
+  titleClassName?: string
+  closeButtonClassName?: string
+  contentClassName?: string
+  handleClassName?: string
   unstyled?: boolean
   ariaLabel?: string
   closeAriaLabel?: string
@@ -37,6 +42,11 @@ export function Drawer({
   className,
   overlayClassName,
   panelClassName,
+  headerClassName,
+  titleClassName,
+  closeButtonClassName,
+  contentClassName,
+  handleClassName,
   unstyled = false,
   ariaLabel = "Drawer",
   closeAriaLabel = "Close drawer",
@@ -68,9 +78,9 @@ export function Drawer({
           <>
             <motion.div key="drawer-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={transitions.overlay} className={cn("fixed inset-0 z-[100] bg-overlay", overlayClassName)} onClick={closeOnOverlayClick ? onCloseStable : undefined} />
             <motion.div ref={panelRef} tabIndex={-1} key="drawer-panel" initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={transitions.panelEnter} role="dialog" aria-modal="true" aria-labelledby={title ? titleId : undefined} aria-label={title ? undefined : ariaLabel} className={cn("fixed bottom-0 left-0 right-0 z-[101] flex max-h-[80dvh] flex-col rounded-t-[var(--radius-xl)] border-t border-border bg-surface-raised shadow-overlay", panelClassName, className)}>
-              <div className="flex justify-center pb-1 pt-3 shrink-0" aria-hidden="true"><div className="h-1 w-9 rounded-full bg-border-strong" /></div>
-              {title && (<div className="flex items-center justify-between border-b border-border px-5 py-3 shrink-0"><h2 id={titleId} className="text-sm font-semibold text-foreground">{title}</h2><button type="button" onClick={onCloseStable} className={iconButtonStyles} aria-label={closeAriaLabel}><X size={14} aria-hidden="true" /></button></div>)}
-              <div className="flex-1 overflow-y-auto pb-safe-bottom">{children}</div>
+              <div className="flex justify-center pb-1 pt-3 shrink-0" aria-hidden="true"><div className={cn("h-1 w-9 rounded-full bg-border-strong", handleClassName)} /></div>
+              {title && (<div className={cn("flex items-center justify-between border-b border-border px-5 py-3 shrink-0", headerClassName)}><h2 id={titleId} className={cn("text-sm font-semibold text-foreground", titleClassName)}>{title}</h2><button type="button" onClick={onCloseStable} className={cn(iconButtonStyles, closeButtonClassName)} aria-label={closeAriaLabel}><X size={14} aria-hidden="true" /></button></div>)}
+              <div className={cn("flex-1 overflow-y-auto pb-safe-bottom", contentClassName)}>{children}</div>
             </motion.div>
           </>
         )}
@@ -85,8 +95,8 @@ export function Drawer({
         <>
           <motion.div key="drawer-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={transitions.overlay} className={cn("fixed inset-0 z-[100] bg-overlay", overlayClassName)} onClick={closeOnOverlayClick ? onCloseStable : undefined} />
           <motion.div ref={panelRef} tabIndex={-1} key="drawer-panel" initial={{ x: xHidden }} animate={{ x: 0 }} exit={{ x: xHidden }} transition={transitions.panelEnter} role="dialog" aria-modal="true" aria-labelledby={title ? titleId : undefined} aria-label={title ? undefined : ariaLabel} className={cn("fixed top-0 bottom-0 z-[101] flex max-w-[100vw] flex-col bg-surface-raised shadow-overlay", position === "left" ? "left-0 border-r border-border" : "right-0 border-l border-border", panelClassName, className)} style={{ width }}>
-            {title && (<div className="flex h-14 items-center justify-between gap-3 border-b border-border px-5 shrink-0"><h2 id={titleId} className="min-w-0 truncate text-sm font-semibold text-foreground">{title}</h2><button type="button" onClick={onCloseStable} className={iconButtonStyles} aria-label={closeAriaLabel}><X size={14} aria-hidden="true" /></button></div>)}
-            <div className="flex-1 overflow-y-auto">{children}</div>
+            {title && (<div className={cn("flex h-14 items-center justify-between gap-3 border-b border-border px-5 shrink-0", headerClassName)}><h2 id={titleId} className={cn("min-w-0 truncate text-sm font-semibold text-foreground", titleClassName)}>{title}</h2><button type="button" onClick={onCloseStable} className={cn(iconButtonStyles, closeButtonClassName)} aria-label={closeAriaLabel}><X size={14} aria-hidden="true" /></button></div>)}
+            <div className={cn("flex-1 overflow-y-auto", contentClassName)}>{children}</div>
           </motion.div>
         </>
       )}

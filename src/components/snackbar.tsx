@@ -25,6 +25,8 @@ export type SnackbarPosition =
 export interface SnackbarOptions {
   message: ReactNode
   variant?: SnackbarVariant
+  className?: string
+  actionClassName?: string
   /** Auto-dismiss delay in ms. Set to 0 to persist until dismissed. Default: 4000 */
   duration?: number
   action?: { label: string; onClick: () => void }
@@ -126,12 +128,16 @@ export interface SnackbarProviderProps {
   children: ReactNode
   position?: SnackbarPosition
   maxVisible?: number
+  className?: string
+  toastClassName?: string
 }
 
 export function SnackbarProvider({
   children,
   position = "bottom-right",
   maxVisible = 5,
+  className,
+  toastClassName,
 }: SnackbarProviderProps) {
   const [items, setItems] = useState<SnackbarItem[]>([])
   const timers = useRef<Record<string, ReturnType<typeof setTimeout>>>({})
@@ -184,6 +190,7 @@ export function SnackbarProvider({
         className={cn(
           "fixed z-[100] flex flex-col gap-2 pointer-events-none",
           positionClass[position],
+          className,
         )}
       >
         <AnimatePresence mode="popLayout">
@@ -201,6 +208,8 @@ export function SnackbarProvider({
                   "pointer-events-auto flex items-start gap-3 rounded-[var(--radius-lg)] border px-4 py-3",
                   "w-[calc(100vw-1.5rem)] max-w-sm shadow-floating sm:w-auto sm:min-w-[280px]",
                   bg,
+                  toastClassName,
+                  item.className,
                 )}
               >
                 {icon && <span className="shrink-0 mt-0.5">{icon}</span>}
@@ -213,7 +222,7 @@ export function SnackbarProvider({
                         item.action!.onClick()
                         dismiss(item.id)
                       }}
-                      className="mt-1.5 text-xs font-semibold text-accent-600 dark:text-accent-400 hover:text-accent-700 dark:hover:text-accent-300 transition-colors"
+                      className={cn("mt-1.5 text-xs font-semibold text-accent-600 dark:text-accent-400 hover:text-accent-700 dark:hover:text-accent-300 transition-colors", item.actionClassName)}
                     >
                       {item.action.label}
                     </button>

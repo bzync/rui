@@ -38,6 +38,7 @@ import {
   Check,
   ChevronRight,
   CircleHelp,
+  Coffee,
   Database,
   FileCheck2,
   KeyRound,
@@ -119,6 +120,10 @@ function IntroductionPage() {
         <Button asChild><a href={hrefFor("docs/installation")}>Get started</a></Button>
         <Button asChild variant="secondary"><a href={hrefFor("components")}>Browse components</a></Button>
         <span className="docs-hero-note"><ShieldCheck size={14} aria-hidden="true" /> React 18.2 and 19</span>
+        <a className="docs-hero-support" href="https://buymeacoffee.com/adminjw" target="_blank" rel="noreferrer">
+          <Coffee size={17} aria-hidden="true" />
+          <span><strong>Support</strong><small>If @bzync/rui is useful to you, you can support its continued development on Buy Me a Coffee.</small></span>
+        </a>
       </PageIntro>
       <IntroductionExample />
     </div>

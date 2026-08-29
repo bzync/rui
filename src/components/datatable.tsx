@@ -29,7 +29,7 @@ export function DataTable<T extends { id: string | number }>({
   ariaLabel = "Data table",
   getRowLabel,
   unstyled = false,
-}: DataTableProps<T> & { toolbarClassName?: string; tableClassName?: string; unstyled?: boolean }) {
+}: DataTableProps<T>) {
   const [sortKey, setSortKey] = useState<string | null>(null)
   const [sortDir, setSortDir] = useState<SortDir>(null)
   const [query, setQuery] = useState("")

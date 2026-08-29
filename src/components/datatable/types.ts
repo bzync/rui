@@ -19,6 +19,10 @@ export interface DataTableProps<T extends { id: string | number }> {
   emptyMessage?: string
   onRowClick?: (row: T) => void
   className?: string
+  toolbarClassName?: string
+  tableClassName?: string
+  /** Removes the default table chrome while preserving its data behavior. */
+  unstyled?: boolean
   /** Show search bar. Pass column keys to search — defaults to all searchable columns */
   searchable?: boolean
   searchPlaceholder?: string

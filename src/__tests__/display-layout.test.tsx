@@ -11,7 +11,10 @@ import {
 
 describe("display and layout components", () => {
   it("renders identity and status primitives", () => {
-    render(<><AuthBackdrop /><Avatar name="Ada Lovelace" /><Badge dot>Live</Badge><StatusDot status="online" label="Online" /><Spinner /></>)
+    const backdropRef = { current: null as HTMLDivElement | null }
+    render(<><AuthBackdrop ref={backdropRef} className="custom-backdrop" data-testid="auth-backdrop" /><Avatar name="Ada Lovelace" /><Badge dot>Live</Badge><StatusDot status="online" label="Online" /><Spinner /></>)
+    expect(screen.getByTestId("auth-backdrop")).toBe(backdropRef.current)
+    expect(screen.getByTestId("auth-backdrop")).toHaveClass("custom-backdrop")
     expect(screen.getByText("AL")).toBeInTheDocument()
     expect(screen.getByText("Live")).toBeInTheDocument()
     expect(screen.getByText("Online")).toBeInTheDocument()

@@ -38,6 +38,10 @@ export interface OverlayProps {
   backdropClassName?: string
   /** Class for the panel wrapper */
   panelClassName?: string
+  /** Alias for the panel's root class, matching the component styling contract. */
+  className?: string
+  /** Class for the fixed positioning container. */
+  containerClassName?: string
   /** Accessible label when no title is provided */
   ariaLabel?: string
   ariaLabelledby?: string
@@ -57,6 +61,8 @@ export function Overlay({
   zIndex = 50,
   backdropClassName,
   panelClassName,
+  className,
+  containerClassName,
   ariaLabel,
   ariaLabelledby,
   ariaDescribedby,
@@ -88,7 +94,7 @@ export function Overlay({
   const content = (
     <AnimatePresence onExitComplete={restoreNow}>
       {open && (
-        <div className="fixed inset-0 flex items-center justify-center p-4" style={{ zIndex }}>
+        <div className={cn("fixed inset-0 flex items-center justify-center p-4", containerClassName)} style={{ zIndex }}>
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -113,6 +119,7 @@ export function Overlay({
             className={cn(
               "relative w-full rounded-[var(--radius-xl)] border border-border bg-surface-raised shadow-overlay",
               panelClassName,
+              className,
             )}
           >
             {children}

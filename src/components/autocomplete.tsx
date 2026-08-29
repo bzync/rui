@@ -49,14 +49,21 @@ function AutocompleteInner<V = string>(
     maxVisible = 8,
     className,
     wrapperClassName,
+    triggerClassName,
+    inputClassName,
+    labelClassName,
+    messageClassName,
     listClassName,
+    optionClassName,
+    loadingClassName,
+    emptyClassName,
     placeholder,
     disabled,
     id: externalId,
     multiple,
     unstyled = false,
     ...inputProps
-  } = props as AutocompleteProps<V> & { wrapperClassName?: string; listClassName?: string; unstyled?: boolean }
+  } = props
   const {
     value: selectionValue,
     onSelect: selectionHandler,
@@ -211,7 +218,7 @@ function AutocompleteInner<V = string>(
   return (
     <div ref={containerRef} className={cn("relative", fieldRootStyles, wrapperClassName, className)}>
       {label && (
-        <label htmlFor={inputId} className={fieldLabelStyles}>
+        <label htmlFor={inputId} className={cn(fieldLabelStyles, labelClassName)}>
           {label}
           {inputProps.required && <><span aria-hidden="true" className="ml-1 text-destructive">*</span><span className="sr-only"> (required)</span></>}
         </label>
@@ -237,6 +244,8 @@ function AutocompleteInner<V = string>(
           onClear={handleClearSingle}
           messageId={error || hint ? messageId : undefined}
           inputProps={nativeInputProps}
+          className={triggerClassName}
+          inputClassName={inputClassName}
         />
       )}
 
@@ -267,6 +276,8 @@ function AutocompleteInner<V = string>(
           onClearAll={handleClearMulti}
           messageId={error || hint ? messageId : undefined}
           inputProps={nativeInputProps}
+          className={triggerClassName}
+          inputClassName={inputClassName}
         />
       )}
 
@@ -287,10 +298,13 @@ function AutocompleteInner<V = string>(
         onSelectSingle={handleSelectSingle}
         onToggleMulti={toggleMulti}
         className={listClassName}
+        optionClassName={optionClassName}
+        loadingClassName={loadingClassName}
+        emptyClassName={emptyClassName}
       />
 
-      {error && <p id={messageId} aria-live="polite" className={fieldErrorStyles}>{error}</p>}
-      {hint && !error && <p id={messageId} className={fieldDescriptionStyles}>{hint}</p>}
+      {error && <p id={messageId} aria-live="polite" className={cn(fieldErrorStyles, messageClassName)}>{error}</p>}
+      {hint && !error && <p id={messageId} className={cn(fieldDescriptionStyles, messageClassName)}>{hint}</p>}
     </div>
   )
 }

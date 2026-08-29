@@ -30,6 +30,10 @@ export interface DropdownMenuProps {
   side?: Side
   align?: Align
   className?: string
+  wrapperClassName?: string
+  itemClassName?: string
+  groupLabelClassName?: string
+  separatorClassName?: string
   ariaLabel?: string
 }
 
@@ -59,6 +63,10 @@ export function DropdownMenu({
   side = "bottom",
   align = "start",
   className,
+  wrapperClassName,
+  itemClassName,
+  groupLabelClassName,
+  separatorClassName,
   ariaLabel = "Actions menu",
 }: DropdownMenuProps) {
   const [open, setOpen] = useState(false)
@@ -114,6 +122,7 @@ export function DropdownMenu({
             ? "text-destructive hover:bg-destructive/10"
             : "text-foreground hover:bg-surface-muted",
           item.disabled && "opacity-40 cursor-not-allowed pointer-events-none",
+          itemClassName,
         )}
       >
         {item.icon && (
@@ -143,7 +152,7 @@ export function DropdownMenu({
   }) : <button type="button" aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen((current) => !current)}>{trigger}</button>
 
   return (
-    <div ref={containerRef} className="relative inline-flex">
+    <div ref={containerRef} className={cn("relative inline-flex", wrapperClassName)}>
       {triggerElement}
       <AnimatePresence>
         {open && (
@@ -169,9 +178,9 @@ export function DropdownMenu({
               if (isGroup(section)) {
                 return (
                   <div key={si}>
-                    {si > 0 && <div role="separator" className="my-1 border-t border-border" />}
+                    {si > 0 && <div role="separator" className={cn("my-1 border-t border-border", separatorClassName)} />}
                     {section.group && (
-                      <p className="px-3 pt-1.5 pb-1 text-xs font-medium text-muted-foreground">
+                      <p className={cn("px-3 pt-1.5 pb-1 text-xs font-medium text-muted-foreground", groupLabelClassName)}>
                         {section.group}
                       </p>
                     )}

@@ -144,4 +144,15 @@ describe("interactive component contracts", () => {
     await user.click(screen.getByRole("button", { name: "Open help" })); expect(screen.getByText("Helpful text")).toBeInTheDocument()
     await user.click(screen.getByRole("button", { name: "Confirm" })); expect(confirm).toHaveBeenCalledOnce()
   })
+
+  it("composes popover and confirmation-dialog surface classes", async () => {
+    const user = userEvent.setup()
+    render(<><Popover wrapperClassName="custom-popover-wrapper" className="custom-popover" trigger={<button>Open styled help</button>}>Help</Popover><ConfirmDialog open onClose={() => {}} onConfirm={() => {}} title="Styled dialog" className="custom-confirm" actionsClassName="custom-confirm-actions" cancelButtonClassName="custom-cancel" confirmButtonClassName="custom-confirm-button" /></>)
+    await user.click(screen.getByRole("button", { name: "Open styled help" }))
+    expect(screen.getByRole("dialog", { name: "Popover" })).toHaveClass("custom-popover")
+    expect(screen.getByRole("button", { name: "Open styled help" }).parentElement).toHaveClass("custom-popover-wrapper")
+    expect(screen.getByRole("dialog", { name: "Styled dialog" })).toHaveClass("custom-confirm")
+    expect(screen.getByRole("button", { name: "Cancel" })).toHaveClass("custom-cancel")
+    expect(screen.getByRole("button", { name: "Confirm" })).toHaveClass("custom-confirm-button")
+  })
 })

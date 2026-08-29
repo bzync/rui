@@ -20,6 +20,8 @@ export function OptionList({
   colorDot,
   multiselectable = false,
   className,
+  optionClassName,
+  groupLabelClassName,
 }: {
   listId: string
   listRef: React.RefObject<HTMLUListElement | null>
@@ -34,6 +36,8 @@ export function OptionList({
   colorDot: Record<SelectOptionColor, string>
   multiselectable?: boolean
   className?: string
+  optionClassName?: string
+  groupLabelClassName?: string
 }) {
   if (typeof document === "undefined") return null
 
@@ -63,7 +67,7 @@ export function OptionList({
           {options.map((item, gi) =>
             isGroup(item) ? (
               <li key={gi}>
-                <p className="px-3 pt-2 pb-1 text-xs font-semibold text-slate-600 uppercase tracking-widest">
+                <p className={cn("px-3 pt-2 pb-1 text-xs font-semibold text-slate-600 uppercase tracking-widest", groupLabelClassName)}>
                   {item.group}
                 </p>
                 <ul>
@@ -80,6 +84,7 @@ export function OptionList({
                         onSelect={onSelect}
                         onHover={setActiveIdx}
                         colorDot={colorDot}
+                        className={optionClassName}
                       />
                     )
                   })}
@@ -96,6 +101,7 @@ export function OptionList({
                 onSelect={onSelect}
                 onHover={setActiveIdx}
                 colorDot={colorDot}
+                className={optionClassName}
               />
             ),
           )}
@@ -115,6 +121,7 @@ function OptionItem({
   onSelect,
   onHover,
   colorDot,
+  className,
 }: {
   opt: SelectOption
   listId: string
@@ -124,6 +131,7 @@ function OptionItem({
   onSelect: (opt: SelectOption) => void
   onHover: (idx: number) => void
   colorDot: Record<SelectOptionColor, string>
+  className?: string
 }) {
   return (
     <li
@@ -140,6 +148,7 @@ function OptionItem({
         isActive && "bg-surface-muted",
         isSelected && !isActive && "bg-accent-50 dark:bg-accent-500/10",
         opt.disabled && "opacity-40 cursor-not-allowed pointer-events-none",
+        className,
       )}
     >
       {opt.icon && <span className="shrink-0 text-slate-500 dark:text-slate-400">{opt.icon}</span>}

@@ -101,18 +101,19 @@ export function ComponentPreview({
 }
 
 function FormattedCodeBlock({ code, filename }: { code: string; filename: string }) {
-  const [result, setResult] = useState<{ code: string } | { error: true } | null>(null)
+  const [formattedCode, setFormattedCode] = useState(code.trim())
 
   useEffect(() => {
     let current = true
-    setResult(null)
+    setFormattedCode(code.trim())
 
     void formatCode(code)
       .then((formatted) => {
-        if (current) setResult({ code: formatted })
+        if (current) setFormattedCode(formatted)
       })
       .catch(() => {
-        if (current) setResult({ error: true })
+        // Formatting is an enhancement. Keep the supplied example visible if
+        // Prettier cannot load or the snippet is intentionally incomplete.
       })
 
     return () => {
@@ -120,23 +121,7 @@ function FormattedCodeBlock({ code, filename }: { code: string; filename: string
     }
   }, [code])
 
-  if (result === null) {
-    return (
-      <div className="docs-code-loading" role="status">
-        Formatting code…
-      </div>
-    )
-  }
-
-  if ("error" in result) {
-    return (
-      <div className="docs-code-loading" role="alert">
-        This example could not be formatted.
-      </div>
-    )
-  }
-
-  return <CodeBlock code={result.code} language="tsx" filename={filename} />
+  return <CodeBlock code={formattedCode} language="tsx" filename={filename} />
 }
 
 export interface ApiProp {

@@ -28,5 +28,34 @@ async function loadFormatter() {
 
 export async function formatCode(source: string) {
   const formatter = await loadFormatter()
-  return (await formatter.format(source)).trim()
+  const trimmedSource = source.trim()
+
+  try {
+    const formatted = (await formatter.format(trimmedSource)).trim()
+    return trimmedSource.startsWith("<") ? formatted.replace(/^;/, "") : formatted
+  } catch (initialError) {
+    if (trimmedSource.startsWith("<")) {
+      try {
+        const wrapped = (await formatter.format(`const __ruiPreview = (<>\n${trimmedSource}\n</>)`)).trim()
+        return wrapped
+          .replace(/^const __ruiPreview = \(\s*<>\s*/, "")
+          .replace(/\s*<\/>\s*\)$/, "")
+          .trim()
+      } catch {
+        return trimmedSource
+      }
+    }
+
+    const withSafeJsxBoundaries = trimmedSource.replace(/^<(?=[A-Za-z])/gm, ";<")
+    if (withSafeJsxBoundaries === trimmedSource) {
+      void initialError
+      return trimmedSource
+    }
+
+    try {
+      return (await formatter.format(withSafeJsxBoundaries)).trim().replace(/^;/, "")
+    } catch {
+      return trimmedSource
+    }
+  }
 }

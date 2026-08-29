@@ -14,6 +14,7 @@ export interface PopoverProps {
   side?: PopoverSide
   align?: PopoverAlign
   className?: string
+  wrapperClassName?: string
   open?: boolean
   onOpenChange?: (open: boolean) => void
   ariaLabel?: string
@@ -39,6 +40,7 @@ export function Popover({
   side = "bottom",
   align = "start",
   className,
+  wrapperClassName,
   open: controlledOpen,
   onOpenChange,
   ariaLabel = "Popover",
@@ -96,7 +98,7 @@ export function Popover({
   }) : <button type="button" aria-haspopup="dialog" aria-expanded={open} aria-controls={contentId} onClick={toggle}>{trigger}</button>
 
   return (
-    <div ref={containerRef} className="relative inline-flex">
+    <div ref={containerRef} className={cn("relative inline-flex", wrapperClassName)}>
       {triggerElement}
       <AnimatePresence>
         {open && (

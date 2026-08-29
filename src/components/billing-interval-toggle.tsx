@@ -44,7 +44,7 @@ export const BillingIntervalToggle = forwardRef<HTMLDivElement, BillingIntervalT
       role="group"
       aria-label={ariaLabel}
       className={cn(
-        "isolate inline-flex items-center border border-border bg-surface-muted shadow-inner",
+        "isolate inline-flex max-w-full items-center border border-border bg-surface-muted shadow-inner",
         isLg
           ? "gap-1 rounded-xl p-1"
           : "gap-0.5 rounded-lg p-0.5",
@@ -63,7 +63,7 @@ export const BillingIntervalToggle = forwardRef<HTMLDivElement, BillingIntervalT
             aria-pressed={active}
             data-state={active ? "active" : "inactive"}
             className={cn(
-              "relative flex cursor-pointer items-center justify-center rounded-md font-medium",
+              "relative flex min-w-0 cursor-pointer items-center justify-center rounded-md font-medium",
               "transition-[background-color,color,box-shadow,opacity] duration-200",
               "focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring/50 focus-visible:ring-offset-1 focus-visible:ring-offset-surface-muted",
               isLg
@@ -81,7 +81,7 @@ export const BillingIntervalToggle = forwardRef<HTMLDivElement, BillingIntervalT
             {opt.badge && (
               <span
                 className={cn(
-                  "rounded-full border px-1.5 py-0.5 text-[10px] font-bold leading-none transition-colors",
+                  "whitespace-nowrap rounded-full border px-1.5 py-0.5 text-[10px] font-bold leading-none transition-colors",
                   active && isLg
                     ? "border-primary-foreground/25 bg-primary-foreground/15 text-primary-foreground"
                     : "border-success/25 bg-success/10 text-success",

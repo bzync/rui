@@ -13,6 +13,7 @@ export interface TooltipProps {
   position?: Position
   delayMs?: number
   className?: string
+  wrapperClassName?: string
 }
 
 const positions: Record<
@@ -31,6 +32,7 @@ export function Tooltip({
   position = "top",
   delayMs = 0,
   className,
+  wrapperClassName,
 }: TooltipProps) {
   const [visible, setVisible] = useState(false)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -76,7 +78,7 @@ export function Tooltip({
   }) : <span tabIndex={0} aria-describedby={visible ? tooltipId : undefined} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} onFocus={handleMouseEnter} onBlur={handleMouseLeave}>{children}</span>
 
   return (
-    <div className="relative inline-flex">
+    <div className={cn("relative inline-flex", wrapperClassName)}>
       {triggerElement}
       <AnimatePresence>
         {visible && (

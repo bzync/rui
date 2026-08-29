@@ -23,8 +23,13 @@ describe("overlay and feedback components", () => {
   })
 
   it("renders open modal and drawer portals", () => {
-    render(<><Modal open onClose={() => {}} title="Dialog">Body</Modal><Drawer open onClose={() => {}} title="Panel">Drawer body</Drawer></>)
+    render(<><Modal open onClose={() => {}} title="Dialog" className="custom-modal" headerClassName="custom-modal-header" contentClassName="custom-modal-content">Body</Modal><Drawer open onClose={() => {}} title="Panel" className="custom-drawer" headerClassName="custom-drawer-header" contentClassName="custom-drawer-content">Drawer body</Drawer></>)
     expect(screen.getByText("Dialog")).toBeInTheDocument(); expect(screen.getByText("Drawer body")).toBeInTheDocument()
+    expect(screen.getByRole("dialog", { name: "Dialog" })).toHaveClass("custom-modal")
+    expect(screen.getByText("Dialog").closest(".custom-modal-header")).toBeInTheDocument()
+    expect(screen.getByText("Body")).toHaveClass("custom-modal-content")
+    expect(screen.getByRole("dialog", { name: "Panel" })).toHaveClass("custom-drawer")
+    expect(screen.getByText("Drawer body")).toHaveClass("custom-drawer-content")
   })
 
   it("labels modals, traps focus, closes on Escape, and restores focus", async () => {
@@ -86,6 +91,17 @@ describe("overlay and feedback components", () => {
     expect(selected).toHaveBeenCalledOnce()
   })
 
+  it("composes command-palette surface classes", async () => {
+    const user = userEvent.setup()
+    render(<CommandProvider><CommandPalette className="custom-command" overlayClassName="custom-command-overlay" searchClassName="custom-command-search" inputClassName="custom-command-input" listClassName="custom-command-list" itemClassName="custom-command-item" items={[{ id: "deploy", label: "Deploy", onSelect: () => {} }]} /></CommandProvider>)
+    await user.keyboard("{Meta>}k{/Meta}")
+    expect(await screen.findByRole("dialog", { name: "Command palette" })).toHaveClass("custom-command")
+    expect(screen.getByRole("combobox", { name: "Command palette" })).toHaveClass("custom-command-input")
+    expect(screen.getByRole("listbox", { name: "Commands" })).toHaveClass("custom-command-list")
+    expect(screen.getByRole("option", { name: "Deploy" })).toHaveClass("custom-command-item")
+    expect(document.querySelector(".custom-command-overlay")).toBeInTheDocument()
+  })
+
   it("copies values and exposes info-button labels", async () => {
     const user = userEvent.setup(); const info = vi.fn()
     const writeText = vi.spyOn(navigator.clipboard, "writeText").mockResolvedValue(undefined)
@@ -99,5 +115,14 @@ describe("overlay and feedback components", () => {
     function Trigger() { const { show } = useSnackbar(); return <button onClick={() => show({ message: "Saved", duration: 0 })}>Notify</button> }
     render(<SnackbarProvider><Trigger /></SnackbarProvider>)
     await user.click(screen.getByRole("button", { name: "Notify" })); expect(screen.getByText("Saved")).toBeInTheDocument()
+  })
+
+  it("composes snackbar provider and per-toast classes", async () => {
+    const user = userEvent.setup()
+    function Trigger() { const { show } = useSnackbar(); return <button onClick={() => show({ message: "Styled", duration: 0, className: "custom-toast-item" })}>Notify styled</button> }
+    render(<SnackbarProvider className="custom-snackbar-region" toastClassName="custom-toast"><Trigger /></SnackbarProvider>)
+    await user.click(screen.getByRole("button", { name: "Notify styled" }))
+    expect(screen.getByRole("region", { name: "Notifications" })).toHaveClass("custom-snackbar-region")
+    expect(screen.getByText("Styled").closest("[class*='custom-toast']")).toHaveClass("custom-toast", "custom-toast-item")
   })
 })

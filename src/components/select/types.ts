@@ -31,6 +31,10 @@ export interface SelectPropsBase {
   wrapperClassName?: string
   triggerClassName?: string
   listClassName?: string
+  labelClassName?: string
+  messageClassName?: string
+  optionClassName?: string
+  groupLabelClassName?: string
   id?: string
   unstyled?: boolean
 }

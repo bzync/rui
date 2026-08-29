@@ -21,6 +21,21 @@ export interface AutocompletePropsBase<V = string>
   loading?: boolean
   emptyMessage?: string
   maxVisible?: number
+  /** Styles the component root. */
+  wrapperClassName?: string
+  /** Styles the input control surface. */
+  triggerClassName?: string
+  /** Styles the native text input. */
+  inputClassName?: string
+  labelClassName?: string
+  messageClassName?: string
+  /** Styles the portalled options list. */
+  listClassName?: string
+  optionClassName?: string
+  loadingClassName?: string
+  emptyClassName?: string
+  /** Removes the default component chrome while preserving behavior. */
+  unstyled?: boolean
 }
 
 export interface AutocompletePropsSingle<V = string> extends AutocompletePropsBase<V> {

@@ -26,6 +26,10 @@ export const SelectSingle = forwardRef<HTMLButtonElement, SelectPropsSingle>(
       wrapperClassName,
       triggerClassName,
       listClassName,
+      labelClassName,
+      messageClassName,
+      optionClassName,
+      groupLabelClassName,
       id: externalId,
       unstyled = false,
     },
@@ -125,7 +129,7 @@ export const SelectSingle = forwardRef<HTMLButtonElement, SelectPropsSingle>(
     return (
       <div ref={containerRef} className={cn("relative", fieldRootStyles, wrapperClassName, className)}>
         {label && (
-          <label htmlFor={triggerId} className={fieldLabelStyles}>
+          <label htmlFor={triggerId} className={cn(fieldLabelStyles, labelClassName)}>
             {label}
             {required && <><span aria-hidden="true" className="ml-1 text-destructive">*</span><span className="sr-only"> (required)</span></>}
           </label>
@@ -189,10 +193,12 @@ export const SelectSingle = forwardRef<HTMLButtonElement, SelectPropsSingle>(
           onSelect={handleSelect}
           colorDot={colorDot}
           className={listClassName}
+          optionClassName={optionClassName}
+          groupLabelClassName={groupLabelClassName}
         />
 
-        {error && <p id={messageId} aria-live="polite" className={fieldErrorStyles}>{error}</p>}
-        {hint && !error && <p id={messageId} className={fieldDescriptionStyles}>{hint}</p>}
+        {error && <p id={messageId} aria-live="polite" className={cn(fieldErrorStyles, messageClassName)}>{error}</p>}
+        {hint && !error && <p id={messageId} className={cn(fieldDescriptionStyles, messageClassName)}>{hint}</p>}
       </div>
     )
   },

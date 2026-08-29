@@ -11,6 +11,7 @@ export function MultiTrigger<V>({
   error, loading, showClear, selected, onContainerClick, onInputChange, onFocus, onKeyDown,
   onRemove, onClearAll,
   messageId, inputProps,
+  className, inputClassName,
 }: {
   inputRef: (node: HTMLInputElement | null) => void
   inputId: string
@@ -33,6 +34,8 @@ export function MultiTrigger<V>({
   onClearAll: () => void
   messageId?: string
   inputProps?: Omit<InputHTMLAttributes<HTMLInputElement>, "id" | "value" | "onChange" | "onFocus" | "onKeyDown" | "disabled" | "prefix">
+  className?: string
+  inputClassName?: string
 }) {
   return (
     <div
@@ -42,6 +45,7 @@ export function MultiTrigger<V>({
         controlBaseStyles,
         error && controlInvalidStyles,
         disabled && "opacity-50 cursor-not-allowed",
+        className,
       )}
     >
       {prefix && <span className="text-slate-500 shrink-0 text-sm">{prefix}</span>}
@@ -85,7 +89,7 @@ export function MultiTrigger<V>({
         onKeyDown={onKeyDown}
         placeholder={selected.length === 0 ? placeholder : undefined}
         disabled={disabled}
-        className="flex-1 min-w-[80px] bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none disabled:cursor-not-allowed py-0.5"
+        className={cn("flex-1 min-w-[80px] bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none disabled:cursor-not-allowed py-0.5", inputClassName)}
       />
 
       <span className="ml-auto flex items-center gap-1.5 shrink-0">

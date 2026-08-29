@@ -73,6 +73,8 @@ test("every component page includes a live preview, copyable code, and API refer
       expect(backgroundColor).not.toContain("NaN")
     }
     await page.getByRole("tab", { name: "Code" }).click()
+    await expect(page.getByText("This example could not be formatted.")).toHaveCount(0)
+    await expect(page.locator(".component-preview-code")).not.toContainText("__ruiPreview")
     await expect(page.locator(".component-preview-code button")).toHaveCount(1)
     if (index === 0) {
       await page.locator(".component-preview-code button").click()
@@ -101,6 +103,29 @@ test("demo formats displayed and copied component code", async ({ page }, testIn
   expect(copiedCode).toContain("\n  size=\"lg\"\n/>")
 })
 
+test("billing interval toggles stay inside the preview at every viewport", async ({ page }) => {
+  await page.goto("/#/components/billing-interval-toggle")
+
+  const canvasBox = await page.locator(".component-preview-canvas").boundingBox()
+  const toggleBoxes = await page.getByRole("group", { name: "Billing interval" }).evaluateAll((elements) =>
+    elements.map((element) => {
+      const box = element.getBoundingClientRect()
+      return { left: box.left, right: box.right }
+    }),
+  )
+
+  expect(canvasBox).not.toBeNull()
+  expect(toggleBoxes).toHaveLength(2)
+  for (const box of toggleBoxes) {
+    expect(box.left).toBeGreaterThanOrEqual(canvasBox!.x)
+    expect(box.right).toBeLessThanOrEqual(canvasBox!.x + canvasBox!.width)
+  }
+
+  for (const selected of await page.getByRole("button", { name: /Annually/ }).all()) {
+    await expect(selected).toHaveAttribute("aria-pressed", "true")
+  }
+})
+
 test("homepage gets developers from installation to a working preview", async ({ page }) => {
   await expect(page.getByRole("heading", { level: 1, name: "@bzync/rui" })).toBeVisible()
   await expect(page.getByText("Production-ready React components built with Tailwind CSS.", { exact: false })).toBeVisible()
@@ -109,7 +134,8 @@ test("homepage gets developers from installation to a working preview", async ({
   await expect(page.getByText("npm install @bzync/rui framer-motion", { exact: true })).toBeVisible()
   await expect(page.getByRole("button", { name: "Review orders" })).toBeVisible()
   await expect(page.getByText("React 18.2–19 · TypeScript · ESM + CJS")).toBeVisible()
-  await expect(page.locator(".docs-version")).toHaveText("v0.0.5")
+  await expect(page.locator(".docs-version")).toHaveText("v0.0.6")
+  await expect(page.getByRole("link", { name: /Support If @bzync\/rui is useful to you/ })).toHaveAttribute("href", "https://buymeacoffee.com/adminjw")
   await expect(page.getByRole("link", { name: "Support development" })).toHaveAttribute("href", "https://buymeacoffee.com/adminjw")
 
   await page.getByRole("button", { name: "Save changes" }).click()

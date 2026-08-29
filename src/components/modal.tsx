@@ -15,6 +15,13 @@ export interface ModalProps {
   className?: string
   overlayClassName?: string
   panelClassName?: string
+  containerClassName?: string
+  headerClassName?: string
+  iconClassName?: string
+  titleClassName?: string
+  descriptionClassName?: string
+  closeButtonClassName?: string
+  contentClassName?: string
   size?: "sm" | "md" | "lg" | "xl" | "2xl" | "7xl" | "full"
   title?: string
   description?: string
@@ -45,6 +52,13 @@ export function Modal({
   className,
   overlayClassName,
   panelClassName,
+  containerClassName,
+  headerClassName,
+  iconClassName,
+  titleClassName,
+  descriptionClassName,
+  closeButtonClassName,
+  contentClassName,
   size = "md",
   title,
   description,
@@ -76,7 +90,7 @@ export function Modal({
   return (
     <AnimatePresence onExitComplete={restoreNow}>
       {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+        <div className={cn("fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6", containerClassName)}>
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -107,12 +121,12 @@ export function Modal({
             )}
           >
             {title && (
-              <div className="flex items-start justify-between gap-4 border-b border-border px-5 pb-3 pt-4 sm:px-6 shrink-0">
+              <div className={cn("flex items-start justify-between gap-4 border-b border-border px-5 pb-3 pt-4 sm:px-6 shrink-0", headerClassName)}>
                 <div className="flex gap-3.5 min-w-0 flex-1">
-                  {icon && <div className="mt-0.5 shrink-0 text-muted-foreground [&_svg]:size-5" aria-hidden="true">{icon}</div>}
+                  {icon && <div className={cn("mt-0.5 shrink-0 text-muted-foreground [&_svg]:size-5", iconClassName)} aria-hidden="true">{icon}</div>}
                   <div className="min-w-0 flex-1 pt-0.5">
-                    <h2 id={titleId} className="text-base font-semibold leading-6 text-foreground">{title}</h2>
-                    {description && <p id={descriptionId} className="mt-1 text-sm leading-5 text-muted-foreground">{description}</p>}
+                    <h2 id={titleId} className={cn("text-base font-semibold leading-6 text-foreground", titleClassName)}>{title}</h2>
+                    {description && <p id={descriptionId} className={cn("mt-1 text-sm leading-5 text-muted-foreground", descriptionClassName)}>{description}</p>}
                   </div>
                 </div>
                 {showCloseButton && (
@@ -121,7 +135,7 @@ export function Modal({
                     data-modal-close
                     aria-label={closeAriaLabel}
                     onClick={onCloseStable}
-                    className={iconButtonStyles}
+                    className={cn(iconButtonStyles, closeButtonClassName)}
                   >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
                   </button>
@@ -134,12 +148,12 @@ export function Modal({
                 data-modal-close
                 aria-label={closeAriaLabel}
                 onClick={onCloseStable}
-                className={cn("absolute right-4 top-4 z-10", iconButtonStyles)}
+                className={cn("absolute right-4 top-4 z-10", iconButtonStyles, closeButtonClassName)}
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
               </button>
             )}
-            <div data-modal-content className={cn("px-5 py-4 sm:px-6 flex-1", scrollable ? "overflow-y-auto overscroll-contain" : "overflow-y-auto")}>
+            <div data-modal-content className={cn("px-5 py-4 sm:px-6 flex-1", scrollable ? "overflow-y-auto overscroll-contain" : "overflow-y-auto", contentClassName)}>
               {children}
             </div>
           </motion.div>

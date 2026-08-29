@@ -41,7 +41,7 @@ function BillingPreview() {
   ]
 
   return (
-    <div className="demo-stack items-center">
+    <div className="flex max-w-full flex-col items-center gap-4">
       <R.BillingIntervalToggle value={value} onChange={setValue} options={options} />
       <R.BillingIntervalToggle value={value} onChange={setValue} options={options} size="lg" />
     </div>
@@ -404,8 +404,8 @@ export const supplementalDetails: Record<string, () => SupplementalDetail> = {
   size="lg"
 />`,
     <BillingPreview />,
-    api(["value", "BillingInterval", "Controlled selected interval."], ["onChange", "(value) => void", "Selection callback."], ["options", "BillingIntervalToggleOption[]", "Intervals displayed by the segmented control."], ["size", '"sm" | "lg"', "Control density.", '"sm"']),
-    "Each option is a native button with focus-visible treatment and disabled semantics.",
+    api(["value", "BillingInterval", "Controlled selected interval."], ["onChange", "(value) => void", "Selection callback."], ["options", "BillingIntervalToggleOption[]", "Intervals displayed by the segmented control."], ["size", '"sm" | "lg"', "Control density and selected-state emphasis.", '"sm"'], ["disabled", "boolean", "Disables every interval option.", "false"], ["aria-label", "string", "Accessible name for the option group.", '"Billing interval"'], ["className", "string", "Composes layout and surface overrides."]),
+    "The named group contains native buttons with aria-pressed selection, focus-visible treatment, and disabled semantics.",
   ),
   "components/autocomplete": () => detail(
     `<Autocomplete label="Runtime" placeholder="Search runtimes…" options={[\n  { value: "node", label: "Node.js 22" },\n  { value: "go", label: "Go 1.25" },\n]} onSelect={setRuntime} />`,

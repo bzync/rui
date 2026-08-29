@@ -13,6 +13,7 @@ export function AutocompleteDropdown<V>({
   activeIdx, setActiveIdx, inputText, selectedValues, singleValue,
   onSelectSingle, onToggleMulti,
   className,
+  optionClassName, loadingClassName, emptyClassName,
 }: {
   listRef: RefObject<HTMLUListElement | null>
   listId: string
@@ -30,6 +31,9 @@ export function AutocompleteDropdown<V>({
   onSelectSingle: (opt: AutocompleteOption<V>) => void
   onToggleMulti: (opt: AutocompleteOption<V>) => void
   className?: string
+  optionClassName?: string
+  loadingClassName?: string
+  emptyClassName?: string
 }) {
   if (typeof document === "undefined") return null
 
@@ -49,12 +53,12 @@ export function AutocompleteDropdown<V>({
           className={cn("z-[110] overflow-y-auto rounded-[var(--radius-lg)] border border-border bg-surface-raised py-1 shadow-floating", className)}
         >
           {loading ? (
-            <li className="px-4 py-3 text-sm text-slate-600 flex items-center gap-2">
+            <li className={cn("px-4 py-3 text-sm text-slate-600 flex items-center gap-2", loadingClassName)}>
               <SpinnerIcon />
               Loading…
             </li>
           ) : filtered.length === 0 ? (
-            <li className="px-4 py-3 text-sm text-slate-600">{emptyMessage}</li>
+            <li className={cn("px-4 py-3 text-sm text-slate-600", emptyClassName)}>{emptyMessage}</li>
           ) : (
             filtered.map((opt, i) => {
               const isActive = i === activeIdx
@@ -72,6 +76,7 @@ export function AutocompleteDropdown<V>({
                     "flex min-h-9 items-center gap-3 px-3 py-2 cursor-pointer transition-colors",
                     isActive && "bg-surface-muted",
                     isSel && !isActive && "bg-accent-50 dark:bg-accent-500/10",
+                    optionClassName,
                   )}
                 >
                   {opt.icon && <span className="shrink-0 text-slate-500 dark:text-slate-400">{opt.icon}</span>}

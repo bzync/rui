@@ -12,6 +12,13 @@ describe("data, editor, and advanced field components", () => {
     expect(screen.getByText("Atlas")).toBeInTheDocument(); expect(screen.queryByText("Beacon")).not.toBeInTheDocument()
   })
 
+  it("composes data-table surface classes through its public props", () => {
+    render(<DataTable className="custom-data-table" toolbarClassName="custom-data-toolbar" tableClassName="custom-data-surface" searchable pageSizeOptions={false} data={[{ id: 1, name: "Atlas" }]} columns={[{ key: "name", header: "Name", cell: (row) => row.name }]} />)
+    expect(screen.getByRole("table").closest(".custom-data-surface")).toBeInTheDocument()
+    expect(screen.getByRole("searchbox").closest(".custom-data-toolbar")).toBeInTheDocument()
+    expect(document.querySelector(".custom-data-table")).toBeInTheDocument()
+  })
+
   it("sorts from a semantic header button and activates clickable rows by keyboard", async () => {
     const user = userEvent.setup()
     const onRowClick = vi.fn()
