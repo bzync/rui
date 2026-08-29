@@ -1,6 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/cn"
+import { forwardRef, type HTMLAttributes } from "react"
 
 export type BillingInterval = "monthly" | "quarterly" | "yearly"
 
@@ -16,40 +17,40 @@ const DEFAULT_OPTIONS: BillingIntervalToggleOption[] = [
   { value: "yearly", label: "Annually" },
 ]
 
-export interface BillingIntervalToggleProps {
+export interface BillingIntervalToggleProps extends Omit<HTMLAttributes<HTMLDivElement>, "onChange"> {
   value: BillingInterval
   onChange: (interval: BillingInterval) => void
   options?: BillingIntervalToggleOption[]
   disabled?: boolean
-  /** "sm" (default) matches the subtle inline pill used in onboarding/billing
-   * pages; "lg" matches the bolder blue-accent pill used on the marketing
-   * pricing section. */
+  /** Controls the density and selected-state emphasis. */
   size?: "sm" | "lg"
-  className?: string
 }
 
-// Shared 3-way segmented pill for choosing a billing interval — replaces the
-// three previously independent bespoke toggles (marketing page, onboarding,
-// and the workspace billing page's binary flip-button).
-export function BillingIntervalToggle({
+export const BillingIntervalToggle = forwardRef<HTMLDivElement, BillingIntervalToggleProps>(({
   value,
   onChange,
   options = DEFAULT_OPTIONS,
   disabled = false,
   size = "sm",
   className,
-}: BillingIntervalToggleProps) {
+  "aria-label": ariaLabel = "Billing interval",
+  ...props
+}, ref) => {
   const isLg = size === "lg"
 
   return (
     <div
+      ref={ref}
+      role="group"
+      aria-label={ariaLabel}
       className={cn(
-        "inline-flex items-center rounded-lg border border-black/[0.08] dark:border-white/[0.08]",
+        "isolate inline-flex items-center border border-border bg-surface-muted shadow-inner",
         isLg
-          ? "rounded-xl bg-black/[0.025] dark:bg-white/[0.025] p-0.5 gap-0.5 sm:p-1 sm:gap-1"
-          : "bg-black/[0.02] dark:bg-white/[0.03] p-0.5",
+          ? "gap-1 rounded-xl p-1"
+          : "gap-0.5 rounded-lg p-0.5",
         className,
       )}
+      {...props}
     >
       {options.map((opt) => {
         const active = value === opt.value
@@ -59,28 +60,31 @@ export function BillingIntervalToggle({
             type="button"
             onClick={() => !disabled && onChange(opt.value)}
             disabled={disabled}
+            aria-pressed={active}
+            data-state={active ? "active" : "inactive"}
             className={cn(
-              "flex items-center justify-center rounded-md font-medium transition-[background-color,border-color,opacity,transform] duration-200",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring/35",
+              "relative flex cursor-pointer items-center justify-center rounded-md font-medium",
+              "transition-[background-color,color,box-shadow,opacity] duration-200",
+              "focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring/50 focus-visible:ring-offset-1 focus-visible:ring-offset-surface-muted",
               isLg
-                ? "flex-col gap-0.5 px-2 py-1.5 text-[11px] rounded-lg sm:flex-row sm:gap-2 sm:px-4 sm:py-2 sm:text-sm"
-                : "px-3 py-1 text-xs",
-              disabled && "opacity-50 cursor-not-allowed",
+                ? "min-h-10 gap-1 rounded-lg px-2 py-2 text-xs sm:gap-2 sm:px-4 sm:text-sm"
+                : "min-h-7 gap-1.5 px-3 py-1 text-xs",
+              disabled && "cursor-not-allowed opacity-50",
               active
                 ? isLg
-                  ? "bg-primary text-primary-foreground shadow-xs"
-                  : "bg-white dark:bg-white/10 text-slate-900 dark:text-white shadow-sm"
-                : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white",
+                  ? "bg-primary text-primary-foreground shadow-sm ring-1 ring-primary/20"
+                  : "bg-surface text-foreground shadow-sm ring-1 ring-border"
+                : "text-muted-foreground hover:bg-surface/70 hover:text-foreground",
             )}
           >
             {opt.label}
             {opt.badge && (
               <span
                 className={cn(
-                  "rounded-full px-1 py-0.5 text-[9px] font-bold border transition-colors sm:px-1.5 sm:text-[10px]",
-                  active
-                    ? "bg-white/[0.18] text-white border-white/25"
-                    : "bg-green-500/[0.12] text-green-600 dark:text-green-400 border-green-500/20",
+                  "rounded-full border px-1.5 py-0.5 text-[10px] font-bold leading-none transition-colors",
+                  active && isLg
+                    ? "border-primary-foreground/25 bg-primary-foreground/15 text-primary-foreground"
+                    : "border-success/25 bg-success/10 text-success",
                 )}
               >
                 {opt.badge}
@@ -91,4 +95,5 @@ export function BillingIntervalToggle({
       })}
     </div>
   )
-}
+})
+BillingIntervalToggle.displayName = "BillingIntervalToggle"

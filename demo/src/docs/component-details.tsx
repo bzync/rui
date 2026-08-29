@@ -34,7 +34,18 @@ const detail = (code: string, preview: ReactNode, props: ApiProp[], accessibilit
 
 function BillingPreview() {
   const [value, setValue] = useState<R.BillingInterval>("yearly")
-  return <R.BillingIntervalToggle value={value} onChange={setValue} options={[{ value: "monthly", label: "Monthly" }, { value: "quarterly", label: "Quarterly" }, { value: "yearly", label: "Annually", badge: "Save 20%" }]} />
+  const options: R.BillingIntervalToggleOption[] = [
+    { value: "monthly", label: "Monthly" },
+    { value: "quarterly", label: "Quarterly" },
+    { value: "yearly", label: "Annually", badge: "Save 20%" },
+  ]
+
+  return (
+    <div className="demo-stack items-center">
+      <R.BillingIntervalToggle value={value} onChange={setValue} options={options} />
+      <R.BillingIntervalToggle value={value} onChange={setValue} options={options} size="lg" />
+    </div>
+  )
 }
 
 function InfoButtonPreview() {
@@ -380,7 +391,18 @@ export const supplementalDetails: Record<string, () => SupplementalDetail> = {
     "Uses a 32px native button with a visible focus ring and required descriptive name. Pair it with nearby subject text; a Tooltip can make the action visible on hover and focus, while activation should open useful contextual content.",
   ),
   "components/billing-interval-toggle": () => detail(
-    `<BillingIntervalToggle value={interval} onChange={setInterval} options={[\n  { value: "monthly", label: "Monthly" },\n  { value: "yearly", label: "Annually", badge: "Save 20%" },\n]} />`,
+    `const intervals = [
+  { value: "monthly", label: "Monthly" },
+  { value: "quarterly", label: "Quarterly" },
+  { value: "yearly", label: "Annually", badge: "Save 20%" },
+]
+
+<BillingIntervalToggle
+  value={interval}
+  onChange={setInterval}
+  options={intervals}
+  size="lg"
+/>`,
     <BillingPreview />,
     api(["value", "BillingInterval", "Controlled selected interval."], ["onChange", "(value) => void", "Selection callback."], ["options", "BillingIntervalToggleOption[]", "Intervals displayed by the segmented control."], ["size", '"sm" | "lg"', "Control density.", '"sm"']),
     "Each option is a native button with focus-visible treatment and disabled semantics.",

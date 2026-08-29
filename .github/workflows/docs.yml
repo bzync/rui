@@ -47,7 +47,7 @@ jobs:
         run: npm run build
 
       - name: Build documentation
-        run: npm --prefix demo run build -- --base /rui/
+        run: npm --prefix demo run build -- --base /
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v6

@@ -14,6 +14,7 @@ import {
 import { Check, Copy, ExternalLink } from "lucide-react"
 import { type ReactNode, useEffect, useState } from "react"
 import { hrefFor } from "./catalog"
+import { formatCode } from "./format-code"
 
 export function PageIntro({
   eyebrow,
@@ -92,11 +93,50 @@ export function ComponentPreview({
           {children}
         </TabsContent>
         <TabsContent value="code" className="component-preview-code">
-          <CodeBlock code={code} language="tsx" filename={filename} />
+          <FormattedCodeBlock code={code} filename={filename} />
         </TabsContent>
       </Tabs>
     </div>
   )
+}
+
+function FormattedCodeBlock({ code, filename }: { code: string; filename: string }) {
+  const [result, setResult] = useState<{ code: string } | { error: true } | null>(null)
+
+  useEffect(() => {
+    let current = true
+    setResult(null)
+
+    void formatCode(code)
+      .then((formatted) => {
+        if (current) setResult({ code: formatted })
+      })
+      .catch(() => {
+        if (current) setResult({ error: true })
+      })
+
+    return () => {
+      current = false
+    }
+  }, [code])
+
+  if (result === null) {
+    return (
+      <div className="docs-code-loading" role="status">
+        Formatting code…
+      </div>
+    )
+  }
+
+  if ("error" in result) {
+    return (
+      <div className="docs-code-loading" role="alert">
+        This example could not be formatted.
+      </div>
+    )
+  }
+
+  return <CodeBlock code={result.code} language="tsx" filename={filename} />
 }
 
 export interface ApiProp {

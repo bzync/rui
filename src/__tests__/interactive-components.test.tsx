@@ -44,6 +44,29 @@ describe("interactive component contracts", () => {
     expect(page).toHaveBeenCalledWith(3)
   })
 
+  it("exposes billing interval selection and composes native root props", () => {
+    const ref = { current: null as HTMLDivElement | null }
+    render(
+      <BillingIntervalToggle
+        ref={ref}
+        value="yearly"
+        onChange={() => {}}
+        aria-label="Plan billing interval"
+        data-testid="billing-toggle"
+        options={[
+          { value: "monthly", label: "Monthly" },
+          { value: "yearly", label: "Annually", badge: "Save 20%" },
+        ]}
+      />,
+    )
+
+    expect(screen.getByRole("group", { name: "Plan billing interval" })).toBe(ref.current)
+    expect(screen.getByTestId("billing-toggle")).toHaveClass("bg-surface-muted")
+    expect(screen.getByRole("button", { name: "Monthly" })).toHaveAttribute("aria-pressed", "false")
+    expect(screen.getByRole("button", { name: /Annually/ })).toHaveAttribute("aria-pressed", "true")
+    expect(screen.getByText("Save 20%")).toHaveClass("text-success")
+  })
+
   it("switches tabs and selects tree nodes", async () => {
     const user = userEvent.setup(); const selected = vi.fn()
     render(<><Tabs defaultValue="one"><TabsList><TabsTrigger value="one">One</TabsTrigger><TabsTrigger value="two">Two</TabsTrigger></TabsList><TabsContent value="one">First</TabsContent><TabsContent value="two">Second</TabsContent></Tabs><Tree nodes={[{ id: "root", label: "Root", children: [{ id: "child", label: "Child" }] }]} defaultExpanded={["root"]} onSelect={selected} /></>)

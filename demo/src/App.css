@@ -350,6 +350,14 @@ code, pre, kbd { font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo,
 .component-preview-canvas.items-start { align-items: flex-start; }
 .component-preview-code { margin-top: 0 !important; }
 .component-preview-code > div { border: 0 !important; border-radius: 0 !important; }
+.docs-code-loading {
+  min-height: 110px;
+  padding: 18px;
+  color: var(--color-muted-foreground);
+  background: var(--color-surface-muted);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
 
 .docs-callout { margin-top: 20px; border-radius: var(--radius-lg); }
 .docs-callout code { font-size: .9em; }

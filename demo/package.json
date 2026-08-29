@@ -12,6 +12,7 @@
   "dependencies": {
     "@bzync/rui": "file:..",
     "lucide-react": "^1.33.0",
+    "prettier": "^3.9.6",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
   },

@@ -6,6 +6,13 @@ import { fileURLToPath, URL } from 'node:url'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  optimizeDeps: {
+    include: [
+      'prettier/standalone',
+      'prettier/plugins/babel',
+      'prettier/plugins/estree',
+    ],
+  },
   server: {
     fs: {
       allow: [fileURLToPath(new URL('..', import.meta.url))],

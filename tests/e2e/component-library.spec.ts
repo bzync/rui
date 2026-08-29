@@ -82,6 +82,25 @@ test("every component page includes a live preview, copyable code, and API refer
   }
 })
 
+test("demo formats displayed and copied component code", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop-1280", "Code formatting only needs one desktop project")
+
+  await page.goto("/#/components/billing-interval-toggle")
+  await page.getByRole("tab", { name: "Code" }).click()
+
+  const code = page.locator(".component-preview-code table")
+  await expect(code).toContainText("<BillingIntervalToggle")
+  const displayedCode = await code.innerText()
+  expect(displayedCode).toContain("\n  value={interval}\n")
+  expect(displayedCode).toContain("\n  size=\"lg\"\n/>")
+
+  await page.context().grantPermissions(["clipboard-read", "clipboard-write"])
+  await page.getByRole("button", { name: "Copy code" }).click()
+  const copiedCode = await page.evaluate(() => navigator.clipboard.readText())
+  expect(copiedCode).toContain("\n  value={interval}\n")
+  expect(copiedCode).toContain("\n  size=\"lg\"\n/>")
+})
+
 test("homepage gets developers from installation to a working preview", async ({ page }) => {
   await expect(page.getByRole("heading", { level: 1, name: "@bzync/rui" })).toBeVisible()
   await expect(page.getByText("Production-ready React components built with Tailwind CSS.", { exact: false })).toBeVisible()
