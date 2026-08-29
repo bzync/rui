@@ -89,7 +89,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
             />
             <div
               className={cn(
-                "w-full h-full border-2 flex items-center justify-center transition-colors duration-[120ms] peer-focus-visible:ring-2 peer-focus-visible:ring-focus-ring/35 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-bg",
+                "w-full h-full border-2 flex items-center justify-center transition-colors duration-[120ms] peer-focus-visible:ring-[3px] peer-focus-visible:ring-focus-ring/35 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-bg",
                 s.box,
                 isActive
                   ? "bg-accent-600 border-accent-600 dark:bg-accent-500 dark:border-accent-500"

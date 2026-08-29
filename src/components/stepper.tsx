@@ -44,7 +44,7 @@ export function Stepper({ steps, current, orientation = "horizontal", className 
                         ? "bg-primary border-primary text-primary-foreground"
                         : active
                         ? "border-accent-500 text-accent-400 bg-accent-500/10"
-                        : "border-black/15 dark:border-white/15 text-slate-500",
+                        : "border-border-strong text-muted-foreground",
                     )}
                   >
                     {done ? (
@@ -60,7 +60,7 @@ export function Stepper({ steps, current, orientation = "horizontal", className 
                   )}
                 </div>
                 <div className="mt-2 text-center px-1">
-                  <p className={cn("text-xs font-medium", active ? "text-gray-900 dark:text-white" : "text-slate-500")}>{step.label}</p>
+                  <p className={cn("text-xs font-medium", active ? "text-foreground" : "text-muted-foreground")}>{step.label}</p>
                   {step.description && <p className="text-[10px] text-slate-500 mt-0.5">{step.description}</p>}
                 </div>
               </>
@@ -74,7 +74,7 @@ export function Stepper({ steps, current, orientation = "horizontal", className 
                         ? "bg-primary border-primary text-primary-foreground"
                         : active
                         ? "border-accent-500 text-accent-400 bg-accent-500/10"
-                        : "border-black/15 dark:border-white/15 text-slate-500",
+                        : "border-border-strong text-muted-foreground",
                     )}
                   >
                     {done ? (
@@ -90,7 +90,7 @@ export function Stepper({ steps, current, orientation = "horizontal", className 
                   )}
                 </div>
                 <div className="pb-6">
-                  <p className={cn("text-sm font-medium leading-none mt-1.5", active ? "text-gray-900 dark:text-white" : "text-slate-500")}>{step.label}</p>
+                  <p className={cn("text-sm font-medium leading-none mt-1.5", active ? "text-foreground" : "text-muted-foreground")}>{step.label}</p>
                   {step.description && <p className="text-xs text-slate-500 mt-1">{step.description}</p>}
                 </div>
               </>

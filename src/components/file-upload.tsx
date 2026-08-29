@@ -83,7 +83,7 @@ export const FileUpload = forwardRef<HTMLInputElement, FileUploadProps>(
           onDragLeave={() => setDragging(false)}
           onDrop={onDrop}
           className={cn(
-            "relative flex flex-col items-center justify-center gap-2 rounded-[var(--radius-lg)] border border-dashed px-4 py-7 text-center cursor-pointer transition-colors focus-within:ring-2 focus-within:ring-focus-ring/25",
+            "relative flex flex-col items-center justify-center gap-2 rounded-[var(--radius-lg)] border border-dashed px-4 py-7 text-center cursor-pointer transition-colors focus-within:ring-[3px] focus-within:ring-focus-ring/25",
             dragging
               ? "border-accent-500/60 bg-accent-500/6"
               : displayError

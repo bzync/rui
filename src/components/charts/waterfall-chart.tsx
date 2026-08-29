@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/cn"
 import { useEffect, useId, useState } from "react"
-import { type TooltipState, ChartTooltip } from "./shared"
+import { type TooltipState, ChartTooltip, CHART_POSITIVE, CHART_NEGATIVE } from "./shared"
 
 export interface WaterfallItem {
   label: string
@@ -40,7 +40,7 @@ export function WaterfallChart({
     const base = d.total ? 0 : running
     if (!d.total) running += d.value
     const end = d.total ? running : base + d.value
-    return { ...d, base, end, color: d.color ?? (d.total ? "var(--color-slate-500)" : d.value >= 0 ? "#10b981" : "#f43f5e") }
+    return { ...d, base, end, color: d.color ?? (d.total ? "var(--color-slate-500)" : d.value >= 0 ? CHART_POSITIVE : CHART_NEGATIVE) }
   })
 
   const allVals = bars.flatMap((b) => [b.base, b.end])

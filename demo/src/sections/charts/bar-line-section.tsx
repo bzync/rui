@@ -16,13 +16,13 @@ export function BarChartSection() {
           height={200}
           formatValue={(v) => `${(v / 1000).toFixed(0)}K`}
           data={[
-            { label: "api-gw",   value: 1200, color: "#3b82f6" },
-            { label: "auth",     value: 980,  color: "#3b82f6" },
-            { label: "cdn",      value: 4100, color: "#10b981" },
-            { label: "worker",   value: 310,  color: "#3b82f6" },
-            { label: "mdb",      value: 220,  color: "#3b82f6" },
-            { label: "mail",     value: 12,   color: "#f59e0b" },
-            { label: "sched",    value: 45,   color: "#3b82f6" },
+            { label: "api-gw",   value: 1200, color: "var(--chart-1)" },
+            { label: "auth",     value: 980,  color: "var(--chart-1)" },
+            { label: "cdn",      value: 4100, color: "var(--chart-2)" },
+            { label: "worker",   value: 310,  color: "var(--chart-1)" },
+            { label: "mdb",      value: 220,  color: "var(--chart-1)" },
+            { label: "mail",     value: 12,   color: "var(--chart-3)" },
+            { label: "sched",    value: 45,   color: "var(--chart-1)" },
           ]}
         />
       </Group>
@@ -33,11 +33,11 @@ export function BarChartSection() {
           data={[
             { label: "Mon", value: 4 },
             { label: "Tue", value: 7 },
-            { label: "Wed", value: 3, color: "#f59e0b" },
+            { label: "Wed", value: 3, color: "var(--chart-3)" },
             { label: "Thu", value: 9 },
             { label: "Fri", value: 12 },
-            { label: "Sat", value: 2, color: "#f43f5e" },
-            { label: "Sun", value: 1, color: "#f43f5e" },
+            { label: "Sat", value: 2, color: "var(--chart-4)" },
+            { label: "Sun", value: 1, color: "var(--chart-4)" },
           ]}
         />
       </Group>
@@ -47,12 +47,12 @@ export function BarChartSection() {
           showValues
           formatValue={(v) => `${(v / 1000).toFixed(0)}K`}
           data={[
-            { label: "api-gw",  value: 1200, color: "#3b82f6" },
-            { label: "auth",    value: 980,  color: "#3b82f6" },
-            { label: "cdn",     value: 4100, color: "#10b981" },
-            { label: "worker",  value: 310,  color: "#3b82f6" },
-            { label: "mdb",     value: 220,  color: "#3b82f6" },
-            { label: "mail",    value: 12,   color: "#f59e0b" },
+            { label: "api-gw",  value: 1200, color: "var(--chart-1)" },
+            { label: "auth",    value: 980,  color: "var(--chart-1)" },
+            { label: "cdn",     value: 4100, color: "var(--chart-2)" },
+            { label: "worker",  value: 310,  color: "var(--chart-1)" },
+            { label: "mdb",     value: 220,  color: "var(--chart-1)" },
+            { label: "mail",    value: 12,   color: "var(--chart-3)" },
           ]}
         />
       </Group>
@@ -72,7 +72,7 @@ export function LineChartSection() {
       <Group label="Request volume (30 days)" col>
         <LineChart
           height={200}
-          color="#3b82f6"
+          color="var(--chart-1)"
           formatValue={(v) => `${(v / 1000).toFixed(1)}K`}
           data={[
             { label: "Jun 1",  value: 820 },
@@ -91,8 +91,8 @@ export function LineChartSection() {
           labels={["1h", "2h", "3h", "4h", "5h", "6h", "7h", "8h"]}
           formatValue={(v) => `${v}%`}
           series={[
-            { label: "CPU",    color: "#3b82f6", data: [28, 42, 38, 55, 61, 48, 52, 44] },
-            { label: "Memory", color: "#10b981", data: [55, 58, 62, 65, 63, 68, 70, 66] },
+            { label: "CPU",    color: "var(--chart-1)", data: [28, 42, 38, 55, 61, 48, 52, 44] },
+            { label: "Memory", color: "var(--chart-2)", data: [55, 58, 62, 65, 63, 68, 70, 66] },
           ]}
         />
         <div className="flex items-center gap-4">

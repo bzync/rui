@@ -272,21 +272,21 @@ const shadowTokens = [
     name: "raised",
     level: "Low",
     usage: "Controls and static raised surfaces",
-    light: "0 1px 2px rgba(15, 23, 42, 0.05)",
+    light: "0 1px 2px rgba(9, 14, 28, 0.05)",
     dark: "0 1px 1px rgb(0 0 0 / 0.28), 0 8px 20px -16px rgb(0 0 0 / 0.75)",
   },
   {
     name: "floating",
     level: "Medium",
     usage: "Menus, popovers, and floating controls",
-    light: "0 10px 28px -12px rgba(15, 23, 42, 0.22), 0 3px 8px -4px rgba(15, 23, 42, 0.10)",
+    light: "0 8px 24px -10px rgba(9, 14, 28, 0.20), 0 2px 6px -3px rgba(9, 14, 28, 0.10)",
     dark: "0 16px 36px -14px rgb(0 0 0 / 0.72), 0 4px 10px -5px rgb(0 0 0 / 0.60)",
   },
   {
     name: "overlay",
     level: "High",
     usage: "Modal and drawer surfaces",
-    light: "0 24px 60px -24px rgba(15, 23, 42, 0.42), 0 8px 20px -12px rgba(15, 23, 42, 0.20)",
+    light: "0 24px 60px -24px rgba(9, 14, 28, 0.40), 0 8px 20px -12px rgba(9, 14, 28, 0.18)",
     dark: "0 28px 72px -24px rgb(0 0 0 / 0.86), 0 10px 24px -12px rgb(0 0 0 / 0.70)",
   },
 ] as const
@@ -300,7 +300,7 @@ function FoundationPage({ page }: { page: DocsPage }) {
   </>
   if (page.slug === "foundations/typography") return <>
     <PageIntro eyebrow="Foundations" title="Typography" description="A compact type system for product interfaces, documentation, data, and source code." />
-    <DocsSection id="families" title="Families"><div className="type-specimens"><div><small>Interface</small><p className="type-sans">Geist Sans / system fallback</p><code>--font-sans</code></div><div><small>Code</small><p className="type-mono">const status = "ready"</p><code>--font-mono</code></div></div></DocsSection>
+    <DocsSection id="families" title="Families"><p>One sans does interface and heading work through weight and tracking; <code>--font-display</code> mirrors <code>--font-sans</code> so nothing depends on a second face. Point <code>--font-display</code> at a display family through <code>ThemeProvider</code> to add one without touching body copy.</p><div className="type-specimens"><div><small>Interface &amp; headings</small><p className="type-sans">Inter Variable / system fallback</p><code>--font-sans</code></div><div><small>Code &amp; data</small><p className="type-mono">const status = "ready"</p><code>--font-mono</code></div></div></DocsSection>
     <DocsSection id="scale" title="Scale"><div className="type-scale"><div className="type-32">Documentation title</div><div className="type-24">Section heading</div><div className="type-16">Product interface text</div><div className="type-14">Controls and descriptions</div><div className="type-12">Metadata and labels</div></div></DocsSection>
     <DocsSection id="code" title="Code typography"><p>Commands, package names, prop values, shortcuts, and source examples use the monospace stack. Inline code stays close to the surrounding text size.</p><CopyCommand>npm install @bzync/rui framer-motion</CopyCommand></DocsSection>
   </>

@@ -117,7 +117,7 @@ export function TerminalEmulator({ title = "Terminal", user = "user", hostname =
   const ps = promptSpans(shell)
 
   if (!mounted) return (
-    <div className={cn("rounded-xl overflow-hidden border border-black/10 dark:border-white/10 bg-white dark:bg-[#0e1117] shadow-sm dark:shadow-xl dark:shadow-black/20 flex flex-col", className)}>
+    <div className={cn("rounded-[var(--radius-xl)] overflow-hidden border border-border bg-surface dark:bg-navy-900 shadow-sm dark:shadow-xl flex flex-col", className)}>
       <div className="flex items-center px-4 py-2.5 border-b border-black/[0.07] dark:border-white/[0.07] bg-black/3 dark:bg-white/[0.03] shrink-0">
         <span className="flex-1 text-center text-xs text-slate-500 font-medium">{title}</span>
       </div>
@@ -128,7 +128,7 @@ export function TerminalEmulator({ title = "Terminal", user = "user", hostname =
 
   return (
     <div
-      className={cn("rounded-xl overflow-hidden border border-black/10 dark:border-white/10 bg-white dark:bg-[#0e1117] shadow-sm dark:shadow-xl dark:shadow-black/20 cursor-text flex flex-col", className)}
+      className={cn("rounded-[var(--radius-xl)] overflow-hidden border border-border bg-surface dark:bg-navy-900 shadow-sm dark:shadow-xl cursor-text flex flex-col", className)}
       onClick={() => inputRef.current?.focus()}
     >
       {/* Title bar */}

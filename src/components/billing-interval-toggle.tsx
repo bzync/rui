@@ -65,7 +65,7 @@ export const BillingIntervalToggle = forwardRef<HTMLDivElement, BillingIntervalT
             className={cn(
               "relative flex min-w-0 cursor-pointer items-center justify-center rounded-md font-medium",
               "transition-[background-color,color,box-shadow,opacity] duration-200",
-              "focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring/50 focus-visible:ring-offset-1 focus-visible:ring-offset-surface-muted",
+              "focus-visible:z-10 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-focus-ring/35 focus-visible:ring-offset-1 focus-visible:ring-offset-surface-muted",
               isLg
                 ? "min-h-10 gap-1 rounded-lg px-2 py-2 text-xs sm:gap-2 sm:px-4 sm:text-sm"
                 : "min-h-7 gap-1.5 px-3 py-1 text-xs",

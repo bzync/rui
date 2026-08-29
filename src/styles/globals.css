@@ -28,28 +28,31 @@
   --color-navy-700: #0e1e3a;
   --color-navy-600: #142850;
 
-  /* Semantic aliases. Components should use these rather than coupling their
-     public appearance to Tailwind's blue/red palette names. */
-  --color-accent-50: var(--color-blue-50);
-  --color-accent-100: var(--color-blue-100);
-  --color-accent-200: var(--color-blue-200);
-  --color-accent-300: var(--color-blue-300);
-  --color-accent-400: var(--color-blue-400);
-  --color-accent-500: var(--color-blue-500);
-  --color-accent-600: var(--color-blue-600);
-  --color-accent-700: var(--color-blue-700);
-  --color-accent-800: var(--color-blue-800);
-  --color-accent-900: var(--color-blue-900);
-  --color-accent-950: var(--color-blue-950);
+  /* ── Cobalt accent ── deliberately chosen; a violet-leaning blue that
+     harmonizes with the navy anchor and reads as picked, not defaulted.
+     Components consume --color-accent-* (never Tailwind's blue-* directly);
+     ThemeProvider remaps both --color-accent-* and --color-blue-* when a
+     consumer supplies palette.accent. */
+  --color-accent-50: #eef2fe;
+  --color-accent-100: #e0e7fd;
+  --color-accent-200: #c6d4fb;
+  --color-accent-300: #a2b5f6;
+  --color-accent-400: #7089f0;
+  --color-accent-500: #5570ee;
+  --color-accent-600: #345dee;
+  --color-accent-700: #2a49c4;
+  --color-accent-800: #26409c;
+  --color-accent-900: #243a7c;
+  --color-accent-950: #16205c;
   /* Semantic application colors. These are intentionally complete enough that
      components do not need to know which neutral or status palette is active. */
-  --color-foreground: #172033;
+  --color-foreground: #141a26;
   --color-surface-raised: #ffffff;
-  --color-surface-muted: #f4f6f8;
-  --color-border: #d8dee8;
-  --color-border-strong: #b7c0ce;
-  --color-muted: #eef2f6;
-  --color-muted-foreground: #667085;
+  --color-surface-muted: #f3f5f9;
+  --color-border: #dce2ec;
+  --color-border-strong: #b4becd;
+  --color-muted: #eef1f6;
+  --color-muted-foreground: #64708a;
   --color-primary: var(--color-accent-600);
   --color-primary-hover: var(--color-accent-700);
   --color-primary-foreground: #ffffff;
@@ -75,13 +78,29 @@
   --radius-2xl: 12px;
 
   /* ── Semantic surface tokens (light values; overridden under .dark below) ── */
-  --color-bg: #f6f8fb;
+  --color-bg: #f7f8fb;
   --color-surface: #ffffff;
 
-  /* ── Typography ── */
+  /* ── Categorical chart series (light) ── a fixed-order set anchored on the
+     cobalt accent, validated for CVD separation and lightness against a white
+     chart surface. Dark-mode steps are re-picked (not flipped) under .dark.
+     Assign in order, never cycle; a 7th+ series folds into "Other". */
+  --chart-1: #345dee;
+  --chart-2: #0d9488;
+  --chart-3: #c17d1a;
+  --chart-4: #db2f74;
+  --chart-5: #7c5cd6;
+  --chart-6: #2f8f4e;
+
+  /* ── Typography ── One sans does display and body work through weight and
+     tracking; --font-display intentionally mirrors --font-sans so nothing in
+     the library depends on a second face. Consumers can still point
+     --font-display at a display family via ThemeProvider without touching body
+     copy. Mono carries code, kbd, captions, and tabular figures in data cells. */
   --font-sans: "Inter Variable", Inter, "SF Pro Text", "Segoe UI Variable Text", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono Variable", "Cascadia Code", "SFMono-Regular", Consolas, ui-monospace, monospace;
-  --font-display: "Manrope Variable", "Inter Variable", Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Inter Variable", Inter, "SF Pro Display", "Segoe UI Variable Display", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  --tracking-display: -0.015em;
 
   /* ── Motion tokens (§33) ── */
   --duration-instant: 0ms;
@@ -99,28 +118,41 @@
 
   );
 
-  /* ── Shadow scale ── */
-  --shadow-xs:   0 1px 2px rgba(15, 23, 42, 0.05);
-  --shadow-sm:   0 1px 2px rgba(15, 23, 42, 0.07), 0 1px 1px rgba(15, 23, 42, 0.03);
-  --shadow-md:   0 4px 10px -4px rgba(15, 23, 42, 0.14), 0 2px 4px -2px rgba(15, 23, 42, 0.06);
-  --shadow-lg:   0 10px 24px -10px rgba(15, 23, 42, 0.20), 0 4px 8px -4px rgba(15, 23, 42, 0.08);
-  --shadow-xl:   0 18px 40px -16px rgba(15, 23, 42, 0.26), 0 8px 16px -8px rgba(15, 23, 42, 0.10);
-  --shadow-2xl:  0 28px 64px -22px rgba(15, 23, 42, 0.34);
-  --shadow-raised: 0 1px 2px rgba(15, 23, 42, 0.05);
-  --shadow-floating: 0 10px 28px -12px rgba(15, 23, 42, 0.22), 0 3px 8px -4px rgba(15, 23, 42, 0.10);
-  --shadow-overlay: 0 24px 60px -24px rgba(15, 23, 42, 0.42), 0 8px 20px -12px rgba(15, 23, 42, 0.20);
+  /* ── Elevation ── Four semantic levels (raised / floating / overlay + the xs
+     hairline lift) map to the raw scale below. Shadows carry a navy cast
+     (rgb 9 14 28) rather than neutral slate so they sit in the same hue family
+     as the rest of the system. */
+  --shadow-xs:   0 1px 2px rgba(9, 14, 28, 0.05);
+  --shadow-sm:   0 1px 2px rgba(9, 14, 28, 0.07), 0 1px 1px rgba(9, 14, 28, 0.03);
+  --shadow-md:   0 4px 10px -4px rgba(9, 14, 28, 0.13), 0 2px 4px -2px rgba(9, 14, 28, 0.06);
+  --shadow-lg:   0 10px 24px -10px rgba(9, 14, 28, 0.18), 0 4px 8px -4px rgba(9, 14, 28, 0.08);
+  --shadow-xl:   0 18px 40px -16px rgba(9, 14, 28, 0.24), 0 8px 16px -8px rgba(9, 14, 28, 0.10);
+  --shadow-2xl:  0 28px 64px -22px rgba(9, 14, 28, 0.32);
+  --shadow-raised:   0 1px 2px rgba(9, 14, 28, 0.05);
+  --shadow-floating: 0 8px 24px -10px rgba(9, 14, 28, 0.20), 0 2px 6px -3px rgba(9, 14, 28, 0.10);
+  --shadow-overlay:  0 24px 60px -24px rgba(9, 14, 28, 0.40), 0 8px 20px -12px rgba(9, 14, 28, 0.18);
 }
 
 .dark {
-  --color-bg: #0b1018;
-  --color-foreground: #f3f5f7;
-  --color-surface: #121923;
-  --color-surface-raised: #17202c;
-  --color-surface-muted: #18222f;
-  --color-border: #2a3544;
-  --color-border-strong: #414e60;
-  --color-muted: #1b2633;
-  --color-muted-foreground: #9ca8b8;
+  /* Dark ground is the brand navy-900 itself — the identity anchor, not a
+     generic slate. Surfaces step up in lightness with a consistent navy hue. */
+  --color-bg: #060c1a;
+  --color-foreground: #f2f4f7;
+  --color-surface: #0e1826;
+  --color-surface-raised: #14202f;
+  --color-surface-muted: #16212f;
+  --color-border: #253141;
+  --color-border-strong: #3c4a5d;
+  --color-muted: #182432;
+  --color-muted-foreground: #97a3b4;
+
+  /* Chart series re-picked for the navy dark surface (validated separately). */
+  --chart-1: #5f7bec;
+  --chart-2: #0f9d94;
+  --chart-3: #bd7f26;
+  --chart-4: #d24f86;
+  --chart-5: #8064d6;
+  --chart-6: #3f9557;
   --color-overlay: rgb(0 0 0 / 0.66);
   --shadow-raised: 0 1px 1px rgb(0 0 0 / 0.28), 0 8px 20px -16px rgb(0 0 0 / 0.75);
   --shadow-floating: 0 16px 36px -14px rgb(0 0 0 / 0.72), 0 4px 10px -5px rgb(0 0 0 / 0.60);
@@ -161,7 +193,7 @@
 
 :where(.rui-theme, .rtui-theme) :where(h1, h2, h3, h4, h5, h6) {
   font-family: var(--rui-heading-family, var(--rtui-heading-family, var(--font-display)));
-  letter-spacing: 0;
+  letter-spacing: var(--tracking-display);
 }
 
 :where(.rui-theme, .rtui-theme) :where(button, input, textarea, select) {
@@ -228,11 +260,11 @@
 /* ─── Selection ───────────────────────────────────────────────────────────── */
 
 :where(.rui-theme, .rtui-theme) ::selection {
-  background: rgba(59, 130, 246, 0.22);
+  background: color-mix(in srgb, var(--color-accent-600) 22%, transparent);
 }
 
 :where(.rui-theme, .rtui-theme).dark ::selection {
-  background: rgba(96, 165, 250, 0.28);
+  background: color-mix(in srgb, var(--color-accent-400) 30%, transparent);
 }
 
 /* ─── Scrollbars ──────────────────────────────────────────────────────────── */
@@ -291,13 +323,28 @@
   display: none;
 }
 
-/* ── Focus ring utility ── */
+/* ── Focus ring utility ── the library's signature.
+   Two parts, byte-identical on every interactive surface:
+     1. a 1px inset hairline that separates the control's content from the ring
+        (visible as a fine inner stroke on filled controls, invisible on ghost),
+     2. a 3px cobalt halo held off the control by a 2px gap in the page ground.
+   box-shadow (not outline) so the halo follows border-radius and can layer with
+   the inset line. Overrides the resting shadow while focused — intentional. */
 :where(.rui-theme, .rtui-theme) .focus-ring {
   outline: none;
 }
 :where(.rui-theme, .rtui-theme) .focus-ring:focus-visible {
-  outline: 2px solid color-mix(in srgb, var(--color-focus-ring) 72%, transparent);
+  outline: 2px solid transparent; /* preserved for forced-colors / Windows high-contrast */
   outline-offset: 2px;
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--color-surface) 82%, transparent),
+    0 0 0 2px var(--color-bg),
+    0 0 0 5px color-mix(in srgb, var(--color-focus-ring) 38%, transparent);
+}
+@media (prefers-reduced-motion: no-preference) {
+  :where(.rui-theme, .rtui-theme) .focus-ring {
+    transition: box-shadow var(--duration-fast) var(--ease-standard);
+  }
 }
 
 /* ── Date/time input picker icon (invisible in dark mode by default — WebKit

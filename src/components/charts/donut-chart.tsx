@@ -3,7 +3,7 @@
 import { cn } from "@/lib/cn"
 import { motion } from "framer-motion"
 import { type ReactNode, useState } from "react"
-import { type ChartDataPoint, type TooltipState, ChartTooltip } from "./shared"
+import { type ChartDataPoint, type TooltipState, ChartTooltip, CHART_SERIES } from "./shared"
 
 export interface DonutChartProps {
   data: ChartDataPoint[]
@@ -13,7 +13,7 @@ export interface DonutChartProps {
   className?: string
 }
 
-const DONUT_COLORS = ["var(--color-accent-500)", "#10b981", "#f59e0b", "#f43f5e", "#8b5cf6", "#06b6d4"]
+const DONUT_COLORS = CHART_SERIES
 
 export function DonutChart({
   data,
@@ -87,7 +87,7 @@ export function DonutChart({
                     content: (
                       <span>
                         <span className="text-slate-500 dark:text-slate-400 mr-2">{seg.label}</span>
-                        <span className="font-semibold text-gray-900 dark:text-white">{seg.value}</span>
+                        <span className="font-semibold text-foreground">{seg.value}</span>
                         <span className="text-slate-500 ml-1.5">({(seg.frac * 100).toFixed(1)}%)</span>
                       </span>
                     ),

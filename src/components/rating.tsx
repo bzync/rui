@@ -93,7 +93,7 @@ export const Rating = forwardRef<HTMLFieldSetElement, RatingProps>(({
                 onChange={() => select(itemValue)}
                 className="peer sr-only"
               />
-              <span className="block rounded-sm peer-focus-visible:ring-2 peer-focus-visible:ring-focus-ring/35 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-bg">
+              <span className="block rounded-sm peer-focus-visible:ring-[3px] peer-focus-visible:ring-focus-ring/35 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-bg">
                 <svg
                   viewBox="0 0 24 24"
                   aria-hidden="true"

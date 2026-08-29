@@ -640,7 +640,7 @@ export const supplementalDetails: Record<string, () => SupplementalDetail> = {
   ),
   "components/multi-line-chart": () => detail(
     `<MultiLineChart labels={["Mon", "Tue", "Wed"]} series={[{ label: "CPU", data: [28, 42, 38] }, { label: "Memory", data: [55, 58, 62] }]} />`,
-    <R.MultiLineChart className="w-full" height={220} labels={["Mon", "Tue", "Wed", "Thu", "Fri"]} series={[{ label: "CPU", color: "#3b82f6", data: [28, 42, 38, 55, 48] }, { label: "Memory", color: "#10b981", data: [55, 58, 62, 65, 68] }]} />,
+    <R.MultiLineChart className="w-full" height={220} labels={["Mon", "Tue", "Wed", "Thu", "Fri"]} series={[{ label: "CPU", color: "var(--chart-1)", data: [28, 42, 38, 55, 48] }, { label: "Memory", color: "var(--chart-2)", data: [55, 58, 62, 65, 68] }]} />,
     api(["labels", "string[]", "Shared x-axis labels."], ["series", "LineSeries[]", "Named value series."], ["height", "number", "Chart height in pixels."], ["formatValue", "(value) => string", "Tooltip value formatter."]),
     "Give every series a name and provide exact values in text or a table when users need them.",
   ),
@@ -652,7 +652,7 @@ export const supplementalDetails: Record<string, () => SupplementalDetail> = {
   ),
   "components/scatter-chart": () => detail(
     `<ScatterChart series={[{ label: "API", data: [{ x: 12, y: 420, label: "GET /users" }] }]} />`,
-    <R.ScatterChart className="w-full" height={220} xLabel="Latency (ms)" series={[{ label: "API", color: "#3b82f6", data: [{ x: 12, y: 420, label: "GET /users" }, { x: 28, y: 280, label: "POST /auth" }, { x: 45, y: 110, label: "POST /deploy" }] }, { label: "Worker", color: "#10b981", data: [{ x: 55, y: 140, label: "push:registry" }, { x: 90, y: 60, label: "build:docker" }] }]} />,
+    <R.ScatterChart className="w-full" height={220} xLabel="Latency (ms)" series={[{ label: "API", color: "var(--chart-1)", data: [{ x: 12, y: 420, label: "GET /users" }, { x: 28, y: 280, label: "POST /auth" }, { x: 45, y: 110, label: "POST /deploy" }] }, { label: "Worker", color: "var(--chart-2)", data: [{ x: 55, y: 140, label: "push:registry" }, { x: 90, y: 60, label: "build:docker" }] }]} />,
     api(["series", "ScatterSeries[]", "Named point series."], ["xLabel", "string", "Horizontal axis label."], ["formatX / formatY", "(value) => string", "Axis and tooltip formatters."], ["height", "number", "Chart height."]),
     "Label both axes and expose exact point values in an alternate textual form when essential.",
   ),
@@ -670,7 +670,7 @@ export const supplementalDetails: Record<string, () => SupplementalDetail> = {
   ),
   "components/radar-chart": () => detail(
     `<RadarChart axes={["Uptime", "Latency", "Errors"]} series={[{ label: "API", data: [92, 85, 95] }]} />`,
-    <R.RadarChart axes={["Uptime", "Throughput", "Latency", "Errors", "Saturation"]} series={[{ label: "API", color: "#3b82f6", data: [92, 78, 85, 95, 70] }, { label: "Worker", color: "#10b981", data: [88, 65, 72, 90, 60] }]} />,
+    <R.RadarChart axes={["Uptime", "Throughput", "Latency", "Errors", "Saturation"]} series={[{ label: "API", color: "var(--chart-1)", data: [92, 78, 85, 95, 70] }, { label: "Worker", color: "var(--chart-2)", data: [88, 65, 72, 90, 60] }]} />,
     api(["axes", "string[]", "Dimension labels."], ["series", "RadarSeries[]", "Named values across every axis."], ["max", "number", "Maximum axis value."], ["size", "number", "Chart diameter."]),
     "Name every axis and series; provide an alternate comparison table for precise interpretation.",
   ),

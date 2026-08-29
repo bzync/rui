@@ -343,7 +343,7 @@ const proseAnatomyStyles = [
   "[&_ol]:my-4 [&_ol]:list-decimal [&_ol]:space-y-1.5 [&_ol]:pl-6",
   "[&_li]:pl-1 [&_li]:text-muted-foreground [&_li::marker]:text-border-strong",
   "[&_a]:rounded-sm [&_a]:font-medium [&_a]:text-accent-700 [&_a]:underline [&_a]:decoration-accent-300 [&_a]:underline-offset-4 hover:[&_a]:text-accent-800",
-  "[&_a]:focus-visible:outline-none [&_a]:focus-visible:ring-2 [&_a]:focus-visible:ring-focus-ring/35",
+  "[&_a]:focus-visible:outline-none [&_a]:focus-visible:ring-[3px] [&_a]:focus-visible:ring-focus-ring/35",
   "[&_blockquote]:my-6 [&_blockquote]:border-l-4 [&_blockquote]:border-accent-400 [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:text-muted-foreground",
   "[&_code]:rounded-md [&_code]:border [&_code]:border-border [&_code]:bg-surface-muted [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-[0.875em] [&_code]:text-foreground",
   "[&_pre]:my-6 [&_pre]:max-w-full [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:border [&_pre]:border-border [&_pre]:bg-surface-muted [&_pre]:p-4",

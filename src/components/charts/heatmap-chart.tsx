@@ -18,7 +18,7 @@ export function HeatmapChart({
   data,
   rowLabels,
   colLabels,
-  color = "var(--color-accent-500)",
+  color = "var(--chart-1)",
   cellSize = 34,
   className,
   formatValue = String,
@@ -72,7 +72,7 @@ export function HeatmapChart({
                       <span>
                         {rowLabels?.[r] && <span className="text-slate-500 dark:text-slate-400 mr-1.5">{rowLabels[r]}</span>}
                         {colLabels?.[c] && <span className="text-slate-500 dark:text-slate-400 mr-2">{colLabels[c]}</span>}
-                        <span className="font-semibold text-gray-900 dark:text-white">{formatValue(v)}</span>
+                        <span className="font-semibold text-foreground">{formatValue(v)}</span>
                       </span>
                     ),
                   })

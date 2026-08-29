@@ -25,7 +25,7 @@ describe("chart components", () => {
     const cells = container.querySelectorAll<HTMLElement>("[data-heatmap-cell]")
 
     expect(cells).toHaveLength(2)
-    expect(cells[0].style.backgroundColor).toBe("var(--color-accent-500)")
+    expect(cells[0].style.backgroundColor).toBe("var(--chart-1)")
     expect(cells[0].style.opacity).toBe("0.08")
     expect(cells[1].style.opacity).toBe("0.96")
   })

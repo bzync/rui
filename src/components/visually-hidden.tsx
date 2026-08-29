@@ -25,7 +25,7 @@ export const VisuallyHidden = forwardRef<HTMLSpanElement, VisuallyHiddenProps>(
         ref={ref}
         className={cn(
           focusable
-            ? "sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-surface focus:px-3 focus:py-2 focus:text-sm focus:shadow-overlay focus:ring-2 focus:ring-focus-ring"
+            ? "sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-surface focus:px-3 focus:py-2 focus:text-sm focus:shadow-overlay focus:ring-[3px] focus:ring-focus-ring"
             : "sr-only",
           className,
         )}

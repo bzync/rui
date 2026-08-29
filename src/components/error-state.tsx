@@ -12,8 +12,8 @@ export interface ErrorStateProps {
 }
 
 export function ErrorState({
-  title = "Something went wrong",
-  description = "An unexpected error occurred. Please try again.",
+  title = "This didn't load",
+  description = "The request didn't finish. Try again — if it keeps failing, the problem is on our end, not yours.",
   error,
   onRetry,
   action,

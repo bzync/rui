@@ -79,7 +79,7 @@ export function MonthView({ viewDate, today, value, events, onSelect, onEventCli
               }}
               className={cn(
                 "p-1.5 transition-colors group/cell",
-                "border-border focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus-ring/35",
+                "border-border focus-visible:z-10 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-focus-ring/35",
                 !isLastInRow && "border-r",
                 !isLastRow   && "border-b",
                 !isCurMonth  && "bg-black/[0.015] dark:bg-white/[0.015]",

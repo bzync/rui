@@ -157,7 +157,7 @@ export const SelectSingle = forwardRef<HTMLButtonElement, SelectPropsSingle>(
           className={cn(
             "flex h-9 w-full items-center gap-2 rounded-[var(--radius-md)] px-3 text-left outline-none",
             controlBaseStyles,
-            "focus:border-accent-500 focus:ring-2 focus:ring-focus-ring/20",
+            "focus:border-accent-500 focus:ring-[3px] focus:ring-focus-ring/25",
             error && controlInvalidStyles,
             disabled && "opacity-50 cursor-not-allowed",
             triggerClassName,

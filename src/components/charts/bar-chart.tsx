@@ -24,7 +24,7 @@ export interface BarChartProps {
 export function BarChart({
   data,
   height = 220,
-  color = "var(--color-accent-500)",
+  color = "var(--chart-1)",
   showValues = false,
   gridLines = 4,
   orientation = "vertical",
@@ -115,7 +115,7 @@ export function BarChart({
                   content: (
                     <span>
                       <span className="text-slate-500 dark:text-slate-400 mr-2">{d.label}</span>
-                      <span className="font-semibold text-gray-900 dark:text-white">{formatValue(d.value)}</span>
+                      <span className="font-semibold text-foreground">{formatValue(d.value)}</span>
                     </span>
                   ),
                 })
@@ -203,7 +203,7 @@ function HorizontalBarChart({
     <div className={cn("w-full select-none flex flex-col gap-2.5", className)}>
       {data.map((d, i) => {
         const pct = (d.value / max) * 100
-        const c = d.color ?? color ?? "var(--color-accent-500)"
+        const c = d.color ?? color ?? "var(--chart-1)"
         const isHov = hovered === i
         return (
           <div key={i} className="flex items-center gap-3">
@@ -233,7 +233,7 @@ function HorizontalBarChart({
                     content: (
                       <span>
                         <span className="text-slate-500 dark:text-slate-400 mr-2">{d.label}</span>
-                        <span className="font-semibold text-gray-900 dark:text-white">{formatValue(d.value)}</span>
+                        <span className="font-semibold text-foreground">{formatValue(d.value)}</span>
                       </span>
                     ),
                   })

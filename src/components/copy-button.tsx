@@ -38,19 +38,20 @@ export function CopyButton({ value, timeout = 2000, label, size = "sm", classNam
   }
 
   const sizeClass = size === "sm"
-    ? "h-6 px-2 text-xs gap-1 rounded-md"
-    : "h-8 px-3 text-sm gap-1.5 rounded-lg"
+    ? "h-6 px-2 text-xs gap-1 rounded-[var(--radius-md)]"
+    : "h-8 px-3 text-sm gap-1.5 rounded-[var(--radius-lg)]"
 
   return (
     <button
       type="button"
       onClick={copy}
+      aria-label={label ? undefined : copied ? "Copied to clipboard" : "Copy to clipboard"}
       className={cn(
-        "inline-flex shrink-0 items-center justify-center whitespace-nowrap font-medium transition-colors select-none",
-        "border border-black/10 dark:border-white/10",
+        "focus-ring inline-flex shrink-0 items-center justify-center whitespace-nowrap font-medium select-none border",
+        "transition-[color,background-color,border-color] duration-150",
         copied
-          ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-          : "bg-black/4 dark:bg-white/4 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-black/8 dark:hover:bg-white/8",
+          ? "border-success/25 bg-success/10 text-success dark:text-emerald-400"
+          : "border-border bg-muted text-muted-foreground hover:bg-surface-muted hover:text-foreground",
         sizeClass,
         className,
       )}

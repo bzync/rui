@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/cn"
 import { useEffect, useState } from "react"
-import { type TooltipState, ChartTooltip } from "./shared"
+import { type TooltipState, ChartTooltip, CHART_SERIES } from "./shared"
 
 export interface GanttTask {
   id: string
@@ -20,7 +20,7 @@ export interface GanttChartProps {
   className?: string
 }
 
-const GANTT_COLORS = ["var(--color-accent-500)", "#10b981", "#f59e0b", "#f43f5e", "#8b5cf6", "#06b6d4"]
+const GANTT_COLORS = CHART_SERIES
 
 export function GanttChart({
   tasks,
@@ -79,7 +79,7 @@ export function GanttChart({
                     x: e.clientX, y: e.clientY,
                     content: (
                       <span>
-                        <span className="font-semibold text-gray-900 dark:text-white mr-2">{task.label}</span>
+                        <span className="font-semibold text-foreground mr-2">{task.label}</span>
                         <span className="text-slate-500 dark:text-slate-400">{task.start}–{task.end}</span>
                       </span>
                     ),
@@ -87,7 +87,7 @@ export function GanttChart({
                 }
                 onMouseLeave={() => { setHovered(null); setTooltip(null) }}
               >
-                <span className="text-xs font-medium text-gray-900 dark:text-white/90 truncate leading-none select-none">
+                <span className="text-xs font-medium text-foreground truncate leading-none select-none">
                   {task.label}
                 </span>
               </div>

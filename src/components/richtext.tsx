@@ -36,8 +36,8 @@ function ToolBtn({
       className={cn(
         "h-7 w-7 flex items-center justify-center rounded-md text-sm transition-colors",
         active
-          ? "bg-black/10 dark:bg-white/15 text-gray-900 dark:text-white"
-          : "text-slate-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white hover:bg-black/6 dark:hover:bg-white/8",
+          ? "bg-black/10 dark:bg-white/15 text-foreground"
+          : "text-slate-500 dark:text-slate-400 hover:text-foreground hover:bg-black/6 dark:hover:bg-white/8",
       )}
     >
       {children}

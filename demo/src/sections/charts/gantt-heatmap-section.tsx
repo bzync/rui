@@ -15,11 +15,11 @@ export function GanttChartSection() {
         <GanttChart
           xLabels={["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]}
           tasks={[
-            { id: "t1", label: "API design",      start: 0, end: 2, color: "#3b82f6" },
-            { id: "t2", label: "DB schema",       start: 0, end: 3, color: "#10b981" },
-            { id: "t3", label: "Frontend scaff.", start: 1, end: 4, color: "#8b5cf6" },
-            { id: "t4", label: "Auth service",    start: 2, end: 5, color: "#f59e0b" },
-            { id: "t5", label: "Integration",     start: 4, end: 6, color: "#f43f5e" },
+            { id: "t1", label: "API design",      start: 0, end: 2, color: "var(--chart-1)" },
+            { id: "t2", label: "DB schema",       start: 0, end: 3, color: "var(--chart-2)" },
+            { id: "t3", label: "Frontend scaff.", start: 1, end: 4, color: "var(--chart-5)" },
+            { id: "t4", label: "Auth service",    start: 2, end: 5, color: "var(--chart-3)" },
+            { id: "t5", label: "Integration",     start: 4, end: 6, color: "var(--chart-4)" },
             { id: "t6", label: "Deploy",          start: 6, end: 7, color: "#06b6d4" },
           ]}
         />
@@ -39,7 +39,7 @@ export function HeatmapChartSection() {
     >
       <Group label="Requests by hour × day">
         <HeatmapChart
-          color="#3b82f6"
+          color="var(--chart-1)"
           rowLabels={["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]}
           colLabels={["0h", "3h", "6h", "9h", "12h", "15h", "18h", "21h"]}
           data={[

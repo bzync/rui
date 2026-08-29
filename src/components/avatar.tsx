@@ -41,7 +41,7 @@ const statusColors: Record<Status, string> = {
 }
 
 const palette = [
-  "bg-blue-600",
+  "bg-accent-600",
   "bg-violet-600",
   "bg-emerald-600",
   "bg-rose-600",

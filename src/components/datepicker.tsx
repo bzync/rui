@@ -241,7 +241,7 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(({
         aria-describedby={error || hint ? messageId : undefined}
         disabled={disabled}
         onClick={() => open ? closeCalendar() : openCalendar()}
-        className="flex h-full min-w-0 flex-1 items-center gap-2 rounded-[var(--radius-md)] px-3 text-left outline-none focus-visible:ring-2 focus-visible:ring-focus-ring/35"
+        className="flex h-full min-w-0 flex-1 items-center gap-2 rounded-[var(--radius-md)] px-3 text-left outline-none focus-visible:ring-[3px] focus-visible:ring-focus-ring/35"
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-500 shrink-0">
           <rect width="18" height="18" x="3" y="4" rx="2" ry="2" /><line x1="16" x2="16" y1="2" y2="6" /><line x1="8" x2="8" y1="2" y2="6" /><line x1="3" x2="21" y1="10" y2="10" />
@@ -326,7 +326,7 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(({
                     aria-pressed={isSelected}
                     aria-current={isToday ? "date" : undefined}
                     className={cn(
-                      "h-11 w-full rounded-md text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring/35 sm:h-8",
+                      "h-11 w-full rounded-md text-sm transition-colors focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-focus-ring/35 sm:h-8",
                       isSelected
                         ? "bg-primary text-primary-foreground font-medium"
                         : isToday
@@ -340,7 +340,7 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(({
                 )
               })}
             </div>
-            <div className={cn("mt-3 flex items-center border-t border-border pt-3", isUnavailable(today) ? "justify-end" : "justify-between")}>{!isUnavailable(today) && <button type="button" onClick={() => focusCalendarDate(today)} className="h-11 rounded-md px-3 text-xs font-medium text-accent-700 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring/35 sm:h-10 dark:text-accent-300">Today</button>}<button type="button" onClick={() => closeCalendar(true)} className="h-11 rounded-md px-3 text-xs font-medium text-muted-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring/35 sm:h-10">Cancel</button></div>
+            <div className={cn("mt-3 flex items-center border-t border-border pt-3", isUnavailable(today) ? "justify-end" : "justify-between")}>{!isUnavailable(today) && <button type="button" onClick={() => focusCalendarDate(today)} className="h-11 rounded-md px-3 text-xs font-medium text-accent-700 hover:bg-muted focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-focus-ring/35 sm:h-10 dark:text-accent-300">Today</button>}<button type="button" onClick={() => closeCalendar(true)} className="h-11 rounded-md px-3 text-xs font-medium text-muted-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-focus-ring/35 sm:h-10">Cancel</button></div>
           </motion.div>
           </>
         )}

@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/cn"
 import { focusRingStyles } from "@/lib/component-styles"
+import { motionTokens } from "@/lib/motion"
 import { AnimatePresence, motion } from "framer-motion"
 import {
   ReactNode,
@@ -203,7 +204,7 @@ export function SnackbarProvider({
                 initial={{ ...from, opacity: 0, scale: 0.95 }}
                 animate={{ x: 0, y: 0, opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.92 }}
-                transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                transition={motionTokens.spring.snappy}
                 className={cn(
                   "pointer-events-auto flex items-start gap-3 rounded-[var(--radius-lg)] border px-4 py-3",
                   "w-[calc(100vw-1.5rem)] max-w-sm shadow-floating sm:w-auto sm:min-w-[280px]",

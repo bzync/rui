@@ -15,8 +15,8 @@ export function RadarChartSection() {
         <RadarChart
           axes={["Uptime", "Throughput", "Latency", "Error rate", "Saturation", "Availability"]}
           series={[
-            { label: "API",    color: "#3b82f6", data: [92, 78, 85, 95, 70, 88] },
-            { label: "Worker", color: "#10b981", data: [88, 65, 72, 90, 60, 82] },
+            { label: "API",    color: "var(--chart-1)", data: [92, 78, 85, 95, 70, 88] },
+            { label: "Worker", color: "var(--chart-2)", data: [88, 65, 72, 90, 60, 82] },
           ]}
         />
       </Group>

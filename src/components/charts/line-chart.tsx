@@ -23,7 +23,7 @@ export interface LineChartProps {
 export function LineChart({
   data,
   height = 220,
-  color = "var(--color-accent-500)",
+  color = "var(--chart-1)",
   area = true,
   dots = true,
   gridLines = 4,
@@ -136,7 +136,7 @@ export function LineChart({
                   content: (
                     <span>
                       <span className="text-slate-500 dark:text-slate-400 mr-2">{p.d.label}</span>
-                      <span className="font-semibold text-gray-900 dark:text-white">{formatValue(p.d.value)}</span>
+                      <span className="font-semibold text-foreground">{formatValue(p.d.value)}</span>
                     </span>
                   ),
                 })

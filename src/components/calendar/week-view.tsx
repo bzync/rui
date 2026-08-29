@@ -41,7 +41,7 @@ export function WeekView({ viewDate, today, value, events, onSelect, onEventClic
               aria-label={date.toLocaleDateString(undefined, { dateStyle: "full" })}
               onClick={() => !isDisabled && onSelect(date)}
               onKeyDown={(event) => { if (!isDisabled && (event.key === "Enter" || event.key === " ")) { event.preventDefault(); onSelect(date) } }}
-              className={cn("group/whead flex flex-col items-center gap-1 py-3 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus-ring/35", isDisabled ? "cursor-not-allowed opacity-40" : "cursor-pointer hover:bg-surface-muted")}
+              className={cn("group/whead flex flex-col items-center gap-1 py-3 transition-colors focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-focus-ring/35", isDisabled ? "cursor-not-allowed opacity-40" : "cursor-pointer hover:bg-surface-muted")}
             >
               <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">
                 {DAYS_MED[date.getDay()]}
@@ -78,7 +78,7 @@ export function WeekView({ viewDate, today, value, events, onSelect, onEventClic
               onClick={() => !isDisabled && onSelect(date)}
               onKeyDown={(event) => { if (!isDisabled && (event.key === "Enter" || event.key === " ")) { event.preventDefault(); onSelect(date) } }}
               className={cn(
-                "space-y-1.5 p-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus-ring/35",
+                "space-y-1.5 p-2 transition-colors focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-focus-ring/35",
                 !isLastCol && "border-r border-border",
                 isDisabled ? "cursor-not-allowed opacity-40" : "cursor-pointer hover:bg-surface-muted/70",
               )}

@@ -143,7 +143,7 @@ export function CodeBlock({ code, language = "js", filename, showLineNumbers = f
   }
 
   return (
-    <div className={cn("group relative rounded-xl overflow-hidden border border-black/10 dark:border-white/10 bg-slate-50 dark:bg-[#0d1117]", className)}>
+    <div className={cn("group relative rounded-[var(--radius-xl)] overflow-hidden border border-border bg-surface-muted dark:bg-navy-900", className)}>
       {/* Header bar */}
       <div className="flex items-center justify-between px-4 py-2.5 border-b border-black/[0.07] dark:border-white/[0.07] bg-black/3 dark:bg-white/3">
         <div className="flex items-center gap-2">
@@ -159,7 +159,7 @@ export function CodeBlock({ code, language = "js", filename, showLineNumbers = f
             type="button"
             onClick={copy}
             aria-label={copied ? "Copied code" : "Copy code"}
-            className="h-6 shrink-0 px-2 flex items-center gap-1 whitespace-nowrap rounded text-xs text-slate-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white hover:bg-black/6 dark:hover:bg-white/8 transition-colors"
+            className="h-6 shrink-0 px-2 flex items-center gap-1 whitespace-nowrap rounded text-xs text-slate-500 dark:text-slate-400 hover:text-foreground hover:bg-black/6 dark:hover:bg-white/8 transition-colors"
           >
             {copied ? (
               <>
@@ -281,7 +281,7 @@ export function CodeEditor({
   }
 
   return (
-    <div className={cn("relative rounded-xl overflow-hidden border border-black/10 dark:border-white/10 bg-slate-50 dark:bg-[#0d1117]", className)}>
+    <div className={cn("relative rounded-[var(--radius-xl)] overflow-hidden border border-border bg-surface-muted dark:bg-navy-900", className)}>
       {/* Header */}
       <div className="flex items-center gap-1.5 px-4 py-2.5 border-b border-black/[0.07] dark:border-white/[0.07] bg-black/3 dark:bg-white/3">
         <span className="text-xs font-mono text-slate-400 dark:text-slate-500 uppercase">{language}</span>

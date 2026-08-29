@@ -63,7 +63,7 @@ export function MultiTrigger<V>({
             onMouseDown={(e) => e.preventDefault()}
             onClick={(e) => { e.stopPropagation(); onRemove(opt) }}
             disabled={disabled}
-            className="shrink-0 text-slate-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer ml-0.5"
+            className="shrink-0 text-slate-500 dark:text-slate-400 hover:text-foreground transition-colors cursor-pointer ml-0.5"
             aria-label={`Remove ${opt.label}`}
           >
             <XIcon size={10} />

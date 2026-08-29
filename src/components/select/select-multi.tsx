@@ -159,7 +159,7 @@ export const SelectMulti = forwardRef<HTMLButtonElement, SelectPropsMulti>(
           className={cn(
             "flex min-h-9 w-full flex-wrap items-center gap-1.5 rounded-[var(--radius-md)] px-2.5 py-1.5 text-left outline-none",
             controlBaseStyles,
-            "focus:border-accent-500 focus:ring-2 focus:ring-focus-ring/20",
+            "focus:border-accent-500 focus:ring-[3px] focus:ring-focus-ring/25",
             error && controlInvalidStyles,
             disabled && "opacity-50 cursor-not-allowed",
             triggerClassName,
@@ -182,7 +182,7 @@ export const SelectMulti = forwardRef<HTMLButtonElement, SelectPropsMulti>(
                   tabIndex={-1}
                   onMouseDown={(e) => e.stopPropagation()}
                   onClick={(e) => removeAt(opt.value, e)}
-                  className="shrink-0 text-slate-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer ml-0.5"
+                  className="shrink-0 text-slate-500 dark:text-slate-400 hover:text-foreground transition-colors cursor-pointer ml-0.5"
                   aria-label={`Remove ${opt.label}`}
                 >
                   <XIcon />

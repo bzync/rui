@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/cn"
 import { useEffect, useState } from "react"
-import { type ChartDataPoint, type TooltipState, ChartTooltip } from "./shared"
+import { type ChartDataPoint, type TooltipState, ChartTooltip, CHART_SEQUENTIAL } from "./shared"
 
 export interface FunnelChartProps {
   data: ChartDataPoint[]
@@ -11,7 +11,7 @@ export interface FunnelChartProps {
   formatValue?: (v: number) => string
 }
 
-const FUNNEL_COLORS = ["var(--color-accent-500)", "#6366f1", "#8b5cf6", "#a855f7", "#c084fc"]
+const FUNNEL_COLORS = CHART_SEQUENTIAL
 
 export function FunnelChart({
   data,
@@ -66,7 +66,7 @@ export function FunnelChart({
                     content: (
                       <span>
                         <span className="text-slate-500 dark:text-slate-400 mr-2">{d.label}</span>
-                        <span className="font-semibold text-gray-900 dark:text-white">{formatValue(d.value)}</span>
+                        <span className="font-semibold text-foreground">{formatValue(d.value)}</span>
                         {dropPct && (
                           <span className="text-slate-500 dark:text-slate-400 ml-2">{dropPct}% of total</span>
                         )}

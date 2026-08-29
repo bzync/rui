@@ -3,7 +3,7 @@
 import { cn } from "@/lib/cn"
 import { motion } from "framer-motion"
 import { useState, useId } from "react"
-import { type TooltipState, ChartTooltip, visibleLabelAt } from "./shared"
+import { type TooltipState, ChartTooltip, visibleLabelAt, CHART_SERIES } from "./shared"
 
 export interface MultiLineSeries {
   label: string
@@ -24,7 +24,7 @@ export interface MultiLineChartProps {
   maxLabels?: number
 }
 
-const DEFAULT_COLORS = ["var(--color-accent-500)", "#10b981", "#f59e0b", "#f43f5e", "#8b5cf6"]
+const DEFAULT_COLORS = CHART_SERIES
 
 export function MultiLineChart({
   labels,

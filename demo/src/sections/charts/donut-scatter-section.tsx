@@ -33,9 +33,9 @@ export function DonutChartSection() {
           size={140}
           thickness={22}
           data={[
-            { label: "Success", value: 78, color: "#10b981" },
-            { label: "Failed",  value: 14, color: "#f43f5e" },
-            { label: "Pending", value: 8,  color: "#f59e0b" },
+            { label: "Success", value: 78, color: "var(--chart-2)" },
+            { label: "Failed",  value: 14, color: "var(--chart-4)" },
+            { label: "Pending", value: 8,  color: "var(--chart-3)" },
           ]}
           centerLabel={
             <div className="text-center">
@@ -67,7 +67,7 @@ export function ScatterChartSection() {
           series={[
             {
               label: "API",
-              color: "#3b82f6",
+              color: "var(--chart-1)",
               data: [
                 { x: 12, y: 420, label: "GET /users" },
                 { x: 28, y: 280, label: "POST /auth" },
@@ -79,7 +79,7 @@ export function ScatterChartSection() {
             },
             {
               label: "Worker",
-              color: "#10b981",
+              color: "var(--chart-2)",
               data: [
                 { x: 90, y: 60,  label: "build:docker", r: 1.8 },
                 { x: 55, y: 140, label: "push:registry" },

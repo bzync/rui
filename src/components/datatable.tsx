@@ -104,7 +104,7 @@ export function DataTable<T extends { id: string | number }>({
           {searchable ? (
             <div className="relative flex-1 sm:max-w-xs">
               <svg aria-hidden="true" className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
-              <input aria-label={searchPlaceholder} type="search" value={query} onChange={handleQueryChange} placeholder={searchPlaceholder} className="h-8 w-full rounded-[var(--radius-md)] border border-border bg-surface pl-8 pr-3 text-sm text-foreground placeholder:text-muted-foreground transition-colors focus:border-accent-500 focus:outline-none focus:ring-2 focus:ring-focus-ring/20" />
+              <input aria-label={searchPlaceholder} type="search" value={query} onChange={handleQueryChange} placeholder={searchPlaceholder} className="h-8 w-full rounded-[var(--radius-md)] border border-border bg-surface pl-8 pr-3 text-sm text-foreground placeholder:text-muted-foreground transition-colors focus:border-accent-500 focus:outline-none focus:ring-[3px] focus:ring-focus-ring/25" />
             </div>
           ) : <div />}
           {pageSizeOptions !== false && Array.isArray(pageSizeOptions) && pageSizeOptions.length > 1 && (
@@ -119,7 +119,7 @@ export function DataTable<T extends { id: string | number }>({
             <tr>
               {columns.map((col) => (
                 <th key={col.key} scope="col" aria-sort={sortKey === col.key ? (sortDir === "asc" ? "ascending" : sortDir === "desc" ? "descending" : "none") : undefined} style={{ width: col.width }} className={cn("px-4 py-2.5 text-[11px] font-semibold text-muted-foreground group-data-[density=compact]/table:px-3 group-data-[density=compact]/table:py-2", alignClass[col.align ?? "left"])}>
-                  {col.sortable ? <button type="button" className="inline-flex items-center gap-1 rounded-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring/35" onClick={() => handleSort(col.key)}>{col.header}<SortIcon dir={sortKey === col.key ? sortDir : null} /></button> : col.header}
+                  {col.sortable ? <button type="button" className="inline-flex items-center gap-1 rounded-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-focus-ring/35" onClick={() => handleSort(col.key)}>{col.header}<SortIcon dir={sortKey === col.key ? sortDir : null} /></button> : col.header}
                 </th>
               ))}
             </tr>
@@ -128,7 +128,7 @@ export function DataTable<T extends { id: string | number }>({
             {loading ? Array.from({ length: 5 }).map((_, i) => <SkeletonRow key={i} cols={columns.length} />) : paginated.length === 0 ? (
               <tr><td colSpan={columns.length} className="px-4 py-12 text-center text-sm text-muted-foreground">{query ? `No results for “${query}”` : emptyMessage}</td></tr>
             ) : paginated.map((row) => (
-                <tr key={row.id} tabIndex={onRowClick ? 0 : undefined} aria-label={getRowLabel?.(row)} className={cn("transition-colors duration-100 hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus-ring/35", onRowClick && "cursor-pointer")} onClick={onRowClick ? () => onRowClick(row) : undefined} onKeyDown={onRowClick ? (event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); onRowClick(row) } } : undefined}>
+                <tr key={row.id} tabIndex={onRowClick ? 0 : undefined} aria-label={getRowLabel?.(row)} className={cn("transition-colors duration-100 hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-focus-ring/35", onRowClick && "cursor-pointer")} onClick={onRowClick ? () => onRowClick(row) : undefined} onKeyDown={onRowClick ? (event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); onRowClick(row) } } : undefined}>
                   {columns.map((col) => (<td key={col.key} className={cn("px-4 py-3 text-sm tabular-nums text-foreground group-data-[density=compact]/table:px-3 group-data-[density=compact]/table:py-2", alignClass[col.align ?? "left"])}>{col.cell(row)}</td>))}
                 </tr>
               ))}

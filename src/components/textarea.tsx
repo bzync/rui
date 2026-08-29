@@ -50,7 +50,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
             "w-full rounded-[var(--radius-md)] text-foreground placeholder:text-muted-foreground outline-none resize-y",
             controlBaseStyles,
             textareaSizes[size],
-            "focus:border-accent-500 focus:ring-2 focus:ring-focus-ring/20",
+            "focus:border-accent-500 focus:ring-[3px] focus:ring-focus-ring/25",
             error && controlInvalidStyles,
             "disabled:cursor-not-allowed disabled:opacity-50",
             className,

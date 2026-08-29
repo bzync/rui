@@ -80,7 +80,7 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(
           />
           <div
             className={cn(
-              "rounded-full w-full h-full border transition-all duration-200 peer-focus-visible:ring-2 peer-focus-visible:ring-focus-ring/35 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-bg",
+              "rounded-full w-full h-full border transition-all duration-200 peer-focus-visible:ring-[3px] peer-focus-visible:ring-focus-ring/35 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-bg",
               isChecked
                 ? "bg-primary border-primary"
                 : "bg-muted border-border-strong",

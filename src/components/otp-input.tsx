@@ -97,8 +97,8 @@ export function OtpInput({
             onFocus={(e) => e.target.select()}
             className={cn(
               "w-10 h-12 text-center text-lg font-semibold rounded-lg border bg-black/4 dark:bg-white/4",
-              "text-gray-900 dark:text-white outline-none transition-colors",
-              "focus:ring-2 focus:ring-accent-500/30",
+              "text-foreground outline-none transition-colors",
+              "focus:ring-[3px] focus:ring-accent-500/30",
               error
                 ? "border-red-500/40 focus:border-red-500/50"
                 : "border-slate-300 dark:border-white/10 focus:border-accent-500/40",

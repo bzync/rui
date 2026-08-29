@@ -18,7 +18,7 @@ export function Highlight({ text, query }: { text: string; query: string }) {
   return (
     <>
       {text.slice(0, idx)}
-      <mark className="bg-blue-500/25 text-blue-700 dark:text-blue-200 rounded-sm not-italic">
+      <mark className="bg-accent-500/25 text-accent-700 dark:text-accent-200 rounded-sm not-italic">
         {text.slice(idx, idx + query.length)}
       </mark>
       {text.slice(idx + query.length)}

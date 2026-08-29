@@ -23,7 +23,7 @@ export function TerminalBlock({ lines, title = "Terminal", prompt = "$", classNa
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight
   }, [lines])
   return (
-    <div className={cn("rounded-xl overflow-hidden border border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#0e1117]", className)}>
+    <div className={cn("rounded-[var(--radius-xl)] overflow-hidden border border-border bg-surface-muted dark:bg-navy-900", className)}>
       <div className="flex items-center px-4 py-2.5 border-b border-black/[0.07] dark:border-white/[0.07] bg-black/3 dark:bg-white/[0.03]">
         <span className="flex-1 text-center text-xs text-slate-500 font-medium">{title}</span>
       </div>

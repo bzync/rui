@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/cn"
 import { useState } from "react"
-import { type TooltipState, ChartTooltip } from "./shared"
+import { type TooltipState, ChartTooltip, CHART_SERIES } from "./shared"
 
 export interface RadarSeries {
   label: string
@@ -18,7 +18,7 @@ export interface RadarChartProps {
   className?: string
 }
 
-const RADAR_COLORS = ["var(--color-accent-500)", "#10b981", "#f59e0b", "#f43f5e", "#8b5cf6"]
+const RADAR_COLORS = CHART_SERIES
 
 export function RadarChart({
   axes,
