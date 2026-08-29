@@ -1,0 +1,61 @@
+# @bzync/rui
+
+> Composable React UI components with scoped, customizable light and dark themes. `@bzync/rui`
+> is an open-source React + Tailwind CSS component library published to npm, shipping ESM and
+> CJS builds with TypeScript types. Components expose native semantics and keyboard behavior,
+> accept `className` and native element props, and honor reduced-motion preferences.
+
+Key facts:
+
+- Package: `@bzync/rui` (npm)
+- Install: `npm install @bzync/rui framer-motion`
+- Stylesheet: import `@bzync/rui/styles.css` once near the app root
+- Imports: root export (`@bzync/rui`) or subpath (`@bzync/rui/button`) for tree-shaking
+- React support: 18.2 and 19
+- Theming: `ThemeProvider` (controlled/uncontrolled, system preference, persistent selection,
+  scoped themes, custom accent/neutral scales, any CSS variable via `tokens`), `ThemeToggle`,
+  `useTheme()`
+- Repository: https://github.com/bzync/rui
+- Documentation: https://rui.bzync.com
+- License: ISC
+
+## Documentation
+
+- [Introduction](https://rui.bzync.com/#/docs/introduction): What @bzync/rui provides and how the package is structured.
+- [Installation](https://rui.bzync.com/#/docs/installation): Install the package, peer dependencies, and stylesheet.
+- [Quick Start](https://rui.bzync.com/#/docs/quick-start): Render your first component with the theme provider.
+- [Configuration](https://rui.bzync.com/#/docs/configuration): Configure themes, fonts, package imports, and app-level behavior.
+
+## Foundations
+
+- [Colors](https://rui.bzync.com/#/foundations/colors): Semantic colors, accent scales, and light/dark surfaces.
+- [Typography](https://rui.bzync.com/#/foundations/typography): Interface, display, and monospace font conventions.
+- [Spacing](https://rui.bzync.com/#/foundations/spacing): The compact spacing rhythm used by controls and layouts.
+- [Radius & shadows](https://rui.bzync.com/#/foundations/radius): Shape and elevation tokens for layered interfaces.
+- [Accessibility](https://rui.bzync.com/#/foundations/accessibility): Keyboard, focus, semantics, motion, and testing guidance.
+
+## Components & patterns
+
+- [Component catalog](https://rui.bzync.com/#/components): Full component inventory with import names and usage.
+- [Forms pattern](https://rui.bzync.com/#/patterns/forms): Structure, validation, and a complete form example.
+- [Data display pattern](https://rui.bzync.com/#/patterns/data-display): Choosing tables, actions, and layout.
+- [Feedback pattern](https://rui.bzync.com/#/patterns/feedback): Alerts, snackbars, and severity guidance.
+- [Empty states pattern](https://rui.bzync.com/#/patterns/empty-states): Content and actions for empty views.
+
+## Examples
+
+- [Settings](https://rui.bzync.com/#/examples/settings): Settings screen composed from rui components.
+- [Authentication](https://rui.bzync.com/#/examples/authentication): Authentication flow example.
+- [Team management](https://rui.bzync.com/#/examples/team-management): Team management screen example.
+
+## Resources
+
+- [Component API](https://rui.bzync.com/#/resources/component-api): Full component inventory and prop types.
+- [Accessibility reference](https://rui.bzync.com/#/resources/accessibility): Component contract, consumer checklist, and testing.
+- [Contributing](https://rui.bzync.com/#/resources/contributing): Workflow, component contract, and verification.
+- [Source (GitHub)](https://github.com/bzync/rui): Issues, source, and release history.
+- [Component inventory (Markdown)](https://github.com/bzync/rui/blob/main/docs/COMPONENTS.md): Machine-readable component table.
+
+## Maintainer
+
+- Rayan Reynaldo — Founder, Bzync — https://www.bzync.com

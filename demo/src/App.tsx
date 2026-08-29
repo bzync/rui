@@ -393,6 +393,7 @@ function DocsShell() {
               <div className="docs-footer-meta">
                 <span className="docs-footer-brand"><RuiBrandMark size={16} />Built with @bzync/rui</span>
                 <span>React 18.2–19 · TypeScript · ESM + CJS</span>
+                <span>Maintained by <a href="https://www.bzync.com" target="_blank" rel="noreferrer author">Rayan Reynaldo</a></span>
               </div>
               <div className="docs-footer-links">
                 <a className="docs-support-link" href="https://buymeacoffee.com/adminjw" target="_blank" rel="noreferrer">Support development</a>

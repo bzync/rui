@@ -48,8 +48,25 @@
     "type": "git",
     "url": "git+https://github.com/bzync/rui.git"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "react",
+    "react-components",
+    "component-library",
+    "ui",
+    "tailwindcss",
+    "design-system",
+    "typescript",
+    "dark-mode",
+    "accessible",
+    "headless"
+  ],
+  "author": "Rayan Reynaldo (https://www.bzync.com)",
+  "maintainers": [
+    {
+      "name": "Rayan Reynaldo",
+      "url": "https://www.bzync.com"
+    }
+  ],
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/bzync/rui/issues"

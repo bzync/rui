@@ -3,6 +3,8 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "description": "Documentation site for @bzync/rui, published to https://rui.bzync.com",
+  "author": "Rayan Reynaldo (https://www.bzync.com)",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

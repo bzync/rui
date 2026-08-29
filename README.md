@@ -72,6 +72,11 @@ The component documentation and live demos are published to
 the latest documentation through GitHub Pages; maintainers can also run the
 **Deploy documentation** workflow manually from the Actions tab.
 
+## Maintainer
+
+`@bzync/rui` is maintained by [Rayan Reynaldo](https://www.bzync.com), Founder of Bzync
+([www.bzync.com](https://www.bzync.com)).
+
 ## Support
 
 If `@bzync/rui` is useful to you, you can support its continued development on

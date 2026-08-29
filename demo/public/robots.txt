@@ -1,0 +1,27 @@
+# https://rui.bzync.com/robots.txt
+User-agent: *
+Allow: /
+
+# AI / LLM crawlers — see /llms.txt for a curated overview
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: https://rui.bzync.com/sitemap.xml

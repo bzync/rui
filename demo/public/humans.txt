@@ -1,0 +1,14 @@
+/* TEAM */
+Maintainer: Rayan Reynaldo
+Role: Founder, Bzync
+Site: https://www.bzync.com
+
+/* PROJECT */
+Name: @bzync/rui
+Description: Composable React UI components with scoped, customizable light and dark themes.
+Repository: https://github.com/bzync/rui
+Documentation: https://rui.bzync.com
+License: ISC
+
+/* TECHNOLOGY */
+React, TypeScript, Tailwind CSS, Vite, Framer Motion
