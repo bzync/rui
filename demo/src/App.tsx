@@ -3,9 +3,7 @@
 import {
   Badge,
   Button,
-  Drawer,
   DropdownMenu,
-  Modal,
   SnackbarProvider,
   ThemeProvider,
   useTheme,
@@ -23,11 +21,17 @@ import {
   Search,
   Sun,
 } from "lucide-react"
-import { Suspense, useEffect, useMemo, useRef, useState } from "react"
+import { Suspense, lazy, useEffect, useState } from "react"
 import packageMetadata from "../../package.json"
 import { RuiBrandMark } from "./_shared/brand"
-import { allPages, docsGroups, getPage, hrefFor, orderedPages, readHash, type DocsPage } from "./docs/catalog"
+import { docsGroups, getPage, hrefFor, orderedPages, readHash, type DocsPage } from "./docs/catalog"
 import { DocsPageContent } from "./docs/pages"
+
+// Overlays that never appear on first paint — split into their own chunks and
+// mounted lazily on first use so the framer-motion-backed Modal/Drawer code
+// stays out of the initial bundle and off the critical path.
+const SearchDialog = lazy(() => import("./_shared/search-dialog"))
+const MobileNavDrawer = lazy(() => import("./_shared/mobile-nav-drawer"))
 
 const pageSectionMap: Record<string, string[]> = {
   "docs/introduction": ["install", "first-component", "package-architecture", "principles"],
@@ -57,10 +61,6 @@ function getPageSections(page: DocsPage) {
 }
 
 const repoUrl = "https://github.com/bzync/rui"
-
-function navigate(slug: string) {
-  window.location.hash = `/${slug}`
-}
 
 function prefersReducedMotion() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches
@@ -114,89 +114,6 @@ function SidebarNavigation({ activeSlug, onNavigate }: { activeSlug: string; onN
         </div>
       ))}
     </nav>
-  )
-}
-
-function SearchDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const [query, setQuery] = useState("")
-  const [activeIndex, setActiveIndex] = useState(0)
-  const inputRef = useRef<HTMLInputElement>(null)
-
-  const results = useMemo(() => {
-    const term = query.trim().toLowerCase()
-    const ranked = allPages
-      .map((page) => {
-        const haystack = [page.title, page.description, page.group, ...(page.aliases ?? [])].join(" ").toLowerCase()
-        const title = page.title.toLowerCase()
-        const score = !term ? 1 : title === term ? 5 : title.startsWith(term) ? 4 : (page.aliases ?? []).some(alias => alias.toLowerCase() === term) ? 3 : haystack.includes(term) ? 2 : 0
-        return { page, score }
-      })
-      .filter(result => result.score > 0)
-      .sort((a, b) => b.score - a.score || a.page.title.localeCompare(b.page.title))
-      .slice(0, 12)
-    return ranked
-  }, [query])
-  const activeResultId = results[activeIndex] ? `docs-search-result-${results[activeIndex].page.slug.replace(/\//g, "-")}` : undefined
-
-  function select(page: DocsPage) {
-    navigate(page.slug)
-    setQuery("")
-    setActiveIndex(0)
-    onClose()
-  }
-
-  function close() {
-    setQuery("")
-    setActiveIndex(0)
-    onClose()
-  }
-
-  return (
-    <Modal open={open} onClose={close} ariaLabel="Search documentation" showCloseButton={false} size="lg" panelClassName="docs-search-dialog">
-      <div className="docs-search-input-wrap">
-        <Search size={17} aria-hidden="true" />
-        <input
-          ref={inputRef}
-          autoFocus
-          value={query}
-          onChange={(event) => { setQuery(event.target.value); setActiveIndex(0) }}
-          placeholder="Search components and docs…"
-          aria-label="Search components and docs"
-          role="combobox"
-          aria-autocomplete="list"
-          aria-expanded="true"
-          aria-controls="docs-search-results"
-          aria-activedescendant={activeResultId}
-          onKeyDown={(event) => {
-            if (event.key === "ArrowDown") {
-              event.preventDefault()
-              setActiveIndex(index => Math.min(index + 1, results.length - 1))
-            } else if (event.key === "ArrowUp") {
-              event.preventDefault()
-              setActiveIndex(index => Math.max(index - 1, 0))
-            } else if (event.key === "Enter" && results[activeIndex]) {
-              select(results[activeIndex].page)
-            } else if (event.key === "Home") {
-              event.preventDefault()
-              setActiveIndex(0)
-            } else if (event.key === "End") {
-              event.preventDefault()
-              setActiveIndex(Math.max(results.length - 1, 0))
-            }
-          }}
-        />
-        <kbd>Esc</kbd>
-      </div>
-      <div id="docs-search-results" className="docs-search-results" role="listbox" aria-label="Search results">
-        {results.length ? results.map(({ page }, index) => (
-          <button id={`docs-search-result-${page.slug.replace(/\//g, "-")}`} type="button" role="option" aria-selected={index === activeIndex} key={page.slug} onMouseEnter={() => setActiveIndex(index)} onClick={() => select(page)}>
-            <span><strong>{page.title}</strong><small>{page.description}</small></span>
-            <Badge variant="muted" size="sm">{page.group}</Badge>
-          </button>
-        )) : <div className="docs-search-empty"><Search size={20} /><p>No documentation found for “{query}”.</p></div>}
-      </div>
-      <div className="docs-search-footer"><span><kbd>↑</kbd><kbd>↓</kbd> browse</span><span><kbd>Enter</kbd> open</span><span><kbd>Esc</kbd> close</span></div>
-    </Modal>
   )
 }
 
@@ -272,9 +189,14 @@ function DocsShell() {
   const [activeSlug, setActiveSlug] = useState(readHash)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
+  // Keep the lazy overlay chunks mounted once first opened so reopening is instant.
+  const [drawerEverOpened, setDrawerEverOpened] = useState(false)
+  const [searchEverOpened, setSearchEverOpened] = useState(false)
   const [activeSection, setActiveSection] = useState("")
   const [scrollProgress, setScrollProgress] = useState(0)
   const [showBackToTop, setShowBackToTop] = useState(false)
+  const openMobileNav = () => { setDrawerEverOpened(true); setMobileOpen(true) }
+  const openSearch = () => { setSearchEverOpened(true); setSearchOpen(true) }
   const page = getPage(activeSlug)
   const sections = getPageSections(page)
   const primaryArea = page.kind === "example" ? "examples" : page.kind === "component" || page.slug === "components" ? "components" : "docs"
@@ -302,11 +224,11 @@ function DocsShell() {
     function onKeyDown(event: KeyboardEvent) {
       if ((event.metaKey || event.ctrlKey) && (event.key.toLowerCase() === "k" || event.code === "KeyK")) {
         event.preventDefault()
-        setSearchOpen(true)
+        openSearch()
       }
       if (event.key === "/" && document.activeElement?.tagName !== "INPUT" && document.activeElement?.tagName !== "TEXTAREA") {
         event.preventDefault()
-        setSearchOpen(true)
+        openSearch()
       }
     }
     document.addEventListener("keydown", onKeyDown)
@@ -352,7 +274,7 @@ function DocsShell() {
           <span className="docs-reading-progress" style={{ transform: `scaleX(${scrollProgress / 100})` }} aria-hidden="true" />
           <div className="docs-header-inner">
             <div className="docs-header-left">
-              <Button variant="ghost" size="icon" className="docs-mobile-menu" onClick={() => setMobileOpen(true)} aria-label="Open documentation navigation"><Menu size={18} /></Button>
+              <Button variant="ghost" size="icon" className="docs-mobile-menu" onClick={openMobileNav} aria-label="Open documentation navigation"><Menu size={18} /></Button>
               <a className="docs-brand" href={hrefFor("docs/introduction")} aria-label="@bzync/rui documentation home"><RuiBrandMark size={26} /><strong>@bzync/rui</strong></a>
               <Badge variant="muted" size="sm" className="docs-version">v{packageMetadata.version}</Badge>
               <nav className="docs-primary-nav" aria-label="Primary">
@@ -362,7 +284,7 @@ function DocsShell() {
               </nav>
             </div>
             <div className="docs-header-actions">
-              <button type="button" className="docs-search-trigger" onClick={() => setSearchOpen(true)} aria-label="Search documentation">
+              <button type="button" className="docs-search-trigger" onClick={openSearch} aria-label="Search documentation">
                 <Search size={15} aria-hidden="true" /><span>Search documentation…</span><kbd><span className="mac-key">⌘</span><span className="ctrl-key">Ctrl</span> K</kbd>
               </button>
               <ThemeMenu />
@@ -373,10 +295,14 @@ function DocsShell() {
 
         <aside className="docs-sidebar"><SidebarNavigation activeSlug={activeSlug} /></aside>
 
-        <Drawer open={mobileOpen} onClose={() => setMobileOpen(false)} title="Documentation" width="min(21rem, 88vw)" panelClassName="docs-mobile-drawer">
-          <div className="mobile-drawer-search"><Button variant="secondary" icon={<Search size={15} aria-hidden="true" />} onClick={() => { setMobileOpen(false); setSearchOpen(true) }}>Search documentation</Button></div>
-          <SidebarNavigation activeSlug={activeSlug} onNavigate={() => setMobileOpen(false)} />
-        </Drawer>
+        {drawerEverOpened && (
+          <Suspense fallback={null}>
+            <MobileNavDrawer open={mobileOpen} onClose={() => setMobileOpen(false)}>
+              <div className="mobile-drawer-search"><Button variant="secondary" icon={<Search size={15} aria-hidden="true" />} onClick={() => { setMobileOpen(false); openSearch() }}>Search documentation</Button></div>
+              <SidebarNavigation activeSlug={activeSlug} onNavigate={() => setMobileOpen(false)} />
+            </MobileNavDrawer>
+          </Suspense>
+        )}
 
         <div className="docs-layout">
           <main className="docs-main" id="main-content">
@@ -407,7 +333,11 @@ function DocsShell() {
           <OnThisPage sections={sections} activeSection={sections.includes(activeSection) ? activeSection : (sections[0] ?? "")} />
         </div>
 
-        <SearchDialog open={searchOpen} onClose={() => setSearchOpen(false)} />
+        {searchEverOpened && (
+          <Suspense fallback={null}>
+            <SearchDialog open={searchOpen} onClose={() => setSearchOpen(false)} />
+          </Suspense>
+        )}
         <button
           type="button"
           className={cn("docs-back-to-top", showBackToTop && "visible")}
