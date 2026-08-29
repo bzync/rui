@@ -13,6 +13,20 @@ export default defineConfig({
       'prettier/plugins/estree',
     ],
   },
+  build: {
+    rollupOptions: {
+      output: {
+        // Split rarely-changing vendor code into its own hashed chunks so it
+        // stays cached across the frequent docs deploys, instead of being
+        // folded into a catch-all chunk named after the preload helper.
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return
+          if (/[\\/]node_modules[\\/](react|react-dom|scheduler)[\\/]/.test(id)) return 'react'
+          if (id.includes('framer-motion') || id.includes('motion-dom') || id.includes('motion-utils')) return 'motion'
+        },
+      },
+    },
+  },
   server: {
     fs: {
       allow: [fileURLToPath(new URL('..', import.meta.url))],
