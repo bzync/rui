@@ -72,7 +72,7 @@ export function Callout({ variant = "info", icon, title, className, children, ..
         {title && (
           <p className="text-sm font-semibold text-foreground mb-0.5 leading-snug">{title}</p>
         )}
-        <div className="text-sm leading-relaxed text-muted-foreground">{children}</div>
+        <div className="text-sm leading-relaxed text-foreground/80">{children}</div>
       </div>
     </div>
   )

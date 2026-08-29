@@ -23,12 +23,11 @@ import {
   Search,
   Sun,
 } from "lucide-react"
-import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react"
+import { Suspense, useEffect, useMemo, useRef, useState } from "react"
 import packageMetadata from "../../package.json"
 import { RuiBrandMark } from "./_shared/brand"
 import { allPages, docsGroups, getPage, hrefFor, orderedPages, readHash, type DocsPage } from "./docs/catalog"
-
-const DocsPageContent = lazy(() => import("./docs/pages").then(module => ({ default: module.DocsPageContent })))
+import { DocsPageContent } from "./docs/pages"
 
 const pageSectionMap: Record<string, string[]> = {
   "docs/introduction": ["install", "first-component", "package-architecture", "principles"],
