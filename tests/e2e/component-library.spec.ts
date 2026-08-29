@@ -146,6 +146,19 @@ test("homepage gets developers from installation to a working preview", async ({
   await expect(page.getByRole("heading", { level: 1, name: "Component overview" })).toBeVisible()
 })
 
+test("radius foundation renders every published token", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop-1280", "The token audit only needs one desktop project")
+
+  await page.goto("/#/foundations/radius")
+  const swatches = page.locator(".radius-swatch")
+  await expect(swatches).toHaveCount(5)
+  const radii = await swatches.evaluateAll((elements) =>
+    elements.map((element) => getComputedStyle(element).borderRadius),
+  )
+
+  expect(radii).toEqual(["4px", "6px", "8px", "10px", "12px"])
+})
+
 test("demo publishes installable PWA metadata and branded icons", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "desktop-1280", "PWA assets only need one browser audit")
 
