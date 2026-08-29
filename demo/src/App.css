@@ -588,7 +588,10 @@ code, pre, kbd { font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo,
 .docs-search-empty { display: grid; min-height: 160px; place-items: center; align-content: center; gap: 8px; color: var(--color-muted-foreground); }.docs-search-empty p { margin: 0; font-size: 12px; }
 
 .docs-mobile-drawer .docs-sidebar-nav { padding-top: 12px; }.mobile-drawer-search { padding: 14px 14px 0; }.mobile-drawer-search button { width: 100%; }
-.docs-page-loading { display: grid; gap: 12px; padding-top: 30px; }
+/* Reserve a full viewport while the page chunk loads so the pager and footer,
+   which render outside the Suspense boundary, stay below the fold instead of
+   sitting in view and then being pushed down when content arrives (CLS). */
+.docs-page-loading { display: grid; gap: 12px; padding-top: 30px; min-height: 100vh; align-content: start; }
 .docs-page-loading span { display: block; height: 16px; border-radius: 4px; background: var(--color-muted); animation: docs-pulse 1.2s ease-in-out infinite alternate; }
 .docs-page-loading span:first-child { width: 36%; height: 36px; }.docs-page-loading span:nth-child(2) { width: 72%; }.docs-page-loading span:nth-child(3) { width: 58%; }
 @keyframes docs-pulse { from { opacity: .5; } to { opacity: 1; } }
