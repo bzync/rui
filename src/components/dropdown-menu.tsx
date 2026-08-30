@@ -1,9 +1,13 @@
 "use client"
 
 import { cn } from "@/lib/cn"
-import { AnimatePresence, motion } from "framer-motion"
-import { transitions } from "@/lib/motion"
-import { HTMLAttributes, MouseEvent as ReactMouseEvent, ReactElement, ReactNode, cloneElement, isValidElement, useEffect, useRef, useState } from "react"
+import { HTMLAttributes, MouseEvent as ReactMouseEvent, ReactElement, ReactNode, Suspense, cloneElement, isValidElement, lazy, useEffect, useRef, useState } from "react"
+
+// The animated menu surface pulls in framer-motion, so it lives in its own
+// async chunk. It's fetched on the first open of any dropdown on the page and
+// then kept mounted (as an empty <AnimatePresence>) so subsequent opens — and
+// close/exit animations — are instant.
+const DropdownMenuPanel = lazy(() => import("./dropdown-menu-panel"))
 
 export interface DropdownMenuItem {
   label: string
@@ -37,26 +41,6 @@ export interface DropdownMenuProps {
   ariaLabel?: string
 }
 
-function isGroup(s: DropdownMenuSection): s is DropdownMenuGroup {
-  return "items" in s
-}
-
-const sideStyles: Record<Side, string> = {
-  bottom: "top-full mt-1.5",
-  top:    "bottom-full mb-1.5",
-}
-
-const alignStyles: Record<Align, string> = {
-  start:  "left-0",
-  end:    "right-0",
-  center: "left-1/2 -translate-x-1/2",
-}
-
-const enterFrom: Record<Side, object> = {
-  bottom: { y: -4 },
-  top:    { y: 4 },
-}
-
 export function DropdownMenu({
   trigger,
   items,
@@ -70,8 +54,15 @@ export function DropdownMenu({
   ariaLabel = "Actions menu",
 }: DropdownMenuProps) {
   const [open, setOpen] = useState(false)
+  // Latches true on the first open so the lazy panel stays mounted for exit
+  // animations and instant re-opens.
+  const [panelMounted, setPanelMounted] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (open) setPanelMounted(true)
+  }, [open])
 
   useEffect(() => {
     function onOutside(e: MouseEvent) {
@@ -84,7 +75,7 @@ export function DropdownMenu({
   useEffect(() => {
     if (!open) return
     menuRef.current?.querySelector<HTMLButtonElement>('[role="menuitem"]:not(:disabled)')?.focus()
-  }, [open])
+  }, [open, panelMounted])
 
   function closeAndRestoreFocus() {
     setOpen(false)
@@ -104,40 +95,6 @@ export function DropdownMenu({
     }
   }
 
-  function renderItem(item: DropdownMenuItem, i: number) {
-    return (
-      <button
-        key={i}
-        type="button"
-        disabled={item.disabled}
-        role="menuitem"
-        onClick={() => {
-          if (item.disabled) return
-          item.onClick?.()
-          setOpen(false)
-        }}
-        className={cn(
-          "flex min-h-9 items-center gap-2.5 w-full px-3 py-2 text-sm rounded-md transition-colors text-left focus-visible:outline-none focus-visible:bg-surface-muted",
-          item.destructive
-            ? "text-destructive hover:bg-destructive/10"
-            : "text-foreground hover:bg-surface-muted",
-          item.disabled && "opacity-40 cursor-not-allowed pointer-events-none",
-          itemClassName,
-        )}
-      >
-        {item.icon && (
-          <span className={cn("shrink-0", item.destructive ? "text-red-400" : "text-slate-500 dark:text-slate-400")}>
-            {item.icon}
-          </span>
-        )}
-        <span className="flex-1 min-w-0 truncate">{item.label}</span>
-        {item.shortcut && (
-          <span className="text-[10px] text-slate-500 shrink-0 font-mono">{item.shortcut}</span>
-        )}
-      </button>
-    )
-  }
-
   type MenuTriggerProps = HTMLAttributes<HTMLElement> & {
     "aria-haspopup"?: "menu"
     "aria-expanded"?: boolean
@@ -154,45 +111,24 @@ export function DropdownMenu({
   return (
     <div ref={containerRef} className={cn("relative inline-flex", wrapperClassName)}>
       {triggerElement}
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            ref={menuRef}
-            role="menu"
-            aria-label={ariaLabel}
+      {panelMounted && (
+        <Suspense fallback={null}>
+          <DropdownMenuPanel
+            open={open}
+            menuRef={menuRef}
+            items={items}
+            side={side}
+            align={align}
+            className={className}
+            itemClassName={itemClassName}
+            groupLabelClassName={groupLabelClassName}
+            separatorClassName={separatorClassName}
+            ariaLabel={ariaLabel}
             onKeyDown={handleMenuKeyDown}
-            initial={{ opacity: 0, scaleY: 0.96, ...enterFrom[side] }}
-            animate={{ opacity: 1, scaleY: 1, y: 0 }}
-            exit={{ opacity: 0, scaleY: 0.96, ...enterFrom[side] }}
-            transition={transitions.fade}
-            style={{ originY: side === "bottom" ? 0 : 1 }}
-            className={cn(
-              "absolute z-50 min-w-[180px] rounded-[var(--radius-lg)] border border-border bg-surface-raised shadow-floating",
-              "p-1",
-              sideStyles[side],
-              alignStyles[align],
-              className,
-            )}
-          >
-            {items.map((section, si) => {
-              if (isGroup(section)) {
-                return (
-                  <div key={si}>
-                    {si > 0 && <div role="separator" className={cn("my-1 border-t border-border", separatorClassName)} />}
-                    {section.group && (
-                      <p className={cn("px-3 pt-1.5 pb-1 text-xs font-medium text-muted-foreground", groupLabelClassName)}>
-                        {section.group}
-                      </p>
-                    )}
-                    {section.items.map((item, i) => renderItem(item, i))}
-                  </div>
-                )
-              }
-              return renderItem(section, si)
-            })}
-          </motion.div>
-        )}
-      </AnimatePresence>
+            onSelect={() => setOpen(false)}
+          />
+        </Suspense>
+      )}
     </div>
   )
 }

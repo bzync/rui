@@ -17,12 +17,16 @@ export default defineConfig({
     rollupOptions: {
       output: {
         // Split rarely-changing vendor code into its own hashed chunks so it
-        // stays cached across the frequent docs deploys, instead of being
-        // folded into a catch-all chunk named after the preload helper.
-        manualChunks(id) {
-          if (!id.includes('node_modules')) return
-          if (/[\\/]node_modules[\\/](react|react-dom|scheduler)[\\/]/.test(id)) return 'react'
-          if (id.includes('framer-motion') || id.includes('motion-dom') || id.includes('motion-utils')) return 'motion'
+        // stays cached across the frequent docs deploys. `advancedChunks`
+        // (Rolldown-native) groups strictly by module id, so — unlike the
+        // older `manualChunks` callback — it never co-locates first-party code
+        // with a vendor group and tangles the react/framer-motion graph onto
+        // the initial critical path.
+        advancedChunks: {
+          groups: [
+            { name: 'react', test: /[\\/]node_modules[\\/](react|react-dom|scheduler|use-sync-external-store)[\\/]/ },
+            { name: 'motion', test: /[\\/]node_modules[\\/](framer-motion|motion-dom|motion-utils)[\\/]/ },
+          ],
         },
       },
     },

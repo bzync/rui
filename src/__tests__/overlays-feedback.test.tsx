@@ -7,14 +7,14 @@ describe("overlay and feedback components", () => {
   it("opens dropdown menus and calls actions", async () => {
     const user = userEvent.setup(); const action = vi.fn()
     render(<DropdownMenu trigger={<button>Actions</button>} items={[{ label: "Deploy", onClick: action }]} />)
-    await user.click(screen.getByRole("button", { name: "Actions" })); await user.click(screen.getByText("Deploy")); expect(action).toHaveBeenCalledOnce()
+    await user.click(screen.getByRole("button", { name: "Actions" })); await user.click(await screen.findByText("Deploy")); expect(action).toHaveBeenCalledOnce()
   })
 
   it("navigates dropdown menus with the keyboard and restores trigger focus", async () => {
     const user = userEvent.setup()
     render(<DropdownMenu trigger={<button>Actions</button>} items={[{ label: "Deploy" }, { label: "Delete", destructive: true }]} />)
     await user.click(screen.getByRole("button", { name: "Actions" }))
-    expect(screen.getByRole("menuitem", { name: "Deploy" })).toHaveFocus()
+    await vi.waitFor(() => expect(screen.getByRole("menuitem", { name: "Deploy" })).toHaveFocus())
     await user.keyboard("{ArrowDown}")
     expect(screen.getByRole("menuitem", { name: "Delete" })).toHaveFocus()
     await user.keyboard("{Escape}")
@@ -114,7 +114,7 @@ describe("overlay and feedback components", () => {
     const user = userEvent.setup()
     function Trigger() { const { show } = useSnackbar(); return <button onClick={() => show({ message: "Saved", duration: 0 })}>Notify</button> }
     render(<SnackbarProvider><Trigger /></SnackbarProvider>)
-    await user.click(screen.getByRole("button", { name: "Notify" })); expect(screen.getByText("Saved")).toBeInTheDocument()
+    await user.click(screen.getByRole("button", { name: "Notify" })); expect(await screen.findByText("Saved")).toBeInTheDocument()
   })
 
   it("composes snackbar provider and per-toast classes", async () => {
@@ -122,7 +122,7 @@ describe("overlay and feedback components", () => {
     function Trigger() { const { show } = useSnackbar(); return <button onClick={() => show({ message: "Styled", duration: 0, className: "custom-toast-item" })}>Notify styled</button> }
     render(<SnackbarProvider className="custom-snackbar-region" toastClassName="custom-toast"><Trigger /></SnackbarProvider>)
     await user.click(screen.getByRole("button", { name: "Notify styled" }))
-    expect(screen.getByRole("region", { name: "Notifications" })).toHaveClass("custom-snackbar-region")
+    expect(await screen.findByRole("region", { name: "Notifications" })).toHaveClass("custom-snackbar-region")
     expect(screen.getByText("Styled").closest("[class*='custom-toast']")).toHaveClass("custom-toast", "custom-toast-item")
   })
 })
