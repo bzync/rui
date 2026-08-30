@@ -2,11 +2,13 @@
 
 import { lazy } from "react"
 import type { DocsPage } from "./catalog"
+import { GettingStartedPage } from "./pages/getting-started"
 
-// Each documentation group is its own async chunk so a first visit (typically the
-// Introduction page) only downloads that page's code, not the entire catalog of
-// component demos. The <Suspense> boundary lives in App.tsx.
-const GettingStartedPage = lazy(() => import("./pages/getting-started").then(m => ({ default: m.GettingStartedPage })))
+// Every other documentation group is its own async chunk so a first visit only
+// downloads that page's code, not the entire catalog of component demos. The
+// getting-started group (the default route) is imported eagerly instead: it
+// keeps the prerendered HTML free of a suspending boundary, so hydration adopts
+// the snapshot cleanly. The <Suspense> boundary lives in App.tsx.
 const FoundationPage = lazy(() => import("./pages/foundations").then(m => ({ default: m.FoundationPage })))
 const ComponentsPage = lazy(() => import("./pages/components").then(m => ({ default: m.ComponentsPage })))
 const PatternPage = lazy(() => import("./pages/patterns").then(m => ({ default: m.PatternPage })))

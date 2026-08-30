@@ -4,7 +4,7 @@ import { cn } from "@/lib/cn"
 import { iconButtonStyles } from "@/lib/component-styles"
 import { AnimatePresence, motion } from "framer-motion"
 import { transitions } from "@/lib/motion"
-import { X } from "lucide-react"
+import { CloseIcon } from "@/lib/icons"
 import { ReactNode, useId, useRef } from "react"
 import { createPortal } from "react-dom"
 import { useEventCallback } from "@/hooks/use-event-callback"
@@ -79,7 +79,7 @@ export function Drawer({
             <motion.div key="drawer-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={transitions.overlay} className={cn("fixed inset-0 z-[100] bg-overlay", overlayClassName)} onClick={closeOnOverlayClick ? onCloseStable : undefined} />
             <motion.div ref={panelRef} tabIndex={-1} key="drawer-panel" initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={transitions.panelEnter} role="dialog" aria-modal="true" aria-labelledby={title ? titleId : undefined} aria-label={title ? undefined : ariaLabel} className={cn("fixed bottom-0 left-0 right-0 z-[101] flex max-h-[80dvh] flex-col rounded-t-[var(--radius-xl)] border-t border-border bg-surface-raised shadow-overlay", panelClassName, className)}>
               <div className="flex justify-center pb-1 pt-3 shrink-0" aria-hidden="true"><div className={cn("h-1 w-9 rounded-full bg-border-strong", handleClassName)} /></div>
-              {title && (<div className={cn("flex items-center justify-between border-b border-border px-5 py-3 shrink-0", headerClassName)}><h2 id={titleId} className={cn("text-sm font-semibold text-foreground", titleClassName)}>{title}</h2><button type="button" onClick={onCloseStable} className={cn(iconButtonStyles, closeButtonClassName)} aria-label={closeAriaLabel}><X size={14} aria-hidden="true" /></button></div>)}
+              {title && (<div className={cn("flex items-center justify-between border-b border-border px-5 py-3 shrink-0", headerClassName)}><h2 id={titleId} className={cn("text-sm font-semibold text-foreground", titleClassName)}>{title}</h2><button type="button" onClick={onCloseStable} className={cn(iconButtonStyles, closeButtonClassName)} aria-label={closeAriaLabel}><CloseIcon size={14} aria-hidden="true" /></button></div>)}
               <div className={cn("flex-1 overflow-y-auto pb-safe-bottom", contentClassName)}>{children}</div>
             </motion.div>
           </>
@@ -95,7 +95,7 @@ export function Drawer({
         <>
           <motion.div key="drawer-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={transitions.overlay} className={cn("fixed inset-0 z-[100] bg-overlay", overlayClassName)} onClick={closeOnOverlayClick ? onCloseStable : undefined} />
           <motion.div ref={panelRef} tabIndex={-1} key="drawer-panel" initial={{ x: xHidden }} animate={{ x: 0 }} exit={{ x: xHidden }} transition={transitions.panelEnter} role="dialog" aria-modal="true" aria-labelledby={title ? titleId : undefined} aria-label={title ? undefined : ariaLabel} className={cn("fixed top-0 bottom-0 z-[101] flex max-w-[100vw] flex-col bg-surface-raised shadow-overlay", position === "left" ? "left-0 border-r border-border" : "right-0 border-l border-border", panelClassName, className)} style={{ width }}>
-            {title && (<div className={cn("flex h-14 items-center justify-between gap-3 border-b border-border px-5 shrink-0", headerClassName)}><h2 id={titleId} className={cn("min-w-0 truncate text-sm font-semibold text-foreground", titleClassName)}>{title}</h2><button type="button" onClick={onCloseStable} className={cn(iconButtonStyles, closeButtonClassName)} aria-label={closeAriaLabel}><X size={14} aria-hidden="true" /></button></div>)}
+            {title && (<div className={cn("flex h-14 items-center justify-between gap-3 border-b border-border px-5 shrink-0", headerClassName)}><h2 id={titleId} className={cn("min-w-0 truncate text-sm font-semibold text-foreground", titleClassName)}>{title}</h2><button type="button" onClick={onCloseStable} className={cn(iconButtonStyles, closeButtonClassName)} aria-label={closeAriaLabel}><CloseIcon size={14} aria-hidden="true" /></button></div>)}
             <div className={cn("flex-1 overflow-y-auto", contentClassName)}>{children}</div>
           </motion.div>
         </>

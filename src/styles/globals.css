@@ -97,9 +97,15 @@
      the library depends on a second face. Consumers can still point
      --font-display at a display family via ThemeProvider without touching body
      copy. Mono carries code, kbd, captions, and tabular figures in data cells. */
-  --font-sans: "Inter Variable", Inter, "SF Pro Text", "Segoe UI Variable Text", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono Variable", "Cascadia Code", "SFMono-Regular", Consolas, ui-monospace, monospace;
-  --font-display: "Inter Variable", Inter, "SF Pro Display", "Segoe UI Variable Display", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  --font-sans:
+    "Inter Variable", Inter, "SF Pro Text", "Segoe UI Variable Text",
+    "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  --font-mono:
+    "JetBrains Mono Variable", "Cascadia Code", "SFMono-Regular", Consolas,
+    ui-monospace, monospace;
+  --font-display:
+    "Inter Variable", Inter, "SF Pro Display", "Segoe UI Variable Display",
+    "Segoe UI", ui-sans-serif, system-ui, sans-serif;
   --tracking-display: -0.015em;
 
   /* ── Motion tokens (§33) ── */
@@ -111,26 +117,53 @@
   --ease-enter: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-exit: cubic-bezier(0.4, 0, 1, 1);
   --ease-spring: linear(
-    0, 0.003 0.9%, 0.011 1.8%, 0.035 3.6%, 0.099 6.8%, 0.19 9.1%, 0.32 11.7%,
-    0.62 15.8%, 0.73 17.9%, 0.81 20.1%, 0.88 22.4%, 0.93 24.8%, 0.97 27.4%,
-    1 30.1%, 1.02 32.9%, 1.03 36%, 1.02 39.2%, 1 42.6%, 0.99 45.2%, 0.98 48%,
-    0.97 50.9%, 0.98 53.7%, 0.99 56.8%, 1 60%
-
+    0,
+    0.003 0.9%,
+    0.011 1.8%,
+    0.035 3.6%,
+    0.099 6.8%,
+    0.19 9.1%,
+    0.32 11.7%,
+    0.62 15.8%,
+    0.73 17.9%,
+    0.81 20.1%,
+    0.88 22.4%,
+    0.93 24.8%,
+    0.97 27.4%,
+    1 30.1%,
+    1.02 32.9%,
+    1.03 36%,
+    1.02 39.2%,
+    1 42.6%,
+    0.99 45.2%,
+    0.98 48%,
+    0.97 50.9%,
+    0.98 53.7%,
+    0.99 56.8%,
+    1 60%
   );
 
   /* ── Elevation ── Four semantic levels (raised / floating / overlay + the xs
      hairline lift) map to the raw scale below. Shadows carry a navy cast
      (rgb 9 14 28) rather than neutral slate so they sit in the same hue family
      as the rest of the system. */
-  --shadow-xs:   0 1px 2px rgba(9, 14, 28, 0.05);
-  --shadow-sm:   0 1px 2px rgba(9, 14, 28, 0.07), 0 1px 1px rgba(9, 14, 28, 0.03);
-  --shadow-md:   0 4px 10px -4px rgba(9, 14, 28, 0.13), 0 2px 4px -2px rgba(9, 14, 28, 0.06);
-  --shadow-lg:   0 10px 24px -10px rgba(9, 14, 28, 0.18), 0 4px 8px -4px rgba(9, 14, 28, 0.08);
-  --shadow-xl:   0 18px 40px -16px rgba(9, 14, 28, 0.24), 0 8px 16px -8px rgba(9, 14, 28, 0.10);
-  --shadow-2xl:  0 28px 64px -22px rgba(9, 14, 28, 0.32);
-  --shadow-raised:   0 1px 2px rgba(9, 14, 28, 0.05);
-  --shadow-floating: 0 8px 24px -10px rgba(9, 14, 28, 0.20), 0 2px 6px -3px rgba(9, 14, 28, 0.10);
-  --shadow-overlay:  0 24px 60px -24px rgba(9, 14, 28, 0.40), 0 8px 20px -12px rgba(9, 14, 28, 0.18);
+  --shadow-xs: 0 1px 2px rgba(9, 14, 28, 0.05);
+  --shadow-sm: 0 1px 2px rgba(9, 14, 28, 0.07), 0 1px 1px rgba(9, 14, 28, 0.03);
+  --shadow-md:
+    0 4px 10px -4px rgba(9, 14, 28, 0.13), 0 2px 4px -2px rgba(9, 14, 28, 0.06);
+  --shadow-lg:
+    0 10px 24px -10px rgba(9, 14, 28, 0.18),
+    0 4px 8px -4px rgba(9, 14, 28, 0.08);
+  --shadow-xl:
+    0 18px 40px -16px rgba(9, 14, 28, 0.24),
+    0 8px 16px -8px rgba(9, 14, 28, 0.1);
+  --shadow-2xl: 0 28px 64px -22px rgba(9, 14, 28, 0.32);
+  --shadow-raised: 0 1px 2px rgba(9, 14, 28, 0.05);
+  --shadow-floating:
+    0 8px 24px -10px rgba(9, 14, 28, 0.2), 0 2px 6px -3px rgba(9, 14, 28, 0.1);
+  --shadow-overlay:
+    0 24px 60px -24px rgba(9, 14, 28, 0.4),
+    0 8px 20px -12px rgba(9, 14, 28, 0.18);
 }
 
 .dark {
@@ -154,9 +187,12 @@
   --chart-5: #8064d6;
   --chart-6: #3f9557;
   --color-overlay: rgb(0 0 0 / 0.66);
-  --shadow-raised: 0 1px 1px rgb(0 0 0 / 0.28), 0 8px 20px -16px rgb(0 0 0 / 0.75);
-  --shadow-floating: 0 16px 36px -14px rgb(0 0 0 / 0.72), 0 4px 10px -5px rgb(0 0 0 / 0.60);
-  --shadow-overlay: 0 28px 72px -24px rgb(0 0 0 / 0.86), 0 10px 24px -12px rgb(0 0 0 / 0.70);
+  --shadow-raised:
+    0 1px 1px rgb(0 0 0 / 0.28), 0 8px 20px -16px rgb(0 0 0 / 0.75);
+  --shadow-floating:
+    0 16px 36px -14px rgb(0 0 0 / 0.72), 0 4px 10px -5px rgb(0 0 0 / 0.6);
+  --shadow-overlay:
+    0 28px 72px -24px rgb(0 0 0 / 0.86), 0 10px 24px -12px rgb(0 0 0 / 0.7);
 }
 
 /* ─── Base ────────────────────────────────────────────────────────────────── */
@@ -192,7 +228,10 @@
 }
 
 :where(.rui-theme, .rtui-theme) :where(h1, h2, h3, h4, h5, h6) {
-  font-family: var(--rui-heading-family, var(--rtui-heading-family, var(--font-display)));
+  font-family: var(
+    --rui-heading-family,
+    var(--rtui-heading-family, var(--font-display))
+  );
   letter-spacing: var(--tracking-display);
 }
 
@@ -349,19 +388,41 @@
 
 /* ── Date/time input picker icon (invisible in dark mode by default — WebKit
    renders it black regardless of surrounding text color) ── */
-:where(.rui-theme, .rtui-theme).dark input[type="date"]::-webkit-calendar-picker-indicator,
-:where(.rui-theme, .rtui-theme).dark input[type="datetime-local"]::-webkit-calendar-picker-indicator,
-:where(.rui-theme, .rtui-theme).dark input[type="time"]::-webkit-calendar-picker-indicator {
+:where(.rui-theme, .rtui-theme).dark
+  input[type="date"]::-webkit-calendar-picker-indicator,
+:where(.rui-theme, .rtui-theme).dark
+  input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+:where(.rui-theme, .rtui-theme).dark
+  input[type="time"]::-webkit-calendar-picker-indicator {
   filter: invert(1);
   opacity: 0.7;
 }
-:where(.rui-theme, .rtui-theme).dark input[type="date"]::-webkit-calendar-picker-indicator:hover,
-:where(.rui-theme, .rtui-theme).dark input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover,
-:where(.rui-theme, .rtui-theme).dark input[type="time"]::-webkit-calendar-picker-indicator:hover {
+:where(.rui-theme, .rtui-theme).dark
+  input[type="date"]::-webkit-calendar-picker-indicator:hover,
+:where(.rui-theme, .rtui-theme).dark
+  input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover,
+:where(.rui-theme, .rtui-theme).dark
+  input[type="time"]::-webkit-calendar-picker-indicator:hover {
   opacity: 1;
 }
 
 /* ── Muted surface (tables, code blocks, subtle fills) ── */
 :where(.rui-theme, .rtui-theme) .surface-muted {
   background: var(--color-surface-muted);
+}
+
+/* ── Tabs panel enter (CSS in place of framer-motion; keyed remount replays it).
+   Opacity only — a `transform` here would make .rui-tabs-content a containing
+   block for any position:fixed descendant (DatePicker / Popover panels) while
+   the animation runs. ── */
+@keyframes rui-tabs-content-in {
+  from {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .rui-tabs-content {
+    animation: rui-tabs-content-in var(--duration-fast, 0.12s)
+      var(--ease-standard, ease) both;
+  }
 }

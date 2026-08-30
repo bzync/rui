@@ -19,7 +19,7 @@ jobs:
   deploy:
     name: Build and deploy documentation
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -43,11 +43,14 @@ jobs:
       - name: Install documentation dependencies
         run: npm --prefix demo ci
 
+      - name: Install Chromium for the prerender pass
+        run: npm --prefix demo exec -- playwright install --with-deps chromium
+
       - name: Build library
         run: npm run build
 
       - name: Build documentation
-        run: npm --prefix demo run build -- --base /
+        run: npm --prefix demo run build
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v6

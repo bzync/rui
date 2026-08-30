@@ -12,6 +12,14 @@ let formatterPromise: Promise<{
 }> | null = null
 
 async function loadFormatter() {
+  // During the build-time prerender pass (scripts/prerender.mjs) the snapshot
+  // must match React's first client render, which shows the raw snippet. Skip
+  // Prettier there so no formatted text is baked into index.html; it still runs
+  // normally in the browser after hydration.
+  if (typeof window !== "undefined" && (window as { __RUI_PRERENDER__?: boolean }).__RUI_PRERENDER__) {
+    return { format: async (source: string) => source }
+  }
+
   formatterPromise ??= Promise.all([
     import("prettier/standalone"),
     import("prettier/plugins/babel"),

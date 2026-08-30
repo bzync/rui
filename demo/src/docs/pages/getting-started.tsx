@@ -91,7 +91,7 @@ function IntroductionPage() {
 
     <DocsSection id="package-architecture" title="Package architecture">
       <div className="docs-fact-grid">
-        <div><strong>{componentCount} documented APIs</strong><span>Forms, data, overlays, charts, and navigation</span></div>
+        <div><strong>{`${componentCount} documented APIs`}</strong><span>Forms, data, overlays, charts, and navigation</span></div>
         <div><strong>React 18.2 + 19</strong><span>Stable compatibility across application stacks</span></div>
         <div><strong>ESM + CJS</strong><span>Root and component entry points</span></div>
         <div><strong>TypeScript</strong><span>Declarations for every public entry</span></div>

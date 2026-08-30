@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/cn"
 import { focusRingStyles } from "@/lib/component-styles"
-import { Moon, Sun } from "lucide-react"
+import { MoonIcon, SunIcon } from "@/lib/icons"
 import type { ButtonHTMLAttributes, ReactNode } from "react"
 import { useTheme } from "./theme-provider"
 
@@ -15,8 +15,8 @@ export interface ThemeToggleProps extends ButtonHTMLAttributes<HTMLButtonElement
 }
 
 export function ThemeToggle({
-  lightIcon = <Sun aria-hidden="true" />,
-  darkIcon = <Moon aria-hidden="true" />,
+  lightIcon = <SunIcon aria-hidden="true" />,
+  darkIcon = <MoonIcon aria-hidden="true" />,
   showLabel = false,
   lightLabel = "Use light theme",
   darkLabel = "Use dark theme",

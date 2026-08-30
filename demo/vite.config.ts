@@ -5,6 +5,10 @@ import { fileURLToPath, URL } from 'node:url'
 
 // https://vite.dev/config/
 export default defineConfig({
+  // rui.bzync.com serves the docs at the domain root (see demo/CNAME-equivalent
+  // deploy). Set here rather than passing `--base /` on the CLI so it survives
+  // the build script's extra pipeline step (tsc → vite → prerender).
+  base: '/',
   plugins: [react(), tailwindcss()],
   optimizeDeps: {
     include: [

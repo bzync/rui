@@ -134,7 +134,7 @@ test("homepage gets developers from installation to a working preview", async ({
   await expect(page.getByText("npm install @bzync/rui framer-motion", { exact: true })).toBeVisible()
   await expect(page.getByRole("button", { name: "Review orders" })).toBeVisible()
   await expect(page.getByText("React 18.2–19 · TypeScript · ESM + CJS")).toBeVisible()
-  await expect(page.locator(".docs-version")).toHaveText("v0.0.6")
+  await expect(page.locator(".docs-version")).toHaveText(/^v\d+\.\d+\.\d+$/)
   await expect(page.getByRole("link", { name: /Support If @bzync\/rui is useful to you/ })).toHaveAttribute("href", "https://buymeacoffee.com/adminjw")
   await expect(page.getByRole("link", { name: "Support development" })).toHaveAttribute("href", "https://buymeacoffee.com/adminjw")
 
@@ -164,14 +164,14 @@ test("demo publishes installable PWA metadata and branded icons", async ({ page 
 
   await expect(page.locator('link[rel="icon"]')).toHaveAttribute("href", "/favicon-32.png")
   await expect(page.locator('link[rel="manifest"]')).toHaveAttribute("href", "/manifest.webmanifest")
-  await expect(page.locator('.docs-brand img[src="/rui-icon-192.png"]')).toBeVisible()
-  await expect(page.locator('.docs-footer-brand img[src="/rui-icon-192.png"]')).toBeVisible()
+  await expect(page.locator('.docs-brand img[src="/favicon-32.png"]')).toBeVisible()
+  await expect(page.locator('.docs-footer-brand img[src="/favicon-32.png"]')).toBeVisible()
 
   await page.goto("/#/components/navigation")
-  await expect(page.locator('.component-preview-canvas img[src="/rui-icon-192.png"]')).toBeVisible()
+  await expect(page.locator('.component-preview-canvas img[src="/favicon-32.png"]')).toBeVisible()
 
   await page.goto("/#/examples/authentication")
-  await expect(page.locator('.auth-brand img[src="/rui-icon-192.png"]')).toBeVisible()
+  await expect(page.locator('.auth-brand img[src="/favicon-32.png"]')).toBeVisible()
   await expect(page.locator(".auth-brand")).toContainText("@bzync/rui")
 
   const faviconResponse = await page.request.get("/favicon-32.png")

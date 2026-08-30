@@ -1,8 +1,6 @@
 "use client"
 
 import { cn } from "@/lib/cn"
-import { motion } from "framer-motion"
-import { transitions } from "@/lib/motion"
 import {
   InputHTMLAttributes,
   forwardRef,
@@ -86,16 +84,18 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(
                 : "bg-muted border-border-strong",
             )}
           />
-          <motion.span
-            className="absolute rounded-full bg-white shadow-md shadow-black/20"
+          {/* CSS transform instead of framer-motion — keeps this very common
+              control off the animation runtime. The bezier approximates the
+              gentle spring the motion tokens describe. */}
+          <span
+            className="absolute rounded-full bg-white shadow-md shadow-black/20 transition-transform duration-200 ease-[cubic-bezier(0.34,1.4,0.64,1)] motion-reduce:transition-none"
             style={{
               width: dims.thumb,
               height: dims.thumb,
               top: dims.gap,
+              transform: `translateX(${thumbX}px)`,
               boxShadow: "0 1px 4px rgba(0,0,0,0.22), 0 0 0 0.5px rgba(0,0,0,0.06)",
             }}
-            animate={{ x: thumbX }}
-            transition={transitions.switchThumb}
           />
         </div>
         {(label || description) && (

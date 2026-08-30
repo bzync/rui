@@ -276,7 +276,7 @@ function DocsShell() {
             <div className="docs-header-left">
               <Button variant="ghost" size="icon" className="docs-mobile-menu" onClick={openMobileNav} aria-label="Open documentation navigation"><Menu size={18} /></Button>
               <a className="docs-brand" href={hrefFor("docs/introduction")} aria-label="@bzync/rui documentation home"><RuiBrandMark size={26} /><strong>@bzync/rui</strong></a>
-              <Badge variant="muted" size="sm" className="docs-version">v{packageMetadata.version}</Badge>
+              <Badge variant="muted" size="sm" className="docs-version">{`v${packageMetadata.version}`}</Badge>
               <nav className="docs-primary-nav" aria-label="Primary">
                 <a href={hrefFor("docs/introduction")} aria-current={primaryArea === "docs" ? "page" : undefined}>Docs</a>
                 <a href={hrefFor("components")} aria-current={primaryArea === "components" ? "page" : undefined}>Components</a>
@@ -309,9 +309,16 @@ function DocsShell() {
             <Breadcrumbs page={page} />
             <MobileOnThisPage sections={sections} activeSection={sections.includes(activeSection) ? activeSection : (sections[0] ?? "")} />
             <article className="docs-article">
-              <Suspense fallback={<div className="docs-page-loading" aria-label="Loading documentation"><span /><span /><span /></div>}>
+              {page.kind === "doc" ? (
+                // The getting-started group is bundled eagerly (see docs/pages.tsx),
+                // so it renders with no suspending boundary — that keeps the
+                // prerendered Introduction HTML hydratable as a plain snapshot.
                 <DocsPageContent page={page} />
-              </Suspense>
+              ) : (
+                <Suspense fallback={<div className="docs-page-loading" aria-label="Loading documentation"><span /><span /><span /></div>}>
+                  <DocsPageContent page={page} />
+                </Suspense>
+              )}
             </article>
             <PagePager page={page} />
             <footer className="docs-footer">

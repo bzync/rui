@@ -2,9 +2,6 @@
 
 import { cn } from "@/lib/cn"
 import { focusRingStyles } from "@/lib/component-styles"
-import { AnimatePresence, motion } from "framer-motion"
-import { transitions } from "@/lib/motion"
-import { HTMLMotionProps } from "framer-motion"
 import {
   HTMLAttributes,
   ButtonHTMLAttributes,
@@ -156,13 +153,18 @@ export function TabsTrigger({
       )}
       {...props}
     >
-      {isActive && (
-        <motion.span
-          layoutId={`tab-bg-${tabsId}`}
-          className="absolute inset-0 rounded-md border border-border bg-surface shadow-xs"
-          transition={transitions.tabIndicator}
-        />
-      )}
+      {/* Always mounted; cross-fades via CSS so Tabs stays off the animation
+          runtime. (framer-motion's layoutId slide is traded for an opacity
+          transition here.) */}
+      <span
+        aria-hidden="true"
+        className={cn(
+          "absolute inset-0 rounded-md border transition-opacity duration-200 motion-reduce:transition-none",
+          isActive
+            ? "border-border bg-surface shadow-xs opacity-100"
+            : "border-transparent opacity-0",
+        )}
+      />
       {icon && (
         <span className="relative z-10 shrink-0 opacity-70">{icon}</span>
       )}
@@ -171,7 +173,7 @@ export function TabsTrigger({
   )
 }
 
-export interface TabsContentProps extends Omit<HTMLMotionProps<"div">, "children"> {
+export interface TabsContentProps extends HTMLAttributes<HTMLDivElement> {
   value: string
   children?: ReactNode
 }
@@ -185,28 +187,25 @@ export function TabsContent({
   const { active, orientation, tabsId } = useTabsCtx()
   const safeValue = encodeURIComponent(value)
 
+  if (active !== value) return null
+
   return (
-    <AnimatePresence mode="wait">
-      {active === value && (
-        <motion.div
-          key={value}
-          initial={orientation === "vertical" ? { opacity: 0, x: 6 } : { opacity: 0, y: 4 }}
-          animate={orientation === "vertical" ? { opacity: 1, x: 0 } : { opacity: 1, y: 0 }}
-          exit={orientation === "vertical" ? { opacity: 0, x: -6 } : { opacity: 0, y: -4 }}
-          transition={transitions.fade}
-          role="tabpanel"
-          id={`${tabsId}-panel-${safeValue}`}
-          aria-labelledby={`${tabsId}-tab-${safeValue}`}
-          tabIndex={0}
-          className={cn(
-            orientation === "vertical" ? "flex-1 min-w-0" : "mt-4",
-            className,
-          )}
-          {...props}
-        >
-          {children}
-        </motion.div>
+    <div
+      // `key` re-triggers the CSS enter animation on every tab change.
+      key={value}
+      role="tabpanel"
+      id={`${tabsId}-panel-${safeValue}`}
+      aria-labelledby={`${tabsId}-tab-${safeValue}`}
+      tabIndex={0}
+      data-orientation={orientation}
+      className={cn(
+        "rui-tabs-content",
+        orientation === "vertical" ? "flex-1 min-w-0" : "mt-4",
+        className,
       )}
-    </AnimatePresence>
+      {...props}
+    >
+      {children}
+    </div>
   )
 }
