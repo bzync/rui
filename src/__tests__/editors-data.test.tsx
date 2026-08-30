@@ -76,4 +76,19 @@ describe("data, editor, and advanced field components", () => {
     render(<><RichTextEditor value="<p>Hello</p>" /><TerminalBlock title="Build" lines={[{ type: "success", text: "Done" }]} /><TerminalEmulator title="Shell" /></>)
     expect(screen.getByText("Done")).toBeInTheDocument(); expect(screen.getByText("Build")).toBeInTheDocument(); expect(screen.getByText("Shell")).toBeInTheDocument()
   })
+
+  it("sanitizes untrusted rich text: strips handlers, obfuscated schemes, and dangerous tags", () => {
+    const { container } = render(
+      <RichTextEditor
+        sanitize
+        value={`<p onclick="steal()">hi</p><a href="jAvA\tscript:alert(1)">x</a><img src=" javascript:alert(1)"><a href="https://ok.example">ok</a><script>evil()</script><iframe src="//e"></iframe>`}
+      />,
+    )
+    const editable = container.querySelector('[contenteditable]') as HTMLElement
+    const html = editable.innerHTML
+    expect(html).not.toMatch(/onclick/i)
+    expect(html).not.toMatch(/javascript:/i)
+    expect(html).not.toMatch(/<script|<iframe/i)
+    expect(html).toMatch(/https:\/\/ok\.example/)
+  })
 })
