@@ -1,6 +1,6 @@
 {
   "name": "@bzync/rui",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "Bzync React Tailwind UI component library",
   "type": "module",
   "files": [
