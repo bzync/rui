@@ -142,7 +142,7 @@ export function SkeletonTopbar({
         "w-full px-4 py-3 sm:px-6 sm:py-4",
         "bg-surface/90",
         "border-b border-border",
-        "sticky top-0 z-30",
+        "sticky top-0 z-(--z-sticky)",
         className,
       )}
       aria-hidden="true"

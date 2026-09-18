@@ -88,7 +88,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           )}
         >
           {prefix && (
-            <span className={cn("text-slate-400 dark:text-slate-500 shrink-0", s.text)}>
+            <span className={cn("text-muted-foreground/70 shrink-0", s.text)}>
               {prefix}
             </span>
           )}
@@ -111,7 +111,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             {...props}
           />
           {suffix && (
-            <span className={cn("text-slate-400 dark:text-slate-500 shrink-0", s.text)}>
+            <span className={cn("text-muted-foreground/70 shrink-0", s.text)}>
               {suffix}
             </span>
           )}

@@ -28,7 +28,7 @@ export function run(s: ShellState, raw: string): { lines: OutLine[]; next: Shell
     case "cp":       r = cmdCpMv(s, rest, false); break
     case "mv":       r = cmdCpMv(s, rest, true); break
     case "clear":    r = { lines: [], clear: true }; break
-    case "history":  r = { lines: s.history.map((c, i) => ({ spans: [{ text: `  ${String(i + 1).padStart(4)}  `, cls: "text-slate-500" }, { text: c }] })) }; break
+    case "history":  r = { lines: s.history.map((c, i) => ({ spans: [{ text: `  ${String(i + 1).padStart(4)}  `, cls: "text-muted-foreground" }, { text: c }] })) }; break
     case "grep":     r = cmdGrep(s, rest); break
     case "find":     r = cmdFind(s, rest); break
     case "wc":       r = cmdWc(s, rest); break
@@ -51,21 +51,21 @@ export function run(s: ShellState, raw: string): { lines: OutLine[]; next: Shell
       break
     }
     case "df":       r = { lines: [
-      { spans: [{ text: "Filesystem      Size  Used Avail Use% Mounted on", cls: "text-slate-500 dark:text-slate-500" }] },
+      { spans: [{ text: "Filesystem      Size  Used Avail Use% Mounted on", cls: "text-muted-foreground" }] },
       { spans: [{ text: rest.includes("-h") ? "/dev/sda1        79G   12G   63G  16% /" : "/dev/sda1     82636288 12582912 65901568  16% /" }] },
       { spans: [{ text: rest.includes("-h") ? "tmpfs           7.8G     0  7.8G   0% /dev/shm" : "tmpfs           8133480       0 8133480   0% /dev/shm" }] },
     ]}; break
     case "free":     r = { lines: [
-      { spans: [{ text: "               total        used        free      shared  buff/cache   available", cls: "text-slate-500 dark:text-slate-500" }] },
+      { spans: [{ text: "               total        used        free      shared  buff/cache   available", cls: "text-muted-foreground" }] },
       { spans: [{ text: rest.includes("-h") ? "Mem:            15Gi       3.1Gi       8.7Gi       310Mi       3.6Gi        11Gi" : "Mem:        16266960     3211264     8921088      318464     3682496    11502208" }] },
       { spans: [{ text: rest.includes("-h") ? "Swap:          975Mi          0B       975Mi" : "Swap:         999420           0      999420" }] },
     ]}; break
     case "ps":       r = { lines: [
-      { spans: [{ text: "  PID TTY          TIME CMD", cls: "text-slate-500 dark:text-slate-500" }] },
+      { spans: [{ text: "  PID TTY          TIME CMD", cls: "text-muted-foreground" }] },
       { spans: [{ text: " 1234 pts/0    00:00:00 bash" }] },
       { spans: [{ text: " 5678 pts/0    00:00:00 ps" }] },
     ]}; break
-    case "env":      r = { lines: Object.entries(s.env).map(([k, v]) => ({ spans: [{ text: k, cls: "text-sky-600 dark:text-sky-400" }, { text: "=" }, { text: v, cls: "text-emerald-600 dark:text-emerald-500" }] })) }; break
+    case "env":      r = { lines: Object.entries(s.env).map(([k, v]) => ({ spans: [{ text: k, cls: "text-info-strong" }, { text: "=" }, { text: v, cls: "text-success-strong" }] })) }; break
     case "export": {
       const newEnv = { ...s.env }
       for (const a of rest) { const eq = a.indexOf("="); if (eq > -1) newEnv[a.slice(0, eq)] = expandEnv(s, a.slice(eq + 1)) }
@@ -77,7 +77,7 @@ export function run(s: ShellState, raw: string): { lines: OutLine[]; next: Shell
     }
     case "which": {
       const PATHS: Record<string,string> = { bash:"/bin/bash",ls:"/bin/ls",cat:"/bin/cat",echo:"/bin/echo",rm:"/bin/rm",cp:"/bin/cp",mv:"/bin/mv",mkdir:"/bin/mkdir",touch:"/usr/bin/touch",pwd:"/bin/pwd",grep:"/bin/grep",find:"/usr/bin/find",sort:"/usr/bin/sort",wc:"/usr/bin/wc",head:"/usr/bin/head",tail:"/usr/bin/tail",date:"/bin/date",hostname:"/bin/hostname",uname:"/bin/uname",whoami:"/usr/bin/whoami",id:"/usr/bin/id",env:"/usr/bin/env",which:"/usr/bin/which",python3:"/usr/bin/python3",node:"/usr/bin/node",npm:"/usr/bin/npm",git:"/usr/bin/git",curl:"/usr/bin/curl",wget:"/usr/bin/wget",apt:"/usr/bin/apt",df:"/bin/df",du:"/usr/bin/du",free:"/usr/bin/free",ps:"/bin/ps",uptime:"/usr/bin/uptime",chmod:"/bin/chmod",chown:"/bin/chown",sudo:"/usr/bin/sudo",ping:"/bin/ping" }
-      r = { lines: rest.map(c => ({ spans: [{ text: PATHS[c] ?? "", cls: PATHS[c] ? undefined : "text-red-500 dark:text-red-400" }, { text: PATHS[c] ? "" : `${c} not found` }] })).filter(l => l.spans.some(s => s.text)) }; break
+      r = { lines: rest.map(c => ({ spans: [{ text: PATHS[c] ?? "", cls: PATHS[c] ? undefined : "text-danger-strong" }, { text: PATHS[c] ? "" : `${c} not found` }] })).filter(l => l.spans.some(s => s.text)) }; break
     }
     case "chmod":    r = { lines: [] }; break
     case "chown":    r = { lines: [] }; break
@@ -97,8 +97,8 @@ export function run(s: ShellState, raw: string): { lines: OutLine[]; next: Shell
     case "help":     r = cmdHelp(); break
     case "less":
     case "more":     r = rest[0] ? cmdCat(s, rest) : err(`usage: ${cmd} <file>`); break
-    case "vim": case "vi": case "nano": case "emacs": r = { lines: [{ spans: [{ text: `${cmd}: terminal editor not available in browser. Use cat to view files.`, cls: "text-amber-600 dark:text-amber-400" }] }] }; break
-    case "top": case "htop": r = { lines: [{ spans: [{ text: "interactive monitor not supported. Try: ps aux", cls: "text-amber-600 dark:text-amber-400" }] }] }; break
+    case "vim": case "vi": case "nano": case "emacs": r = { lines: [{ spans: [{ text: `${cmd}: terminal editor not available in browser. Use cat to view files.`, cls: "text-warning-strong" }] }] }; break
+    case "top": case "htop": r = { lines: [{ spans: [{ text: "interactive monitor not supported. Try: ps aux", cls: "text-warning-strong" }] }] }; break
     case "exit": case "logout": r = out("logout"); break
     case "alias":    r = out("alias ll='ls -la'", "alias la='ls -A'", "alias l='ls -CF'"); break
     case "type":     r = out(`${rest[0] ?? ""} is a shell builtin`); break
@@ -157,9 +157,9 @@ export function tabComplete(s: ShellState, input: string): { value: string; comp
 
 export function promptSpans(s: ShellState): Span[] {
   return [
-    { text: `${s.user}@${s.hostname}`, cls: "font-bold text-emerald-600 dark:text-emerald-500" },
-    { text: ":", cls: "text-slate-700 dark:text-slate-200" },
-    { text: cwdStr(s), cls: "font-bold text-sky-600 dark:text-sky-400" },
-    { text: "$ ", cls: "text-slate-700 dark:text-slate-200" },
+    { text: `${s.user}@${s.hostname}`, cls: "font-bold text-success-strong" },
+    { text: ":", cls: "text-foreground" },
+    { text: cwdStr(s), cls: "font-bold text-info-strong" },
+    { text: "$ ", cls: "text-foreground" },
   ]
 }

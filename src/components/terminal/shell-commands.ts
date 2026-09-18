@@ -23,9 +23,9 @@ export function expandEnv(s: ShellState, str: string): string {
 // ─── ls helpers ───────────────────────────────────────────────────────────────
 
 function entryColor(e: FSEntry): string {
-  if (e.type === "dir") return "font-bold text-sky-600 dark:text-sky-400"
-  if (e.executable) return "font-bold text-emerald-600 dark:text-emerald-500"
-  return "text-slate-700 dark:text-slate-200"
+  if (e.type === "dir") return "font-bold text-info-strong"
+  if (e.executable) return "font-bold text-success-strong"
+  return "text-foreground"
 }
 
 function fmtDate(d: Date): string {
@@ -35,7 +35,7 @@ function fmtDate(d: Date): string {
 
 // ─── Command implementations ──────────────────────────────────────────────────
 
-export function err(msg: string): CmdResult { return { lines: [{ spans: [{ text: msg, cls: "text-red-500 dark:text-red-400" }] }] } }
+export function err(msg: string): CmdResult { return { lines: [{ spans: [{ text: msg, cls: "text-danger-strong" }] }] } }
 export function out(...lines: string[]): CmdResult { return { lines: lines.map(t => ({ spans: [{ text: t }] })) } }
 
 export function cmdLs(s: ShellState, args: string[]): CmdResult {
@@ -58,16 +58,16 @@ export function cmdLs(s: ShellState, args: string[]): CmdResult {
   if (long) {
     const lines: OutLine[] = []
     const total = items.reduce((n, [, e]) => n + (e.type === "file" ? e.content.length : 4096), 0)
-    lines.push({ spans: [{ text: `total ${Math.ceil(total / 512)}`, cls: "text-slate-500 dark:text-slate-500" }] })
+    lines.push({ spans: [{ text: `total ${Math.ceil(total / 512)}`, cls: "text-muted-foreground" }] })
     if (all) {
       for (const dot of [".", ".."]) {
-        lines.push({ spans: [{ text: `drwxr-xr-x 2 user user   4096 ${fmtDate(new Date())} `, cls: "text-slate-500 dark:text-slate-500" }, { text: dot, cls: "font-bold text-sky-600 dark:text-sky-400" }] })
+        lines.push({ spans: [{ text: `drwxr-xr-x 2 user user   4096 ${fmtDate(new Date())} `, cls: "text-muted-foreground" }, { text: dot, cls: "font-bold text-info-strong" }] })
       }
     }
     for (const [name, ent] of items) {
       const size = ent.type === "file" ? ent.content.length : 4096
       lines.push({ spans: [
-        { text: `${ent.permissions} 1 user user ${String(size).padStart(6)} ${fmtDate(ent.mtime)} `, cls: "text-slate-500 dark:text-slate-500" },
+        { text: `${ent.permissions} 1 user user ${String(size).padStart(6)} ${fmtDate(ent.mtime)} `, cls: "text-muted-foreground" },
         { text: ent.type === "dir" ? name + "/" : name, cls: entryColor(ent) },
       ]})
     }
@@ -104,8 +104,8 @@ export function cmdCat(s: ShellState, args: string[]): CmdResult {
   const lines: OutLine[] = []
   for (const a of args) {
     const e = getEntry(s.root, resolve(s, a))
-    if (!e) { lines.push({ spans: [{ text: `cat: ${a}: No such file or directory`, cls: "text-red-500 dark:text-red-400" }] }); continue }
-    if (e.type === "dir") { lines.push({ spans: [{ text: `cat: ${a}: Is a directory`, cls: "text-red-500 dark:text-red-400" }] }); continue }
+    if (!e) { lines.push({ spans: [{ text: `cat: ${a}: No such file or directory`, cls: "text-danger-strong" }] }); continue }
+    if (e.type === "dir") { lines.push({ spans: [{ text: `cat: ${a}: Is a directory`, cls: "text-danger-strong" }] }); continue }
     for (const l of e.content.split("\n")) lines.push({ spans: [{ text: l }] })
   }
   return { lines }
@@ -115,9 +115,9 @@ export function cmdMkdir(s: ShellState, args: string[]): CmdResult {
   const lines: OutLine[] = []
   for (const a of args.filter(x => !x.startsWith("-"))) {
     const res = getParent(s.root, resolve(s, a))
-    if (!res) { lines.push({ spans: [{ text: `mkdir: cannot create directory '${a}': No such file or directory`, cls: "text-red-500 dark:text-red-400" }] }); continue }
+    if (!res) { lines.push({ spans: [{ text: `mkdir: cannot create directory '${a}': No such file or directory`, cls: "text-danger-strong" }] }); continue }
     const [parent, name] = res
-    if (parent.children.has(name)) { lines.push({ spans: [{ text: `mkdir: cannot create directory '${a}': File exists`, cls: "text-red-500 dark:text-red-400" }] }); continue }
+    if (parent.children.has(name)) { lines.push({ spans: [{ text: `mkdir: cannot create directory '${a}': File exists`, cls: "text-danger-strong" }] }); continue }
     parent.children.set(name, mkdir())
   }
   return { lines }
@@ -130,7 +130,7 @@ export function cmdTouch(s: ShellState, args: string[]): CmdResult {
     const existing = getEntry(s.root, path)
     if (existing) { existing.mtime = new Date(); continue }
     const res = getParent(s.root, path)
-    if (!res) { lines.push({ spans: [{ text: `touch: cannot touch '${a}': No such file or directory`, cls: "text-red-500 dark:text-red-400" }] }); continue }
+    if (!res) { lines.push({ spans: [{ text: `touch: cannot touch '${a}': No such file or directory`, cls: "text-danger-strong" }] }); continue }
     const [parent, name] = res
     parent.children.set(name, mkfile(""))
   }
@@ -143,8 +143,8 @@ export function cmdRm(s: ShellState, args: string[]): CmdResult {
   const lines: OutLine[] = []
   for (const a of paths) {
     const e = getEntry(s.root, resolve(s, a))
-    if (!e) { lines.push({ spans: [{ text: `rm: cannot remove '${a}': No such file or directory`, cls: "text-red-500 dark:text-red-400" }] }); continue }
-    if (e.type === "dir" && !rec) { lines.push({ spans: [{ text: `rm: cannot remove '${a}': Is a directory`, cls: "text-red-500 dark:text-red-400" }] }); continue }
+    if (!e) { lines.push({ spans: [{ text: `rm: cannot remove '${a}': No such file or directory`, cls: "text-danger-strong" }] }); continue }
+    if (e.type === "dir" && !rec) { lines.push({ spans: [{ text: `rm: cannot remove '${a}': Is a directory`, cls: "text-danger-strong" }] }); continue }
     const res = getParent(s.root, resolve(s, a))
     if (res) res[0].children.delete(res[1])
   }
@@ -183,7 +183,7 @@ export function cmdGrep(s: ShellState, args: string[]): CmdResult {
   const lines: OutLine[] = []
   for (const f of files) {
     const e = getEntry(s.root, resolve(s, f))
-    if (!e || e.type !== "file") { lines.push({ spans: [{ text: `grep: ${f}: No such file or directory`, cls: "text-red-500 dark:text-red-400" }] }); continue }
+    if (!e || e.type !== "file") { lines.push({ spans: [{ text: `grep: ${f}: No such file or directory`, cls: "text-danger-strong" }] }); continue }
     const re = new RegExp(pattern, ic ? "gi" : "g")
     e.content.split("\n").forEach((line, i) => {
       const m = re.test(line)
@@ -218,7 +218,7 @@ export function cmdWc(s: ShellState, args: string[]): CmdResult {
   const lines: OutLine[] = []
   for (const f of files) {
     const e = getEntry(s.root, resolve(s, f))
-    if (!e || e.type !== "file") { lines.push({ spans: [{ text: `wc: ${f}: No such file or directory`, cls: "text-red-500 dark:text-red-400" }] }); continue }
+    if (!e || e.type !== "file") { lines.push({ spans: [{ text: `wc: ${f}: No such file or directory`, cls: "text-danger-strong" }] }); continue }
     const lc = e.content.split("\n").length - 1
     const wc = e.content.trim().split(/\s+/).filter(Boolean).length
     const bc = e.content.length
@@ -242,7 +242,7 @@ export function cmdHeadTail(s: ShellState, args: string[], tail: boolean): CmdRe
   const lines: OutLine[] = []
   for (const f of files) {
     const e = getEntry(s.root, resolve(s, f))
-    if (!e || e.type !== "file") { lines.push({ spans: [{ text: `${tail ? "tail" : "head"}: cannot open '${f}': No such file or directory`, cls: "text-red-500 dark:text-red-400" }] }); continue }
+    if (!e || e.type !== "file") { lines.push({ spans: [{ text: `${tail ? "tail" : "head"}: cannot open '${f}': No such file or directory`, cls: "text-danger-strong" }] }); continue }
     const all = e.content.split("\n")
     ;(tail ? all.slice(-n) : all.slice(0, n)).forEach(l => lines.push({ spans: [{ text: l }] }))
   }

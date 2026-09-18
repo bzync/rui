@@ -111,7 +111,7 @@ export function Popover({
             exit={{ opacity: 0, ...initial }}
             transition={transitions.fade}
             className={cn(
-              "absolute z-50 min-w-[180px] rounded-[var(--radius-lg)] border border-border bg-surface-raised shadow-floating",
+              "absolute z-(--z-popover) w-max min-w-[180px] max-w-[min(24rem,calc(100vw-2rem))] rounded-[var(--radius-lg)] border border-border bg-surface-raised shadow-floating",
               container,
               alignCls,
               className,

@@ -41,7 +41,7 @@ export function HeatmapChart({
           <div style={{ display: "flex", gap: 3, paddingLeft: LABEL_W + 3 }}>
             {colLabels.map((l, c) => (
               <div key={c} style={{ width: cellSize, flexShrink: 0 }}
-                className="text-center text-xs text-slate-600 dark:text-slate-400 leading-none truncate">
+                className="text-center text-xs text-muted-foreground leading-none truncate">
                 {l}
               </div>
             ))}
@@ -51,7 +51,7 @@ export function HeatmapChart({
           <div key={r} style={{ display: "flex", alignItems: "center", gap: 3 }}>
             {rowLabels && (
               <div style={{ width: LABEL_W, flexShrink: 0 }}
-                className="text-xs text-slate-600 dark:text-slate-400 text-right pr-2 leading-none truncate">
+                className="text-xs text-muted-foreground text-right pr-2 leading-none truncate">
                 {rowLabels[r]}
               </div>
             )}
@@ -70,8 +70,8 @@ export function HeatmapChart({
                     x: e.clientX, y: e.clientY,
                     content: (
                       <span>
-                        {rowLabels?.[r] && <span className="text-slate-500 dark:text-slate-400 mr-1.5">{rowLabels[r]}</span>}
-                        {colLabels?.[c] && <span className="text-slate-500 dark:text-slate-400 mr-2">{colLabels[c]}</span>}
+                        {rowLabels?.[r] && <span className="text-muted-foreground mr-1.5">{rowLabels[r]}</span>}
+                        {colLabels?.[c] && <span className="text-muted-foreground mr-2">{colLabels[c]}</span>}
                         <span className="font-semibold text-foreground">{formatValue(v)}</span>
                       </span>
                     ),

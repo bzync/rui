@@ -67,7 +67,7 @@ export function MultiLineChart({
 
   return (
     <div className={cn("relative w-full select-none", className)} style={{ height }}>
-      <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full overflow-visible text-black dark:text-white">
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full overflow-visible text-foreground">
         <defs>
           {series.map((s, i) => {
             const c = s.color ?? DEFAULT_COLORS[i % DEFAULT_COLORS.length]
@@ -131,7 +131,7 @@ export function MultiLineChart({
                         x: e.clientX, y: e.clientY,
                         content: (
                           <span>
-                            <span className="text-slate-500 dark:text-slate-400 mr-2">{labels[pi]} · {s.label}</span>
+                            <span className="text-muted-foreground mr-2">{labels[pi]} · {s.label}</span>
                             <span className="font-semibold" style={{ color: c }}>{formatValue(s.data[pi])}</span>
                           </span>
                         ),
@@ -151,7 +151,7 @@ export function MultiLineChart({
         {labels.map((l, i) => l && isVisibleLabel(i) ? (
           <span
             key={i}
-            className="absolute text-xs text-slate-600 dark:text-slate-400 whitespace-nowrap leading-5 select-none"
+            className="absolute text-xs text-muted-foreground whitespace-nowrap leading-5 select-none"
             style={{
               left: `${n === 1 ? 50 : (i / (n - 1)) * 92 + 4}%`,
               transform: "translateX(-50%)",

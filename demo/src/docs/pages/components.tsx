@@ -240,7 +240,7 @@ const details: Record<string, () => Detail> = {
   "components/tooltip": () => ({
     code: `<Tooltip content="Copy deployment URL" position="top">\n  <Button size="icon" variant="secondary" aria-label="Copy deployment URL">\n    <CopyIcon />\n  </Button>\n</Tooltip>`,
     preview: <Tooltip content="View deployment documentation"><Button size="icon" variant="secondary" aria-label="View deployment documentation"><CircleHelp size={16} /></Button></Tooltip>,
-    props: [{ name: "content", type: "ReactNode", description: "Tooltip content." },{ name: "position", type: '"top" | "bottom" | "left" | "right"', default: '"top"', description: "Preferred placement." },{ name: "delayMs", type: "number", default: "0", description: "Delay before display." }],
+    props: [{ name: "content", type: "ReactNode", description: "Tooltip content." },{ name: "position", type: '"top" | "bottom" | "left" | "right"', default: '"top"', description: "Preferred placement." },{ name: "delayMs", type: "number", default: "0", description: "Delay before display." },{ name: "maxWidth", type: 'number | string | "none"', default: '"20rem"', description: "Width cap. The bubble sizes to its content and wraps only at this cap (always clamped to the viewport)." }],
     accessibility: "Appears on both hover and focus. The visible tooltip is connected to its trigger through aria-describedby.",
   }),
   "components/pagination": () => ({

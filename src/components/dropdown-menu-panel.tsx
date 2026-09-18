@@ -84,13 +84,13 @@ export default function DropdownMenuPanel({
         )}
       >
         {item.icon && (
-          <span className={cn("shrink-0", item.destructive ? "text-red-400" : "text-slate-500 dark:text-slate-400")}>
+          <span className={cn("shrink-0", item.destructive ? "text-destructive" : "text-muted-foreground")}>
             {item.icon}
           </span>
         )}
         <span className="flex-1 min-w-0 truncate">{item.label}</span>
         {item.shortcut && (
-          <span className="text-[10px] text-slate-500 shrink-0 font-mono">{item.shortcut}</span>
+          <span className="text-[10px] text-muted-foreground shrink-0 font-mono">{item.shortcut}</span>
         )}
       </button>
     )
@@ -110,7 +110,7 @@ export default function DropdownMenuPanel({
           transition={transitions.fade}
           style={{ originY: side === "bottom" ? 0 : 1 }}
           className={cn(
-            "absolute z-50 min-w-[180px] rounded-[var(--radius-lg)] border border-border bg-surface-raised shadow-floating",
+            "absolute z-(--z-popover) w-max min-w-[180px] max-w-[min(20rem,calc(100vw-2rem))] rounded-[var(--radius-lg)] border border-border bg-surface-raised shadow-floating",
             "p-1",
             sideStyles[side],
             alignStyles[align],

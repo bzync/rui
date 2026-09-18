@@ -243,7 +243,7 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(({
         onClick={() => open ? closeCalendar() : openCalendar()}
         className="flex h-full min-w-0 flex-1 items-center gap-2 rounded-[var(--radius-md)] px-3 text-left outline-none focus-visible:ring-[3px] focus-visible:ring-focus-ring/35"
       >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-500 shrink-0">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground shrink-0">
           <rect width="18" height="18" x="3" y="4" rx="2" ry="2" /><line x1="16" x2="16" y1="2" y2="6" /><line x1="8" x2="8" y1="2" y2="6" /><line x1="3" x2="21" y1="10" y2="10" />
         </svg>
         <span className={cn("flex-1 text-sm truncate", value ? "text-foreground" : "text-muted-foreground")}>
@@ -256,7 +256,7 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(({
       <AnimatePresence>
         {open && (
           <>
-          <motion.div aria-hidden="true" className="fixed inset-0 z-40 bg-overlay sm:hidden" onMouseDown={() => closeCalendar(true)} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} />
+          <motion.div aria-hidden="true" className="fixed inset-0 z-(--z-popover) bg-overlay sm:hidden" onMouseDown={() => closeCalendar(true)} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} />
           <motion.div
             ref={panelRef}
             id={dialogId}
@@ -266,7 +266,7 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(({
             transition={{ duration: 0.13 }}
             role="dialog"
             aria-label={label ? `Choose ${label.toLowerCase()}` : "Choose date"}
-            className="fixed z-50 w-[min(18rem,calc(100vw-2rem))] max-h-[calc(100dvh-1rem)] overflow-y-auto rounded-[var(--radius-lg)] border border-border bg-surface-raised p-3 shadow-floating"
+            className="fixed z-(--z-popover) w-[min(18rem,calc(100vw-2rem))] max-h-[calc(100dvh-1rem)] overflow-y-auto rounded-[var(--radius-lg)] border border-border bg-surface-raised p-3 shadow-floating"
             style={{ ...panelPosition, originY: 0 }}
           >
             <div className="mb-2 flex items-center justify-between gap-3 sm:hidden"><strong className="text-sm text-foreground">{label ? `Choose ${label.toLowerCase()}` : "Choose date"}</strong><button type="button" onClick={() => closeCalendar(true)} className={cn(iconButtonStyles, "size-11")} aria-label="Close date picker"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12" /></svg></button></div>
@@ -331,7 +331,7 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(({
                         ? "bg-primary text-primary-foreground font-medium"
                         : isToday
                         ? "border border-accent-500/40 text-accent-400 hover:bg-accent-500/10"
-                        : "text-slate-700 dark:text-slate-200 hover:bg-black/6 dark:hover:bg-white/6",
+                        : "text-foreground hover:bg-foreground/6",
                       isDisabled && "opacity-30 cursor-not-allowed",
                     )}
                   >
@@ -340,7 +340,7 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(({
                 )
               })}
             </div>
-            <div className={cn("mt-3 flex items-center border-t border-border pt-3", isUnavailable(today) ? "justify-end" : "justify-between")}>{!isUnavailable(today) && <button type="button" onClick={() => focusCalendarDate(today)} className="h-11 rounded-md px-3 text-xs font-medium text-accent-700 hover:bg-muted focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-focus-ring/35 sm:h-10 dark:text-accent-300">Today</button>}<button type="button" onClick={() => closeCalendar(true)} className="h-11 rounded-md px-3 text-xs font-medium text-muted-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-focus-ring/35 sm:h-10">Cancel</button></div>
+            <div className={cn("mt-3 flex items-center border-t border-border pt-3", isUnavailable(today) ? "justify-end" : "justify-between")}>{!isUnavailable(today) && <button type="button" onClick={() => focusCalendarDate(today)} className="h-11 rounded-md px-3 text-xs font-medium text-accent-strong hover:bg-muted focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-focus-ring/35 sm:h-10">Today</button>}<button type="button" onClick={() => closeCalendar(true)} className="h-11 rounded-md px-3 text-xs font-medium text-muted-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-focus-ring/35 sm:h-10">Cancel</button></div>
           </motion.div>
           </>
         )}

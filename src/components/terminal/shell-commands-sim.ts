@@ -7,14 +7,14 @@ export function cmdGit(s: ShellState, args: string[]): CmdResult {
   if (!sub) return out("usage: git [--version] [--help] <command> [<args>]", "", "Common commands: init clone status add commit push pull log diff branch checkout merge")
   if (sub === "status") return out("On branch main", "Your branch is up to date with 'origin/main'.", "", "nothing to commit, working tree clean")
   if (sub === "log") return { lines: [
-    { spans: [{ text: "commit a3f8c1e9d2b74f6a1c8e3d5b9f2a7c4e8d1b3f5 (HEAD -> main)", cls: "text-amber-600 dark:text-amber-400" }] },
+    { spans: [{ text: "commit a3f8c1e9d2b74f6a1c8e3d5b9f2a7c4e8d1b3f5 (HEAD -> main)", cls: "text-warning-strong" }] },
     { spans: [{ text: "Author: User <user@example.com>" }] },
     { spans: [{ text: "Date:   Thu Jun 5 12:00:00 2026 +0000" }] },
     { spans: [{ text: "" }] },
     { spans: [{ text: "    Initial commit" }] },
   ]}
   if (sub === "init") return out(`Initialized empty Git repository in ${cwdStr(s)}/.git/`)
-  if (sub === "branch") return { lines: [{ spans: [{ text: "* main", cls: "text-emerald-600 dark:text-emerald-500" }] }] }
+  if (sub === "branch") return { lines: [{ spans: [{ text: "* main", cls: "text-success-strong" }] }] }
   if (sub === "diff") return out("(no changes)")
   if (sub === "add" || sub === "checkout") return { lines: [] }
   if (sub === "commit") {
@@ -59,17 +59,17 @@ export function cmdPing(args: string[]): CmdResult {
 
 export function cmdHelp(): CmdResult {
   return { lines: [
-    { spans: [{ text: "Available commands:", cls: "font-bold text-slate-700 dark:text-slate-200" }] },
+    { spans: [{ text: "Available commands:", cls: "font-bold text-foreground" }] },
     { spans: [{ text: "" }] },
-    { spans: [{ text: "  File system:  ", cls: "text-sky-600 dark:text-sky-400" }, { text: "ls  cd  pwd  cat  mkdir  touch  rm  cp  mv  find" }] },
-    { spans: [{ text: "  Text tools:   ", cls: "text-sky-600 dark:text-sky-400" }, { text: "echo  grep  wc  head  tail  sort" }] },
-    { spans: [{ text: "  System:       ", cls: "text-sky-600 dark:text-sky-400" }, { text: "whoami  id  uname  hostname  date  uptime  df  free  ps" }] },
-    { spans: [{ text: "  Environment:  ", cls: "text-sky-600 dark:text-sky-400" }, { text: "env  export  unset  which" }] },
-    { spans: [{ text: "  Network:      ", cls: "text-sky-600 dark:text-sky-400" }, { text: "ping  curl  wget" }] },
-    { spans: [{ text: "  Packages:     ", cls: "text-sky-600 dark:text-sky-400" }, { text: "apt  apt-get" }] },
-    { spans: [{ text: "  Dev tools:    ", cls: "text-sky-600 dark:text-sky-400" }, { text: "git  node  python3  npm" }] },
-    { spans: [{ text: "  Shell:        ", cls: "text-sky-600 dark:text-sky-400" }, { text: "history  clear  sudo  chmod  alias" }] },
+    { spans: [{ text: "  File system:  ", cls: "text-info-strong" }, { text: "ls  cd  pwd  cat  mkdir  touch  rm  cp  mv  find" }] },
+    { spans: [{ text: "  Text tools:   ", cls: "text-info-strong" }, { text: "echo  grep  wc  head  tail  sort" }] },
+    { spans: [{ text: "  System:       ", cls: "text-info-strong" }, { text: "whoami  id  uname  hostname  date  uptime  df  free  ps" }] },
+    { spans: [{ text: "  Environment:  ", cls: "text-info-strong" }, { text: "env  export  unset  which" }] },
+    { spans: [{ text: "  Network:      ", cls: "text-info-strong" }, { text: "ping  curl  wget" }] },
+    { spans: [{ text: "  Packages:     ", cls: "text-info-strong" }, { text: "apt  apt-get" }] },
+    { spans: [{ text: "  Dev tools:    ", cls: "text-info-strong" }, { text: "git  node  python3  npm" }] },
+    { spans: [{ text: "  Shell:        ", cls: "text-info-strong" }, { text: "history  clear  sudo  chmod  alias" }] },
     { spans: [{ text: "" }] },
-    { spans: [{ text: "Keyboard:  ", cls: "text-slate-500 dark:text-slate-500" }, { text: "↑↓ history   Tab complete   Ctrl+C cancel   Ctrl+L clear" }] },
+    { spans: [{ text: "Keyboard:  ", cls: "text-muted-foreground" }, { text: "↑↓ history   Tab complete   Ctrl+C cancel   Ctrl+L clear" }] },
   ]}
 }

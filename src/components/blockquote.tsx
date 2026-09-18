@@ -7,7 +7,7 @@ export type BlockquoteSize = "sm" | "md" | "lg"
 
 const variantStyles: Record<BlockquoteVariant, string> = {
   default: "border-l-border-strong bg-transparent",
-  accent: "border-l-accent-500 bg-accent-50/60 dark:bg-accent-900/15",
+  accent: "border-l-accent-500 bg-accent-500/6",
   subtle: "border-l-border bg-surface-muted",
 }
 

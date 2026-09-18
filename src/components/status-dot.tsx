@@ -1,22 +1,29 @@
 import { cn } from "@/lib/cn"
+import { statusSolidStyles } from "@/lib/status-styles"
 
-type Status = "online" | "offline" | "idle" | "busy" | "error" | "pending"
+export type StatusDotStatus = "online" | "offline" | "idle" | "busy" | "error" | "pending"
 
 export interface StatusDotProps {
-  status: Status
+  status: StatusDotStatus
   label?: string
   pulse?: boolean
   size?: "sm" | "md" | "lg"
   className?: string
+  /** Class for the dot itself (and its pulse ring). */
+  dotClassName?: string
+  /** Class for the label text. */
+  labelClassName?: string
+  /** Override or extend the status → dot color map per call. */
+  variants?: Partial<Record<StatusDotStatus, string>>
 }
 
-const dotStyles: Record<Status, string> = {
-  online:  "bg-emerald-400",
-  offline: "bg-slate-500",
-  idle:    "bg-amber-400",
-  busy:    "bg-red-400",
-  error:   "bg-red-500",
-  pending: "bg-sky-400",
+export const statusDotVariants: Record<StatusDotStatus, string> = {
+  online:  statusSolidStyles.success,
+  offline: "bg-muted-foreground",
+  idle:    statusSolidStyles.warning,
+  busy:    statusSolidStyles.danger,
+  error:   statusSolidStyles.danger,
+  pending: statusSolidStyles.info,
 }
 
 const sizes = {
@@ -25,7 +32,17 @@ const sizes = {
   lg: "w-2.5 h-2.5",
 }
 
-export function StatusDot({ status, label, pulse = false, size = "md", className }: StatusDotProps) {
+export function StatusDot({
+  status,
+  label,
+  pulse = false,
+  size = "md",
+  className,
+  dotClassName,
+  labelClassName,
+  variants,
+}: StatusDotProps) {
+  const dotCls = variants?.[status] ?? statusDotVariants[status]
   return (
     <span className={cn("inline-flex items-center gap-1.5", className)}>
       <span className="relative flex items-center justify-center">
@@ -33,15 +50,16 @@ export function StatusDot({ status, label, pulse = false, size = "md", className
           <span
             className={cn(
               "absolute inline-flex rounded-full opacity-75 animate-ping",
-              dotStyles[status],
+              dotCls,
               sizes[size],
+              dotClassName,
             )}
           />
         )}
-        <span className={cn("relative inline-flex rounded-full", dotStyles[status], sizes[size])} />
+        <span className={cn("relative inline-flex rounded-full", dotCls, sizes[size], dotClassName)} />
       </span>
       {label && (
-        <span className="text-sm text-slate-600 dark:text-slate-300">{label}</span>
+        <span className={cn("text-sm text-muted-foreground", labelClassName)}>{label}</span>
       )}
     </span>
   )

@@ -7,11 +7,11 @@ export function isGroup(item: SelectItem): item is SelectOptionGroup {
 }
 
 export const colorDot: Record<SelectOptionColor, string> = {
-  default: "bg-slate-400",
-  success: "bg-emerald-400",
-  warning: "bg-amber-400",
-  error:   "bg-red-400",
-  info:    "bg-sky-400",
+  default: "bg-muted-foreground",
+  success: "bg-success",
+  warning: "bg-warning",
+  error:   "bg-danger",
+  info:    "bg-info",
 }
 
 export function flatten(items: SelectItem[]): FlatOption[] {
@@ -70,7 +70,7 @@ export const XIcon = () => (
 
 export const ChevronIcon = ({ open }: { open: boolean }) => (
   <svg
-    className={cn("shrink-0 text-slate-500 transition-transform duration-150", open && "rotate-180")}
+    className={cn("shrink-0 text-muted-foreground transition-transform duration-150", open && "rotate-180")}
     width="12" height="12" viewBox="0 0 24 24" fill="none"
     stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
   >

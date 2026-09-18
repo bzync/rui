@@ -77,7 +77,7 @@ function TreeNodes({
                 "flex items-center gap-1.5 h-8 pr-2 rounded-lg cursor-pointer transition-colors group",
                 isSelected
                   ? "bg-accent-500/10 text-accent-400"
-                  : "text-slate-600 dark:text-slate-300 hover:bg-black/6 dark:hover:bg-white/6",
+                  : "text-foreground/80 hover:bg-foreground/6",
                 node.disabled && "opacity-40 cursor-not-allowed",
               )}
             >
@@ -85,7 +85,7 @@ function TreeNodes({
                 <motion.span
                   animate={{ rotate: isExpanded ? 90 : 0 }}
                   transition={{ duration: 0.15 }}
-                  className="shrink-0 w-4 flex items-center justify-center text-slate-500"
+                  className="shrink-0 w-4 flex items-center justify-center text-muted-foreground"
                 >
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="m9 18 6-6-6-6" />
@@ -95,7 +95,7 @@ function TreeNodes({
                 <span className="w-4 shrink-0" />
               )}
               {node.icon && (
-                <span className={cn("shrink-0 w-4 h-4 flex items-center justify-center", isSelected ? "text-accent-400" : "text-slate-500")}>
+                <span className={cn("shrink-0 w-4 h-4 flex items-center justify-center", isSelected ? "text-accent-400" : "text-muted-foreground")}>
                   {node.icon}
                 </span>
               )}

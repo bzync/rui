@@ -14,6 +14,11 @@ export interface TooltipProps {
   delayMs?: number
   className?: string
   wrapperClassName?: string
+  /** Width cap for the bubble. The bubble always sizes to its content and only
+   * wraps once it reaches this cap. Accepts any CSS length (`320`, `"28rem"`)
+   * or `"none"` to never wrap. It is additionally clamped to the viewport.
+   * Defaults to 20rem. */
+  maxWidth?: number | string
 }
 
 const positions: Record<
@@ -33,6 +38,7 @@ export function Tooltip({
   delayMs = 0,
   className,
   wrapperClassName,
+  maxWidth,
 }: TooltipProps) {
   const [visible, setVisible] = useState(false)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -89,10 +95,19 @@ export function Tooltip({
             animate={{ opacity: 1, y: 0, x: 0 }}
             exit={{ opacity: 0, ...initial }}
             transition={transitions.fade}
+            // w-max: size to the content instead of the shrink-to-fit width an
+            // absolutely positioned flex child gets from its inline-flex
+            // wrapper, which collapsed long text into a narrow column. The
+            // max-width cap is what makes it wrap.
+            style={maxWidth === undefined ? undefined : {
+              maxWidth: maxWidth === "none"
+                ? "calc(100vw - 2rem)"
+                : `min(${typeof maxWidth === "number" ? `${maxWidth}px` : maxWidth}, calc(100vw - 2rem))`,
+            }}
             className={cn(
-              "absolute z-50 pointer-events-none",
-              "max-w-[min(20rem,calc(100vw-2rem))] rounded-md px-2.5 py-1.5 text-xs font-medium leading-4",
-              "border border-slate-700 bg-slate-900 text-slate-50 shadow-floating dark:border-border-strong dark:bg-surface-raised dark:text-foreground",
+              "absolute z-(--z-tooltip) pointer-events-none",
+              "w-max max-w-[min(20rem,calc(100vw-2rem))] whitespace-normal break-words rounded-md px-2.5 py-1.5 text-xs font-medium leading-4",
+              "border border-tooltip-border bg-tooltip text-tooltip-foreground shadow-floating",
               container,
               className,
             )}

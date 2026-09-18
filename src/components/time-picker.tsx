@@ -395,7 +395,7 @@ export const TimePicker = forwardRef<HTMLButtonElement, TimePickerProps>(({
 
       {open && (
         <>
-        <div aria-hidden="true" className="fixed inset-0 z-40 bg-overlay sm:hidden" onMouseDown={() => closePicker(true)} />
+        <div aria-hidden="true" className="fixed inset-0 z-(--z-popover) bg-overlay sm:hidden" onMouseDown={() => closePicker(true)} />
         <div
           ref={panelRef}
           id={panelId}
@@ -405,13 +405,13 @@ export const TimePicker = forwardRef<HTMLButtonElement, TimePickerProps>(({
           data-align={align}
           style={panelPosition}
           className={cn(
-            "fixed z-50 w-[min(22rem,calc(100vw-2rem))] max-h-[calc(100dvh-1rem)] overflow-y-auto rounded-[var(--radius-lg)] border border-border bg-surface-raised p-3 shadow-floating",
+            "fixed z-(--z-popover) w-[min(22rem,calc(100vw-2rem))] max-h-[calc(100dvh-1rem)] overflow-y-auto rounded-[var(--radius-lg)] border border-border bg-surface-raised p-3 shadow-floating",
             panelClassName,
           )}
         >
           <div className="mb-3 flex items-center justify-between gap-3">
             <div className="min-w-0"><p className="truncate text-sm font-semibold text-foreground">Choose time</p><p className="text-[11px] text-muted-foreground">{format === "12" ? "12-hour" : "24-hour"} format</p></div>
-            <button type="button" onClick={() => setDraft(alignMinuteStep(nowParts(normalizedMinuteStep), normalizedMinuteStep, showSeconds))} className={cn("h-11 rounded-md px-3 text-xs font-medium text-accent-700 hover:bg-muted sm:h-8 sm:px-2.5 dark:text-accent-300", focusRingStyles)}>Now</button>
+            <button type="button" onClick={() => setDraft(alignMinuteStep(nowParts(normalizedMinuteStep), normalizedMinuteStep, showSeconds))} className={cn("h-11 rounded-md px-3 text-xs font-medium text-accent-strong hover:bg-muted sm:h-8 sm:px-2.5 ", focusRingStyles)}>Now</button>
           </div>
 
           <div aria-live="polite" className="mb-3 flex h-11 items-center justify-center rounded-[var(--radius-md)] bg-muted px-3 text-lg font-semibold tabular-nums text-foreground">

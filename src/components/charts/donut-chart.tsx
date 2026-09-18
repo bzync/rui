@@ -47,7 +47,7 @@ export function DonutChart({
   return (
     <div className={cn("inline-flex flex-col items-center gap-5", className)}>
       <div className="relative" style={{ width: size, height: size }}>
-        <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90 text-black dark:text-white">
+        <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90 text-foreground">
           {/* Track */}
           <circle
             cx={cx} cy={cy} r={r}
@@ -86,9 +86,9 @@ export function DonutChart({
                     x: e.clientX, y: e.clientY,
                     content: (
                       <span>
-                        <span className="text-slate-500 dark:text-slate-400 mr-2">{seg.label}</span>
+                        <span className="text-muted-foreground mr-2">{seg.label}</span>
                         <span className="font-semibold text-foreground">{seg.value}</span>
-                        <span className="text-slate-500 ml-1.5">({(seg.frac * 100).toFixed(1)}%)</span>
+                        <span className="text-muted-foreground ml-1.5">({(seg.frac * 100).toFixed(1)}%)</span>
                       </span>
                     ),
                   })
@@ -112,7 +112,7 @@ export function DonutChart({
         {segments.map((seg, i) => (
           <div key={i} className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: seg.color }} />
-            <span className="text-sm text-slate-500">{seg.label}</span>
+            <span className="text-sm text-muted-foreground">{seg.label}</span>
           </div>
         ))}
       </div>

@@ -42,7 +42,7 @@ export function SingleTrigger({
         className,
       )}
     >
-      {prefix && <span className="text-slate-500 shrink-0 text-sm">{prefix}</span>}
+      {prefix && <span className="text-muted-foreground shrink-0 text-sm">{prefix}</span>}
       <input
         {...inputProps}
         ref={inputRef}
@@ -65,7 +65,7 @@ export function SingleTrigger({
       />
       {loading && <SpinnerIcon />}
       {showClear && !loading && (
-        <button type="button" onClick={onClear} className="shrink-0 text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 cursor-pointer transition-colors">
+        <button type="button" onClick={onClear} className="shrink-0 text-muted-foreground hover:text-foreground cursor-pointer transition-colors">
           <XIcon />
         </button>
       )}

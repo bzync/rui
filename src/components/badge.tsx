@@ -1,4 +1,5 @@
 import { cn } from "@/lib/cn"
+import { statusSoftStyles, statusSolidStyles } from "@/lib/status-styles"
 import { HTMLAttributes } from "react"
 
 export type BadgeVariant = "default" | "success" | "warning" | "error" | "info" | "muted"
@@ -13,12 +14,12 @@ export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
 }
 
 export const badgeVariants: Record<BadgeVariant, string> = {
-  default: "bg-accent-50 dark:bg-accent-500/[0.12] text-accent-600 dark:text-accent-400 border-accent-200/80 dark:border-accent-500/20",
-  success: "bg-emerald-50 dark:bg-emerald-500/[0.12] text-emerald-700 dark:text-emerald-400 border-emerald-200/80 dark:border-emerald-500/20",
-  warning: "bg-amber-50 dark:bg-amber-500/[0.12] text-amber-700 dark:text-amber-400 border-amber-200/80 dark:border-amber-500/20",
-  error: "bg-red-50 dark:bg-red-500/[0.12] text-danger dark:text-red-400 border-red-200/80 dark:border-red-500/20",
-  info: "bg-sky-50 dark:bg-sky-500/[0.12] text-sky-700 dark:text-sky-400 border-sky-200/80 dark:border-sky-500/20",
-  muted: "bg-black/[0.05] dark:bg-white/[0.07] text-slate-600 dark:text-slate-400 border-black/[0.08] dark:border-white/[0.09]",
+  default: "bg-accent-500/10 text-accent-strong border-accent-500/25",
+  success: statusSoftStyles.success,
+  warning: statusSoftStyles.warning,
+  error: statusSoftStyles.danger,
+  info: statusSoftStyles.info,
+  muted: "bg-muted text-muted-foreground border-border",
 }
 
 const badgeSizes: Record<BadgeSize, string> = {
@@ -29,11 +30,11 @@ const badgeSizes: Record<BadgeSize, string> = {
 
 const badgeDots: Record<BadgeVariant, string> = {
   default: "bg-accent-400",
-  success: "bg-emerald-400",
-  warning: "bg-amber-400",
-  error: "bg-red-400",
-  info: "bg-sky-400",
-  muted: "bg-slate-500",
+  success: statusSolidStyles.success,
+  warning: statusSolidStyles.warning,
+  error: statusSolidStyles.danger,
+  info: statusSolidStyles.info,
+  muted: "bg-muted-foreground",
 }
 
 export function Badge({

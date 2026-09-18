@@ -164,7 +164,7 @@ export const SelectSingle = forwardRef<HTMLButtonElement, SelectPropsSingle>(
           )}
         >
           {selectedOpt?.icon && (
-            <span className="shrink-0 text-slate-500 dark:text-slate-400">{selectedOpt.icon}</span>
+            <span className="shrink-0 text-muted-foreground">{selectedOpt.icon}</span>
           )}
           {selectedOpt?.color && selectedOpt.color !== "default" && (
             <span className={cn("w-2 h-2 rounded-full shrink-0", colorDot[selectedOpt.color])} />
@@ -173,7 +173,7 @@ export const SelectSingle = forwardRef<HTMLButtonElement, SelectPropsSingle>(
             {selectedOpt?.label ?? placeholder}
           </span>
           {clearable && value && !disabled && (
-            <span role="button" tabIndex={-1} onClick={handleClear} className="shrink-0 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
+            <span role="button" tabIndex={-1} onClick={handleClear} className="shrink-0 text-muted-foreground hover:text-foreground transition-colors">
               <XIcon />
             </span>
           )}

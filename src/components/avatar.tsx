@@ -15,6 +15,8 @@ export interface AvatarProps extends HTMLAttributes<HTMLDivElement> {
   loading?: "eager" | "lazy"
   decoding?: "async" | "auto" | "sync"
   referrerPolicy?: React.ImgHTMLAttributes<HTMLImageElement>["referrerPolicy"]
+  /** Class for the presence dot, e.g. to recolor it or match its ring to a non-surface background. */
+  statusClassName?: string
 }
 
 const sizes: Record<Size, string> = {
@@ -34,10 +36,10 @@ const dotSizes: Record<Size, string> = {
 }
 
 const statusColors: Record<Status, string> = {
-  online: "bg-emerald-400",
-  offline: "bg-slate-500",
-  away: "bg-amber-400",
-  busy: "bg-red-400",
+  online: "bg-success",
+  offline: "bg-muted-foreground",
+  away: "bg-warning",
+  busy: "bg-danger",
 }
 
 const palette = [
@@ -74,6 +76,7 @@ export function Avatar({
   decoding = "async",
   referrerPolicy = "no-referrer",
   className,
+  statusClassName,
   ...props
 }: AvatarProps) {
   const bg = name ? colorFor(name) : "bg-slate-600"
@@ -101,9 +104,10 @@ export function Avatar({
       {status && (
         <span
           className={cn(
-            "absolute bottom-0 right-0 rounded-full border-white dark:border-navy-900",
+            "absolute bottom-0 right-0 rounded-full border-surface",
             dotSizes[size],
             statusColors[status],
+            statusClassName,
           )}
         />
       )}

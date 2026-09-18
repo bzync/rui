@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/cn"
 import { focusRingStyles } from "@/lib/component-styles"
+import { statusSolidStyles, statusSurfaceStyles, statusTextStyles } from "@/lib/status-styles"
 import { HTMLMotionProps, motion } from "framer-motion"
 import { ReactNode } from "react"
 
@@ -14,6 +15,12 @@ export interface AlertProps extends Omit<HTMLMotionProps<"div">, "title" | "chil
   children?: ReactNode
   dismissable?: boolean
   onDismiss?: () => void
+  /** Class for the colored bar on the leading edge. */
+  accentClassName?: string
+  /** Class for the icon (and the dismiss button, which shares its color). */
+  iconClassName?: string
+  titleClassName?: string
+  bodyClassName?: string
 }
 
 const styles: Record<
@@ -21,32 +28,32 @@ const styles: Record<
   { container: string; accent: string; icon: string; title: string; body: string }
 > = {
   info: {
-    container: "bg-sky-500/[0.07] dark:bg-sky-500/[0.09] border-sky-400/25 dark:border-sky-500/20",
-    accent: "bg-sky-500",
-    icon: "text-sky-600 dark:text-sky-400",
-    title: "text-sky-900 dark:text-sky-100",
-    body: "text-sky-800/90 dark:text-sky-200/70",
+    container: statusSurfaceStyles.info,
+    accent: statusSolidStyles.info,
+    icon: statusTextStyles.info,
+    title: statusTextStyles.info,
+    body: "text-foreground/80",
   },
   success: {
-    container: "bg-emerald-500/[0.07] dark:bg-emerald-500/[0.09] border-emerald-400/25 dark:border-emerald-500/20",
-    accent: "bg-emerald-500",
-    icon: "text-emerald-600 dark:text-emerald-400",
-    title: "text-emerald-900 dark:text-emerald-100",
-    body: "text-emerald-800/90 dark:text-emerald-200/70",
+    container: statusSurfaceStyles.success,
+    accent: statusSolidStyles.success,
+    icon: statusTextStyles.success,
+    title: statusTextStyles.success,
+    body: "text-foreground/80",
   },
   warning: {
-    container: "bg-amber-500/[0.07] dark:bg-amber-500/[0.09] border-amber-400/30 dark:border-amber-500/20",
-    accent: "bg-amber-500",
-    icon: "text-amber-600 dark:text-amber-400",
-    title: "text-amber-900 dark:text-amber-100",
-    body: "text-amber-800/90 dark:text-amber-200/70",
+    container: statusSurfaceStyles.warning,
+    accent: statusSolidStyles.warning,
+    icon: statusTextStyles.warning,
+    title: statusTextStyles.warning,
+    body: "text-foreground/80",
   },
   error: {
-    container: "bg-red-500/[0.07] dark:bg-red-500/[0.09] border-red-400/25 dark:border-red-500/20",
-    accent: "bg-red-500",
-    icon: "text-red-600 dark:text-red-400",
-    title: "text-red-900 dark:text-red-100",
-    body: "text-red-800/90 dark:text-red-200/70",
+    container: statusSurfaceStyles.danger,
+    accent: statusSolidStyles.danger,
+    icon: statusTextStyles.danger,
+    title: statusTextStyles.danger,
+    body: "text-foreground/80",
   },
 }
 
@@ -124,6 +131,10 @@ export function Alert({
   children,
   dismissable = false,
   onDismiss,
+  accentClassName,
+  iconClassName,
+  titleClassName,
+  bodyClassName,
   ...props
 }: AlertProps) {
   const s = styles[variant]
@@ -139,20 +150,20 @@ export function Alert({
       className={cn("relative flex gap-3 rounded-[var(--radius-lg)] border overflow-hidden pl-4 pr-4 py-3.5", s.container, className)}
       {...props}
     >
-      <span className={cn("absolute left-0 inset-y-0 w-[3px]", s.accent)} aria-hidden="true" />
-      <span className={cn("shrink-0 mt-0.5", s.icon)}>{displayIcon}</span>
+      <span className={cn("absolute left-0 inset-y-0 w-[3px]", s.accent, accentClassName)} aria-hidden="true" />
+      <span className={cn("shrink-0 mt-0.5", s.icon, iconClassName)}>{displayIcon}</span>
       <div className="min-w-0 flex-1">
         {title && (
-          <p className={cn("text-sm font-semibold leading-snug mb-0.5", s.title)}>{title}</p>
+          <p className={cn("text-sm font-semibold leading-snug mb-0.5", s.title, titleClassName)}>{title}</p>
         )}
-        {children && <div className={cn("text-sm leading-relaxed", s.body)}>{children}</div>}
+        {children && <div className={cn("text-sm leading-relaxed", s.body, bodyClassName)}>{children}</div>}
       </div>
       {dismissable && (
         <button
           type="button"
           onClick={onDismiss}
           aria-label="Dismiss"
-          className={cn("shrink-0 mt-0.5 rounded-sm opacity-60 hover:opacity-100 transition-opacity cursor-pointer", focusRingStyles, s.icon)}
+          className={cn("shrink-0 mt-0.5 rounded-sm opacity-60 hover:opacity-100 transition-opacity cursor-pointer", focusRingStyles, s.icon, iconClassName)}
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M18 6 6 18" /><path d="m6 6 12 12" />

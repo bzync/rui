@@ -87,7 +87,7 @@ export const FileUpload = forwardRef<HTMLInputElement, FileUploadProps>(
             dragging
               ? "border-accent-500/60 bg-accent-500/6"
               : displayError
-              ? "border-red-500/40 bg-red-500/4"
+              ? "border-danger/50 bg-danger/5"
               : "border-border-strong bg-surface-muted/50 hover:border-accent-500/60 hover:bg-muted",
             disabled && "opacity-50 cursor-not-allowed pointer-events-none",
           )}
@@ -116,7 +116,7 @@ export const FileUpload = forwardRef<HTMLInputElement, FileUploadProps>(
           </svg>
           <div>
             <p className="text-sm font-medium text-foreground">
-              Drop files here or <span className="text-accent-700 dark:text-accent-300">browse</span>
+              Drop files here or <span className="text-accent-strong">browse</span>
             </p>
             {(accept || maxSizeMB) && (
               <p className="mt-0.5 text-xs text-muted-foreground">
@@ -138,7 +138,7 @@ export const FileUpload = forwardRef<HTMLInputElement, FileUploadProps>(
                   key={`${file.name}-${i}`}
                   className="flex items-center gap-2 rounded-[var(--radius-md)] border border-border bg-surface-muted px-3 py-2"
                 >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400 shrink-0">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground shrink-0">
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                     <polyline points="14 2 14 8 20 8" />
                   </svg>

@@ -53,7 +53,7 @@ export const buttonVariants: Record<ButtonVariant, string> = {
     "border border-transparent shadow-xs",
   ].join(" "),
 
-  link: "h-auto bg-transparent p-0 text-accent-700 underline-offset-4 hover:underline dark:text-accent-300",
+  link: "h-auto bg-transparent p-0 text-accent-strong underline-offset-4 hover:underline",
 }
 
 export const buttonSizes: Record<ButtonSize, string> = {

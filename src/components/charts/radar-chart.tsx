@@ -51,7 +51,7 @@ export function RadarChart({
 
   return (
     <div className={cn("inline-flex flex-col items-center gap-4", className)}>
-      <svg viewBox="0 0 100 100" style={{ width: size, height: size }} className="text-black dark:text-white">
+      <svg viewBox="0 0 100 100" style={{ width: size, height: size }} className="text-foreground">
         {Array.from({ length: gridLines }).map((_, gi) => {
           const r = R * ((gi + 1) / gridLines)
           const pts = Array.from({ length: n }, (_, i) => point(r, i))
@@ -79,7 +79,7 @@ export function RadarChart({
                         x: e.clientX, y: e.clientY,
                         content: (
                           <span>
-                            <span className="text-slate-500 dark:text-slate-400 mr-2">{axes[i]}</span>
+                            <span className="text-muted-foreground mr-2">{axes[i]}</span>
                             <span className="font-semibold" style={{ color: c }}>{v}</span>
                           </span>
                         ),
@@ -97,7 +97,7 @@ export function RadarChart({
           const anchor = x < cx - 2 ? "end" : x > cx + 2 ? "start" : "middle"
           return (
             <text key={i} x={x} y={y} textAnchor={anchor} dominantBaseline="middle"
-              fontSize="5.5" fill="currentColor" className="text-slate-600 dark:text-slate-400">
+              fontSize="5.5" fill="currentColor" className="text-muted-foreground">
               {label}
             </text>
           )
@@ -110,7 +110,7 @@ export function RadarChart({
             <div key={si} className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full shrink-0"
                 style={{ backgroundColor: s.color ?? RADAR_COLORS[si % RADAR_COLORS.length] }} />
-              <span className="text-sm text-slate-600 dark:text-slate-300">{s.label}</span>
+              <span className="text-sm text-foreground/80">{s.label}</span>
             </div>
           ))}
         </div>

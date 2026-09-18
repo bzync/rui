@@ -32,6 +32,11 @@
       "style": "./dist/styles.css",
       "import": "./dist/styles.css",
       "default": "./dist/styles.css"
+    },
+    "./theme.css": {
+      "style": "./dist/theme.css",
+      "import": "./dist/theme.css",
+      "default": "./dist/theme.css"
     }
   },
   "scripts": {

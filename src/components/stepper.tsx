@@ -61,7 +61,7 @@ export function Stepper({ steps, current, orientation = "horizontal", className 
                 </div>
                 <div className="mt-2 text-center px-1">
                   <p className={cn("text-xs font-medium", active ? "text-foreground" : "text-muted-foreground")}>{step.label}</p>
-                  {step.description && <p className="text-[10px] text-slate-500 mt-0.5">{step.description}</p>}
+                  {step.description && <p className="text-[10px] text-muted-foreground mt-0.5">{step.description}</p>}
                 </div>
               </>
             ) : (
@@ -91,7 +91,7 @@ export function Stepper({ steps, current, orientation = "horizontal", className 
                 </div>
                 <div className="pb-6">
                   <p className={cn("text-sm font-medium leading-none mt-1.5", active ? "text-foreground" : "text-muted-foreground")}>{step.label}</p>
-                  {step.description && <p className="text-xs text-slate-500 mt-1">{step.description}</p>}
+                  {step.description && <p className="text-xs text-muted-foreground mt-1">{step.description}</p>}
                 </div>
               </>
             )}

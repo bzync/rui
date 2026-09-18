@@ -16,7 +16,7 @@ export const AuthBackdrop = forwardRef<HTMLDivElement, AuthBackdropProps>(({ cla
     <div
       ref={ref}
       aria-hidden="true"
-      className={cn("pointer-events-none fixed inset-0 -z-10 bg-accent-500/[0.03] dark:bg-blue-400/[0.04]", className)}
+      className={cn("pointer-events-none fixed inset-0 -z-10 bg-accent-500/[0.035]", className)}
       {...props}
     />
   )

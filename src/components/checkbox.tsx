@@ -92,10 +92,10 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
                 "w-full h-full border-2 flex items-center justify-center transition-colors duration-[120ms] peer-focus-visible:ring-[3px] peer-focus-visible:ring-focus-ring/35 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-bg",
                 s.box,
                 isActive
-                  ? "bg-accent-600 border-accent-600 dark:bg-accent-500 dark:border-accent-500"
+                  ? "bg-primary border-primary"
                   : error
-                  ? "bg-transparent border-red-500/50"
-                  : "bg-transparent border-black/25 dark:border-white/25",
+                  ? "bg-transparent border-danger"
+                  : "bg-transparent border-foreground/25",
               )}
             >
               <AnimatePresence mode="wait">
@@ -110,7 +110,8 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
                     height={s.check}
                     viewBox="0 0 14 14"
                     fill="none"
-                    stroke="white"
+                    stroke="currentColor"
+                    className="text-primary-foreground"
                     strokeWidth="2.5"
                     strokeLinecap="round"
                   >
@@ -127,7 +128,8 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
                     height={s.check}
                     viewBox="0 0 14 14"
                     fill="none"
-                    stroke="white"
+                    stroke="currentColor"
+                    className="text-primary-foreground"
                     strokeWidth="2.5"
                     strokeLinecap="round"
                     strokeLinejoin="round"

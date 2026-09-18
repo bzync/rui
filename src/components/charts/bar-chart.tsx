@@ -70,7 +70,7 @@ export function BarChart({
 
   return (
     <div className={cn("relative w-full select-none", className)} style={{ height }}>
-      <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full text-black dark:text-white">
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full text-foreground">
         <defs>
           {data.map((d, i) => {
             const c = d.color ?? color
@@ -114,7 +114,7 @@ export function BarChart({
                   y: e.clientY,
                   content: (
                     <span>
-                      <span className="text-slate-500 dark:text-slate-400 mr-2">{d.label}</span>
+                      <span className="text-muted-foreground mr-2">{d.label}</span>
                       <span className="font-semibold text-foreground">{formatValue(d.value)}</span>
                     </span>
                   ),
@@ -141,7 +141,7 @@ export function BarChart({
       {/* X-axis labels */}
       <div className="absolute bottom-0 left-0 right-0 flex" style={{ height: 20 }}>
         {data.map((d, i) => (
-          <div key={i} className="flex-1 text-center text-xs text-slate-500 truncate px-1 leading-5">
+          <div key={i} className="flex-1 text-center text-xs text-muted-foreground truncate px-1 leading-5">
             {d.label}
           </div>
         ))}
@@ -164,7 +164,7 @@ export function BarChart({
                   transform: "translateY(calc(-100% - 4px))",
                 }}
               >
-                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 leading-none tabular-nums">
+                <span className="text-xs font-semibold text-muted-foreground leading-none tabular-nums">
                   {formatValue(d.value)}
                 </span>
               </div>
@@ -208,12 +208,12 @@ function HorizontalBarChart({
         return (
           <div key={i} className="flex items-center gap-3">
             {/* Label — fixed width so bars all start at the same x */}
-            <span className="text-xs text-slate-600 dark:text-slate-300 text-right shrink-0 leading-none" style={{ width: 64 }}>
+            <span className="text-xs text-foreground/80 text-right shrink-0 leading-none" style={{ width: 64 }}>
               {d.label}
             </span>
 
             {/* Bar track */}
-            <div className="flex-1 h-8 relative rounded-md bg-black/5 dark:bg-white/5 overflow-hidden">
+            <div className="flex-1 h-8 relative rounded-md bg-foreground/5 overflow-hidden">
               <div
                 className="absolute left-0 top-0 bottom-0 rounded-md cursor-pointer"
                 style={{
@@ -232,7 +232,7 @@ function HorizontalBarChart({
                     x: e.clientX, y: e.clientY,
                     content: (
                       <span>
-                        <span className="text-slate-500 dark:text-slate-400 mr-2">{d.label}</span>
+                        <span className="text-muted-foreground mr-2">{d.label}</span>
                         <span className="font-semibold text-foreground">{formatValue(d.value)}</span>
                       </span>
                     ),
@@ -247,7 +247,7 @@ function HorizontalBarChart({
                   className="absolute top-0 bottom-0 flex items-center pointer-events-none"
                   style={{ left: `${pct}%`, paddingLeft: 8 }}
                 >
-                  <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 tabular-nums whitespace-nowrap">
+                  <span className="text-xs font-semibold text-foreground/80 tabular-nums whitespace-nowrap">
                     {formatValue(d.value)}
                   </span>
                 </div>

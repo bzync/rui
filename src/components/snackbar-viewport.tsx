@@ -3,6 +3,7 @@
 import { cn } from "@/lib/cn"
 import { focusRingStyles } from "@/lib/component-styles"
 import { motionTokens } from "@/lib/motion"
+import { statusSurfaceStyles, statusTextStyles } from "@/lib/status-styles"
 import { AnimatePresence, motion } from "framer-motion"
 import { ReactNode } from "react"
 import type { SnackbarPosition, SnackbarVariant } from "./snackbar"
@@ -22,34 +23,34 @@ const variantConfig: Record<SnackbarVariant, { bg: string; icon: ReactNode }> = 
     icon: null,
   },
   info: {
-    bg: "bg-sky-500/[0.09] dark:bg-sky-500/[0.12] border-sky-500/25",
+    bg: statusSurfaceStyles.info,
     icon: (
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-sky-400">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={statusTextStyles.info}>
         <circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" />
       </svg>
     ),
   },
   success: {
-    bg: "bg-emerald-500/[0.09] dark:bg-emerald-500/[0.12] border-emerald-500/25",
+    bg: statusSurfaceStyles.success,
     icon: (
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-400">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={statusTextStyles.success}>
         <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><path d="m9 11 3 3L22 4" />
       </svg>
     ),
   },
   warning: {
-    bg: "bg-amber-500/[0.09] dark:bg-amber-500/[0.12] border-amber-500/25",
+    bg: statusSurfaceStyles.warning,
     icon: (
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-400">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={statusTextStyles.warning}>
         <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" />
         <path d="M12 9v4" /><path d="M12 17h.01" />
       </svg>
     ),
   },
   error: {
-    bg: "bg-red-500/[0.09] dark:bg-red-500/[0.12] border-red-500/25",
+    bg: statusSurfaceStyles.danger,
     icon: (
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-400">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={statusTextStyles.danger}>
         <circle cx="12" cy="12" r="10" /><path d="m15 9-6 6" /><path d="m9 9 6 6" />
       </svg>
     ),
@@ -109,7 +110,7 @@ export default function SnackbarViewport({
       aria-label="Notifications"
       aria-live="polite"
       className={cn(
-        "fixed z-[100] flex flex-col gap-2 pointer-events-none",
+        "fixed z-(--z-toast) flex flex-col gap-2 pointer-events-none",
         positionClass[position],
         className,
       )}
@@ -143,7 +144,7 @@ export default function SnackbarViewport({
                       item.action!.onClick()
                       onDismiss(item.id)
                     }}
-                    className={cn("mt-1.5 text-xs font-semibold text-accent-600 dark:text-accent-400 hover:text-accent-700 dark:hover:text-accent-300 transition-colors", item.actionClassName)}
+                    className={cn("mt-1.5 text-xs font-semibold text-accent-strong hover:underline transition-colors", item.actionClassName)}
                   >
                     {item.action.label}
                   </button>

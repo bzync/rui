@@ -40,7 +40,7 @@ export function WaterfallChart({
     const base = d.total ? 0 : running
     if (!d.total) running += d.value
     const end = d.total ? running : base + d.value
-    return { ...d, base, end, color: d.color ?? (d.total ? "var(--color-slate-500)" : d.value >= 0 ? CHART_POSITIVE : CHART_NEGATIVE) }
+    return { ...d, base, end, color: d.color ?? (d.total ? "var(--color-muted-foreground)" : d.value >= 0 ? CHART_POSITIVE : CHART_NEGATIVE) }
   })
 
   const allVals = bars.flatMap((b) => [b.base, b.end])
@@ -59,7 +59,7 @@ export function WaterfallChart({
 
   return (
     <div className={cn("relative w-full select-none", className)} style={{ height }}>
-      <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full text-slate-900 dark:text-white">
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full text-foreground">
         <defs>
           {bars.map((b, i) => (
             <linearGradient key={i} id={`${uid}-wf-${i}`} x1="0" y1="0" x2="0" y2="1">
@@ -104,7 +104,7 @@ export function WaterfallChart({
                   x: e.clientX, y: e.clientY,
                   content: (
                     <span>
-                      <span className="text-slate-500 dark:text-slate-400 mr-2">{b.label}</span>
+                      <span className="text-muted-foreground mr-2">{b.label}</span>
                       <span className="font-semibold" style={{ color: b.color }}>
                         {b.value >= 0 && !b.total ? "+" : ""}{formatValue(b.value)}
                       </span>
@@ -133,7 +133,7 @@ export function WaterfallChart({
         {bars.map((b, i) => (
           <div key={i} className={cn(
             "flex-1 text-center text-xs truncate px-1 leading-5",
-            b.total ? "text-slate-500 dark:text-slate-400 font-medium" : "text-slate-500",
+            b.total ? "text-muted-foreground font-medium" : "text-muted-foreground",
           )}>
             {b.label}
           </div>

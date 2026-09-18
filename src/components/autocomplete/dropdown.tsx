@@ -1,9 +1,9 @@
 "use client"
 
 import { cn } from "@/lib/cn"
+import { ThemePortal } from "../theme-provider"
 import { AnimatePresence, motion } from "framer-motion"
 import { RefObject } from "react"
-import { createPortal } from "react-dom"
 import { AutocompleteOption } from "./types"
 import type { MenuPos } from "../select/types"
 import { Highlight, SpinnerIcon } from "./icons"
@@ -37,7 +37,8 @@ export function AutocompleteDropdown<V>({
 }) {
   if (typeof document === "undefined") return null
 
-  return createPortal(
+  return (
+    <ThemePortal>
     <AnimatePresence>
       {open && pos && (
         <motion.ul
@@ -50,15 +51,15 @@ export function AutocompleteDropdown<V>({
           exit={{ opacity: 0, y: pos.placement === "bottom" ? -4 : 4 }}
           transition={{ duration: 0.13 }}
           style={{ position: "fixed", top: pos.top, left: pos.left, width: pos.width, maxHeight: pos.maxHeight }}
-          className={cn("z-[110] overflow-y-auto rounded-[var(--radius-lg)] border border-border bg-surface-raised py-1 shadow-floating", className)}
+          className={cn("z-(--z-popover) overflow-y-auto rounded-[var(--radius-lg)] border border-border bg-surface-raised py-1 shadow-floating", className)}
         >
           {loading ? (
-            <li className={cn("px-4 py-3 text-sm text-slate-600 flex items-center gap-2", loadingClassName)}>
+            <li className={cn("px-4 py-3 text-sm text-muted-foreground flex items-center gap-2", loadingClassName)}>
               <SpinnerIcon />
               Loading…
             </li>
           ) : filtered.length === 0 ? (
-            <li className={cn("px-4 py-3 text-sm text-slate-600", emptyClassName)}>{emptyMessage}</li>
+            <li className={cn("px-4 py-3 text-sm text-muted-foreground", emptyClassName)}>{emptyMessage}</li>
           ) : (
             filtered.map((opt, i) => {
               const isActive = i === activeIdx
@@ -75,17 +76,17 @@ export function AutocompleteDropdown<V>({
                   className={cn(
                     "flex min-h-9 items-center gap-3 px-3 py-2 cursor-pointer transition-colors",
                     isActive && "bg-surface-muted",
-                    isSel && !isActive && "bg-accent-50 dark:bg-accent-500/10",
+                    isSel && !isActive && "bg-accent-500/8",
                     optionClassName,
                   )}
                 >
-                  {opt.icon && <span className="shrink-0 text-slate-500 dark:text-slate-400">{opt.icon}</span>}
+                  {opt.icon && <span className="shrink-0 text-muted-foreground">{opt.icon}</span>}
                   <div className="min-w-0 flex-1">
-                    <p className={cn("text-sm", isSel ? "text-accent-700 dark:text-accent-300 font-medium" : "text-foreground")}>
+                    <p className={cn("text-sm", isSel ? "text-accent-strong font-medium" : "text-foreground")}>
                       <Highlight text={opt.label} query={inputText} />
                     </p>
                     {opt.description && (
-                      <p className="text-xs text-slate-500 mt-0.5 truncate">{opt.description}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5 truncate">{opt.description}</p>
                     )}
                   </div>
                   {isSel && (
@@ -99,7 +100,7 @@ export function AutocompleteDropdown<V>({
           )}
         </motion.ul>
       )}
-    </AnimatePresence>,
-    document.body,
+    </AnimatePresence>
+    </ThemePortal>
   )
 }

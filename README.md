@@ -112,6 +112,22 @@ system fallbacks by default to keep the stylesheet small and avoid unexpected ne
 requests. Load any font in your application and override `--font-sans`, `--font-display`,
 and `--font-mono` on `.rui-theme` (or via `ThemeProvider`'s `fonts` option).
 
+### Using the tokens in your own Tailwind classes
+
+`styles.css` is compiled CSS, so your app's Tailwind build does not learn the library's
+token names from it. To write `bg-success`, `text-danger-strong`, `border-info/25`,
+`bg-accent-500`, `shadow-floating`, and so on in your own markup, also import the
+Tailwind theme file into your Tailwind v4 entry:
+
+```css
+@import "tailwindcss";
+@import "@bzync/rui/theme.css";
+```
+
+`theme.css` only registers the names (`@theme reference`) and emits no CSS. The values
+still come from `styles.css` and `ThemeProvider` at runtime, so palette overrides apply
+to your utilities too.
+
 ## Theming
 
 ### ThemeProvider
@@ -188,6 +204,58 @@ Author custom components against the semantic tokens rather than raw palette val
 `border`, `border-strong`, `primary`, `primary-foreground`, `destructive`, the status
 colors, and `focus-ring`. They adapt to light/dark and to any palette override
 automatically.
+
+Each status color (`success`, `warning`, `danger`, `info`) has a `-strong` companion,
+a readable text/icon shade derived from it: darker in light mode, lighter in dark mode.
+Every status-colored component (`Badge`, `StatusDot`, `Alert`, `Callout`, `Tag`,
+`Timeline`, `Progressbar`, `Stat`, toasts, ...) uses the same recipe, so
+`palette.colors.success` and friends retint all of them:
+
+| Role | Classes |
+| --- | --- |
+| Tinted chip | `bg-success/10 text-success-strong border-success/25` |
+| Solid fill (dot, bar) | `bg-success` |
+| Text or icon | `text-success-strong` |
+
+`accent-strong` does the same for accent text (selected items, links, eyebrows), and
+`surface-sunken` is the recessed well behind code blocks and terminals. Components use one
+mode-aware class per property rather than a `light dark:dark` class pair, so a consumer's
+own Tailwind layer can't re-assert the light half in dark mode.
+
+### Portals
+
+Drawer, Select, Autocomplete, `Overlay` and chart tooltips render into `document.body`.
+They keep the nearest `ThemeProvider`'s dark mode and palette through `ThemePortal`, which
+wraps them in a `display: contents` copy of the theme scope. You don't need
+`applyToRoot` for this. Use `ThemePortal` for your own portaled overlays too:
+
+```tsx
+import { ThemePortal } from "@bzync/rui"
+
+<ThemePortal>
+  <div className="fixed inset-0 z-(--z-modal) bg-surface">...</div>
+</ThemePortal>
+```
+
+### Stacking order
+
+Every layer the library renders uses one z-index scale, defined as CSS variables in
+`styles.css`:
+
+| Token | Default | Used by |
+| --- | --- | --- |
+| `--z-sticky` | 1100 | `AppShellHeader`, sticky `Footer`, `SkeletonTopbar` |
+| `--z-modal` | 1300 | `Modal`, `Drawer`, `CommandPalette`, `Overlay` |
+| `--z-popover` | 1400 | `Select`, `Autocomplete`, `Popover`, `DropdownMenu`, `DatePicker`, `TimePicker` |
+| `--z-toast` | 1500 | `SnackbarProvider` toasts |
+| `--z-tooltip` | 1600 | `Tooltip`, chart tooltips, focused skip links |
+
+Floating panels sit above dialogs so a `Select` inside a `Modal` or `Drawer` is never
+painted over, toasts stay visible over an open dialog, and tooltips are always on top.
+Overlays on the same layer stack by DOM order, so a `Drawer` opened from a `Modal`
+covers it. To fit the library into your app's own scale, override the variables on
+`:root`. For your own overlays, use the `Z_INDEX` constant
+(`style={{ zIndex: Z_INDEX.modal }}`) or `z-(--z-modal)` in Tailwind.
 
 ## Importing components
 
@@ -287,8 +355,8 @@ Import any of these from the root or from `@bzync/rui/<kebab-name>`.
 | `Avatar` / `AvatarGroup` / `AvatarGroupOverflow` | `name`, `src`, `size`, initials fallback; group `spacing`, `count` |
 | `Card` (`CardHeader` / `CardTitle` / `CardDescription` / `CardBody` / `CardFooter`) | composition |
 | `Callout` / `Alert` | `title`, `variant`; `Alert` adds `dismissable`, `onDismiss` |
-| `Stat` / `StatusDot` | `Stat`: `label`, `value`, `trend`, `trendValue`; `StatusDot`: `status`, `label` |
-| `Tooltip` | `content`, trigger child |
+| `Stat` / `StatusDot` | `Stat`: `label`, `value`, `trend`, `trendValue`; `StatusDot`: `status`, `label`, `variants`, `dotClassName`, `labelClassName` |
+| `Tooltip` | `content`, trigger child, `maxWidth` (sizes to content, wraps at the cap; default `20rem`) |
 | `Link` | `href`, `variant` |
 | `Typography`: `Heading` / `Text` / `Prose` / `Time` | `Heading`: `as h1‥h6`, `size`, `tone`, `weight`, `balance`; `Text`: `variant`, `size`, number/date/currency formatting; `Time`: renders `<time datetime>` |
 | `Code` / `InlineCode` / `CodeBlock` / `CodeEditor` | `code`, `filename`, `showLineNumbers`, `value` / `onChange` |

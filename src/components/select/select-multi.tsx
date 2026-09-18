@@ -166,7 +166,7 @@ export const SelectMulti = forwardRef<HTMLButtonElement, SelectPropsMulti>(
           )}
         >
           {selectedOpts.length === 0 ? (
-            <span className="flex-1 text-sm text-slate-500 truncate">{placeholder}</span>
+            <span className="flex-1 text-sm text-muted-foreground truncate">{placeholder}</span>
           ) : (
             selectedOpts.map((opt) => (
               <span
@@ -182,7 +182,7 @@ export const SelectMulti = forwardRef<HTMLButtonElement, SelectPropsMulti>(
                   tabIndex={-1}
                   onMouseDown={(e) => e.stopPropagation()}
                   onClick={(e) => removeAt(opt.value, e)}
-                  className="shrink-0 text-slate-500 dark:text-slate-400 hover:text-foreground transition-colors cursor-pointer ml-0.5"
+                  className="shrink-0 text-muted-foreground hover:text-foreground transition-colors cursor-pointer ml-0.5"
                   aria-label={`Remove ${opt.label}`}
                 >
                   <XIcon />
@@ -196,14 +196,14 @@ export const SelectMulti = forwardRef<HTMLButtonElement, SelectPropsMulti>(
                 role="button"
                 tabIndex={-1}
                 onClick={clearAll}
-                className="text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                className="text-muted-foreground hover:text-foreground transition-colors"
                 aria-label="Clear all"
               >
                 <XIcon />
               </span>
             )}
             {values.length > 0 && (
-              <span className="text-[10px] font-medium text-slate-500 tabular-nums">{values.length}</span>
+              <span className="text-[10px] font-medium text-muted-foreground tabular-nums">{values.length}</span>
             )}
             <ChevronIcon open={open} />
           </span>

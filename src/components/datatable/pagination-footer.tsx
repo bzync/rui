@@ -68,7 +68,7 @@ export function PaginationFooter({
                 className={cn(
                   iconButtonStyles,
                   "size-7 text-xs font-medium",
-                  page === p ? "bg-accent-50 text-accent-700 dark:bg-accent-500/15 dark:text-accent-300" : "text-muted-foreground",
+                  page === p ? "bg-accent-500/10 text-accent-strong" : "text-muted-foreground",
                 )}
               >
                 {p}

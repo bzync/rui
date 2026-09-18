@@ -61,7 +61,7 @@ export function TableRow({
   return (
     <tr
       className={cn(
-        "transition-colors duration-100 hover:bg-surface-muted aria-selected:bg-accent-50/70 dark:aria-selected:bg-accent-500/10",
+        "transition-colors duration-100 hover:bg-surface-muted aria-selected:bg-accent-500/8",
         className,
       )}
       {...props}

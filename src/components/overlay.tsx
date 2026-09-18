@@ -4,7 +4,7 @@ import { cn } from "@/lib/cn"
 import { AnimatePresence, motion } from "framer-motion"
 import { transitions } from "@/lib/motion"
 import { ReactNode, useEffect, useRef } from "react"
-import { createPortal } from "react-dom"
+import { ThemePortal } from "@/components/theme-provider"
 import { useEventCallback } from "@/hooks/use-event-callback"
 import { useFocusTrap, useRestoreFocus } from "@/hooks/use-focus-trap"
 
@@ -32,8 +32,9 @@ export interface OverlayProps {
   disableScrollLock?: boolean
   closeOnEscape?: boolean
   closeOnOutsideClick?: boolean
-  /** z-index base (overlay) — panel renders at +1 */
-  zIndex?: number
+  /** z-index of the overlay layer (backdrop and panel share it). Defaults to
+   * the `--z-modal` step of the library's stacking scale. */
+  zIndex?: number | string
   /** Class for the backdrop */
   backdropClassName?: string
   /** Class for the panel wrapper */
@@ -58,7 +59,7 @@ export function Overlay({
   disableScrollLock = false,
   closeOnEscape = true,
   closeOnOutsideClick = true,
-  zIndex = 50,
+  zIndex = "var(--z-modal)",
   backdropClassName,
   panelClassName,
   className,
@@ -130,7 +131,7 @@ export function Overlay({
   )
 
   if (!portal || typeof document === "undefined") return content
-  return createPortal(content, document.body)
+  return <ThemePortal>{content}</ThemePortal>
 }
 
 /**
@@ -140,13 +141,13 @@ export function OverlayBackdrop({
   open,
   onClose,
   className,
-  zIndex = 50,
+  zIndex = "var(--z-modal)",
   closeOnClick = true,
 }: {
   open: boolean
   onClose: () => void
   className?: string
-  zIndex?: number
+  zIndex?: number | string
   closeOnClick?: boolean
 }) {
   const onCloseStable = useEventCallback(onClose)

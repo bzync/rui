@@ -42,7 +42,7 @@ export function FunnelChart({
         return (
           <div key={i} className="flex items-center gap-3">
             {/* Label — fixed-width column so bars all align to the same centre */}
-            <span className="text-sm text-slate-800 dark:text-slate-100 font-[500] text-right shrink-0 leading-none truncate" style={{ width: 80 }}>
+            <span className="text-sm text-foreground font-[500] text-right shrink-0 leading-none truncate" style={{ width: 80 }}>
               {d.label}
             </span>
 
@@ -65,10 +65,10 @@ export function FunnelChart({
                     x: e.clientX, y: e.clientY,
                     content: (
                       <span>
-                        <span className="text-slate-500 dark:text-slate-400 mr-2">{d.label}</span>
+                        <span className="text-muted-foreground mr-2">{d.label}</span>
                         <span className="font-semibold text-foreground">{formatValue(d.value)}</span>
                         {dropPct && (
-                          <span className="text-slate-500 dark:text-slate-400 ml-2">{dropPct}% of total</span>
+                          <span className="text-muted-foreground ml-2">{dropPct}% of total</span>
                         )}
                       </span>
                     ),
@@ -80,11 +80,11 @@ export function FunnelChart({
 
             {/* Value + drop-off */}
             <div className="shrink-0 text-right" style={{ width: 80 }}>
-              <span className="text-sm font-semibold text-slate-800 dark:text-slate-100 tabular-nums leading-none">
+              <span className="text-sm font-semibold text-foreground tabular-nums leading-none">
                 {formatValue(d.value)}
               </span>
               {dropPct && (
-                <span className="ml-2 text-xs text-slate-500 dark:text-slate-400 tabular-nums">{dropPct}%</span>
+                <span className="ml-2 text-xs text-muted-foreground tabular-nums">{dropPct}%</span>
               )}
             </div>
           </div>

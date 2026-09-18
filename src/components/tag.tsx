@@ -1,6 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/cn"
+import { statusSoftStyles, statusTextStyles } from "@/lib/status-styles"
 import { HTMLAttributes, ReactNode } from "react"
 
 type TagVariant = "default" | "success" | "warning" | "error" | "info"
@@ -15,19 +16,19 @@ export interface TagProps extends HTMLAttributes<HTMLSpanElement> {
 }
 
 const variants: Record<TagVariant, string> = {
-  default: "bg-black/8 dark:bg-white/8 text-slate-700 dark:text-slate-200 border-black/12 dark:border-white/12",
-  success: "bg-emerald-500/12 text-emerald-400 border-emerald-500/20",
-  warning: "bg-amber-500/12 text-amber-400 border-amber-500/20",
-  error:   "bg-red-500/12 text-red-400 border-red-500/20",
-  info:    "bg-sky-500/12 text-sky-400 border-sky-500/20",
+  default: "bg-muted text-foreground border-border",
+  success: statusSoftStyles.success,
+  warning: statusSoftStyles.warning,
+  error:   statusSoftStyles.danger,
+  info:    statusSoftStyles.info,
 }
 
 const removeColor: Record<TagVariant, string> = {
-  default: "text-slate-500 hover:text-slate-700 dark:hover:text-slate-200",
-  success: "text-emerald-400 hover:text-emerald-300",
-  warning: "text-amber-400 hover:text-amber-300",
-  error:   "text-red-400 hover:text-red-300",
-  info:    "text-sky-400 hover:text-sky-300",
+  default: "text-muted-foreground hover:text-foreground",
+  success: `${statusTextStyles.success} opacity-70 hover:opacity-100`,
+  warning: `${statusTextStyles.warning} opacity-70 hover:opacity-100`,
+  error:   `${statusTextStyles.danger} opacity-70 hover:opacity-100`,
+  info:    `${statusTextStyles.info} opacity-70 hover:opacity-100`,
 }
 
 const sizes: Record<TagSize, string> = {

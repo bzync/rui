@@ -143,23 +143,23 @@ export function CodeBlock({ code, language = "js", filename, showLineNumbers = f
   }
 
   return (
-    <div className={cn("group relative rounded-[var(--radius-xl)] overflow-hidden border border-border bg-surface-muted dark:bg-navy-900", className)}>
+    <div className={cn("group relative rounded-[var(--radius-xl)] overflow-hidden border border-border bg-surface-sunken", className)}>
       {/* Header bar */}
-      <div className="flex items-center justify-between px-4 py-2.5 border-b border-black/[0.07] dark:border-white/[0.07] bg-black/3 dark:bg-white/3">
+      <div className="flex items-center justify-between px-4 py-2.5 border-b border-foreground/[0.07] bg-foreground/3">
         <div className="flex items-center gap-2">
           {filename && (
-            <span className="text-xs font-mono text-slate-500 dark:text-slate-400">{filename}</span>
+            <span className="text-xs font-mono text-muted-foreground">{filename}</span>
           )}
         </div>
         <div className="flex items-center gap-2">
           {!filename && (
-            <span className="text-xs font-mono text-slate-400 dark:text-slate-500 uppercase">{language}</span>
+            <span className="text-xs font-mono text-muted-foreground/70 uppercase">{language}</span>
           )}
           <button
             type="button"
             onClick={copy}
             aria-label={copied ? "Copied code" : "Copy code"}
-            className="h-6 shrink-0 px-2 flex items-center gap-1 whitespace-nowrap rounded text-xs text-slate-500 dark:text-slate-400 hover:text-foreground hover:bg-black/6 dark:hover:bg-white/8 transition-colors"
+            className="h-6 shrink-0 px-2 flex items-center gap-1 whitespace-nowrap rounded text-xs text-muted-foreground hover:text-foreground hover:bg-foreground/7 transition-colors"
           >
             {copied ? (
               <>
@@ -183,9 +183,9 @@ export function CodeBlock({ code, language = "js", filename, showLineNumbers = f
         <table className="w-full border-collapse text-sm font-mono leading-6">
           <tbody>
             {lines.map((line, idx) => (
-              <tr key={idx} className="hover:bg-black/3 dark:hover:bg-white/3">
+              <tr key={idx} className="hover:bg-foreground/3">
                 {showLineNumbers && (
-                  <td className="select-none w-10 pr-4 pl-4 text-right text-slate-400 dark:text-slate-600 border-r border-black/6 dark:border-white/6">
+                  <td className="select-none w-10 pr-4 pl-4 text-right text-muted-foreground/50 border-r border-foreground/6">
                     {idx + 1}
                   </td>
                 )}
@@ -281,16 +281,16 @@ export function CodeEditor({
   }
 
   return (
-    <div className={cn("relative rounded-[var(--radius-xl)] overflow-hidden border border-border bg-surface-muted dark:bg-navy-900", className)}>
+    <div className={cn("relative rounded-[var(--radius-xl)] overflow-hidden border border-border bg-surface-sunken", className)}>
       {/* Header */}
-      <div className="flex items-center gap-1.5 px-4 py-2.5 border-b border-black/[0.07] dark:border-white/[0.07] bg-black/3 dark:bg-white/3">
-        <span className="text-xs font-mono text-slate-400 dark:text-slate-500 uppercase">{language}</span>
+      <div className="flex items-center gap-1.5 px-4 py-2.5 border-b border-foreground/[0.07] bg-foreground/3">
+        <span className="text-xs font-mono text-muted-foreground/70 uppercase">{language}</span>
       </div>
 
       {/* Editor */}
       <div className="relative flex">
         {/* Line numbers */}
-        <div className="select-none shrink-0 py-3 px-3 text-right text-sm font-mono leading-6 text-slate-400 dark:text-slate-600 border-r border-black/6 dark:border-white/6 bg-black/2 dark:bg-black/20" aria-hidden>
+        <div className="select-none shrink-0 py-3 px-3 text-right text-sm font-mono leading-6 text-muted-foreground/50 border-r border-foreground/6 bg-foreground/2" aria-hidden>
           {Array.from({ length: lineCount }, (_, i) => (
             <div key={i}>{i + 1}</div>
           ))}
@@ -305,7 +305,7 @@ export function CodeEditor({
           placeholder={placeholder}
           spellCheck={false}
           rows={lineCount}
-          className="flex-1 py-3 px-4 text-sm font-mono leading-6 bg-transparent text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-600 focus:outline-none resize-none"
+          className="flex-1 py-3 px-4 text-sm font-mono leading-6 bg-transparent text-foreground placeholder:text-muted-foreground/60 focus:outline-none resize-none"
         />
       </div>
     </div>

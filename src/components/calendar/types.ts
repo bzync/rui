@@ -42,12 +42,12 @@ export interface CalendarProps {
 }
 
 export const EVENT_CHIP: Record<string, string> = {
-  blue:   "bg-blue-500/12 text-blue-400 border-blue-500/20",
-  green:  "bg-emerald-500/12 text-emerald-400 border-emerald-500/20",
-  red:    "bg-red-500/12 text-red-400 border-red-500/20",
-  yellow: "bg-amber-500/12 text-amber-400 border-amber-500/20",
-  purple: "bg-violet-500/12 text-violet-400 border-violet-500/20",
-  orange: "bg-orange-500/12 text-orange-400 border-orange-500/20",
+  blue:   "bg-blue-500/12 text-[color-mix(in_oklab,var(--color-blue-500)_70%,var(--color-foreground))] border-blue-500/25",
+  green:  "bg-emerald-500/12 text-[color-mix(in_oklab,var(--color-emerald-500)_70%,var(--color-foreground))] border-emerald-500/25",
+  red:    "bg-red-500/12 text-[color-mix(in_oklab,var(--color-red-500)_70%,var(--color-foreground))] border-red-500/25",
+  yellow: "bg-amber-500/12 text-[color-mix(in_oklab,var(--color-amber-500)_70%,var(--color-foreground))] border-amber-500/25",
+  purple: "bg-violet-500/12 text-[color-mix(in_oklab,var(--color-violet-500)_70%,var(--color-foreground))] border-violet-500/25",
+  orange: "bg-orange-500/12 text-[color-mix(in_oklab,var(--color-orange-500)_70%,var(--color-foreground))] border-orange-500/25",
 }
 
 export function sameDay(a: Date, b: Date) {

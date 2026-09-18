@@ -43,7 +43,7 @@ export function WeekView({ viewDate, today, value, events, onSelect, onEventClic
               onKeyDown={(event) => { if (!isDisabled && (event.key === "Enter" || event.key === " ")) { event.preventDefault(); onSelect(date) } }}
               className={cn("group/whead flex flex-col items-center gap-1 py-3 transition-colors focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-focus-ring/35", isDisabled ? "cursor-not-allowed opacity-40" : "cursor-pointer hover:bg-surface-muted")}
             >
-              <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">
+              <span className="text-[10px] font-semibold text-muted-foreground/70 uppercase tracking-wide">
                 {DAYS_MED[date.getDay()]}
               </span>
               <span className={cn(
@@ -51,8 +51,8 @@ export function WeekView({ viewDate, today, value, events, onSelect, onEventClic
                 isSel
                   ? "bg-primary text-primary-foreground"
                   : isToday
-                  ? "border border-accent-500/50 text-accent-600 dark:text-accent-300"
-                  : "text-slate-700 dark:text-slate-200",
+                  ? "border border-accent-500/50 text-accent-strong"
+                  : "text-foreground",
               )}>
                 {date.getDate()}
               </span>

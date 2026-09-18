@@ -34,7 +34,7 @@ describe("data, editor, and advanced field components", () => {
 
   it("renders calendar and date picker controls", async () => {
     const user = userEvent.setup(); const onChange = vi.fn()
-    render(<><Calendar value={new Date(2026, 7, 21)} onChange={onChange} /><DatePicker label="Release date" /></>)
+    render(<><Calendar value={new Date(2026, 7, 21)} defaultViewDate={new Date(2026, 7, 21)} onChange={onChange} /><DatePicker label="Release date" /></>)
     expect(screen.getByText(/August 2026/)).toBeInTheDocument()
     await user.click(screen.getByRole("button", { name: "Release date" }))
     expect(screen.getAllByText(/August 2026/).length).toBeGreaterThan(0)

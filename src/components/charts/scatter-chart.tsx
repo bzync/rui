@@ -67,7 +67,7 @@ export function ScatterChart({
   return (
     <div className={cn("relative w-full select-none", className)} style={{ height }}>
       {/* Background: gridlines + axes only (no circles — preserveAspectRatio=none distorts SVG circles into ellipses) */}
-      <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full text-black dark:text-white">
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full text-foreground">
         {Array.from({ length: gridLines + 1 }).map((_, i) => {
           const gy = PLOT_Y0 + (i / gridLines) * PLOT_H
           const gx = PLOT_X0 + (i / gridLines) * PLOT_W
@@ -103,7 +103,7 @@ export function ScatterChart({
                 transform: "translate(-50%, -50%)",
                 backgroundColor: p.color ?? c,
                 opacity: hovered && !isHov ? 0.2 : 0.85,
-                outline: isHov ? "2px solid rgba(255,255,255,0.55)" : "none",
+                outline: isHov ? "2px solid color-mix(in oklab, var(--color-surface) 70%, transparent)" : "none",
                 outlineOffset: 2,
                 cursor: "pointer",
                 transition: "opacity 0.12s",
@@ -117,7 +117,7 @@ export function ScatterChart({
                   content: (
                     <span>
                       {(p.label || s.label) && (
-                        <span className="text-slate-500 dark:text-slate-400 mr-2">{p.label ?? s.label}</span>
+                        <span className="text-muted-foreground mr-2">{p.label ?? s.label}</span>
                       )}
                       <span className="font-semibold text-foreground">
                         ({formatX(p.x)}, {formatY(p.y)})
@@ -134,7 +134,7 @@ export function ScatterChart({
 
       {xLabel && (
         <div className="absolute bottom-0 left-0 right-0 text-center pointer-events-none">
-          <span className="text-xs text-slate-600 dark:text-slate-400">{xLabel}</span>
+          <span className="text-xs text-muted-foreground">{xLabel}</span>
         </div>
       )}
 
@@ -144,7 +144,7 @@ export function ScatterChart({
             <div key={si} className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full shrink-0"
                 style={{ backgroundColor: s.color ?? SCATTER_COLORS[si % SCATTER_COLORS.length] }} />
-              <span className="text-xs text-slate-500">{s.label}</span>
+              <span className="text-xs text-muted-foreground">{s.label}</span>
             </div>
           ))}
         </div>

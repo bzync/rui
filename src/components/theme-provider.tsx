@@ -3,6 +3,7 @@
 import { cn } from "@/lib/cn"
 import type { CSSProperties, HTMLAttributes, ReactNode } from "react"
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react"
+import { createPortal } from "react-dom"
 
 export type Theme = "light" | "dark" | "system"
 export type ResolvedTheme = Exclude<Theme, "system">
@@ -77,6 +78,15 @@ interface ThemeContextValue {
 
 const ThemeContext = createContext<ThemeContextValue | null>(null)
 
+/** What a portal needs to re-create the nearest ThemeProvider's scope. */
+interface ThemeScopeValue {
+  className: string
+  resolvedTheme: ResolvedTheme
+  style: CSSProperties
+}
+
+const ThemeScopeContext = createContext<ThemeScopeValue | null>(null)
+
 export interface ThemeProviderProps extends Omit<HTMLAttributes<HTMLDivElement>, "children" | "onChange"> {
   children: ReactNode
   /** Initial theme when the provider is uncontrolled. */
@@ -92,7 +102,9 @@ export interface ThemeProviderProps extends Omit<HTMLAttributes<HTMLDivElement>,
   lightPalette?: ThemePalette
   /** Overrides only active in dark mode. */
   darkPalette?: ThemePalette
-  /** Also sync the theme class to `<html>`, useful for portals and document backgrounds. */
+  /** Also sync the theme class and tokens to `<html>`, for document backgrounds and scrollbars.
+   * Not needed for the library's own portals (Drawer, Select, Autocomplete, chart tooltips),
+   * which carry the theme scope with them via ThemePortal. */
   applyToRoot?: boolean
 }
 
@@ -152,7 +164,26 @@ function paletteStyle(...palettes: Array<ThemePalette | undefined>): CSSProperti
     }
     Object.assign(style, palette.tokens)
   }
+  // Aliases such as --color-primary: var(--color-accent-600) are declared on
+  // :root by the stylesheet, so they resolve against the default accent there
+  // and never see an accent set inline on the provider. Re-declare them next
+  // to the overridden scale (unless the palette set them explicitly) so
+  // primary buttons, checkboxes and focus rings follow palette.accent.
+  if (palettes.some((palette) => palette?.accent && Object.keys(palette.accent).length > 0)) {
+    for (const [token, shade] of [["--color-primary", 600], ["--color-primary-hover", 700], ["--color-focus-ring", 500]] as const) {
+      if (style[token] === undefined) style[token] = `var(--color-accent-${shade})`
+    }
+  }
+  if (style["--color-destructive"] !== undefined && style["--color-danger"] === undefined) {
+    style["--color-danger"] = "var(--color-destructive)"
+  }
   return style as CSSProperties
+}
+
+/** Custom properties from a style object (the theme-relevant part of it). */
+function customProperties(style: CSSProperties | undefined): CSSProperties {
+  if (!style) return {}
+  return Object.fromEntries(Object.entries(style).filter(([key]) => key.startsWith("--"))) as CSSProperties
 }
 
 export function ThemeProvider({
@@ -202,6 +233,11 @@ export function ThemeProvider({
     [darkPalette, lightPalette, palette, resolvedTheme],
   )
   const customStyle = { ...paletteVars, ...style }
+  const scope = useMemo<ThemeScopeValue>(() => ({
+    className: cn("rui-theme rtui-theme", resolvedTheme === "dark" && "dark"),
+    resolvedTheme,
+    style: { colorScheme: resolvedTheme, ...paletteVars, ...customProperties(style) },
+  }), [paletteVars, resolvedTheme, style])
 
   useEffect(() => {
     if (!applyToRoot) return
@@ -233,6 +269,7 @@ export function ThemeProvider({
 
   return (
     <ThemeContext.Provider value={value}>
+      <ThemeScopeContext.Provider value={scope}>
       <div
         data-theme={resolvedTheme}
         data-theme-preference={theme}
@@ -242,6 +279,7 @@ export function ThemeProvider({
       >
         {children}
       </div>
+      </ThemeScopeContext.Provider>
     </ThemeContext.Provider>
   )
 }
@@ -250,4 +288,32 @@ export function useTheme(): ThemeContextValue {
   const context = useContext(ThemeContext)
   if (!context) throw new Error("useTheme must be used inside a ThemeProvider")
   return context
+}
+
+/**
+ * Portals `children` (to `document.body` by default) while keeping them inside
+ * the nearest ThemeProvider's theme. A plain portal leaves the `.rui-theme`
+ * element, so it loses dark mode, palette overrides and the scoped base
+ * styles. This wraps the content in a `display: contents` copy of the scope
+ * (theme classes, `data-theme` and the palette's custom properties), which
+ * restores all of that without adding a layout box. Outside a ThemeProvider it
+ * is a plain portal. Use it for any custom overlay rendered next to the
+ * library's own.
+ */
+export function ThemePortal({ children, container }: { children: ReactNode; container?: Element | DocumentFragment | null }) {
+  const scope = useContext(ThemeScopeContext)
+  if (typeof document === "undefined") return null
+  const target = container ?? document.body
+  if (!scope) return createPortal(children, target)
+  return createPortal(
+    <div
+      className={scope.className}
+      data-theme={scope.resolvedTheme}
+      data-rui-portal=""
+      style={{ ...scope.style, display: "contents" }}
+    >
+      {children}
+    </div>,
+    target,
+  )
 }

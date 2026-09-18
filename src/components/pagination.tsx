@@ -69,7 +69,7 @@ export function Pagination({
           "flex items-center justify-center min-w-8 h-8 px-2 rounded-[var(--radius-md)] border text-sm font-medium transition-colors",
           focusRingStyles,
           active
-            ? "border-accent-200 bg-accent-50 text-accent-700 dark:border-accent-500/20 dark:bg-accent-500/15 dark:text-accent-300"
+            ? "border-accent-500/25 bg-accent-500/10 text-accent-strong"
             : "border-transparent text-muted-foreground hover:bg-muted hover:text-foreground",
           disabled && "opacity-40 cursor-not-allowed pointer-events-none",
         )}
@@ -84,7 +84,7 @@ export function Pagination({
       {btn(chevronLeft, page - 1, page <= 1)}
       {pages.map((p, i) =>
         p === "…" ? (
-          <span key={`dots-${i}`} className="flex items-end justify-center w-8 h-8 text-slate-500 text-sm pb-1">
+          <span key={`dots-${i}`} className="flex items-end justify-center w-8 h-8 text-muted-foreground text-sm pb-1">
             …
           </span>
         ) : (

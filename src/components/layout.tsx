@@ -51,7 +51,7 @@ export interface LayoutBarProps extends HTMLAttributes<HTMLElement> {
 export function AppShellHeader({ sticky = false, className, children, ...props }: LayoutBarProps) {
   return (
     <header
-      className={cn("z-30 shrink-0", sticky && "sticky top-0", className)}
+      className={cn("z-(--z-sticky) shrink-0", sticky && "sticky top-0", className)}
       {...props}
     >
       {children}
@@ -65,7 +65,7 @@ export function Footer({ sticky = false, className, children, ...props }: Layout
     <footer
       className={cn(
         "shrink-0 border-t border-border bg-bg/95 px-4 py-4 text-sm text-muted-foreground",
-        sticky && "sticky bottom-0 z-30",
+        sticky && "sticky bottom-0 z-(--z-sticky)",
         className,
       )}
       {...props}
@@ -115,7 +115,7 @@ export function PageHeader({ title, description, eyebrow, breadcrumbs, actions, 
     <div className={cn("flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between", className)} {...props}>
       <div className="min-w-0">
         {breadcrumbs && <div className="mb-3">{breadcrumbs}</div>}
-        {eyebrow && <div className="mb-1 text-xs font-semibold uppercase tracking-wider text-accent-600 dark:text-accent-400">{eyebrow}</div>}
+        {eyebrow && <div className="mb-1 text-xs font-semibold uppercase tracking-wider text-accent-strong">{eyebrow}</div>}
         <Tag className="text-2xl font-semibold tracking-[-0.02em] text-foreground">{title}</Tag>
         {description && <div className="mt-1.5 max-w-3xl text-sm leading-6 text-muted-foreground">{description}</div>}
       </div>

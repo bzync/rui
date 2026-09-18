@@ -62,7 +62,7 @@ export function Accordion({ items, multiple = false, defaultOpen = [], className
               <motion.span
                 animate={{ rotate: isOpen ? 180 : 0 }}
                 transition={{ duration: 0.2 }}
-                className="shrink-0 text-slate-500"
+                className="shrink-0 text-muted-foreground"
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="m6 9 6 6 6-6" />

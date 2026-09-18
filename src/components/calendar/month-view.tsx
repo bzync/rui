@@ -50,7 +50,7 @@ export function MonthView({ viewDate, today, value, events, onSelect, onEventCli
               key={`e${i}`}
               role="gridcell"
               className={cn(
-                "border-black/6 dark:border-white/6 bg-black/[0.015] dark:bg-white/[0.015]",
+                "border-foreground/6 bg-foreground/[0.015]",
                 !isLastInRow && "border-r",
                 !isLastRow   && "border-b",
               )}
@@ -82,7 +82,7 @@ export function MonthView({ viewDate, today, value, events, onSelect, onEventCli
                 "border-border focus-visible:z-10 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-focus-ring/35",
                 !isLastInRow && "border-r",
                 !isLastRow   && "border-b",
-                !isCurMonth  && "bg-black/[0.015] dark:bg-white/[0.015]",
+                !isCurMonth  && "bg-foreground/[0.015]",
                 isDisabled ? "cursor-not-allowed opacity-40" : "cursor-pointer hover:bg-surface-muted",
               )}
             >
@@ -92,10 +92,10 @@ export function MonthView({ viewDate, today, value, events, onSelect, onEventCli
                   isSel
                     ? "bg-primary text-primary-foreground"
                     : isToday
-                    ? "border border-accent-500/50 text-accent-600 dark:text-accent-300"
+                    ? "border border-accent-500/50 text-accent-strong"
                     : isCurMonth
-                    ? "text-slate-700 dark:text-slate-200"
-                    : "text-slate-400 dark:text-slate-600",
+                    ? "text-foreground"
+                    : "text-muted-foreground/50",
                 )}>
                   {date.getDate()}
                 </span>
@@ -118,7 +118,7 @@ export function MonthView({ viewDate, today, value, events, onSelect, onEventCli
                   )
                 })}
                 {dayEvts.length > 2 && (
-                  <p className="text-[10px] text-slate-500 px-1">+{dayEvts.length - 2} more</p>
+                  <p className="text-[10px] text-muted-foreground px-1">+{dayEvts.length - 2} more</p>
                 )}
               </div>
             </div>

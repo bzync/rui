@@ -11,8 +11,8 @@ export interface LinkProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
 
 const variants = {
   default:   "text-accent-400 hover:text-accent-300",
-  muted:     "text-slate-500 hover:text-slate-700 dark:hover:text-slate-200",
-  underline: "text-slate-700 dark:text-slate-200 underline underline-offset-2 decoration-black/25 dark:decoration-white/25 hover:decoration-black/50 dark:hover:decoration-white/50",
+  muted:     "text-muted-foreground hover:text-foreground",
+  underline: "text-foreground underline underline-offset-2 decoration-foreground/25 hover:decoration-foreground/50",
 }
 
 export function Link({

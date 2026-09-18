@@ -74,7 +74,7 @@ export function LineChart({
       <svg
         viewBox="0 0 100 100"
         preserveAspectRatio="none"
-        className="absolute inset-0 w-full h-full overflow-visible text-black dark:text-white"
+        className="absolute inset-0 w-full h-full overflow-visible text-foreground"
       >
         <defs>
           <linearGradient id={`${uid}-ag`} x1="0" y1="0" x2="0" y2="1">
@@ -135,7 +135,7 @@ export function LineChart({
                   y: e.clientY,
                   content: (
                     <span>
-                      <span className="text-slate-500 dark:text-slate-400 mr-2">{p.d.label}</span>
+                      <span className="text-muted-foreground mr-2">{p.d.label}</span>
                       <span className="font-semibold text-foreground">{formatValue(p.d.value)}</span>
                     </span>
                   ),
@@ -153,7 +153,7 @@ export function LineChart({
           {data.map((d, i) => d.label && isVisibleLabel(i) ? (
             <span
               key={i}
-              className="absolute text-xs text-slate-600 dark:text-slate-400 whitespace-nowrap leading-5 select-none"
+              className="absolute text-xs text-muted-foreground whitespace-nowrap leading-5 select-none"
               style={{
                 left: `${n === 1 ? 50 : (i / (n - 1)) * 92 + 4}%`,
                 transform: "translateX(-50%)",

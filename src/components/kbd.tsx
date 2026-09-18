@@ -15,8 +15,8 @@ export function Kbd({ keys, size = "sm", className, ...props }: KbdProps) {
           key={i}
           className={cn(
             "inline-flex items-center justify-center font-mono font-medium rounded border",
-            "bg-black/6 dark:bg-white/6 border-black/15 dark:border-white/15",
-            "text-slate-600 dark:text-slate-400",
+            "bg-foreground/6 border-foreground/15",
+            "text-muted-foreground",
             size === "sm" ? "px-1.5 py-0.5 text-[10px] min-w-[18px] h-[18px]" : "px-2 py-1 text-xs min-w-[22px] h-[22px]",
           )}
         >

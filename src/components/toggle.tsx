@@ -19,14 +19,12 @@ export const toggleVariants: Record<ToggleVariant, string> = {
   default: [
     "border border-transparent bg-transparent text-muted-foreground",
     "hover:bg-muted hover:text-foreground",
-    "data-[state=on]:bg-accent-100 data-[state=on]:text-accent-800",
-    "dark:data-[state=on]:bg-accent-900/45 dark:data-[state=on]:text-accent-200",
+    "data-[state=on]:bg-accent-500/15 data-[state=on]:text-accent-strong",
   ].join(" "),
   outline: [
     "border border-border bg-surface text-muted-foreground shadow-xs",
     "hover:border-border-strong hover:bg-surface-muted hover:text-foreground",
-    "data-[state=on]:border-accent-300 data-[state=on]:bg-accent-50 data-[state=on]:text-accent-800",
-    "dark:data-[state=on]:border-accent-700 dark:data-[state=on]:bg-accent-900/35 dark:data-[state=on]:text-accent-200",
+    "data-[state=on]:border-accent-500/40 data-[state=on]:bg-accent-500/10 data-[state=on]:text-accent-strong",
   ].join(" "),
 }
 

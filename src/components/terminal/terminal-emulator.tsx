@@ -74,7 +74,7 @@ export function TerminalEmulator({ title = "Terminal", user = "user", hostname =
 
     if (e.key === "c" && e.ctrlKey) {
       e.preventDefault()
-      const promptLine = [...promptSpans(shell), { text: input }, { text: "^C", cls: "text-slate-500" }]
+      const promptLine = [...promptSpans(shell), { text: input }, { text: "^C", cls: "text-muted-foreground" }]
       addLines([promptLine])
       setInput(""); setHistIdx(-1); setCompletions([])
       return
@@ -117,31 +117,31 @@ export function TerminalEmulator({ title = "Terminal", user = "user", hostname =
   const ps = promptSpans(shell)
 
   if (!mounted) return (
-    <div className={cn("rounded-[var(--radius-xl)] overflow-hidden border border-border bg-surface dark:bg-navy-900 shadow-sm dark:shadow-xl flex flex-col", className)}>
-      <div className="flex items-center px-4 py-2.5 border-b border-black/[0.07] dark:border-white/[0.07] bg-black/3 dark:bg-white/[0.03] shrink-0">
-        <span className="flex-1 text-center text-xs text-slate-500 font-medium">{title}</span>
+    <div className={cn("rounded-[var(--radius-xl)] overflow-hidden border border-border bg-surface-sunken shadow-raised flex flex-col", className)}>
+      <div className="flex items-center px-4 py-2.5 border-b border-foreground/[0.07] bg-foreground/3 shrink-0">
+        <span className="flex-1 text-center text-xs text-muted-foreground font-medium">{title}</span>
       </div>
       <div className="flex-1 min-h-[200px] max-h-80" />
-      <div className="px-4 py-3 border-t border-black/8 dark:border-white/6 shrink-0" />
+      <div className="px-4 py-3 border-t border-foreground/7 shrink-0" />
     </div>
   )
 
   return (
     <div
-      className={cn("rounded-[var(--radius-xl)] overflow-hidden border border-border bg-surface dark:bg-navy-900 shadow-sm dark:shadow-xl cursor-text flex flex-col", className)}
+      className={cn("rounded-[var(--radius-xl)] overflow-hidden border border-border bg-surface-sunken shadow-raised cursor-text flex flex-col", className)}
       onClick={() => inputRef.current?.focus()}
     >
       {/* Title bar */}
-      <div className="flex items-center px-4 py-2.5 border-b border-black/[0.07] dark:border-white/[0.07] bg-black/3 dark:bg-white/[0.03] shrink-0">
-        <span className="flex-1 text-center text-xs text-slate-500 font-medium">{title}</span>
+      <div className="flex items-center px-4 py-2.5 border-b border-foreground/[0.07] bg-foreground/3 shrink-0">
+        <span className="flex-1 text-center text-xs text-muted-foreground font-medium">{title}</span>
       </div>
 
       {/* Output */}
       <div ref={outputRef} className="flex-1 overflow-y-auto p-4 font-mono text-sm leading-6 min-h-[200px] max-h-80">
         {/* Welcome */}
         {output.length === 0 && (
-          <div className="text-slate-400 dark:text-slate-500 mb-2 select-none">
-            <div>Ubuntu 24.04.1 LTS — type <span className="text-sky-600 dark:text-sky-400">help</span> for available commands</div>
+          <div className="text-muted-foreground/70 mb-2 select-none">
+            <div>Ubuntu 24.04.1 LTS — type <span className="text-info-strong">help</span> for available commands</div>
             <div className="h-2" />
           </div>
         )}
@@ -156,7 +156,7 @@ export function TerminalEmulator({ title = "Terminal", user = "user", hostname =
 
         {/* Tab completions hint */}
         {completions.length > 0 && (
-          <div className="flex flex-wrap gap-x-4 text-slate-500 dark:text-slate-500 mt-1">
+          <div className="flex flex-wrap gap-x-4 text-muted-foreground mt-1">
             {completions.map(c => <span key={c}>{c}</span>)}
           </div>
         )}
@@ -164,7 +164,7 @@ export function TerminalEmulator({ title = "Terminal", user = "user", hostname =
       </div>
 
       {/* Input row */}
-      <div className="px-4 py-3 border-t border-black/8 dark:border-white/6 flex items-center font-mono text-sm shrink-0">
+      <div className="px-4 py-3 border-t border-foreground/7 flex items-center font-mono text-sm shrink-0">
         {ps.map((sp, i) => <span key={i} className={cn("whitespace-pre", sp.cls)}>{sp.text}</span>)}
         {/* Wrapper is flex-1 so clicks anywhere on the row focus the input */}
         <span className="relative flex-1 flex items-center min-w-0">
@@ -181,8 +181,8 @@ export function TerminalEmulator({ title = "Terminal", user = "user", hostname =
             autoCorrect="off"
           />
           {/* Visible text + cursor sit inline so cursor follows the text */}
-          <span className="whitespace-pre text-slate-800 dark:text-slate-100 pointer-events-none select-none">{input}</span>
-          <span className={cn("inline-block h-[1.1em] w-[2px] bg-slate-700 dark:bg-slate-300 shrink-0", blink ? "opacity-100" : "opacity-0")} aria-hidden />
+          <span className="whitespace-pre text-foreground pointer-events-none select-none">{input}</span>
+          <span className={cn("inline-block h-[1.1em] w-[2px] bg-foreground/80 shrink-0", blink ? "opacity-100" : "opacity-0")} aria-hidden />
         </span>
       </div>
     </div>

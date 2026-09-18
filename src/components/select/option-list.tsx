@@ -1,8 +1,8 @@
 "use client"
 
 import { cn } from "@/lib/cn"
+import { ThemePortal } from "../theme-provider"
 import { AnimatePresence, motion } from "framer-motion"
-import { createPortal } from "react-dom"
 import type { FlatOption, MenuPos, SelectItem, SelectOption, SelectOptionColor } from "./types"
 import { isGroup } from "./utils"
 
@@ -41,7 +41,8 @@ export function OptionList({
 }) {
   if (typeof document === "undefined") return null
 
-  return createPortal(
+  return (
+    <ThemePortal>
     <AnimatePresence>
       {open && pos && (
         <motion.ul
@@ -54,20 +55,16 @@ export function OptionList({
           exit={{ opacity: 0, y: pos.placement === "bottom" ? -4 : 4, scaleY: 0.97 }}
           transition={{ duration: 0.13 }}
           style={{ originY: pos.placement === "bottom" ? 0 : 1, position: "fixed", top: pos.top, left: pos.left, width: pos.width, maxHeight: pos.maxHeight }}
-          // z-[110]: above Drawer's panel (z-[101]) and Modal's overlay
-          // (z-50) — this portals to document.body like both of those, so
-          // stacking is purely z-index, not DOM order. A Select used inside
-          // either one must render above it or its option list is silently
-          // painted over (opaque Drawer/Modal background hides it
-          // completely, even though the DOM/positioning is otherwise
-          // correct) — see the Add Compute Node wizard's Region dropdown
-          // bug this was found from.
-          className={cn("z-[110] overflow-y-auto rounded-[var(--radius-lg)] border border-border bg-surface-raised py-1 shadow-floating", className)}
+          // --z-popover sits above --z-modal: this portals to document.body
+          // like Drawer does, so stacking is purely z-index, not DOM order. A
+          // Select used inside a Modal or Drawer must render above it or its
+          // option list is painted over by the opaque panel.
+          className={cn("z-(--z-popover) overflow-y-auto rounded-[var(--radius-lg)] border border-border bg-surface-raised py-1 shadow-floating", className)}
         >
           {options.map((item, gi) =>
             isGroup(item) ? (
               <li key={gi}>
-                <p className={cn("px-3 pt-2 pb-1 text-xs font-semibold text-slate-600 uppercase tracking-widest", groupLabelClassName)}>
+                <p className={cn("px-3 pt-2 pb-1 text-xs font-semibold text-muted-foreground uppercase tracking-widest", groupLabelClassName)}>
                   {item.group}
                 </p>
                 <ul>
@@ -107,8 +104,8 @@ export function OptionList({
           )}
         </motion.ul>
       )}
-    </AnimatePresence>,
-    document.body,
+    </AnimatePresence>
+    </ThemePortal>
   )
 }
 
@@ -146,17 +143,17 @@ function OptionItem({
       className={cn(
         "flex min-h-9 items-center gap-3 px-3 py-2 cursor-pointer transition-colors select-none",
         isActive && "bg-surface-muted",
-        isSelected && !isActive && "bg-accent-50 dark:bg-accent-500/10",
+        isSelected && !isActive && "bg-accent-500/8",
         opt.disabled && "opacity-40 cursor-not-allowed pointer-events-none",
         className,
       )}
     >
-      {opt.icon && <span className="shrink-0 text-slate-500 dark:text-slate-400">{opt.icon}</span>}
+      {opt.icon && <span className="shrink-0 text-muted-foreground">{opt.icon}</span>}
       {opt.color && opt.color !== "default" && (
         <span className={cn("w-2 h-2 rounded-full shrink-0", colorDot[opt.color])} />
       )}
       <div className="min-w-0 flex-1">
-        <p className={cn("text-sm leading-snug truncate", isSelected ? "text-accent-700 dark:text-accent-300 font-medium" : "text-foreground")}>
+        <p className={cn("text-sm leading-snug truncate", isSelected ? "text-accent-strong font-medium" : "text-foreground")}>
           {opt.label}
         </p>
         {opt.description && (

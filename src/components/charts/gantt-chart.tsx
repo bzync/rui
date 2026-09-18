@@ -46,7 +46,7 @@ export function GanttChart({
       <div style={{ height: totalHeight, minWidth: 360 }} className="relative">
         <div className="absolute inset-0 flex pointer-events-none" style={{ bottom: 28 }}>
           {Array.from({ length: total + 1 }).map((_, i) => (
-            <div key={i} className="h-full border-l border-black/6 dark:border-white/6 flex-shrink-0"
+            <div key={i} className="h-full border-l border-foreground/6 flex-shrink-0"
               style={{ width: `${100 / total}%` }} />
           ))}
         </div>
@@ -80,7 +80,7 @@ export function GanttChart({
                     content: (
                       <span>
                         <span className="font-semibold text-foreground mr-2">{task.label}</span>
-                        <span className="text-slate-500 dark:text-slate-400">{task.start}–{task.end}</span>
+                        <span className="text-muted-foreground">{task.start}–{task.end}</span>
                       </span>
                     ),
                   })
@@ -95,9 +95,9 @@ export function GanttChart({
           )
         })}
 
-        <div className="absolute bottom-0 left-0 right-0 flex border-t border-black/[0.07] dark:border-white/[0.07]" style={{ height: 28 }}>
+        <div className="absolute bottom-0 left-0 right-0 flex border-t border-foreground/[0.07]" style={{ height: 28 }}>
           {(xLabels ?? Array.from({ length: total }, (_, i) => String(i + 1))).map((lbl, i) => (
-            <div key={i} className="flex-1 flex items-center justify-center text-xs text-slate-600 dark:text-slate-400 truncate">
+            <div key={i} className="flex-1 flex items-center justify-center text-xs text-muted-foreground truncate">
               {lbl}
             </div>
           ))}

@@ -48,14 +48,14 @@ export function MultiTrigger<V>({
         className,
       )}
     >
-      {prefix && <span className="text-slate-500 shrink-0 text-sm">{prefix}</span>}
+      {prefix && <span className="text-muted-foreground shrink-0 text-sm">{prefix}</span>}
 
       {selected.map((opt) => (
         <span
           key={String(opt.value)}
           className="inline-flex max-w-[200px] items-center gap-1 rounded-md border border-border bg-surface-muted px-2 py-0.5 text-xs font-medium text-foreground"
         >
-          {opt.icon && <span className="shrink-0 text-slate-500 dark:text-slate-400">{opt.icon}</span>}
+          {opt.icon && <span className="shrink-0 text-muted-foreground">{opt.icon}</span>}
           <span className="truncate">{opt.label}</span>
           <button
             type="button"
@@ -63,7 +63,7 @@ export function MultiTrigger<V>({
             onMouseDown={(e) => e.preventDefault()}
             onClick={(e) => { e.stopPropagation(); onRemove(opt) }}
             disabled={disabled}
-            className="shrink-0 text-slate-500 dark:text-slate-400 hover:text-foreground transition-colors cursor-pointer ml-0.5"
+            className="shrink-0 text-muted-foreground hover:text-foreground transition-colors cursor-pointer ml-0.5"
             aria-label={`Remove ${opt.label}`}
           >
             <XIcon size={10} />
@@ -99,14 +99,14 @@ export function MultiTrigger<V>({
             type="button"
             onMouseDown={(e) => e.preventDefault()}
             onClick={(e) => { e.stopPropagation(); onClearAll() }}
-            className="text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+            className="text-muted-foreground hover:text-foreground transition-colors"
             aria-label="Clear all"
           >
             <XIcon />
           </button>
         )}
         {selected.length > 0 && (
-          <span className="text-[10px] font-medium text-slate-500 tabular-nums">{selected.length}</span>
+          <span className="text-[10px] font-medium text-muted-foreground tabular-nums">{selected.length}</span>
         )}
       </span>
     </div>

@@ -1,4 +1,5 @@
 import { cn } from "@/lib/cn"
+import { statusTextStyles } from "@/lib/status-styles"
 import { HTMLAttributes, ReactNode } from "react"
 
 type Trend = "up" | "down" | "neutral"
@@ -16,11 +17,13 @@ export interface StatProps extends HTMLAttributes<HTMLDivElement> {
    * Clicks inside it are not stopped from bubbling; wrap with
    * `onClick={(e) => e.stopPropagation()}` if the Stat sits inside a link. */
   action?: ReactNode
+  /** Class for the trend indicator (arrow + trendValue). */
+  trendClassName?: string
 }
 
 const trendStyles: Record<Trend, { color: string; icon: ReactNode }> = {
   up: {
-    color: "text-emerald-700 dark:text-emerald-400",
+    color: statusTextStyles.success,
     icon: (
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
         <path d="m18 15-6-6-6 6" />
@@ -28,7 +31,7 @@ const trendStyles: Record<Trend, { color: string; icon: ReactNode }> = {
     ),
   },
   down: {
-    color: "text-red-700 dark:text-red-400",
+    color: statusTextStyles.danger,
     icon: (
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
         <path d="m6 9 6 6 6-6" />
@@ -45,7 +48,7 @@ const trendStyles: Record<Trend, { color: string; icon: ReactNode }> = {
   },
 }
 
-export function Stat({ label, value, unit, valueClassName, trend, trendValue, icon, description, action, className, ...props }: StatProps) {
+export function Stat({ label, value, unit, valueClassName, trend, trendValue, icon, description, action, trendClassName, className, ...props }: StatProps) {
   return (
     <div
       className={cn(
@@ -74,12 +77,12 @@ export function Stat({ label, value, unit, valueClassName, trend, trendValue, ic
       {(trend || description) && (
         <div className="flex items-center gap-1.5 mt-1">
           {trend && trendValue && (
-            <span className={cn("flex items-center gap-0.5 text-xs font-medium", trendStyles[trend].color)}>
+            <span className={cn("flex items-center gap-0.5 text-xs font-medium", trendStyles[trend].color, trendClassName)}>
               {trendStyles[trend].icon}
               {trendValue}
             </span>
           )}
-          {description && <span className="text-xs text-slate-500">{description}</span>}
+          {description && <span className="text-xs text-muted-foreground">{description}</span>}
         </div>
       )}
     </div>

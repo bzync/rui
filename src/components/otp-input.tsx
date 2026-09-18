@@ -75,7 +75,7 @@ export function OtpInput({
   return (
     <div className={cn("flex flex-col gap-1.5", className)}>
       {label && (
-        <label htmlFor={`${uid}-0`} className="text-sm font-medium text-slate-600 dark:text-slate-300">{label}</label>
+        <label htmlFor={`${uid}-0`} className="text-sm font-medium text-foreground">{label}</label>
       )}
       <div className="flex items-center gap-2">
         {Array.from({ length }).map((_, i) => (
@@ -96,19 +96,19 @@ export function OtpInput({
             onPaste={handlePaste}
             onFocus={(e) => e.target.select()}
             className={cn(
-              "w-10 h-12 text-center text-lg font-semibold rounded-lg border bg-black/4 dark:bg-white/4",
+              "w-10 h-12 text-center text-lg font-semibold rounded-lg border bg-foreground/4",
               "text-foreground outline-none transition-colors",
-              "focus:ring-[3px] focus:ring-accent-500/30",
+              "focus:ring-[3px] focus:ring-focus-ring/25",
               error
-                ? "border-red-500/40 focus:border-red-500/50"
-                : "border-slate-300 dark:border-white/10 focus:border-accent-500/40",
+                ? "border-danger/60 focus:border-danger focus:ring-danger/25"
+                : "border-border hover:border-border-strong focus:border-accent-500",
               disabled && "opacity-50 cursor-not-allowed",
             )}
           />
         ))}
       </div>
-      {error && <p className="text-xs text-red-400">{error}</p>}
-      {hint && !error && <p className="text-xs text-slate-500">{hint}</p>}
+      {error && <p className="text-xs text-danger-strong">{error}</p>}
+      {hint && !error && <p className="text-xs text-muted-foreground">{hint}</p>}
     </div>
   )
 }

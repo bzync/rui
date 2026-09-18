@@ -1,7 +1,7 @@
 "use client"
 
 import { type ReactNode } from "react"
-import { createPortal } from "react-dom"
+import { ThemePortal } from "../theme-provider"
 
 export interface ChartDataPoint {
   label: string
@@ -57,13 +57,14 @@ export function visibleLabelAt(n: number, max: number) {
 
 export function ChartTooltip({ tooltip }: { tooltip: TooltipState | null }) {
   if (!tooltip || typeof document === "undefined") return null
-  return createPortal(
+  return (
+    <ThemePortal>
     <div
-      className="pointer-events-none fixed z-[9999] px-3 py-2 rounded-[var(--radius-md)] border border-border bg-surface-raised shadow-floating text-sm text-foreground whitespace-nowrap"
+      className="pointer-events-none fixed z-(--z-tooltip) px-3 py-2 rounded-[var(--radius-md)] border border-border bg-surface-raised shadow-floating text-sm text-foreground whitespace-nowrap"
       style={{ left: tooltip.x + 14, top: tooltip.y - 10 }}
     >
       {tooltip.content}
-    </div>,
-    document.body
+    </div>
+    </ThemePortal>
   )
 }

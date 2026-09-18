@@ -49,7 +49,7 @@ export function NavigationLink({
     focusRingStyles,
     compact ? "min-h-11 flex-col px-2 py-1.5" : "h-9 px-3 text-sm",
     active
-      ? "bg-accent-50 text-accent-700 dark:bg-accent-500/12 dark:text-accent-300"
+      ? "bg-accent-500/10 text-accent-strong"
       : "text-muted-foreground hover:bg-muted hover:text-foreground",
     disabled && "pointer-events-none opacity-40",
     className,

@@ -114,7 +114,7 @@ export function Radio({ value, label, description, disabled: localDisabled, clas
             "w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors duration-[120ms] peer-focus-visible:ring-[3px] peer-focus-visible:ring-focus-ring/35 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-bg",
             isChecked
               ? "bg-primary border-primary"
-              : "bg-transparent border-black/25 dark:border-white/25",
+              : "bg-transparent border-foreground/25",
           )}
         >
           {isChecked && (

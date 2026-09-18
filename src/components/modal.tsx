@@ -90,7 +90,7 @@ export function Modal({
   return (
     <AnimatePresence onExitComplete={restoreNow}>
       {open && (
-        <div className={cn("fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6", containerClassName)}>
+        <div className={cn("fixed inset-0 z-(--z-modal) flex items-center justify-center p-4 sm:p-6", containerClassName)}>
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

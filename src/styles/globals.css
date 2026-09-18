@@ -68,7 +68,26 @@
   --color-danger-100: var(--color-red-100);
   --color-danger-500: var(--color-red-500);
   --color-danger-600: var(--color-red-600);
+  /* Readable text/icon shade of each status color, for use on a status tint
+     (bg-success/10 etc.) or a plain surface. Derived from the base status
+     token so a palette.colors override retints it too; darker in light mode,
+     lighter in dark mode (see the .rui-theme / .dark blocks below). */
+  --color-success-strong: color-mix(in oklab, var(--color-success) 78%, black);
+  --color-warning-strong: color-mix(in oklab, var(--color-warning) 78%, black);
+  --color-danger-strong: color-mix(in oklab, var(--color-danger) 78%, black);
+  --color-info-strong: color-mix(in oklab, var(--color-info) 78%, black);
   --color-focus-ring: var(--color-accent-500);
+  /* Readable accent text on a surface or an accent tint (selected items,
+     links, eyebrows): accent-700 in light mode, accent-300 in dark mode. */
+  --color-accent-strong: var(--color-accent-700);
+  /* Recessed well for code blocks and terminals: a step below the surface in
+     light mode, the page ground in dark mode. */
+  --color-surface-sunken: var(--color-surface-muted);
+  /* Tooltip chip — inverted in light mode, a raised surface in dark mode.
+     One token per role so the component never needs a light/dark class pair. */
+  --color-tooltip: var(--color-slate-900);
+  --color-tooltip-foreground: var(--color-slate-50);
+  --color-tooltip-border: var(--color-slate-700);
 
   /* ── Radius scale — consumer overridable via ThemeProvider tokens ── */
   --radius-sm: 4px;
@@ -164,6 +183,38 @@
   --shadow-overlay:
     0 24px 60px -24px rgba(9, 14, 28, 0.4),
     0 8px 20px -12px rgba(9, 14, 28, 0.18);
+
+  /* ── Stacking order ── One z-index scale for every layer the library
+     renders, lowest to highest. Floating panels (Select, Autocomplete,
+     Popover, DropdownMenu, DatePicker, TimePicker) sit above dialogs so they
+     work when opened from inside a Modal or Drawer; toasts stay visible over
+     an open dialog; tooltips are always on top. Overlays that share a layer
+     stack by DOM order, so a Drawer opened from a Modal covers it.
+     Component-internal layering (z-10 inside a single component) is local and
+     not part of this scale. Override any step on :root to slot the library
+     into an app's own scale. */
+  --z-sticky: 1100;
+  --z-modal: 1300;
+  --z-popover: 1400;
+  --z-toast: 1500;
+  --z-tooltip: 1600;
+}
+
+/* Custom properties that reference other tokens resolve where they are
+   declared. The @theme block above declares them on :root, so a ThemeProvider
+   override (set inline on the .rui-theme element) would never reach them.
+   Re-declaring them on the theme scope makes them resolve against the scoped
+   values instead. */
+:where(.rui-theme, .rtui-theme) {
+  --color-accent-strong: var(--color-accent-700);
+  --color-surface-sunken: var(--color-surface-muted);
+  --color-success-strong: color-mix(in oklab, var(--color-success) 78%, black);
+  --color-warning-strong: color-mix(in oklab, var(--color-warning) 78%, black);
+  --color-danger-strong: color-mix(in oklab, var(--color-danger) 78%, black);
+  --color-info-strong: color-mix(in oklab, var(--color-info) 78%, black);
+  --color-tooltip: var(--color-slate-900);
+  --color-tooltip-foreground: var(--color-slate-50);
+  --color-tooltip-border: var(--color-slate-700);
 }
 
 .dark {
@@ -178,6 +229,16 @@
   --color-border-strong: #3c4a5d;
   --color-muted: #182432;
   --color-muted-foreground: #97a3b4;
+
+  --color-accent-strong: var(--color-accent-300);
+  --color-surface-sunken: var(--color-bg);
+  --color-success-strong: color-mix(in oklab, var(--color-success) 62%, white);
+  --color-warning-strong: color-mix(in oklab, var(--color-warning) 62%, white);
+  --color-danger-strong: color-mix(in oklab, var(--color-danger) 62%, white);
+  --color-info-strong: color-mix(in oklab, var(--color-info) 62%, white);
+  --color-tooltip: var(--color-surface-raised);
+  --color-tooltip-foreground: var(--color-foreground);
+  --color-tooltip-border: var(--color-border-strong);
 
   /* Chart series re-picked for the navy dark surface (validated separately). */
   --chart-1: #5f7bec;

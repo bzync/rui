@@ -28,7 +28,7 @@ const defaultHeadingSizes: Record<HeadingElement, HeadingSize> = {
 const toneStyles: Record<TypographyTone, string> = {
   default: "text-foreground",
   muted: "text-muted-foreground",
-  accent: "text-accent-700 dark:text-accent-300",
+  accent: "text-accent-strong",
 }
 
 const weightStyles: Record<TypographyWeight, string> = {

@@ -186,7 +186,7 @@ export function CommandPalette({
   return (
     <AnimatePresence>
       {open && (
-        <div className="fixed inset-0 z-[200] flex items-start justify-center pt-[15vh] p-4">
+        <div className="fixed inset-0 z-(--z-modal) flex items-start justify-center pt-[15vh] p-4">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -209,7 +209,7 @@ export function CommandPalette({
             className={cn("relative w-full max-w-lg overflow-hidden rounded-[var(--radius-xl)] border border-border bg-surface-raised shadow-overlay", className)}
           >
             <div className={cn("flex items-center gap-3 border-b border-border px-4", searchClassName)}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400 shrink-0">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground shrink-0">
                 <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
               </svg>
               <input
@@ -238,7 +238,7 @@ export function CommandPalette({
                 Array.from(groups.entries()).map(([group, groupItems]) => (
                   <div key={group} role="group" aria-label={group || undefined}>
                     {group && (
-                      <p className="px-4 py-1 text-[10px] font-semibold text-slate-500 uppercase tracking-widest">
+                      <p className="px-4 py-1 text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">
                         {group}
                       </p>
                     )}
@@ -265,7 +265,7 @@ export function CommandPalette({
                           )}
                         >
                           {item.icon && (
-                            <span className="shrink-0 text-slate-500 dark:text-slate-400 w-5 flex items-center justify-center">
+                            <span className="shrink-0 text-muted-foreground w-5 flex items-center justify-center">
                               {item.icon}
                             </span>
                           )}

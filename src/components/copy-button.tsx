@@ -50,7 +50,7 @@ export function CopyButton({ value, timeout = 2000, label, size = "sm", classNam
         "focus-ring inline-flex shrink-0 items-center justify-center whitespace-nowrap font-medium select-none border",
         "transition-[color,background-color,border-color] duration-150",
         copied
-          ? "border-success/25 bg-success/10 text-success dark:text-emerald-400"
+          ? "border-success/25 bg-success/10 text-success-strong"
           : "border-border bg-muted text-muted-foreground hover:bg-surface-muted hover:text-foreground",
         sizeClass,
         className,
