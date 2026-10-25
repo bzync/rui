@@ -22,7 +22,7 @@ export function ActionsSection() {
                 <Button variant="secondary" onClick={act("Secondary")}>Secondary</Button>
                 <Button variant="ghost" onClick={act("Ghost")}>Ghost</Button>
                 <Button variant="outline" onClick={act("Outline")}>Outline</Button>
-                <Button variant="destructive" onClick={act("Destructive")}>Destructive</Button>
+                <Button variant="danger" onClick={act("Destructive")}>Destructive</Button>
               </Group>
               <Group label="Sizes">
                 <Button size="sm" onClick={act("Small")}>Small</Button>
@@ -34,7 +34,7 @@ export function ActionsSection() {
                 <Button disabled>Disabled</Button>
                 <Button icon={<IconPlus />} onClick={act("New Project")}>New Project</Button>
                 <Button icon={<IconArrow />} iconPosition="right" variant="secondary" onClick={act("Continue")}>Continue</Button>
-                <Button icon={<IconTrash />} variant="destructive" onClick={act("Delete")}>Delete</Button>
+                <Button icon={<IconTrash />} variant="danger" onClick={act("Delete")}>Delete</Button>
               </Group>
             </Section>
             <Section

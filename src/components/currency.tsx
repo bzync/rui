@@ -11,8 +11,8 @@ export type CurrencyFormatOptions = Omit<
 
 const toneStyles: Record<Exclude<CurrencyTone, "auto">, string> = {
   default: "text-foreground",
-  positive: "text-success",
-  negative: "text-destructive",
+  positive: "text-success-strong",
+  negative: "text-danger-strong",
   muted: "text-muted-foreground",
 }
 

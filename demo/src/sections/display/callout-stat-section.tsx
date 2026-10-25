@@ -16,7 +16,7 @@ export function CalloutSection() {
         <Callout variant="info" title="Info">Your project is on a free trial. Add a payment method to enable custom domains.</Callout>
         <Callout variant="success" title="Deployed">api-gateway v2.4.1 deployed successfully with zero downtime.</Callout>
         <Callout variant="warning" title="Approaching limit">You&apos;ve used 92% of your monthly build minutes. Consider upgrading.</Callout>
-        <Callout variant="error" title="Build failed">Docker image exceeds the 4 GB limit. Optimize your Dockerfile and try again.</Callout>
+        <Callout variant="danger" title="Build failed">Docker image exceeds the 4 GB limit. Optimize your Dockerfile and try again.</Callout>
         <Callout variant="default">This feature is in beta. Behaviour may change before general availability.</Callout>
       </Group>
     </Section>

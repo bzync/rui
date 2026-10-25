@@ -2,7 +2,8 @@
 
 import { cn } from "@/lib/cn"
 import { ThemePortal } from "../theme-provider"
-import { AnimatePresence, motion } from "framer-motion"
+import { AnimatePresence } from "framer-motion"
+import { motion } from "@/lib/motion-components"
 import type { FlatOption, MenuPos, SelectItem, SelectOption, SelectOptionColor } from "./types"
 import { isGroup } from "./utils"
 

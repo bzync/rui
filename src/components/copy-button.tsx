@@ -1,7 +1,8 @@
 "use client"
 
 import { cn } from "@/lib/cn"
-import { AnimatePresence, motion } from "framer-motion"
+import { AnimatePresence } from "framer-motion"
+import { motion } from "@/lib/motion-components"
 import { ButtonHTMLAttributes, useState } from "react"
 
 export interface CopyButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> {

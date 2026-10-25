@@ -4,6 +4,7 @@ import {
   AspectRatio, AuthBackdrop, Avatar, AvatarGroup, AvatarGroupOverflow, Badge, Blockquote, Breadcrumb, Callout, Card, CardBody, CardDescription, CardFooter,
   CardHeader, CardTitle, EmptyState, ErrorState, FormField, Input, Kbd, Label,
   Currency, DescriptionDetails, DescriptionItem, DescriptionList, DescriptionTerm, Divider, Heading, InlineCode, Link, List, ListItem, Progressbar, Prose, ScrollArea, Separator, Skeleton, SkeletonAvatar, SkeletonCard,
+  Alert, Button, SkeletonList, SkeletonRegion, SkeletonStat, Tag,
   SkeletonTable, SkeletonText, SkeletonTopbar, Spinner, Stat, StatusDot, Stepper,
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow, Textarea, Timeline,
   AppShell, AppShellBody, AppShellHeader, AppShellMain, Container, Footer, Inline, PageHeader, Stack, Text,
@@ -145,7 +146,7 @@ describe("display and layout components", () => {
 
     expect(screen.getByTestId("usd")).toHaveTextContent("$1,234.50")
     expect(screen.getByTestId("negative")).toHaveTextContent("($920.00)")
-    expect(screen.getByTestId("negative")).toHaveClass("text-destructive")
+    expect(screen.getByTestId("negative")).toHaveClass("text-danger-strong")
     expect(screen.getByTestId("compact").getAttribute("aria-label")).toContain("1,840,000")
     expect(screen.getByTestId("invalid")).toHaveTextContent("Unavailable")
     expect(screen.getByTestId("invalid")).toHaveAttribute("data-invalid", "true")
@@ -190,11 +191,11 @@ describe("display and layout components", () => {
     expect(screen.getByTestId("number")).toHaveTextContent("12,480")
     expect(screen.getByTestId("percent")).toHaveTextContent("96.2%")
     expect(screen.getByTestId("text-currency")).toHaveTextContent("($920.00)")
-    expect(screen.getByTestId("text-currency")).toHaveClass("text-destructive")
-    expect(screen.getByTestId("success")).toHaveClass("text-success")
-    expect(screen.getByTestId("warning")).toHaveClass("text-warning")
-    expect(screen.getByTestId("danger")).toHaveClass("text-destructive")
-    expect(screen.getByTestId("info")).toHaveClass("text-info")
+    expect(screen.getByTestId("text-currency")).toHaveClass("text-danger-strong")
+    expect(screen.getByTestId("success")).toHaveClass("text-success-strong")
+    expect(screen.getByTestId("warning")).toHaveClass("text-warning-strong")
+    expect(screen.getByTestId("danger")).toHaveClass("text-danger-strong")
+    expect(screen.getByTestId("info")).toHaveClass("text-info-strong")
     expect(screen.getByTestId("time-invalid")).toHaveTextContent("Unknown")
     expect(screen.getByTestId("time-invalid")).toHaveAttribute("data-invalid", "true")
   })
@@ -224,5 +225,63 @@ describe("display and layout components", () => {
     expect(screen.getByTestId("dashed").querySelector(".border-dashed")).toBeInTheDocument()
     expect(screen.getByTestId("dotted").querySelector(".border-dotted")).toBeInTheDocument()
     expect(screen.getByTestId("spacing-lg")).toHaveClass("my-6")
+  })
+})
+
+describe("shared tone vocabulary", () => {
+  it("accepts danger everywhere and keeps error/destructive as aliases", () => {
+    render(<>
+      <Badge variant="danger" data-testid="badge-danger">x</Badge>
+      <Badge variant="error" data-testid="badge-error">x</Badge>
+      <Tag variant="danger" data-testid="tag-danger">x</Tag>
+      <Tag variant="muted" data-testid="tag-muted">x</Tag>
+      <Callout variant="danger" data-testid="callout-danger">x</Callout>
+      <Button variant="danger">Delete</Button>
+      <Button variant="destructive">Remove</Button>
+      <StatusDot status="success" dotClassName="dot-success" />
+      <StatusDot status="danger" dotClassName="dot-danger" />
+    </>)
+    expect(screen.getByTestId("badge-danger").className).toBe(screen.getByTestId("badge-error").className)
+    expect(screen.getByTestId("badge-danger")).toHaveClass("text-danger-strong")
+    expect(screen.getByTestId("tag-danger")).toHaveClass("text-danger-strong")
+    expect(screen.getByTestId("tag-muted")).toHaveClass("text-muted-foreground")
+    expect(screen.getByTestId("callout-danger")).toHaveClass("bg-danger/8")
+    expect(screen.getByRole("button", { name: "Delete" }).className).toBe(screen.getByRole("button", { name: "Remove" }).className.replace("Remove", "Delete"))
+    expect(document.querySelector(".dot-success:not(.animate-ping)")).toHaveClass("bg-success")
+    expect(document.querySelector(".dot-danger:not(.animate-ping)")).toHaveClass("bg-danger")
+  })
+
+  it("gives Alert a neutral default tone and announces danger as an alert", () => {
+    render(<>
+      <Alert variant="default" title="Heads up" data-testid="neutral" />
+      <Alert variant="danger" title="Failed" />
+      <Alert variant="error" title="Legacy failed" />
+    </>)
+    expect(screen.getByTestId("neutral")).toHaveAttribute("role", "status")
+    expect(screen.getByTestId("neutral")).toHaveClass("bg-muted")
+    expect(screen.getByText("Failed").closest("[role]")).toHaveAttribute("role", "alert")
+    expect(screen.getByText("Legacy failed").closest("[role]")).toHaveAttribute("role", "alert")
+  })
+})
+
+describe("skeleton loading announcements", () => {
+  it("announces composite skeletons as busy status regions by default", () => {
+    render(<>
+      <SkeletonCard />
+      <SkeletonTable label="Loading invoices" />
+      <SkeletonList />
+      <SkeletonStat />
+    </>)
+    const regions = screen.getAllByRole("status")
+    expect(regions).toHaveLength(4)
+    for (const region of regions) expect(region).toHaveAttribute("aria-busy", "true")
+    expect(screen.getByText("Loading invoices")).toHaveClass("sr-only")
+  })
+
+  it("wraps a layout in one SkeletonRegion with silent children", () => {
+    render(<SkeletonRegion label="Loading dashboard"><SkeletonCard label={false} /><SkeletonText /></SkeletonRegion>)
+    expect(screen.getAllByRole("status")).toHaveLength(1)
+    expect(screen.getByRole("status")).toHaveTextContent("Loading dashboard")
+    expect(screen.getByRole("status")).toHaveAttribute("aria-busy", "true")
   })
 })

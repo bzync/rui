@@ -2,7 +2,8 @@
 
 import { cn } from "@/lib/cn"
 import { focusRingStyles } from "@/lib/component-styles"
-import { AnimatePresence, motion } from "framer-motion"
+import { AnimatePresence } from "framer-motion"
+import { motion } from "@/lib/motion-components"
 import { HTMLAttributes, ReactNode, useId, useState } from "react"
 
 export interface AccordionItem {

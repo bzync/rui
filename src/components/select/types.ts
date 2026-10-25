@@ -1,6 +1,7 @@
 import { ReactNode } from "react"
 
-export type SelectOptionColor = "default" | "success" | "warning" | "error" | "info"
+/** `error` is a deprecated alias of `danger`. */
+export type SelectOptionColor = "default" | "success" | "warning" | "danger" | "info" | "error"
 
 export interface SelectOption {
   value: string
@@ -25,7 +26,12 @@ export interface SelectPropsBase {
   hint?: string
   error?: string
   disabled?: boolean
+  /** Enforced by native constraint validation when the Select is inside a form. */
   required?: boolean
+  /** Submits the selection with the form: one `name=value` entry per selected value. */
+  name?: string
+  /** Associates the Select with a `<form>` elsewhere in the document by its id. */
+  form?: string
   clearable?: boolean
   className?: string
   wrapperClassName?: string

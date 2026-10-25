@@ -81,6 +81,24 @@ function tailwindThemeExport(): Plugin {
                     "",
                 ].join("\n"),
             });
+            // One import for Tailwind apps. Importing styles.css alone leaves
+            // most token classes working (the ones the library itself uses
+            // are compiled in) and silently drops the rest, which reads as a
+            // Tailwind bug rather than a missing theme.css.
+            this.emitFile({
+                type: "asset",
+                fileName: "tailwind.css",
+                source: [
+                    "/* @bzync/rui for Tailwind CSS v4 apps: the compiled component styles",
+                    " * plus the token names for your own utilities. Import after tailwindcss:",
+                    " *",
+                    ' *   @import "tailwindcss";',
+                    ' *   @import "@bzync/rui/tailwind.css"; */',
+                    '@import "./styles.css";',
+                    '@import "./theme.css";',
+                    "",
+                ].join("\n"),
+            });
         },
     };
 }

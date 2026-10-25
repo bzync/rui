@@ -2,7 +2,8 @@
 
 import { cn } from "@/lib/cn"
 import { fieldDescriptionStyles, fieldErrorStyles } from "@/lib/component-styles"
-import { motion, AnimatePresence } from "framer-motion"
+import { AnimatePresence } from "framer-motion"
+import { motion } from "@/lib/motion-components"
 import { InputHTMLAttributes, forwardRef, useEffect, useId, useRef, useState } from "react"
 
 export interface CheckboxProps

@@ -20,7 +20,7 @@ function SnackbarDemo() {
       <Button size="sm" onClick={() => show({ message: "Approaching 92% of monthly compute quota.", variant: "warning" })}>
         Warning
       </Button>
-      <Button size="sm" onClick={() => show({ message: "Build failed — Docker image exceeds 4 GB limit.", variant: "error" })}>
+      <Button size="sm" onClick={() => show({ message: "Build failed — Docker image exceeds 4 GB limit.", variant: "danger" })}>
         Error
       </Button>
       <Button
@@ -66,7 +66,7 @@ export function AlertSection() {
         <Alert variant="info" title="Info">Your new deployment is queued and will start shortly.</Alert>
         <Alert variant="success" title="Deployed successfully">api-gateway v2.4.1 is live on us-east-1. Zero downtime rollout completed.</Alert>
         <Alert variant="warning" title="Approaching limit">You have used 92% of your monthly compute quota. Upgrade to avoid throttling.</Alert>
-        <Alert variant="error" title="Deployment failed">Build failed at step 3 — Docker image exceeds the 4 GB size limit.</Alert>
+        <Alert variant="danger" title="Deployment failed">Build failed at step 3 — Docker image exceeds the 4 GB size limit.</Alert>
       </Group>
       <Group label="Dismissable" col>
         {!dismissedAlerts.has("info") && (

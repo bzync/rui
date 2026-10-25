@@ -3,6 +3,7 @@
  * All hooks correctly handle mount / update / unmount with cleanup.
  */
 export * from "./use-is-mounted"
+export * from "./use-hydrated"
 export * from "./use-isomorphic-layout-effect"
 export * from "./use-previous"
 export * from "./use-update-effect"

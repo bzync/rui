@@ -8,7 +8,8 @@ export interface TimelineEvent {
   description?: string
   timestamp?: string
   icon?: ReactNode
-  variant?: "default" | "success" | "warning" | "error" | "info"
+  /** `error` is a deprecated alias of `danger`. */
+  variant?: "default" | "success" | "warning" | "danger" | "info" | "error"
   /** Class for this event's dot or icon badge. */
   markerClassName?: string
 }
@@ -22,6 +23,7 @@ const dotVariants = {
   default: "bg-muted-foreground border-muted-foreground/30",
   success: `${statusSolidStyles.success} border-success/30`,
   warning: `${statusSolidStyles.warning} border-warning/30`,
+  danger:  `${statusSolidStyles.danger} border-danger/30`,
   error:   `${statusSolidStyles.danger} border-danger/30`,
   info:    `${statusSolidStyles.info} border-info/30`,
 }
@@ -30,6 +32,7 @@ const iconVariants = {
   default: "bg-muted-foreground/15 text-muted-foreground",
   success: `bg-success/15 ${statusTextStyles.success}`,
   warning: `bg-warning/15 ${statusTextStyles.warning}`,
+  danger:  `bg-danger/15 ${statusTextStyles.danger}`,
   error:   `bg-danger/15 ${statusTextStyles.danger}`,
   info:    `bg-info/15 ${statusTextStyles.info}`,
 }

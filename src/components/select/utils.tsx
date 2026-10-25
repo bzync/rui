@@ -10,6 +10,7 @@ export const colorDot: Record<SelectOptionColor, string> = {
   default: "bg-muted-foreground",
   success: "bg-success",
   warning: "bg-warning",
+  danger:  "bg-danger",
   error:   "bg-danger",
   info:    "bg-info",
 }

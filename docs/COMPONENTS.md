@@ -24,7 +24,7 @@ import "@bzync/rui/styles.css" // once, near app root
 
 | Component | Key props |
 |---|---|
-| `Button` | `variant: primary\|secondary\|ghost\|outline\|destructive`, `size: sm\|md\|lg`, `loading`, `icon`, `iconPosition: left\|right` |
+| `Button` | `variant: primary\|secondary\|ghost\|outline\|danger\|link` (`destructive` is a deprecated alias), `size: sm\|md\|lg`, `loading`, `icon`, `iconPosition: left\|right` |
 | `IconButton` / `InfoButton` | `label` (aria), icon |
 | `CopyButton` | `text`, `onCopy` |
 | `BillingIntervalToggle` | `value: monthly\|yearly`, `onChange` |

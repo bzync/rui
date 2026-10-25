@@ -29,7 +29,7 @@ export function ModalSection() {
     >
       <Group label="Demo">
         <Button onClick={() => setModalOpen(true)}>Open modal</Button>
-        <Button variant="destructive" icon={<IconTrash />} onClick={() => setConfirmOpen(true)}>Delete project</Button>
+        <Button variant="danger" icon={<IconTrash />} onClick={() => setConfirmOpen(true)}>Delete project</Button>
       </Group>
 
       <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
@@ -55,7 +55,7 @@ export function ModalSection() {
         </ModalHeader>
         <ModalFooter>
           <Button variant="ghost" onClick={() => setConfirmOpen(false)}>Cancel</Button>
-          <Button variant="destructive" onClick={() => setConfirmOpen(false)}>Delete forever</Button>
+          <Button variant="danger" onClick={() => setConfirmOpen(false)}>Delete forever</Button>
         </ModalFooter>
       </Modal>
     </Section>

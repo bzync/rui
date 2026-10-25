@@ -23,6 +23,8 @@ export interface ConfirmDialogProps {
   actionsClassName?: string
   cancelButtonClassName?: string
   confirmButtonClassName?: string
+  /** Render through `ThemePortal` (default). See `ModalProps.portalled`. */
+  portalled?: boolean
 }
 
 export function ConfirmDialog({
@@ -43,6 +45,7 @@ export function ConfirmDialog({
   actionsClassName,
   cancelButtonClassName,
   confirmButtonClassName,
+  portalled,
 }: ConfirmDialogProps) {
   const defaultIcon = destructive ? (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="text-danger-strong"><path d="m21.73 18-8-14a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" /><path d="M12 9v4" /><path d="M12 17h.01" /></svg>
@@ -61,6 +64,7 @@ export function ConfirmDialog({
       className={className}
       overlayClassName={overlayClassName}
       panelClassName={panelClassName}
+      portalled={portalled}
     >
       {typeof description !== "string" && description && (
         <div className={cn("text-sm leading-relaxed text-muted-foreground", contentClassName)}>{description}</div>
@@ -69,7 +73,7 @@ export function ConfirmDialog({
         <Button variant="ghost" onClick={onClose} disabled={loading} className={cancelButtonClassName}>
           {cancelLabel}
         </Button>
-        <Button variant={destructive ? "destructive" : "primary"} onClick={onConfirm} loading={loading} autoFocus className={confirmButtonClassName}>
+        <Button variant={destructive ? "danger" : "primary"} onClick={onConfirm} loading={loading} autoFocus className={confirmButtonClassName}>
           {confirmLabel}
         </Button>
       </div>

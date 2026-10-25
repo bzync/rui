@@ -4,7 +4,8 @@ import { cn } from "@/lib/cn"
 import { statusSoftStyles, statusTextStyles } from "@/lib/status-styles"
 import { HTMLAttributes, ReactNode } from "react"
 
-type TagVariant = "default" | "success" | "warning" | "error" | "info"
+/** `error` is a deprecated alias of `danger`. */
+export type TagVariant = "default" | "success" | "warning" | "danger" | "info" | "muted" | "error"
 type TagSize = "sm" | "md"
 
 export interface TagProps extends HTMLAttributes<HTMLSpanElement> {
@@ -19,16 +20,20 @@ const variants: Record<TagVariant, string> = {
   default: "bg-muted text-foreground border-border",
   success: statusSoftStyles.success,
   warning: statusSoftStyles.warning,
+  danger:  statusSoftStyles.danger,
   error:   statusSoftStyles.danger,
   info:    statusSoftStyles.info,
+  muted:   "bg-muted text-muted-foreground border-border",
 }
 
 const removeColor: Record<TagVariant, string> = {
   default: "text-muted-foreground hover:text-foreground",
   success: `${statusTextStyles.success} opacity-70 hover:opacity-100`,
   warning: `${statusTextStyles.warning} opacity-70 hover:opacity-100`,
+  danger:  `${statusTextStyles.danger} opacity-70 hover:opacity-100`,
   error:   `${statusTextStyles.danger} opacity-70 hover:opacity-100`,
   info:    `${statusTextStyles.info} opacity-70 hover:opacity-100`,
+  muted:   "text-muted-foreground hover:text-foreground",
 }
 
 const sizes: Record<TagSize, string> = {

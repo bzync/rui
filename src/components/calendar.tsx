@@ -2,7 +2,8 @@
 
 import { cn } from "@/lib/cn"
 import { focusRingStyles, iconButtonStyles } from "@/lib/component-styles"
-import { AnimatePresence, motion } from "framer-motion"
+import { AnimatePresence } from "framer-motion"
+import { motion } from "@/lib/motion-components"
 import { useEffect, useState } from "react"
 import { MonthView } from "./calendar/month-view"
 import { WeekView } from "./calendar/week-view"

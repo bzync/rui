@@ -27,22 +27,22 @@ describe("themes", () => {
       </ThemeProvider>,
     )
     const scope = screen.getByText("Custom theme")
-    expect(scope.style.getPropertyValue("--color-blue-600")).toBe("#7c3aed")
-    expect(scope.style.getPropertyValue("--color-slate-900")).toBe("#18181b")
-    expect(scope.style.getPropertyValue("--color-gray-900")).toBe("#18181b")
-    expect(scope.style.getPropertyValue("--color-bg")).toBe("#09090b")
-    expect(scope.style.getPropertyValue("--custom-density")).toBe("2")
+    expect(getComputedStyle(scope).getPropertyValue("--color-blue-600")).toBe("#7c3aed")
+    expect(getComputedStyle(scope).getPropertyValue("--color-slate-900")).toBe("#18181b")
+    expect(getComputedStyle(scope).getPropertyValue("--color-gray-900")).toBe("#18181b")
+    expect(getComputedStyle(scope).getPropertyValue("--color-bg")).toBe("#09090b")
+    expect(getComputedStyle(scope).getPropertyValue("--custom-density")).toBe("2")
   })
 
   it("maps typed semantic colors to component-facing tokens", () => {
     render(<ThemeProvider storageKey={false} defaultTheme="light" palette={{ colors: { text: "#111827", surfaceRaised: "#ffffff", borderStrong: "#94a3b8", mutedForeground: "#475569", primary: "#0f766e", danger: "#b91c1c" } }}>Semantic theme</ThemeProvider>)
     const scope = screen.getByText("Semantic theme")
-    expect(scope.style.getPropertyValue("--color-foreground")).toBe("#111827")
-    expect(scope.style.getPropertyValue("--color-surface-raised")).toBe("#ffffff")
-    expect(scope.style.getPropertyValue("--color-border-strong")).toBe("#94a3b8")
-    expect(scope.style.getPropertyValue("--color-muted-foreground")).toBe("#475569")
-    expect(scope.style.getPropertyValue("--color-primary")).toBe("#0f766e")
-    expect(scope.style.getPropertyValue("--color-destructive")).toBe("#b91c1c")
+    expect(getComputedStyle(scope).getPropertyValue("--color-foreground")).toBe("#111827")
+    expect(getComputedStyle(scope).getPropertyValue("--color-surface-raised")).toBe("#ffffff")
+    expect(getComputedStyle(scope).getPropertyValue("--color-border-strong")).toBe("#94a3b8")
+    expect(getComputedStyle(scope).getPropertyValue("--color-muted-foreground")).toBe("#475569")
+    expect(getComputedStyle(scope).getPropertyValue("--color-primary")).toBe("#0f766e")
+    expect(getComputedStyle(scope).getPropertyValue("--color-destructive")).toBe("#b91c1c")
   })
 
   it("applies and restores the complete theme scope on the document root", () => {

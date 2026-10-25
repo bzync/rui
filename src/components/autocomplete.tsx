@@ -23,6 +23,7 @@ import { MultiTrigger } from "./autocomplete/multi-trigger"
 import { AutocompleteDropdown } from "./autocomplete/dropdown"
 import { useMenuPosition } from "./select/utils"
 import { useEventCallback } from "@/hooks/use-event-callback"
+import { SelectFormFields } from "./select/form-fields"
 
 export type {
   AutocompleteOption,
@@ -68,11 +69,16 @@ function AutocompleteInner<V = string>(
     value: selectionValue,
     onSelect: selectionHandler,
     onDeselect: deselectionHandler,
-    ...nativeInputProps
+    // Form participation belongs to the selection, not the typed text.
+    name,
+    form,
+    required,
+    ...textInputProps
   } = inputProps
   void selectionValue
   void selectionHandler
   void deselectionHandler
+  const nativeInputProps = { ...textInputProps, "aria-required": required || undefined }
 
   const uid = useId()
   const inputId = externalId ?? uid
@@ -89,6 +95,8 @@ function AutocompleteInner<V = string>(
   }, [controlledInput, onInputChangeStable])
 
   const [localSelected, setLocalSelected] = useState<AutocompleteOption<V>[]>([])
+  // Uncontrolled single selection, so a form can submit the chosen value.
+  const [localSingle, setLocalSingle] = useState<AutocompleteOption<V> | null>(null)
 
   const selected: AutocompleteOption<V>[] = useMemo(() => {
     if (!multiple) return []
@@ -116,6 +124,7 @@ function AutocompleteInner<V = string>(
   const handleSelectSingle = useCallback((opt: AutocompleteOption<V>) => {
     const singleProps = props as AutocompletePropsSingle<V>
     singleProps.onSelect?.(opt)
+    setLocalSingle(opt)
     setInput(opt.label)
     setOpen(false)
     setActiveIdx(-1)
@@ -147,6 +156,7 @@ function AutocompleteInner<V = string>(
     setInput("")
     const singleProps = props as AutocompletePropsSingle<V>
     singleProps.onSelect?.({ value: "" as V, label: "" })
+    setLocalSingle(null)
     setOpen(false)
   }, [props, setInput])
 
@@ -199,16 +209,42 @@ function AutocompleteInner<V = string>(
   }, [])
 
   const singleValue = !multiple ? (props as AutocompletePropsSingle<V>).value : undefined
+  const submitted = multiple
+    ? selectedValues.map(String)
+    : (() => {
+        const chosen = singleValue !== undefined ? singleValue : localSingle?.value
+        return chosen === undefined || chosen === null || chosen === "" ? [] : [String(chosen)]
+      })()
+  const formFields = (
+    <SelectFormFields
+      name={name}
+      form={form}
+      values={submitted}
+      required={required}
+      disabled={disabled}
+      onReset={() => {
+        if (controlledInput === undefined) setLocalInput("")
+        setLocalSingle(null)
+        setLocalSelected([])
+      }}
+    />
+  )
   const showSingleClear = !!(!multiple && clearable && inputText.length > 0 && !disabled)
   const showMultiClear  = !!(multiple  && clearable && (selected.length > 0 || inputText.length > 0) && !disabled)
   const menuPos = useMenuPosition(open, containerRef)
 
-  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => { setInput(e.target.value); setQuery(e.target.value); setOpen(true); setActiveIdx(-1) }, [setInput])
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const text = e.target.value
+    setInput(text); setQuery(text); setOpen(true); setActiveIdx(-1)
+    // Editing away from the chosen label drops the uncontrolled selection, so a stale value is never submitted.
+    setLocalSingle((current) => (current && current.label === text ? current : null))
+  }, [setInput])
   const handleFocus = useCallback(() => { setOpen(true); setQuery("") }, [])
 
   if (unstyled) {
     return (
       <div ref={containerRef} className={cn(className, wrapperClassName)}>
+        {formFields}
         <input ref={ref} id={inputId} value={inputText} onChange={handleInputChange} placeholder={placeholder} disabled={disabled} />
         {open && <ul ref={listRef} id={listId} className={listClassName}>{filtered.map(o => <li key={String(o.value)} onClick={() => multiple ? toggleMulti(o) : handleSelectSingle(o)}>{o.label}</li>)}</ul>}
       </div>
@@ -220,7 +256,7 @@ function AutocompleteInner<V = string>(
       {label && (
         <label htmlFor={inputId} className={cn(fieldLabelStyles, labelClassName)}>
           {label}
-          {inputProps.required && <><span aria-hidden="true" className="ml-1 text-destructive">*</span><span className="sr-only"> (required)</span></>}
+          {required && <><span aria-hidden="true" className="ml-1 text-destructive">*</span><span className="sr-only"> (required)</span></>}
         </label>
       )}
 
@@ -280,6 +316,8 @@ function AutocompleteInner<V = string>(
           inputClassName={inputClassName}
         />
       )}
+
+      {formFields}
 
       <AutocompleteDropdown
         listRef={listRef}

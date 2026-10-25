@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/cn"
 import { fieldDescriptionStyles, fieldErrorStyles, fieldLabelStyles, fieldRootStyles } from "@/lib/component-styles"
-import { motion } from "framer-motion"
+import { motion } from "@/lib/motion-components"
 import { createContext, useContext, useId, ReactNode } from "react"
 
 interface RadioContextValue {

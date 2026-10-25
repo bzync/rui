@@ -1,7 +1,8 @@
 "use client"
 
 import { cn } from "@/lib/cn"
-import { AnimatePresence, motion } from "framer-motion"
+import { AnimatePresence } from "framer-motion"
+import { motion } from "@/lib/motion-components"
 import { transitions } from "@/lib/motion"
 import type { DropdownMenuSection, DropdownMenuItem, DropdownMenuGroup } from "./dropdown-menu"
 

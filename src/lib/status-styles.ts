@@ -12,6 +12,20 @@
  * utility. */
 export type StatusTone = "success" | "warning" | "danger" | "info"
 
+/** The tone vocabulary every tone-bearing component accepts (Badge, Tag,
+ * Callout, Alert, Text, StatusDot; Button's `danger` variant), so one status →
+ * tone map can feed all of them. */
+export type Tone = "default" | StatusTone | "muted"
+
+/** Superseded tone names, still accepted: `error` and `destructive` mean
+ * `danger`. */
+export type DeprecatedTone = "error" | "destructive"
+
+/** Maps a deprecated tone name to its current one; other names pass through. */
+export function resolveTone<T extends string>(tone: T): Exclude<T, DeprecatedTone> | (T extends DeprecatedTone ? "danger" : never) {
+  return (tone === "error" || tone === "destructive" ? "danger" : tone) as never
+}
+
 /** Tinted chip: badge, tag, status pill. */
 export const statusSoftStyles: Record<StatusTone, string> = {
   success: "bg-success/10 text-success-strong border-success/25",

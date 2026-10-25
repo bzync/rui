@@ -2,7 +2,8 @@
 
 import { cn } from "@/lib/cn"
 import { fieldDescriptionStyles, fieldErrorStyles, fieldLabelStyles, fieldRootStyles, focusRingStyles } from "@/lib/component-styles"
-import { AnimatePresence, motion } from "framer-motion"
+import { AnimatePresence } from "framer-motion"
+import { motion } from "@/lib/motion-components"
 import { DragEvent, InputHTMLAttributes, forwardRef, useId, useRef, useState } from "react"
 
 export interface FileUploadProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "type"> {

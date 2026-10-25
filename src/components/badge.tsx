@@ -2,7 +2,8 @@ import { cn } from "@/lib/cn"
 import { statusSoftStyles, statusSolidStyles } from "@/lib/status-styles"
 import { HTMLAttributes } from "react"
 
-export type BadgeVariant = "default" | "success" | "warning" | "error" | "info" | "muted"
+/** `error` is a deprecated alias of `danger`. */
+export type BadgeVariant = "default" | "success" | "warning" | "danger" | "info" | "muted" | "error"
 export type BadgeSize = "sm" | "md" | "lg"
 
 export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
@@ -17,6 +18,7 @@ export const badgeVariants: Record<BadgeVariant, string> = {
   default: "bg-accent-500/10 text-accent-strong border-accent-500/25",
   success: statusSoftStyles.success,
   warning: statusSoftStyles.warning,
+  danger: statusSoftStyles.danger,
   error: statusSoftStyles.danger,
   info: statusSoftStyles.info,
   muted: "bg-muted text-muted-foreground border-border",
@@ -32,6 +34,7 @@ const badgeDots: Record<BadgeVariant, string> = {
   default: "bg-accent-400",
   success: statusSolidStyles.success,
   warning: statusSolidStyles.warning,
+  danger: statusSolidStyles.danger,
   error: statusSolidStyles.danger,
   info: statusSolidStyles.info,
   muted: "bg-muted-foreground",

@@ -6,6 +6,7 @@ import { KeyboardEvent, forwardRef, useEffect, useId, useRef, useState } from "r
 import type { SelectOption, SelectPropsMulti } from "./types"
 import { colorDot, flatten, useMenuPosition, XIcon, ChevronIcon } from "./utils"
 import { OptionList } from "./option-list"
+import { SelectFormFields } from "./form-fields"
 
 export const SelectMulti = forwardRef<HTMLButtonElement, SelectPropsMulti>(
   (
@@ -20,6 +21,8 @@ export const SelectMulti = forwardRef<HTMLButtonElement, SelectPropsMulti>(
       error,
       disabled,
       required,
+      name,
+      form,
       clearable = false,
       className,
       wrapperClassName,
@@ -123,8 +126,9 @@ export const SelectMulti = forwardRef<HTMLButtonElement, SelectPropsMulti>(
     if (unstyled) {
       return (
         <div ref={containerRef} className={cn(className, wrapperClassName)}>
+          <SelectFormFields name={name} form={form} values={values} required={required} disabled={disabled} onReset={() => setLocalValues(defaultValue ?? [])} />
           <button ref={ref} id={triggerId} type="button" role="combobox" aria-expanded={open} aria-controls={listId} onKeyDown={handleKeyDown} onClick={() => setOpen((current) => !current)} className={triggerClassName}>{selectedOpts.length > 0 ? selectedOpts.map((option) => option.label).join(", ") : placeholder}</button>
-          <OptionList listId={listId} listRef={listRef} open={open} pos={menuPos} options={options} flat={flat} activeIdx={activeIdx} setActiveIdx={setActiveIdx} isSelected={(optionValue) => values.includes(optionValue)} onSelect={toggle} multiselectable colorDot={colorDot} className={listClassName} />
+        <OptionList listId={listId} listRef={listRef} open={open} pos={menuPos} options={options} flat={flat} activeIdx={activeIdx} setActiveIdx={setActiveIdx} isSelected={(optionValue) => values.includes(optionValue)} onSelect={toggle} multiselectable colorDot={colorDot} className={listClassName} />
         </div>
       )
     }
@@ -208,6 +212,8 @@ export const SelectMulti = forwardRef<HTMLButtonElement, SelectPropsMulti>(
             <ChevronIcon open={open} />
           </span>
         </button>
+
+        <SelectFormFields name={name} form={form} values={values} required={required} disabled={disabled} onReset={() => setLocalValues(defaultValue ?? [])} />
 
         <OptionList
           listId={listId}

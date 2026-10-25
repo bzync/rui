@@ -50,7 +50,7 @@ export function TagSection() {
         <Tag>Default</Tag>
         <Tag variant="success">Running</Tag>
         <Tag variant="warning">Building</Tag>
-        <Tag variant="error">Failed</Tag>
+        <Tag variant="danger">Failed</Tag>
         <Tag variant="info">Preview</Tag>
       </Group>
       <Group label="Dismissible">

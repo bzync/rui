@@ -1,7 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/cn"
-import { motion } from "framer-motion"
+import { motion } from "@/lib/motion-components"
 import { type ReactNode, useState } from "react"
 import { type ChartDataPoint, type TooltipState, ChartTooltip, CHART_SERIES } from "./shared"
 

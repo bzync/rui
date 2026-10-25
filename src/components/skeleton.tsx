@@ -1,5 +1,39 @@
 import { cn } from "@/lib/cn"
-import { HTMLAttributes } from "react"
+import { HTMLAttributes, ReactNode } from "react"
+
+// ─── Loading region ─────────────────────────────────────────────────────────────
+
+/** `label` on composite skeletons: the announced text, or false for none. */
+export type SkeletonLabel = string | false
+
+export interface SkeletonRegionProps extends HTMLAttributes<HTMLDivElement> {
+  /** Visually hidden text announced to screen readers. */
+  label?: string
+}
+
+/**
+ * Busy status region for a loading layout. Skeleton bars are aria-hidden, so
+ * without this a screen-reader user hears nothing while content loads. Wrap a
+ * page's skeletons in one region and pass `label={false}` to the composite
+ * skeletons inside it so they don't each announce.
+ */
+export function SkeletonRegion({ label = "Loading…", className, children, ...props }: SkeletonRegionProps) {
+  return (
+    <div role="status" aria-busy="true" aria-live="polite" className={className} {...props}>
+      <span className="sr-only">{label}</span>
+      {children}
+    </div>
+  )
+}
+
+/** Root props for a composite skeleton: a status region when labelled, hidden otherwise. */
+function loadingRoot(label: SkeletonLabel | undefined): { props: HTMLAttributes<HTMLDivElement>; announce: ReactNode } {
+  if (!label) return { props: { "aria-hidden": true }, announce: null }
+  return {
+    props: { role: "status", "aria-busy": true, "aria-live": "polite" },
+    announce: <span className="sr-only">{label}</span>,
+  }
+}
 
 // ─── Base skeleton ─────────────────────────────────────────────────────────────
 
@@ -43,15 +77,20 @@ export interface SkeletonTextProps {
   lines?: number
   className?: string
   lastLineWidth?: string
+  /** Announce a loading status with this text. Off by default. */
+  label?: SkeletonLabel
 }
 
 export function SkeletonText({
   lines = 3,
   className,
   lastLineWidth = "60%",
+  label,
 }: SkeletonTextProps) {
+  const root = loadingRoot(label)
   return (
-    <div className={cn("space-y-2", className)} aria-hidden="true">
+    <div className={cn("space-y-2", className)} {...root.props}>
+      {root.announce}
       {Array.from({ length: lines }).map((_, i) => (
         <Skeleton
           key={i}
@@ -84,6 +123,8 @@ export interface SkeletonCardProps {
   hasAvatar?: boolean
   hasFooter?: boolean
   className?: string
+  /** Visually hidden loading announcement. Defaults to "Loading…"; false hides the skeleton from assistive tech entirely (use inside a `SkeletonRegion`). */
+  label?: SkeletonLabel
 }
 
 export function SkeletonCard({
@@ -91,12 +132,15 @@ export function SkeletonCard({
   hasAvatar = false,
   hasFooter = false,
   className,
+  label = "Loading…",
 }: SkeletonCardProps) {
+  const root = loadingRoot(label)
   return (
     <div
       className={cn("rounded-[var(--radius-lg)] border border-border bg-surface", className)}
-      aria-hidden="true"
+      {...root.props}
     >
+      {root.announce}
       <div className="flex items-center gap-3 border-b border-border px-5 py-4">
         {hasAvatar && <SkeletonAvatar />}
         <div className="flex-1 space-y-1.5">
@@ -129,13 +173,17 @@ export interface SkeletonTopbarProps {
   hasBreadcrumb?: boolean
   hasAction?: boolean
   className?: string
+  /** Announce a loading status with this text. Off by default. */
+  label?: SkeletonLabel
 }
 
 export function SkeletonTopbar({
   hasBreadcrumb = true,
   hasAction = true,
   className,
+  label,
 }: SkeletonTopbarProps) {
+  const root = loadingRoot(label)
   return (
     <div
       className={cn(
@@ -145,8 +193,9 @@ export function SkeletonTopbar({
         "sticky top-0 z-(--z-sticky)",
         className,
       )}
-      aria-hidden="true"
+      {...root.props}
     >
+      {root.announce}
       {hasBreadcrumb && (
         <div className="flex items-center gap-1.5 mb-2.5">
           <Skeleton height={10} width={72} />
@@ -172,6 +221,8 @@ export interface SkeletonTableProps {
   cols?: number
   density?: "compact" | "comfortable"
   className?: string
+  /** Visually hidden loading announcement. Defaults to "Loading…"; false hides the skeleton from assistive tech entirely (use inside a `SkeletonRegion`). */
+  label?: SkeletonLabel
 }
 
 export function SkeletonTable({
@@ -179,13 +230,16 @@ export function SkeletonTable({
   cols = 4,
   density = "comfortable",
   className,
+  label = "Loading…",
 }: SkeletonTableProps) {
+  const root = loadingRoot(label)
   return (
     <div
       data-density={density}
       className={cn("overflow-hidden rounded-[var(--radius-lg)] border border-border", className)}
-      aria-hidden="true"
+      {...root.props}
     >
+      {root.announce}
       <div className="flex items-center gap-4 border-b border-border bg-surface-muted px-4 py-3">
         {Array.from({ length: cols }).map((_, i) => (
           <Skeleton key={i} height={11} width={`${50 + (i * 13) % 50}px`} />
@@ -211,6 +265,8 @@ export interface SkeletonListProps {
   hasAvatar?: boolean
   density?: "compact" | "comfortable"
   className?: string
+  /** Visually hidden loading announcement. Defaults to "Loading…"; false hides the skeleton from assistive tech entirely (use inside a `SkeletonRegion`). */
+  label?: SkeletonLabel
 }
 
 export function SkeletonList({
@@ -218,10 +274,13 @@ export function SkeletonList({
   hasAvatar = false,
   density = "comfortable",
   className,
+  label = "Loading…",
 }: SkeletonListProps) {
   const py = density === "compact" ? "py-2" : "py-3"
+  const root = loadingRoot(label)
   return (
-    <div className={cn("divide-y divide-border rounded-[var(--radius-lg)] border border-border bg-surface", className)} aria-hidden="true">
+    <div className={cn("divide-y divide-border rounded-[var(--radius-lg)] border border-border bg-surface", className)} {...root.props}>
+      {root.announce}
       {Array.from({ length: items }).map((_, i) => (
         <div key={i} className={cn("flex items-center gap-3 px-4", py)}>
           {hasAvatar && <SkeletonAvatar size="sm" />}
@@ -241,11 +300,15 @@ export function SkeletonList({
 export interface SkeletonStatProps {
   count?: number
   className?: string
+  /** Visually hidden loading announcement. Defaults to "Loading…"; false hides the skeleton from assistive tech entirely (use inside a `SkeletonRegion`). */
+  label?: SkeletonLabel
 }
 
-export function SkeletonStat({ count = 3, className }: SkeletonStatProps) {
+export function SkeletonStat({ count = 3, className, label = "Loading…" }: SkeletonStatProps) {
+  const root = loadingRoot(label)
   return (
-    <div className={cn("grid gap-4", count === 2 ? "grid-cols-2" : count === 4 ? "grid-cols-4" : "grid-cols-3", className)} aria-hidden="true">
+    <div className={cn("grid gap-4", count === 2 ? "grid-cols-2" : count === 4 ? "grid-cols-4" : "grid-cols-3", className)} {...root.props}>
+      {root.announce}
       {Array.from({ length: count }).map((_, i) => (
         <div key={i} className="rounded-[var(--radius-lg)] border border-border bg-surface p-4 space-y-3">
           <Skeleton height={10} width={64} />

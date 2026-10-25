@@ -2,10 +2,11 @@
 
 import { cn } from "@/lib/cn"
 import { statusSolidStyles, statusTextStyles, statusTrackStyles } from "@/lib/status-styles"
-import { motion } from "framer-motion"
+import { motion } from "@/lib/motion-components"
 import { HTMLAttributes } from "react"
 
-export type ProgressVariant = "default" | "success" | "warning" | "error" | "info"
+/** `error` is a deprecated alias of `danger`. */
+export type ProgressVariant = "default" | "success" | "warning" | "danger" | "info" | "error"
 export type ProgressSize = "xs" | "sm" | "md" | "lg"
 
 export interface ProgressbarProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
@@ -30,6 +31,7 @@ const variantTrack: Record<ProgressVariant, string> = {
   default: "bg-foreground/6",
   success: statusTrackStyles.success,
   warning: statusTrackStyles.warning,
+  danger:  statusTrackStyles.danger,
   error:   statusTrackStyles.danger,
   info:    statusTrackStyles.info,
 }
@@ -38,6 +40,7 @@ const variantFill: Record<ProgressVariant, string> = {
   default: "bg-accent-500",
   success: statusSolidStyles.success,
   warning: statusSolidStyles.warning,
+  danger:  statusSolidStyles.danger,
   error:   statusSolidStyles.danger,
   info:    statusSolidStyles.info,
 }
@@ -46,6 +49,7 @@ const variantText: Record<ProgressVariant, string> = {
   default: "text-accent-strong",
   success: statusTextStyles.success,
   warning: statusTextStyles.warning,
+  danger:  statusTextStyles.danger,
   error:   statusTextStyles.danger,
   info:    statusTextStyles.info,
 }
