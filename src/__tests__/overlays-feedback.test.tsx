@@ -1,7 +1,9 @@
-import { render, screen } from "@testing-library/react"
+import { act, render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
+import { hydrateRoot } from "react-dom/client"
+import { renderToString } from "react-dom/server"
 import { describe, expect, it, vi } from "vitest"
-import { CommandPalette, CommandProvider, CopyButton, Drawer, DropdownMenu, InfoButton, Modal, SnackbarProvider, Tooltip, useSnackbar } from "@/index"
+import { CommandPalette, CommandProvider, ConfirmDialog, CopyButton, Drawer, DropdownMenu, InfoButton, Modal, Select, SnackbarProvider, ThemeProvider, Tooltip, useSnackbar } from "@/index"
 
 describe("overlay and feedback components", () => {
   it("opens dropdown menus and calls actions", async () => {
@@ -124,5 +126,56 @@ describe("overlay and feedback components", () => {
     await user.click(screen.getByRole("button", { name: "Notify styled" }))
     expect(await screen.findByRole("region", { name: "Notifications" })).toHaveClass("custom-snackbar-region")
     expect(screen.getByText("Styled").closest("[class*='custom-toast']")).toHaveClass("custom-toast", "custom-toast-item")
+  })
+})
+
+describe("portalled dialogs", () => {
+  it("renders Modal and ConfirmDialog outside a clipping ancestor, with an inline opt-out", () => {
+    render(
+      <div data-testid="table-cell" style={{ overflow: "hidden", transform: "translateZ(0)" }}>
+        <Modal open onClose={() => {}} title="Edit invoice">Body</Modal>
+        <ConfirmDialog open onClose={() => {}} onConfirm={() => {}} title="Delete payment?" destructive />
+        <Modal open onClose={() => {}} title="Inline" portalled={false}>Inline body</Modal>
+      </div>,
+    )
+    const cell = screen.getByTestId("table-cell")
+    for (const name of ["Edit invoice", "Delete payment?"]) {
+      const dialog = screen.getByRole("dialog", { name })
+      expect(cell).not.toContainElement(dialog)
+      expect(document.body).toContainElement(dialog)
+    }
+    expect(cell).toContainElement(screen.getByRole("dialog", { name: "Inline" }))
+  })
+
+  it("carries the theme scope into a portalled Modal", () => {
+    render(<ThemeProvider storageKey={false} theme="dark"><Modal open onClose={() => {}} title="Scoped">Body</Modal></ThemeProvider>)
+    const scope = screen.getByRole("dialog", { name: "Scoped" }).closest("[data-rui-portal]")
+    expect(scope).toHaveClass("rui-theme", "dark")
+    expect(scope?.parentElement).toBe(document.body)
+  })
+
+  it("hydrates server HTML containing closed and open overlays without a mismatch", async () => {
+    const tree = (
+      <ThemeProvider storageKey={false} defaultTheme="light" palette={{ accent: { 600: "#7c3aed" } }}>
+        <p>Page</p>
+        <Drawer open={false} onClose={() => {}} title="Nav">Links</Drawer>
+        <Select label="Region" options={[{ value: "sg", label: "Singapore" }]} />
+        <Modal open onClose={() => {}} title="Welcome">Hello</Modal>
+      </ThemeProvider>
+    )
+    const host = document.createElement("div")
+    host.innerHTML = renderToString(tree)
+    document.body.append(host)
+    expect(host.querySelector("[role=dialog]")).toBeNull()
+
+    const recoverable = vi.fn()
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {})
+    let root: ReturnType<typeof hydrateRoot> | undefined
+    await act(async () => { root = hydrateRoot(host, tree, { onRecoverableError: recoverable }) })
+    expect(recoverable).not.toHaveBeenCalled()
+    expect(consoleError).not.toHaveBeenCalled()
+    expect(await screen.findByRole("dialog", { name: "Welcome" })).toBeInTheDocument()
+    act(() => root?.unmount())
+    host.remove()
   })
 })

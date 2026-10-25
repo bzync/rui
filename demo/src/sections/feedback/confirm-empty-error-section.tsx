@@ -20,7 +20,7 @@ export function ConfirmDialogSection() {
       meta={["loading state", "destructive variant", "ESC to close"]}
     >
       <Group label="Demo">
-        <Button variant="destructive" icon={<IconTrash />} onClick={() => setConfirmDestructiveOpen(true)}>
+        <Button variant="danger" icon={<IconTrash />} onClick={() => setConfirmDestructiveOpen(true)}>
           Delete environment
         </Button>
         <ConfirmDialog

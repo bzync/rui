@@ -70,9 +70,30 @@ Snackbar); it is kept off the critical path and loaded only by the components th
 
 ## Quick start
 
+**1. Load the styles.** Pick the line that matches your app. Tailwind v4 apps need
+the first one: it adds the token names your own classes use.
+
+```css
+/* Tailwind CSS v4 app: in your CSS entry, after tailwindcss */
+@import "tailwindcss";
+@import "@bzync/rui/tailwind.css";
+```
+
+```tsx
+// No Tailwind in your app: import the compiled stylesheet once, near the root
+import "@bzync/rui/styles.css"
+```
+
+> Importing only `styles.css` into a Tailwind app looks like it works: the token classes
+> the library uses itself (`bg-success`, `bg-accent-500/10`) are compiled in. Any other
+> token class (`bg-accent-50`, bare `border-success`, `dark:bg-accent-500/15`) renders
+> nothing, with no warning. `tailwind.css` imports `styles.css` and `theme.css` in the
+> right order, so this can't happen.
+
+**2. Wrap your app in `ThemeProvider`.**
+
 ```tsx
 import { Button, ThemeProvider, ThemeToggle } from "@bzync/rui"
-import "@bzync/rui/styles.css"
 
 const violet = {
   50: "#f5f3ff", 100: "#ede9fe", 200: "#ddd6fe", 300: "#c4b5fd",
@@ -114,10 +135,18 @@ and `--font-mono` on `.rui-theme` (or via `ThemeProvider`'s `fonts` option).
 
 ### Using the tokens in your own Tailwind classes
 
-`styles.css` is compiled CSS, so your app's Tailwind build does not learn the library's
-token names from it. To write `bg-success`, `text-danger-strong`, `border-info/25`,
-`bg-accent-500`, `shadow-floating`, and so on in your own markup, also import the
-Tailwind theme file into your Tailwind v4 entry:
+**Required for Tailwind apps.** `styles.css` is compiled CSS, so your app's Tailwind build
+does not learn the library's token names from it. To write `bg-success`,
+`text-danger-strong`, `border-info/25`, `bg-accent-500`, `shadow-floating`, and so on in
+your own markup, import `tailwind.css` (styles plus token names) into your Tailwind v4
+entry, as in the Quick start:
+
+```css
+@import "tailwindcss";
+@import "@bzync/rui/tailwind.css";
+```
+
+If you already load `styles.css` from JavaScript, import just the token names instead:
 
 ```css
 @import "tailwindcss";
@@ -152,6 +181,18 @@ import { ThemeProvider } from "@bzync/rui"
 
 Controlled usage is supported by passing `theme` and `onThemeChange` instead of
 `defaultTheme`.
+
+Palette tokens are emitted as a small generated stylesheet keyed on the provider's scope
+(and on `:root` with `applyToRoot`), not as inline style. Every mode's values are in it,
+selected by a `.dark` class on the scope or on any ancestor. A pre-paint script that sets
+`<html class="dark">` therefore gets dark tokens in the server-rendered HTML, before
+hydration resolves the stored or system theme.
+
+Setting `palette.accent` also points `--color-primary`, `--color-primary-hover` and
+`--color-focus-ring` at accent 600/700/500 inside the scope. Those derived tokens have
+zero specificity, so explicit `colors.primary`/`colors.focusRing` or any app rule aimed at
+the scope (`.rui-theme { --color-primary: … }`) wins. If your app defines them on `:root`
+instead, pass `deriveAccentTokens={false}` so the scope doesn't shadow them.
 
 **Palette shape** (`ThemePalette`, all fields optional):
 
@@ -208,7 +249,7 @@ automatically.
 Each status color (`success`, `warning`, `danger`, `info`) has a `-strong` companion,
 a readable text/icon shade derived from it: darker in light mode, lighter in dark mode.
 Every status-colored component (`Badge`, `StatusDot`, `Alert`, `Callout`, `Tag`,
-`Timeline`, `Progressbar`, `Stat`, toasts, ...) uses the same recipe, so
+`Timeline`, `Progressbar`, `Stat`, `Text`, toasts, ...) uses the same recipe, so
 `palette.colors.success` and friends retint all of them:
 
 | Role | Classes |
@@ -217,6 +258,14 @@ Every status-colored component (`Badge`, `StatusDot`, `Alert`, `Callout`, `Tag`,
 | Solid fill (dot, bar) | `bg-success` |
 | Text or icon | `text-success-strong` |
 
+**One tone vocabulary.** Tone-bearing components share the names
+`default | success | warning | danger | info | muted` (exported as the `Tone` type), so a
+single status → tone map can feed `Badge`, `Tag`, `Callout`, `Alert`, `Text` and
+`StatusDot` (which also keeps its presence states such as `online`). `Button` has a
+`danger` variant. The older names still work as deprecated aliases: `error` → `danger`
+(Badge, Tag, Callout, Alert, Progressbar, Timeline, toasts, Select option colors) and
+`destructive` → `danger` (Button).
+
 `accent-strong` does the same for accent text (selected items, links, eyebrows), and
 `surface-sunken` is the recessed well behind code blocks and terminals. Components use one
 mode-aware class per property rather than a `light dark:dark` class pair, so a consumer's
@@ -224,10 +273,15 @@ own Tailwind layer can't re-assert the light half in dark mode.
 
 ### Portals
 
-Drawer, Select, Autocomplete, `Overlay` and chart tooltips render into `document.body`.
+Modal (and `ConfirmDialog`), Drawer, Select, Autocomplete, `Overlay` and chart tooltips
+render into `document.body`, so a dialog opened from a table row can't be clipped or
+out-stacked by an `overflow`, `transform` or `contain` ancestor. Pass `portalled={false}`
+to a `Modal` to render it inline instead.
 They keep the nearest `ThemeProvider`'s dark mode and palette through `ThemePortal`, which
 wraps them in a `display: contents` copy of the theme scope. You don't need
-`applyToRoot` for this. Use `ThemePortal` for your own portaled overlays too:
+`applyToRoot` for this. `ThemePortal` renders nothing on the server or during hydration,
+so open and closed overlays hydrate without a mismatch; the portal appears right after.
+Use `ThemePortal` for your own portaled overlays too:
 
 ```tsx
 import { ThemePortal } from "@bzync/rui"
@@ -296,6 +350,13 @@ first client paint agree.
   `prefers-reduced-motion: reduce` set.
 - Icon-only controls (`IconButton`, `InfoButton`, `CopyButton`) require an accessible
   `label`.
+- Composite skeletons (`SkeletonCard`, `SkeletonTable`, `SkeletonList`, `SkeletonStat`)
+  are busy `role="status"` regions with a visually hidden "Loading…" `label`. To announce
+  a whole loading layout once, wrap it in `<SkeletonRegion label="Loading invoices">` and
+  pass `label={false}` to the skeletons inside.
+- Animated components use framer-motion's `m` elements with the `domAnimation` feature
+  set rather than the full `motion` component, so apps don't bundle drag, pan or layout
+  animation code they never use.
 
 ## Component catalog
 
@@ -452,6 +513,22 @@ import { Select } from "@bzync/rui/select"
 />
 ```
 
+Inside a `<form>`, give it a `name` (and `form` for a form elsewhere on the page) to submit
+the selection natively, one `name=value` entry per selected value, as with `Input`.
+`required` is enforced by native validation, and an uncontrolled Select returns to its
+`defaultValue` when the form resets:
+
+```tsx
+<form action={createServer}>
+  <Select name="region" required label="Region" options={regions} />
+  <Select name="tags" multiple label="Tags" options={tags} />
+</form>
+```
+
+`Autocomplete` works the same way: `name` submits the selected option value(s), not the
+typed text, and `required` requires a selection. Editing the text away from the chosen
+option's label clears an uncontrolled selection, so a stale value is never submitted.
+
 ### Modal
 
 ```tsx
@@ -464,7 +541,7 @@ const [open, setOpen] = useState(false)
   <ModalBody>This action cannot be undone.</ModalBody>
   <ModalFooter>
     <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
-    <Button variant="destructive" onClick={confirmDelete}>Delete</Button>
+    <Button variant="danger" onClick={confirmDelete}>Delete</Button>
   </ModalFooter>
 </Modal>
 ```

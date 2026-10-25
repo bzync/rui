@@ -2,11 +2,14 @@
 
 import { cn } from "@/lib/cn"
 import { iconButtonStyles } from "@/lib/component-styles"
-import { AnimatePresence, motion } from "framer-motion"
+import { AnimatePresence } from "framer-motion"
+import { motion } from "@/lib/motion-components"
 import { transitions } from "@/lib/motion"
 import { HTMLAttributes, ReactNode, useId, useRef } from "react"
 import { useEventCallback } from "@/hooks/use-event-callback"
 import { useFocusTrap, useRestoreFocus } from "@/hooks/use-focus-trap"
+import { useHydrated } from "@/hooks/use-hydrated"
+import { ThemePortal } from "./theme-provider"
 
 export interface ModalProps {
   open: boolean
@@ -33,6 +36,13 @@ export interface ModalProps {
   ariaLabel?: string
   closeOnEscape?: boolean
   closeOnOverlayClick?: boolean
+  /**
+   * Render the overlay through `ThemePortal` (to `document.body`) so ancestors
+   * with `overflow`, `transform`, `contain` or their own stacking context
+   * cannot clip it or trap its z-index. Defaults to true. Set false to render
+   * the dialog inline where it is declared.
+   */
+  portalled?: boolean
 }
 
 const sizes = {
@@ -70,24 +80,29 @@ export function Modal({
   ariaLabel = "Dialog",
   closeOnEscape = true,
   closeOnOverlayClick = true,
+  portalled = true,
 }: ModalProps) {
   const panelRef = useRef<HTMLDivElement>(null)
   const titleId = useId()
   const descriptionId = useId()
   const onCloseStable = useEventCallback(onClose)
-  const { previouslyFocusedRef, restoreNow } = useRestoreFocus(open)
+  const { restoreNow } = useRestoreFocus(open)
+  // A portalled panel does not exist until after hydration; arm the trap then.
+  const hydrated = useHydrated()
 
   useFocusTrap(panelRef, {
-    active: open,
+    active: open && (hydrated || !portalled),
     onEscape: onCloseStable,
     closeOnEscape,
   })
 
+  const portal = (content: ReactNode) => (portalled ? <ThemePortal>{content}</ThemePortal> : content)
+
   if (unstyled) {
-    return open ? <div ref={panelRef} role="dialog" aria-modal="true" className={cn(className, panelClassName)}>{children}</div> : null
+    return open ? portal(<div ref={panelRef} role="dialog" aria-modal="true" className={cn(className, panelClassName)}>{children}</div>) : null
   }
 
-  return (
+  return portal(
     <AnimatePresence onExitComplete={restoreNow}>
       {open && (
         <div className={cn("fixed inset-0 z-(--z-modal) flex items-center justify-center p-4 sm:p-6", containerClassName)}>
@@ -159,7 +174,7 @@ export function Modal({
           </motion.div>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
   )
 }
 

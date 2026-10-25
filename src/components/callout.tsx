@@ -1,8 +1,9 @@
 import { cn } from "@/lib/cn"
-import { statusSurfaceStyles, statusTextStyles } from "@/lib/status-styles"
+import { resolveTone, statusSurfaceStyles, statusTextStyles } from "@/lib/status-styles"
 import { HTMLAttributes, ReactNode } from "react"
 
-type CalloutVariant = "info" | "success" | "warning" | "error" | "default"
+/** `error` is a deprecated alias of `danger`; `muted` renders like `default`. */
+export type CalloutVariant = "default" | "success" | "warning" | "danger" | "info" | "muted" | "error"
 
 export interface CalloutProps extends HTMLAttributes<HTMLDivElement> {
   variant?: CalloutVariant
@@ -13,7 +14,7 @@ export interface CalloutProps extends HTMLAttributes<HTMLDivElement> {
   bodyClassName?: string
 }
 
-const styles: Record<CalloutVariant, { wrap: string; icon: string; defaultIcon: ReactNode }> = {
+const styles: Record<Exclude<CalloutVariant, "error" | "muted">, { wrap: string; icon: string; defaultIcon: ReactNode }> = {
   default: {
     wrap: "bg-muted border-border",
     icon: "text-muted-foreground",
@@ -51,7 +52,7 @@ const styles: Record<CalloutVariant, { wrap: string; icon: string; defaultIcon: 
       </svg>
     ),
   },
-  error: {
+  danger: {
     wrap: statusSurfaceStyles.danger,
     icon: statusTextStyles.danger,
     defaultIcon: (
@@ -63,7 +64,8 @@ const styles: Record<CalloutVariant, { wrap: string; icon: string; defaultIcon: 
 }
 
 export function Callout({ variant = "info", icon, title, className, children, iconClassName, titleClassName, bodyClassName, ...props }: CalloutProps) {
-  const { wrap, icon: iconCls, defaultIcon } = styles[variant]
+  const tone = resolveTone(variant)
+  const { wrap, icon: iconCls, defaultIcon } = styles[tone === "muted" ? "default" : tone]
 
   return (
     <div

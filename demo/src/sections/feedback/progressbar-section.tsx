@@ -19,7 +19,7 @@ export function ProgressbarSection() {
         <Progressbar value={72} variant="default" label="Default" showValue />
         <Progressbar value={85} variant="success" label="Success" showValue />
         <Progressbar value={48} variant="warning" label="Warning" showValue />
-        <Progressbar value={23} variant="error"   label="Error"   showValue />
+        <Progressbar value={23} variant="danger"   label="Error"   showValue />
         <Progressbar value={60} variant="info"    label="Info"    showValue />
       </Group>
       <Group label="Sizes" col>

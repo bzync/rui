@@ -2,7 +2,8 @@
 
 import { cn } from "@/lib/cn"
 import { controlBaseStyles, controlInvalidStyles, fieldDescriptionStyles, fieldErrorStyles, fieldLabelStyles, fieldRootStyles, iconButtonStyles } from "@/lib/component-styles"
-import { AnimatePresence, motion } from "framer-motion"
+import { AnimatePresence } from "framer-motion"
+import { motion } from "@/lib/motion-components"
 import { type CSSProperties, type HTMLAttributes, type KeyboardEvent as ReactKeyboardEvent, forwardRef, useEffect, useId, useImperativeHandle, useLayoutEffect, useRef, useState } from "react"
 
 const DAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]

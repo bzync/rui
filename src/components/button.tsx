@@ -5,7 +5,8 @@ import { focusRingStyles } from "@/lib/component-styles"
 import { Slot } from "@/components/slot"
 import { ButtonHTMLAttributes, ReactNode, forwardRef, memo } from "react"
 
-export type ButtonVariant = "primary" | "secondary" | "ghost" | "outline" | "destructive" | "link"
+/** `destructive` is a deprecated alias of `danger`. */
+export type ButtonVariant = "primary" | "secondary" | "ghost" | "outline" | "danger" | "destructive" | "link"
 export type ButtonSize = "sm" | "md" | "lg" | "icon"
 
 export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> {
@@ -21,6 +22,12 @@ export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement
   /** When true, merges props onto the single child via Slot (Radix-style). */
   asChild?: boolean
 }
+
+const dangerVariant = [
+  "bg-destructive hover:bg-destructive-hover active:bg-destructive-hover",
+  "text-destructive-foreground font-semibold",
+  "border border-transparent shadow-xs",
+].join(" ")
 
 export const buttonVariants: Record<ButtonVariant, string> = {
   primary: [
@@ -47,11 +54,8 @@ export const buttonVariants: Record<ButtonVariant, string> = {
     "text-foreground font-medium hover:bg-muted",
   ].join(" "),
 
-  destructive: [
-    "bg-destructive hover:bg-destructive-hover active:bg-destructive-hover",
-    "text-destructive-foreground font-semibold",
-    "border border-transparent shadow-xs",
-  ].join(" "),
+  danger: dangerVariant,
+  destructive: dangerVariant,
 
   link: "h-auto bg-transparent p-0 text-accent-strong underline-offset-4 hover:underline",
 }

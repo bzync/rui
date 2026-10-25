@@ -3,8 +3,9 @@
 import { cn } from "@/lib/cn"
 import { focusRingStyles } from "@/lib/component-styles"
 import { motionTokens } from "@/lib/motion"
-import { statusSurfaceStyles, statusTextStyles } from "@/lib/status-styles"
-import { AnimatePresence, motion } from "framer-motion"
+import { resolveTone, statusSurfaceStyles, statusTextStyles } from "@/lib/status-styles"
+import { AnimatePresence } from "framer-motion"
+import { layoutMotion as motion } from "@/lib/motion-components"
 import { ReactNode } from "react"
 import type { SnackbarPosition, SnackbarVariant } from "./snackbar"
 
@@ -17,7 +18,7 @@ interface SnackbarItem {
   action?: { label: string; onClick: () => void }
 }
 
-const variantConfig: Record<SnackbarVariant, { bg: string; icon: ReactNode }> = {
+const variantConfig: Record<Exclude<SnackbarVariant, "error">, { bg: string; icon: ReactNode }> = {
   default: {
     bg: "border-border bg-surface-raised",
     icon: null,
@@ -47,7 +48,7 @@ const variantConfig: Record<SnackbarVariant, { bg: string; icon: ReactNode }> = 
       </svg>
     ),
   },
-  error: {
+  danger: {
     bg: statusSurfaceStyles.danger,
     icon: (
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={statusTextStyles.danger}>
@@ -117,7 +118,7 @@ export default function SnackbarViewport({
     >
       <AnimatePresence mode="popLayout">
         {items.map((item) => {
-          const { bg, icon } = variantConfig[item.variant ?? "default"]
+          const { bg, icon } = variantConfig[resolveTone(item.variant ?? "default")]
           return (
             <motion.div
               key={item.id}

@@ -1,7 +1,9 @@
 import { cn } from "@/lib/cn"
-import { statusSolidStyles } from "@/lib/status-styles"
+import { statusSolidStyles, type Tone } from "@/lib/status-styles"
 
-export type StatusDotStatus = "online" | "offline" | "idle" | "busy" | "error" | "pending"
+export type StatusDotPresence = "online" | "offline" | "idle" | "busy" | "error" | "pending"
+/** A presence state, or any of the shared tones (`success`, `danger`, …) a Badge takes. */
+export type StatusDotStatus = StatusDotPresence | Tone
 
 export interface StatusDotProps {
   status: StatusDotStatus
@@ -24,7 +26,15 @@ export const statusDotVariants: Record<StatusDotStatus, string> = {
   busy:    statusSolidStyles.danger,
   error:   statusSolidStyles.danger,
   pending: statusSolidStyles.info,
+  default: "bg-accent-500",
+  success: statusSolidStyles.success,
+  warning: statusSolidStyles.warning,
+  danger:  statusSolidStyles.danger,
+  info:    statusSolidStyles.info,
+  muted:   "bg-muted-foreground",
 }
+
+const pulsing = new Set<StatusDotStatus>(["online", "pending", "success", "info"])
 
 const sizes = {
   sm: "w-1.5 h-1.5",
@@ -46,7 +56,7 @@ export function StatusDot({
   return (
     <span className={cn("inline-flex items-center gap-1.5", className)}>
       <span className="relative flex items-center justify-center">
-        {pulse && (status === "online" || status === "pending") && (
+        {pulse && pulsing.has(status) && (
           <span
             className={cn(
               "absolute inline-flex rounded-full opacity-75 animate-ping",

@@ -2,14 +2,17 @@
 
 import { cn } from "@/lib/cn"
 import { focusRingStyles } from "@/lib/component-styles"
-import { statusSolidStyles, statusSurfaceStyles, statusTextStyles } from "@/lib/status-styles"
-import { HTMLMotionProps, motion } from "framer-motion"
+import { resolveTone, statusSolidStyles, statusSurfaceStyles, statusTextStyles } from "@/lib/status-styles"
+import { HTMLMotionProps } from "framer-motion"
+import { motion } from "@/lib/motion-components"
 import { ReactNode } from "react"
 
-type Variant = "info" | "success" | "warning" | "error"
+/** `error` is a deprecated alias of `danger`; `muted` renders like `default`. */
+export type AlertVariant = "default" | "success" | "warning" | "danger" | "info" | "muted" | "error"
+type Variant = Exclude<AlertVariant, "error" | "muted">
 
 export interface AlertProps extends Omit<HTMLMotionProps<"div">, "title" | "children"> {
-  variant?: Variant
+  variant?: AlertVariant
   title?: string
   icon?: ReactNode
   children?: ReactNode
@@ -27,6 +30,13 @@ const styles: Record<
   Variant,
   { container: string; accent: string; icon: string; title: string; body: string }
 > = {
+  default: {
+    container: "bg-muted border-border",
+    accent: "bg-border-strong",
+    icon: "text-muted-foreground",
+    title: "text-foreground",
+    body: "text-foreground/80",
+  },
   info: {
     container: statusSurfaceStyles.info,
     accent: statusSolidStyles.info,
@@ -48,7 +58,7 @@ const styles: Record<
     title: statusTextStyles.warning,
     body: "text-foreground/80",
   },
-  error: {
+  danger: {
     container: statusSurfaceStyles.danger,
     accent: statusSolidStyles.danger,
     icon: statusTextStyles.danger,
@@ -57,23 +67,26 @@ const styles: Record<
   },
 }
 
+const infoIcon = (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <circle cx="12" cy="12" r="10" />
+    <path d="M12 16v-4" />
+    <path d="M12 8h.01" />
+  </svg>
+)
+
 const defaultIcons: Record<Variant, ReactNode> = {
-  info: (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <circle cx="12" cy="12" r="10" />
-      <path d="M12 16v-4" />
-      <path d="M12 8h.01" />
-    </svg>
-  ),
+  default: infoIcon,
+  info: infoIcon,
   success: (
     <svg
       width="16"
@@ -105,7 +118,7 @@ const defaultIcons: Record<Variant, ReactNode> = {
       <path d="M12 17h.01" />
     </svg>
   ),
-  error: (
+  danger: (
     <svg
       width="16"
       height="16"
@@ -137,9 +150,11 @@ export function Alert({
   bodyClassName,
   ...props
 }: AlertProps) {
-  const s = styles[variant]
-  const displayIcon = icon ?? defaultIcons[variant]
-  const liveRole = variant === "error" || variant === "warning" ? "alert" : "status"
+  const resolved = resolveTone(variant)
+  const tone: Variant = resolved === "muted" ? "default" : resolved
+  const s = styles[tone]
+  const displayIcon = icon ?? defaultIcons[tone]
+  const liveRole = tone === "danger" || tone === "warning" ? "alert" : "status"
 
   return (
     <motion.div

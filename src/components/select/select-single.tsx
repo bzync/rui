@@ -6,6 +6,7 @@ import { KeyboardEvent, forwardRef, useEffect, useId, useRef, useState, useMemo,
 import type { SelectOption, SelectPropsSingle } from "./types"
 import { colorDot, flatten, useMenuPosition, XIcon, ChevronIcon } from "./utils"
 import { OptionList } from "./option-list"
+import { SelectFormFields } from "./form-fields"
 import { useEventCallback } from "@/hooks/use-event-callback"
 
 export const SelectSingle = forwardRef<HTMLButtonElement, SelectPropsSingle>(
@@ -21,6 +22,8 @@ export const SelectSingle = forwardRef<HTMLButtonElement, SelectPropsSingle>(
       error,
       disabled,
       required,
+      name,
+      form,
       clearable = false,
       className,
       wrapperClassName,
@@ -120,6 +123,7 @@ export const SelectSingle = forwardRef<HTMLButtonElement, SelectPropsSingle>(
     if (unstyled) {
       return (
         <div ref={containerRef} className={cn(className, wrapperClassName)}>
+          <SelectFormFields name={name} form={form} values={value ? [value] : []} required={required} disabled={disabled} onReset={() => setLocalValue(defaultValue ?? "")} />
           <button ref={ref} id={triggerId} type="button" role="combobox" aria-expanded={open} onClick={() => setOpen(o => !o)} className={triggerClassName}>{selectedOpt?.label ?? placeholder}</button>
           {open && <ul ref={listRef} id={listId} className={listClassName}>{flat.map(o => <li key={o.value} data-idx={o.flatIdx} onClick={() => handleSelect(o)}>{o.label}</li>)}</ul>}
         </div>
@@ -179,6 +183,8 @@ export const SelectSingle = forwardRef<HTMLButtonElement, SelectPropsSingle>(
           )}
           <ChevronIcon open={open} />
         </button>
+
+        <SelectFormFields name={name} form={form} values={value ? [value] : []} required={required} disabled={disabled} onReset={() => setLocalValue(defaultValue ?? "")} />
 
         <OptionList
           listId={listId}

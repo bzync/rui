@@ -17,7 +17,8 @@ import {
 // subsequent toasts — and exit animations — are instant.
 const SnackbarViewport = lazy(() => import("./snackbar-viewport"))
 
-export type SnackbarVariant = "default" | "info" | "success" | "warning" | "error"
+/** `error` is a deprecated alias of `danger`. */
+export type SnackbarVariant = "default" | "info" | "success" | "warning" | "danger" | "error"
 export type SnackbarPosition =
   | "top-left"
   | "top-center"

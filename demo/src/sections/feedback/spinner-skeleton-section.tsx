@@ -2,6 +2,7 @@ import { Button } from "@bzync/rui"
 import {
   Skeleton,
   SkeletonCard,
+  SkeletonRegion,
   SkeletonTable,
   SkeletonText,
 } from "@bzync/rui"
@@ -39,9 +40,9 @@ export function SkeletonSection() {
     <Section
       id="skeleton"
       title="Skeleton"
-      description="Loading placeholders — base block, text lines, avatar, card, and table presets."
-      importPath='import { Skeleton, SkeletonText, SkeletonCard, SkeletonTable } from "@bzync/rui"'
-      meta={["5 presets"]}
+      description="Loading placeholders — base block, text lines, avatar, card, and table presets. Composite presets announce a busy status to screen readers; wrap a whole layout in SkeletonRegion and pass label={false} to the presets inside."
+      importPath='import { Skeleton, SkeletonText, SkeletonCard, SkeletonTable, SkeletonRegion } from "@bzync/rui"'
+      meta={["5 presets", "status region"]}
     >
       <Group label="Base shapes">
         <Skeleton width={120} height={16} />
@@ -59,7 +60,13 @@ export function SkeletonSection() {
         </div>
       </Group>
       <Group label="Table" col>
-        <SkeletonTable rows={4} cols={5} className="w-full" />
+        <SkeletonTable rows={4} cols={5} className="w-full" label="Loading deployments" />
+      </Group>
+      <Group label="One region for a layout" col>
+        <SkeletonRegion label="Loading project" className="grid w-full grid-cols-1 gap-4 md:grid-cols-2">
+          <SkeletonCard lines={2} label={false} />
+          <SkeletonCard lines={2} label={false} />
+        </SkeletonRegion>
       </Group>
     </Section>
   )

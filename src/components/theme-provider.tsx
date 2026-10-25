@@ -2,8 +2,9 @@
 
 import { cn } from "@/lib/cn"
 import type { CSSProperties, HTMLAttributes, ReactNode } from "react"
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react"
+import { createContext, useCallback, useContext, useEffect, useId, useMemo, useState } from "react"
 import { createPortal } from "react-dom"
+import { useHydrated } from "@/hooks/use-hydrated"
 
 export type Theme = "light" | "dark" | "system"
 export type ResolvedTheme = Exclude<Theme, "system">
@@ -51,7 +52,17 @@ export interface ThemeColors {
 }
 
 export interface ThemePalette {
-  /** Replaces the blue scale used for primary actions, focus rings, and selected states. */
+  /**
+   * Replaces the blue scale used for primary actions, focus rings, and selected states.
+   *
+   * Setting it also points `--color-primary`, `--color-primary-hover` and
+   * `--color-focus-ring` at accent 600/700/500 inside the provider's scope
+   * (unless `colors.primary` / `colors.primaryHover` / `colors.focusRing` are
+   * given), because the stylesheet's own aliases resolve on `:root` against
+   * the default accent. Those derived tokens are emitted with zero specificity,
+   * so any app rule that targets the scope (`.rui-theme { --color-primary: … }`)
+   * wins; pass `deriveAccentTokens={false}` on the provider to skip them.
+   */
   accent?: ColorPalette
   /** Replaces both the slate and gray scales used by text, borders, and neutral surfaces. */
   neutral?: ColorPalette
@@ -80,6 +91,8 @@ const ThemeContext = createContext<ThemeContextValue | null>(null)
 
 /** What a portal needs to re-create the nearest ThemeProvider's scope. */
 interface ThemeScopeValue {
+  id: string
+  preference: Theme
   className: string
   resolvedTheme: ResolvedTheme
   style: CSSProperties
@@ -106,6 +119,13 @@ export interface ThemeProviderProps extends Omit<HTMLAttributes<HTMLDivElement>,
    * Not needed for the library's own portals (Drawer, Select, Autocomplete, chart tooltips),
    * which carry the theme scope with them via ThemePortal. */
   applyToRoot?: boolean
+  /**
+   * When `palette.accent` is set, also point `--color-primary`,
+   * `--color-primary-hover` and `--color-focus-ring` at the new accent scale.
+   * Defaults to true. Set false when the app defines those tokens in its own
+   * CSS (for example on `:root`), which the scope would otherwise shadow.
+   */
+  deriveAccentTokens?: boolean
 }
 
 function systemTheme(): ResolvedTheme {
@@ -164,20 +184,91 @@ function paletteStyle(...palettes: Array<ThemePalette | undefined>): CSSProperti
     }
     Object.assign(style, palette.tokens)
   }
-  // Aliases such as --color-primary: var(--color-accent-600) are declared on
-  // :root by the stylesheet, so they resolve against the default accent there
-  // and never see an accent set inline on the provider. Re-declare them next
-  // to the overridden scale (unless the palette set them explicitly) so
-  // primary buttons, checkboxes and focus rings follow palette.accent.
-  if (palettes.some((palette) => palette?.accent && Object.keys(palette.accent).length > 0)) {
-    for (const [token, shade] of [["--color-primary", 600], ["--color-primary-hover", 700], ["--color-focus-ring", 500]] as const) {
-      if (style[token] === undefined) style[token] = `var(--color-accent-${shade})`
-    }
-  }
   if (style["--color-destructive"] !== undefined && style["--color-danger"] === undefined) {
     style["--color-danger"] = "var(--color-destructive)"
   }
   return style as CSSProperties
+}
+
+const accentAliases = [["--color-primary", 600], ["--color-primary-hover", 700], ["--color-focus-ring", 500]] as const
+
+/**
+ * Aliases such as --color-primary: var(--color-accent-600) are declared on
+ * :root by the stylesheet, so they resolve against the default accent there
+ * and never see an accent set on the provider. Re-declare them next to the
+ * overridden scale (unless a palette set them explicitly) so primary buttons,
+ * checkboxes and focus rings follow palette.accent.
+ */
+function accentAliasStyle(palettes: Array<ThemePalette | undefined>, explicit: CSSProperties): CSSProperties {
+  if (!palettes.some((palette) => palette?.accent && Object.keys(palette.accent).length > 0)) return {}
+  const style: Record<string, string> = {}
+  for (const [token, shade] of accentAliases) {
+    if ((explicit as Record<string, unknown>)[token] === undefined) style[token] = `var(--color-accent-${shade})`
+  }
+  return style as CSSProperties
+}
+
+/** Declarations for a generated rule. Drops anything that could end the rule or the <style> element. */
+function declarations(style: CSSProperties): string {
+  return Object.entries(style)
+    .filter(([key, value]) => /^--[\w-]+$/.test(key) && !/[{}]|<\//.test(String(value)))
+    .map(([key, value]) => `${key}:${value};`)
+    .join("")
+}
+
+/**
+ * Palette tokens as a stylesheet instead of inline style. An inline style can
+ * only hold the theme resolved during render, which on the server is the
+ * `defaultTheme` fallback (stored choice and prefers-color-scheme are
+ * client-only), so dark-mode users got light tokens until hydration. Emitting
+ * every mode keyed on `.dark` lets a pre-paint `<html class="dark">` (or the
+ * provider's own class) pick the right set before React runs.
+ */
+function paletteCss(
+  id: string,
+  palettes: { palette?: ThemePalette; lightPalette?: ThemePalette; darkPalette?: ThemePalette },
+  { applyToRoot, deriveAccentTokens }: { applyToRoot: boolean; deriveAccentTokens: boolean },
+): string {
+  const scope = `[data-rui-scope="${id}"]`
+  const base = paletteStyle(palettes.palette)
+  const light = paletteStyle(palettes.lightPalette)
+  const dark = paletteStyle(palettes.darkPalette)
+  const lightAliases = deriveAccentTokens ? accentAliasStyle([palettes.palette, palettes.lightPalette], { ...base, ...light }) : {}
+  const darkAliases = deriveAccentTokens ? accentAliasStyle([palettes.palette, palettes.darkPalette], { ...base, ...dark }) : {}
+
+  const lightSel = [`${scope}:not(.dark):not(.dark *)`, `${scope}[data-theme-preference="light"]`]
+  const darkSel = [`${scope}.dark`, `.dark ${scope}:not([data-theme-preference="light"])`]
+  const rootLight = ":root:not(.dark)"
+  const rootDark = ":root.dark"
+
+  const sameAliases = declarations(lightAliases) === declarations(darkAliases)
+  const rules: Array<[string[], CSSProperties]> = [
+    // Derived aliases first and at zero specificity, so explicit tokens and app CSS win.
+    ...(sameAliases
+      ? [[[`:where(${scope})`], lightAliases] as [string[], CSSProperties]]
+      : [
+          [lightSel.map((sel) => `:where(${sel})`), lightAliases] as [string[], CSSProperties],
+          [darkSel.map((sel) => `:where(${sel})`), darkAliases] as [string[], CSSProperties],
+        ]),
+    [[scope], base],
+    [lightSel, light],
+    [darkSel, dark],
+  ]
+  if (applyToRoot) {
+    rules.push(
+      [[`:where(${rootLight})`], lightAliases],
+      [[`:where(${rootDark})`], darkAliases],
+      [[":root"], base],
+      [[rootLight], light],
+      [[rootDark], dark],
+    )
+  }
+  return rules
+    .map(([selectors, style]) => {
+      const body = declarations(style)
+      return body ? `${selectors.join(",")}{${body}}` : ""
+    })
+    .join("")
 }
 
 /** Custom properties from a style object (the theme-relevant part of it). */
@@ -196,10 +287,12 @@ export function ThemeProvider({
   lightPalette,
   darkPalette,
   applyToRoot = false,
+  deriveAccentTokens = true,
   className,
   style,
   ...props
 }: ThemeProviderProps) {
+  const scopeId = useId()
   const [internalTheme, setInternalTheme] = useState<Theme>(() => {
     if (controlledTheme || !storageKey || typeof window === "undefined") return defaultTheme
     const stored = window.localStorage.getItem(storageKey) ?? (storageKey === "rui-theme" ? window.localStorage.getItem("rtui-theme") : null)
@@ -228,16 +321,18 @@ export function ThemeProvider({
   }, [resolvedTheme, setTheme])
 
   const value = useMemo(() => ({ theme, resolvedTheme, setTheme, toggleTheme }), [resolvedTheme, setTheme, theme, toggleTheme])
-  const paletteVars = useMemo(
-    () => paletteStyle(palette, resolvedTheme === "dark" ? darkPalette : lightPalette),
-    [darkPalette, lightPalette, palette, resolvedTheme],
+  // Independent of the resolved theme, so server and client output match.
+  const css = useMemo(
+    () => paletteCss(scopeId, { palette, lightPalette, darkPalette }, { applyToRoot, deriveAccentTokens }),
+    [applyToRoot, darkPalette, deriveAccentTokens, lightPalette, palette, scopeId],
   )
-  const customStyle = { ...paletteVars, ...style }
   const scope = useMemo<ThemeScopeValue>(() => ({
+    id: scopeId,
+    preference: theme,
     className: cn("rui-theme rtui-theme", resolvedTheme === "dark" && "dark"),
     resolvedTheme,
-    style: { colorScheme: resolvedTheme, ...paletteVars, ...customProperties(style) },
-  }), [paletteVars, resolvedTheme, style])
+    style: { colorScheme: resolvedTheme, ...customProperties(style) },
+  }), [resolvedTheme, scopeId, style, theme])
 
   useEffect(() => {
     if (!applyToRoot) return
@@ -247,12 +342,12 @@ export function ThemeProvider({
     const hadRtuiTheme = root.classList.contains("rtui-theme")
     const previousTheme = root.dataset.theme
     const previousColorScheme = root.style.colorScheme
-    const previousTokens = Object.keys(paletteVars).map((key) => [key, root.style.getPropertyValue(key)] as const)
+    // Palette tokens reach <html> through the generated :root rules, which
+    // follow this class.
     root.classList.toggle("dark", resolvedTheme === "dark")
     root.classList.add("rui-theme", "rtui-theme")
     root.dataset.theme = resolvedTheme
     root.style.colorScheme = resolvedTheme
-    for (const [key, tokenValue] of Object.entries(paletteVars)) root.style.setProperty(key, String(tokenValue))
     return () => {
       root.classList.toggle("dark", hadDark)
       root.classList.toggle("rui-theme", hadRuiTheme)
@@ -260,21 +355,20 @@ export function ThemeProvider({
       if (previousTheme === undefined) delete root.dataset.theme
       else root.dataset.theme = previousTheme
       root.style.colorScheme = previousColorScheme
-      for (const [key, tokenValue] of previousTokens) {
-        if (tokenValue) root.style.setProperty(key, tokenValue)
-        else root.style.removeProperty(key)
-      }
     }
-  }, [applyToRoot, paletteVars, resolvedTheme])
+  }, [applyToRoot, resolvedTheme])
 
   return (
     <ThemeContext.Provider value={value}>
       <ThemeScopeContext.Provider value={scope}>
+      {/* A sibling, not a child, so it never shifts :first-child selectors on the app's content. */}
+      {css && <style data-rui-palette={scopeId} dangerouslySetInnerHTML={{ __html: css }} />}
       <div
         data-theme={resolvedTheme}
         data-theme-preference={theme}
+        data-rui-scope={scopeId}
         className={cn("rui-theme rtui-theme", resolvedTheme === "dark" && "dark", className)}
-        style={{ colorScheme: resolvedTheme, ...customStyle }}
+        style={{ colorScheme: resolvedTheme, ...style }}
         {...props}
       >
         {children}
@@ -295,20 +389,28 @@ export function useTheme(): ThemeContextValue {
  * the nearest ThemeProvider's theme. A plain portal leaves the `.rui-theme`
  * element, so it loses dark mode, palette overrides and the scoped base
  * styles. This wraps the content in a `display: contents` copy of the scope
- * (theme classes, `data-theme` and the palette's custom properties), which
+ * (theme classes, `data-theme`, and the scope attribute the provider's palette
+ * rules select), which
  * restores all of that without adding a layout box. Outside a ThemeProvider it
  * is a plain portal. Use it for any custom overlay rendered next to the
  * library's own.
+ *
+ * Nothing is rendered on the server or during hydration (the server has no
+ * `document` to portal into), so closed and open overlays alike hydrate
+ * without a mismatch; the portal appears on the render after hydration.
  */
 export function ThemePortal({ children, container }: { children: ReactNode; container?: Element | DocumentFragment | null }) {
   const scope = useContext(ThemeScopeContext)
-  if (typeof document === "undefined") return null
+  const hydrated = useHydrated()
+  if (!hydrated || typeof document === "undefined") return null
   const target = container ?? document.body
   if (!scope) return createPortal(children, target)
   return createPortal(
     <div
       className={scope.className}
       data-theme={scope.resolvedTheme}
+      data-theme-preference={scope.preference}
+      data-rui-scope={scope.id}
       data-rui-portal=""
       style={{ ...scope.style, display: "contents" }}
     >

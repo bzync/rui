@@ -11,6 +11,12 @@ export interface AutocompleteOption<V = string> {
 export interface AutocompletePropsBase<V = string>
   extends Omit<InputHTMLAttributes<HTMLInputElement>, "value" | "onChange" | "onSelect" | "prefix"> {
   options: AutocompleteOption<V>[]
+  /** Submits the selected option value(s) with the form (one entry per value), not the typed text. */
+  name?: string
+  /** Associates the Autocomplete with a `<form>` elsewhere in the document by its id. */
+  form?: string
+  /** Requires a selection; enforced by native constraint validation inside a form. */
+  required?: boolean
   inputValue?: string
   onInputChange?: (value: string) => void
   label?: string

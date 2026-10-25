@@ -37,6 +37,11 @@
       "style": "./dist/theme.css",
       "import": "./dist/theme.css",
       "default": "./dist/theme.css"
+    },
+    "./tailwind.css": {
+      "style": "./dist/tailwind.css",
+      "import": "./dist/tailwind.css",
+      "default": "./dist/tailwind.css"
     }
   },
   "scripts": {

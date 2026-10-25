@@ -3,12 +3,14 @@
 import { cn } from "@/lib/cn"
 import { ThemePortal } from "./theme-provider"
 import { iconButtonStyles } from "@/lib/component-styles"
-import { AnimatePresence, motion } from "framer-motion"
+import { AnimatePresence } from "framer-motion"
+import { motion } from "@/lib/motion-components"
 import { transitions } from "@/lib/motion"
 import { CloseIcon } from "@/lib/icons"
 import { ReactNode, useId, useRef } from "react"
 import { useEventCallback } from "@/hooks/use-event-callback"
 import { useFocusTrap, useRestoreFocus } from "@/hooks/use-focus-trap"
+import { useHydrated } from "@/hooks/use-hydrated"
 
 export interface DrawerProps {
   open: boolean
@@ -56,17 +58,18 @@ export function Drawer({
   const onCloseStable = useEventCallback(onClose)
   const panelRef = useRef<HTMLDivElement>(null)
   const titleId = useId()
-  const { previouslyFocusedRef, restoreNow } = useRestoreFocus(open)
+  const { restoreNow } = useRestoreFocus(open)
+  // The portalled panel does not exist until after hydration; arm the trap then.
+  const hydrated = useHydrated()
 
   useFocusTrap(panelRef, {
-    active: open,
+    active: open && hydrated,
     onEscape: onCloseStable,
     closeOnEscape,
   })
 
   const restoreFocus = restoreNow
 
-  if (typeof document === "undefined") return null
   if (unstyled && open) {
     return <ThemePortal><div ref={panelRef} tabIndex={-1} role="dialog" aria-modal="true" aria-label={typeof title === "string" ? title : ariaLabel} className={cn(className, panelClassName)}>{children}</div></ThemePortal>
   }

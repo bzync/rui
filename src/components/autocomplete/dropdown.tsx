@@ -2,7 +2,8 @@
 
 import { cn } from "@/lib/cn"
 import { ThemePortal } from "../theme-provider"
-import { AnimatePresence, motion } from "framer-motion"
+import { AnimatePresence } from "framer-motion"
+import { motion } from "@/lib/motion-components"
 import { RefObject } from "react"
 import { AutocompleteOption } from "./types"
 import type { MenuPos } from "../select/types"

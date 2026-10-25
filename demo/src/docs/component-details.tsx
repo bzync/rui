@@ -108,7 +108,7 @@ function SnackbarPreview() {
 
 function ConfirmPreview() {
   const [open, setOpen] = useState(false)
-  return <><R.Button variant="destructive" icon={<Trash2 size={15} />} onClick={() => setOpen(true)}>Delete environment</R.Button><R.ConfirmDialog open={open} onClose={() => setOpen(false)} onConfirm={() => setOpen(false)} title="Delete production environment?" description="This permanently removes its containers and volumes." confirmLabel="Delete environment" destructive /></>
+  return <><R.Button variant="danger" icon={<Trash2 size={15} />} onClick={() => setOpen(true)}>Delete environment</R.Button><R.ConfirmDialog open={open} onClose={() => setOpen(false)} onConfirm={() => setOpen(false)} title="Delete production environment?" description="This permanently removes its containers and volumes." confirmLabel="Delete environment" destructive /></>
 }
 
 function CommandTrigger() {
@@ -479,7 +479,7 @@ export const supplementalDetails: Record<string, () => SupplementalDetail> = {
   "components/callout": () => detail(
     `<Callout variant="warning" title="Approaching limit">You have used 92% of build minutes.</Callout>`,
     <R.Callout className="w-full max-w-lg" variant="warning" title="Approaching limit">You have used 92% of this month&apos;s build minutes.</R.Callout>,
-    api(["variant", '"default" | "info" | "success" | "warning" | "error"', "Semantic treatment.", '"info"'], ["title", "ReactNode", "Optional heading."], ["icon", "ReactNode", "Custom leading icon."], ["children", "ReactNode", "Callout message."]),
+    api(["variant", '"default" | "success" | "warning" | "danger" | "info" | "muted"', "Semantic treatment. \"error\" is a deprecated alias of \"danger\".", '"info"'], ["title", "ReactNode", "Optional heading."], ["icon", "ReactNode", "Custom leading icon."], ["children", "ReactNode", "Callout message."]),
     "Keep a textual title or message so meaning is not communicated by color alone.",
   ),
   "components/tag": () => detail(

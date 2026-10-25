@@ -29,7 +29,7 @@ function FeedbackPattern() {
     <PageIntro eyebrow="Patterns" title="Feedback" description="Match the feedback surface to urgency, persistence, and whether the user must act." />
     <DocsSection id="choose" title="Choose a surface"><div className="decision-list"><div><Badge variant="info">Alert</Badge><p>Persistent page or section-level status.</p></div><div><Badge variant="success">Snackbar</Badge><p>Transient confirmation after an action.</p></div><div><Badge variant="warning">Modal</Badge><p>Blocking decision or focused task.</p></div><div><Badge variant="muted">Empty state</Badge><p>Absence of content with a useful next action.</p></div></div></DocsSection>
     <DocsSection id="severity" title="Severity"><p>Use semantic variants consistently. Error and warning alerts announce immediately; reserve those roles for information that genuinely needs attention.</p></DocsSection>
-    <DocsSection id="example" title="Example"><div className="demo-stack"><Alert variant="error" title="Deployment failed">The health check did not pass. The previous release remains active.</Alert><Alert variant="info" title="Maintenance scheduled">Database maintenance starts Friday at 02:00 UTC.</Alert></div></DocsSection>
+    <DocsSection id="example" title="Example"><div className="demo-stack"><Alert variant="danger" title="Deployment failed">The health check did not pass. The previous release remains active.</Alert><Alert variant="info" title="Maintenance scheduled">Database maintenance starts Friday at 02:00 UTC.</Alert></div></DocsSection>
   </>
 }
 

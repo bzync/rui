@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react"
+import { act, render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { describe, expect, it, vi } from "vitest"
 import { Autocomplete, Select } from "@/index"
@@ -79,5 +79,104 @@ describe("Autocomplete", () => {
     expect(screen.getByText("Styled search")).toHaveClass("custom-autocomplete-label")
     expect(await screen.findByRole("listbox")).toHaveClass("custom-autocomplete-list")
     expect(screen.getAllByRole("option")[0]).toHaveClass("custom-autocomplete-option")
+  })
+})
+
+describe("Select form participation", () => {
+  it("submits single and multiple selections under their name", async () => {
+    const user = userEvent.setup()
+    render(
+      <>
+        <form data-testid="form">
+          <Select label="Region" name="region" options={options} defaultValue="ph" />
+          <Select label="Markets" name="markets" multiple options={options} defaultValue={["us", "ph"]} />
+          <Select label="Locked" name="locked" options={options} defaultValue="us" disabled />
+        </form>
+        <Select label="Outside" name="outside" form="detached" options={options} defaultValue="us" />
+        <form id="detached" data-testid="detached" />
+      </>,
+    )
+    const data = new FormData(screen.getByTestId("form") as HTMLFormElement)
+    expect(data.get("region")).toBe("ph")
+    expect(data.getAll("markets")).toEqual(["us", "ph"])
+    expect(data.has("locked")).toBe(false)
+    expect(new FormData(screen.getByTestId("detached") as HTMLFormElement).get("outside")).toBe("us")
+
+    await user.click(screen.getByRole("combobox", { name: "Region" }))
+    await user.click(screen.getByRole("option", { name: "United States" }))
+    expect(new FormData(screen.getByTestId("form") as HTMLFormElement).get("region")).toBe("us")
+  })
+
+  it("blocks an empty required submit through native validation", async () => {
+    const user = userEvent.setup()
+    render(<form data-testid="form"><Select label="Plan" name="plan" required options={options} /><Select label="Tags" multiple required options={options} /></form>)
+    const form = screen.getByTestId("form") as HTMLFormElement
+    expect(form.checkValidity()).toBe(false)
+    await user.click(screen.getByRole("combobox", { name: /Plan/ }))
+    await user.click(screen.getByRole("option", { name: "Philippines" }))
+    await vi.waitFor(() => expect(screen.queryByRole("listbox")).not.toBeInTheDocument())
+    await user.click(screen.getByRole("combobox", { name: /Tags/ }))
+    await user.click(screen.getByRole("option", { name: "United States" }))
+    expect(form.checkValidity()).toBe(true)
+  })
+
+  it("returns an uncontrolled selection to its default on form reset", async () => {
+    const user = userEvent.setup()
+    render(<form data-testid="form"><Select label="Region" name="region" options={options} defaultValue="ph" /></form>)
+    await user.click(screen.getByRole("combobox", { name: "Region" }))
+    await user.click(screen.getByRole("option", { name: "United States" }))
+    expect(screen.getByRole("combobox", { name: "Region" })).toHaveTextContent("United States")
+    act(() => (screen.getByTestId("form") as HTMLFormElement).reset())
+    await vi.waitFor(() => expect(screen.getByRole("combobox", { name: "Region" })).toHaveTextContent("Philippines"))
+    expect(new FormData(screen.getByTestId("form") as HTMLFormElement).get("region")).toBe("ph")
+  })
+})
+
+describe("Autocomplete form participation", () => {
+  it("submits the selected value, not the typed text, and drops it when the text is edited", async () => {
+    const user = userEvent.setup()
+    render(<form data-testid="form"><Autocomplete label="Country" name="country" options={options} /></form>)
+    const form = screen.getByTestId("form") as HTMLFormElement
+    const input = screen.getByRole("combobox", { name: "Country" })
+
+    await user.type(input, "Phil")
+    expect(new FormData(form).has("country")).toBe(false)
+    await user.click(screen.getByRole("option", { name: "Philippines" }))
+    expect(new FormData(form).getAll("country")).toEqual(["ph"])
+
+    await user.type(input, "x")
+    expect(new FormData(form).has("country")).toBe(false)
+  })
+
+  it("submits one entry per value in multiple mode and honours controlled values", () => {
+    render(
+      <form data-testid="form">
+        <Autocomplete multiple label="Markets" name="markets" options={options} value={["us", "ph"]} />
+        <Autocomplete label="Home" name="home" options={options} value="us" />
+      </form>,
+    )
+    const data = new FormData(screen.getByTestId("form") as HTMLFormElement)
+    expect(data.getAll("markets")).toEqual(["us", "ph"])
+    expect(data.getAll("home")).toEqual(["us"])
+  })
+
+  it("requires a selection rather than any text, and clears on form reset", async () => {
+    const user = userEvent.setup()
+    render(<form data-testid="form"><Autocomplete label="Country" name="country" required options={options} /></form>)
+    const form = screen.getByTestId("form") as HTMLFormElement
+    const input = screen.getByRole("combobox", { name: /Country/ })
+    expect(input).toHaveAttribute("aria-required", "true")
+    expect(input).not.toHaveAttribute("name")
+
+    await user.type(input, "Unlisted")
+    expect(form.checkValidity()).toBe(false)
+    await user.clear(input)
+    await user.type(input, "Uni")
+    await user.click(screen.getByRole("option", { name: "United States" }))
+    expect(form.checkValidity()).toBe(true)
+
+    act(() => form.reset())
+    await vi.waitFor(() => expect(input).toHaveValue(""))
+    expect(form.checkValidity()).toBe(false)
   })
 })

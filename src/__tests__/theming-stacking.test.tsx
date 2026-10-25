@@ -173,15 +173,56 @@ describe("stacking order", () => {
 describe("theme scope", () => {
   it("re-derives primary and focus-ring from an accent override unless set explicitly", () => {
     const { container, rerender } = render(<ThemeProvider storageKey={false} palette={{ accent: { 500: "#00ff00", 600: "#ff0000" } }}>x</ThemeProvider>)
-    const root = container.firstElementChild as HTMLElement
-    expect(root.style.getPropertyValue("--color-primary")).toBe("var(--color-accent-600)")
-    expect(root.style.getPropertyValue("--color-focus-ring")).toBe("var(--color-accent-500)")
+    const token = (name: string) => getComputedStyle(container.querySelector("[data-rui-scope]")!).getPropertyValue(name)
+    expect(token("--color-primary")).toBe("var(--color-accent-600)")
+    expect(token("--color-focus-ring")).toBe("var(--color-accent-500)")
 
     rerender(<ThemeProvider storageKey={false} palette={{ accent: { 600: "#ff0000" }, colors: { primary: "#123456" } }}>x</ThemeProvider>)
-    expect((container.firstElementChild as HTMLElement).style.getPropertyValue("--color-primary")).toBe("#123456")
+    expect(token("--color-primary")).toBe("#123456")
+
+    rerender(<ThemeProvider storageKey={false} palette={{ accent: { 600: "#ff0000" } }} deriveAccentTokens={false}>x</ThemeProvider>)
+    expect(token("--color-primary")).toBe("")
 
     rerender(<ThemeProvider storageKey={false}>x</ThemeProvider>)
-    expect((container.firstElementChild as HTMLElement).style.getPropertyValue("--color-primary")).toBe("")
+    expect(token("--color-primary")).toBe("")
+    expect(container.querySelector("style")).toBeNull()
+  })
+
+  it("lets app CSS aimed at the scope beat the accent-derived primary", () => {
+    const appCss = document.createElement("style")
+    appCss.textContent = ".rui-theme { --color-primary: #345dee; }"
+    document.head.append(appCss)
+    try {
+      const { container } = render(<ThemeProvider storageKey={false} palette={{ accent: { 600: "#2563eb" } }}>x</ThemeProvider>)
+      expect(getComputedStyle(container.querySelector("[data-rui-scope]")!).getPropertyValue("--color-primary")).toBe("#345dee")
+    } finally {
+      appCss.remove()
+    }
+  })
+
+  it("emits palette tokens for every mode in a stylesheet, not inline", () => {
+    const { container } = render(
+      <ThemeProvider storageKey={false} defaultTheme="light" lightPalette={{ tokens: { "--color-bg": "#fff" } }} darkPalette={{ tokens: { "--color-bg": "#000" } }}>x</ThemeProvider>,
+    )
+    const scope = container.querySelector<HTMLElement>("[data-rui-scope]")!
+    expect(scope.style.getPropertyValue("--color-bg")).toBe("")
+    expect(getComputedStyle(scope).getPropertyValue("--color-bg")).toBe("#fff")
+    // A pre-paint script marking <html> dark selects the dark set before hydration resolves the theme.
+    scope.dataset.themePreference = "system"
+    document.documentElement.classList.add("dark")
+    try {
+      expect(getComputedStyle(scope).getPropertyValue("--color-bg")).toBe("#000")
+    } finally {
+      document.documentElement.classList.remove("dark")
+    }
+  })
+
+  it("drops palette values that would escape the generated rule", () => {
+    const { container } = render(<ThemeProvider storageKey={false} palette={{ tokens: { "--ok": "1", "--bad": "x}</style><script>", "--also-bad": "}body{" } }}>x</ThemeProvider>)
+    const css = container.querySelector("style")!.textContent ?? ""
+    expect(css).toContain("--ok:1;")
+    expect(css).not.toContain("--bad")
+    expect(css).not.toContain("--also-bad")
   })
 
   it("keeps portaled overlays inside the theme scope", () => {
@@ -198,7 +239,7 @@ describe("theme scope", () => {
       expect(scope).toHaveClass("rui-theme", "dark")
       expect(scope).toHaveAttribute("data-theme", "dark")
       expect(scope.style.display).toBe("contents")
-      expect(scope.style.getPropertyValue("--color-success")).toBe("#7c3aed")
+      expect(getComputedStyle(scope).getPropertyValue("--color-success")).toBe("#7c3aed")
       expect(scope.style.getPropertyValue("--app-token")).toBe("1")
       expect(scope.style.padding).toBe("")
     }

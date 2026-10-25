@@ -103,10 +103,12 @@ const textVariants: Record<TextVariant, string> = {
   muted: "text-sm leading-6 text-muted-foreground",
   caption: "text-xs leading-5 text-muted-foreground",
   overline: "text-xs leading-5 font-semibold uppercase tracking-wider text-muted-foreground",
-  success: "text-sm leading-6 font-medium text-success",
-  warning: "text-sm leading-6 font-medium text-warning",
-  danger: "text-sm leading-6 font-medium text-destructive",
-  info: "text-sm leading-6 font-medium text-info",
+  // The -strong tokens: the bare 600-step status colors miss 4.5:1 as body
+  // text in one theme or the other.
+  success: "text-sm leading-6 font-medium text-success-strong",
+  warning: "text-sm leading-6 font-medium text-warning-strong",
+  danger: "text-sm leading-6 font-medium text-danger-strong",
+  info: "text-sm leading-6 font-medium text-info-strong",
   date: "text-sm leading-6 text-foreground tabular-nums",
   time: "text-sm leading-6 text-foreground tabular-nums",
   number: "text-sm leading-6 text-foreground tabular-nums",
@@ -297,7 +299,7 @@ export const Text = forwardRef<HTMLElement, TextProps>(({
         weight && weightStyles[weight],
         textAlignments[align],
         textWrapStyles[resolvedWrap],
-        currencyVariant && (typeof value === "bigint" ? value < 0n : typeof value === "number" && value < 0) && "text-destructive",
+        currencyVariant && (typeof value === "bigint" ? value < 0n : typeof value === "number" && value < 0) && "text-danger-strong",
         className,
       )}
       {...props}

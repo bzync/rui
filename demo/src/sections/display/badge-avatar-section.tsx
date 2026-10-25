@@ -15,7 +15,7 @@ export function BadgeSection() {
         <Badge variant="default">Default</Badge>
         <Badge variant="success">Success</Badge>
         <Badge variant="warning">Warning</Badge>
-        <Badge variant="error">Error</Badge>
+        <Badge variant="danger">Error</Badge>
         <Badge variant="info">Info</Badge>
         <Badge variant="muted">Muted</Badge>
       </Group>
@@ -37,7 +37,7 @@ export function BadgeSection() {
         <Badge variant="warning" dot>
           Pending
         </Badge>
-        <Badge variant="error" dot>
+        <Badge variant="danger" dot>
           Failed
         </Badge>
         <Badge variant="muted" dot>

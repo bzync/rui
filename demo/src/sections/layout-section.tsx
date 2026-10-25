@@ -200,7 +200,7 @@ export function LayoutSection() {
                       { id: "2", title: "Build completed", description: "Docker image pushed to registry (1.2 GB)", timestamp: "4m ago", variant: "info" },
                       { id: "3", title: "Build started", description: "npm ci && npm run build", timestamp: "6m ago" },
                       { id: "4", title: "Deploy triggered", description: "Push to main by alice@bzync.cloud", timestamp: "7m ago" },
-                      { id: "5", title: "Previous deploy failed", description: "Health check timeout after 60s", timestamp: "3h ago", variant: "error" },
+                      { id: "5", title: "Previous deploy failed", description: "Health check timeout after 60s", timestamp: "3h ago", variant: "danger" },
                     ]}
                   />
                 </div>

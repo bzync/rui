@@ -137,10 +137,10 @@ function PaginationPreview() {
 
 const details: Record<string, () => Detail> = {
   "components/button": () => ({
-    code: `<Button variant="primary">Create project</Button>\n<Button variant="secondary">Save draft</Button>\n<Button variant="outline">View logs</Button>\n<Button variant="ghost">Cancel</Button>\n<Button variant="destructive">Delete project</Button>`,
-    preview: <div className="demo-row"><Button>Create project</Button><Button variant="secondary">Save draft</Button><Button variant="outline">View logs</Button><Button variant="ghost">Cancel</Button><Button variant="destructive">Delete project</Button></div>,
+    code: `<Button variant="primary">Create project</Button>\n<Button variant="secondary">Save draft</Button>\n<Button variant="outline">View logs</Button>\n<Button variant="ghost">Cancel</Button>\n<Button variant="danger">Delete project</Button>`,
+    preview: <div className="demo-row"><Button>Create project</Button><Button variant="secondary">Save draft</Button><Button variant="outline">View logs</Button><Button variant="ghost">Cancel</Button><Button variant="danger">Delete project</Button></div>,
     props: [
-      { name: "variant", type: '"primary" | "secondary" | "ghost" | "outline" | "destructive" | "link"', default: '"primary"', description: "Visual and semantic treatment." },
+      { name: "variant", type: '"primary" | "secondary" | "ghost" | "outline" | "danger" | "link"', default: '"primary"', description: "Visual and semantic treatment." },
       { name: "size", type: '"sm" | "md" | "lg" | "icon"', default: '"md"', description: "Control height and padding." },
       { name: "loading", type: "boolean", default: "false", description: "Disables the button and renders a progress spinner." },
       { name: "icon", type: "ReactNode", description: "Optional leading or trailing icon." },
@@ -168,7 +168,7 @@ const details: Record<string, () => Detail> = {
   "components/select": () => ({
     code: `<Select\n  label="Region"\n  value={region}\n  onChange={setRegion}\n  options={[\n    { value: "iad1", label: "US East — Virginia" },\n    { value: "fra1", label: "EU Central — Frankfurt" },\n  ]}\n/>`,
     preview: <StatefulSelectPreview />,
-    props: [{ name: "options", type: "SelectItem[]", description: "Options or grouped options." },{ name: "multiple", type: "boolean", default: "false", description: "Switches between scalar and array values." },{ name: "value", type: "string | string[]", description: "Controlled selected value." },{ name: "defaultValue", type: "string | string[]", description: "Initial uncontrolled value." },{ name: "onChange", type: "(value) => void", description: "Called when selection changes." },{ name: "label / hint / error", type: "string", description: "Accessible field messaging." }],
+    props: [{ name: "options", type: "SelectItem[]", description: "Options or grouped options." },{ name: "multiple", type: "boolean", default: "false", description: "Switches between scalar and array values." },{ name: "name / form", type: "string", description: "Submits the selection with a native form: one name=value entry per selected value. required is enforced by native validation." },{ name: "value", type: "string | string[]", description: "Controlled selected value." },{ name: "defaultValue", type: "string | string[]", description: "Initial uncontrolled value." },{ name: "onChange", type: "(value) => void", description: "Called when selection changes." },{ name: "label / hint / error", type: "string", description: "Accessible field messaging." }],
     accessibility: "The trigger exposes combobox semantics and controls a listbox. Options support keyboard navigation, selection, dismissal with Escape, and disabled states.",
   }),
   "components/checkbox": () => ({
@@ -190,9 +190,9 @@ const details: Record<string, () => Detail> = {
     accessibility: "The group supplies one generated name to its native radio inputs and connects group-level hint and error text.",
   }),
   "components/badge": () => ({
-    code: `<Badge>Active</Badge>\n<Badge variant="success" dot>Healthy</Badge>\n<Badge variant="warning">Review</Badge>\n<Badge variant="error">Failed</Badge>\n<Badge variant="info">Queued</Badge>\n<Badge variant="muted">Draft</Badge>`,
-    preview: <div className="demo-row"><Badge>Active</Badge><Badge variant="success" dot>Healthy</Badge><Badge variant="warning">Review</Badge><Badge variant="error">Failed</Badge><Badge variant="info">Queued</Badge><Badge variant="muted">Draft</Badge></div>,
-    props: [{ name: "variant", type: '"default" | "success" | "warning" | "error" | "info" | "muted"', default: '"default"', description: "Semantic color treatment." },{ name: "size", type: '"sm" | "md" | "lg"', default: '"md"', description: "Badge density." },{ name: "dot", type: "boolean", default: "false", description: "Adds a leading status dot." }],
+    code: `<Badge>Active</Badge>\n<Badge variant="success" dot>Healthy</Badge>\n<Badge variant="warning">Review</Badge>\n<Badge variant="danger">Failed</Badge>\n<Badge variant="info">Queued</Badge>\n<Badge variant="muted">Draft</Badge>`,
+    preview: <div className="demo-row"><Badge>Active</Badge><Badge variant="success" dot>Healthy</Badge><Badge variant="warning">Review</Badge><Badge variant="danger">Failed</Badge><Badge variant="info">Queued</Badge><Badge variant="muted">Draft</Badge></div>,
+    props: [{ name: "variant", type: '"default" | "success" | "warning" | "danger" | "info" | "muted"', default: '"default"', description: "Semantic color treatment. \"error\" is a deprecated alias of \"danger\"." },{ name: "size", type: '"sm" | "md" | "lg"', default: '"md"', description: "Badge density." },{ name: "dot", type: "boolean", default: "false", description: "Adds a leading status dot." }],
     accessibility: "Badge is non-interactive metadata. Do not communicate meaning through color alone; keep descriptive text in the badge.",
   }),
   "components/card": () => ({
@@ -204,13 +204,13 @@ const details: Record<string, () => Detail> = {
   "components/alert": () => ({
     code: `<Alert variant="success" title="Deployment complete">\n  Production is serving the new release.\n</Alert>\n<Alert variant="warning" title="Action required">\n  Add a payment method before the next renewal.\n</Alert>`,
     preview: <div className="demo-stack w-full"><Alert variant="success" title="Deployment complete">Production is serving the new release.</Alert><Alert variant="warning" title="Action required">Add a payment method before the next renewal.</Alert></div>,
-    props: [{ name: "variant", type: '"info" | "success" | "warning" | "error"', default: '"info"', description: "Feedback severity." },{ name: "title", type: "string", description: "Concise feedback heading." },{ name: "dismissable", type: "boolean", default: "false", description: "Displays a dismiss action." },{ name: "onDismiss", type: "() => void", description: "Dismiss callback." }],
-    accessibility: "Warning and error variants use role=\"alert\". Other variants use role=\"status\". Dismiss actions have an accessible name.",
+    props: [{ name: "variant", type: '"default" | "success" | "warning" | "danger" | "info" | "muted"', default: '"info"', description: "Feedback severity. \"error\" is a deprecated alias of \"danger\"." },{ name: "title", type: "string", description: "Concise feedback heading." },{ name: "dismissable", type: "boolean", default: "false", description: "Displays a dismiss action." },{ name: "onDismiss", type: "() => void", description: "Dismiss callback." }],
+    accessibility: "Warning and danger variants use role=\"alert\". Other variants use role=\"status\". Dismiss actions have an accessible name.",
   }),
   "components/modal": () => ({
     code: `<Modal\n  open={open}\n  onClose={() => setOpen(false)}\n  title="Create API key"\n  description="The secret is shown only once."\n>\n  <Input label="Key name" />\n</Modal>`,
     preview: <StatefulModalPreview />,
-    props: [{ name: "open", type: "boolean", description: "Controls presence of the dialog." },{ name: "onClose", type: "() => void", description: "Requested by Escape, overlay, or close button." },{ name: "size", type: '"sm" | "md" | "lg" | "xl" | "2xl" | "7xl" | "full"', default: '"md"', description: "Maximum panel width." },{ name: "title / description", type: "string", description: "Visible text connected to dialog ARIA attributes." },{ name: "closeOnEscape", type: "boolean", default: "true", description: "Enables Escape dismissal." },{ name: "closeOnOverlayClick", type: "boolean", default: "true", description: "Enables backdrop dismissal." }],
+    props: [{ name: "open", type: "boolean", description: "Controls presence of the dialog." },{ name: "portalled", type: "boolean", default: "true", description: "Renders through ThemePortal so table cells and other clipping ancestors cannot clip or out-stack it. False renders inline." },{ name: "onClose", type: "() => void", description: "Requested by Escape, overlay, or close button." },{ name: "size", type: '"sm" | "md" | "lg" | "xl" | "2xl" | "7xl" | "full"', default: '"md"', description: "Maximum panel width." },{ name: "title / description", type: "string", description: "Visible text connected to dialog ARIA attributes." },{ name: "closeOnEscape", type: "boolean", default: "true", description: "Enables Escape dismissal." },{ name: "closeOnOverlayClick", type: "boolean", default: "true", description: "Enables backdrop dismissal." }],
     accessibility: "Uses role=\"dialog\" and aria-modal. Focus moves inside, cycles within the panel, and returns to the previous element after close. Escape closes by default.",
   }),
   "components/drawer": () => ({
@@ -252,7 +252,7 @@ const details: Record<string, () => Detail> = {
   "components/progressbar": () => ({
     code: `<Progressbar value={72} label="Upload progress" showValue />`,
     preview: <div className="demo-stack w-full max-w-lg"><Progressbar value={72} label="Upload progress" showValue /><Progressbar value={34} variant="warning" size="sm" /></div>,
-    props: [{ name: "value", type: "number", description: "Current progress value." },{ name: "max", type: "number", default: "100", description: "Completion value." },{ name: "variant", type: '"default" | "success" | "warning" | "error" | "info"', default: '"default"', description: "Semantic treatment." },{ name: "size", type: '"xs" | "sm" | "md" | "lg"', default: '"md"', description: "Track height." }],
+    props: [{ name: "value", type: "number", description: "Current progress value." },{ name: "max", type: "number", default: "100", description: "Completion value." },{ name: "variant", type: '"default" | "success" | "warning" | "danger" | "info"', default: '"default"', description: "Semantic treatment. \"error\" is a deprecated alias of \"danger\"." },{ name: "size", type: '"xs" | "sm" | "md" | "lg"', default: '"md"', description: "Track height." }],
     accessibility: "Exposes progressbar semantics with current minimum, maximum, and value information.",
   }),
   "components/skeleton": () => ({
