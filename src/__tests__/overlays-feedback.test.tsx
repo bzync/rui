@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event"
 import { hydrateRoot } from "react-dom/client"
 import { renderToString } from "react-dom/server"
 import { describe, expect, it, vi } from "vitest"
-import { CommandPalette, CommandProvider, ConfirmDialog, ContextMenu, Menubar, CopyButton, DatePicker, Drawer, DropdownMenu, InfoButton, Modal, Popover, PopoverContent, Select, Sheet, SnackbarProvider, ThemeProvider, TimePicker, Tooltip, useSnackbar } from "@/index"
+import { CommandPalette, CommandProvider, ConfirmDialog, ContextMenu, Menubar, CopyButton, DatePicker, Drawer, DropdownMenu, HoverCard, InfoButton, Modal, Popover, PopoverContent, Select, Sheet, SnackbarProvider, ThemeProvider, TimePicker, Tooltip, useSnackbar } from "@/index"
 import { useState } from "react"
 
 describe("overlay and feedback components", () => {
@@ -354,5 +354,35 @@ describe("Sheet", () => {
     expect(screen.queryByRole("button", { name: "Close sheet" })).not.toBeInTheDocument()
     await user.keyboard("{Escape}")
     expect(screen.getByRole("dialog")).toHaveAttribute("data-state", "open")
+  })
+})
+
+describe("HoverCard", () => {
+  it("opens after the delay on hover, stays open over the card, and closes on Escape", async () => {
+    vi.useFakeTimers()
+    try {
+      const onOpenChange = vi.fn()
+      render(<HoverCard content={<a href="#/profile">View profile</a>} openDelay={300} closeDelay={100} onOpenChange={onOpenChange}><a href="#/u/ada">@ada</a></HoverCard>)
+      const trigger = screen.getByRole("link", { name: "@ada" })
+      fireEvent.mouseEnter(trigger)
+      expect(screen.queryByRole("link", { name: "View profile" })).not.toBeInTheDocument()
+      act(() => { vi.advanceTimersByTime(300) })
+      const card = screen.getByRole("link", { name: "View profile" })
+      expect(trigger).toHaveAttribute("aria-describedby")
+      fireEvent.mouseLeave(trigger)
+      fireEvent.mouseEnter(card.parentElement!)
+      act(() => { vi.advanceTimersByTime(200) })
+      expect(screen.getByRole("link", { name: "View profile" })).toBeInTheDocument()
+      fireEvent.keyDown(document, { key: "Escape" })
+      expect(onOpenChange).toHaveBeenLastCalledWith(false)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it("opens on keyboard focus", async () => {
+    render(<HoverCard content="Preview" openDelay={0}><button type="button">Repo</button></HoverCard>)
+    act(() => { screen.getByRole("button", { name: "Repo" }).focus() })
+    expect(await screen.findByText("Preview")).toBeInTheDocument()
   })
 })

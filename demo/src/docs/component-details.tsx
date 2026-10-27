@@ -1011,6 +1011,48 @@ const columns: ColumnDef<(typeof services)[number]>[] = [
     api(["open / onOpenChange", "boolean / (open) => void", "Controlled visibility."], ["snapPoints", "number[]", "Rest heights, smallest first: ≤ 1 is a fraction of the viewport, larger is pixels.", "[0.5, 0.92]"], ["snap / defaultSnap / onSnapChange", "number", "Controlled or initial snap index.", "0"], ["title / description", "ReactNode", "Header; also names and describes the dialog."], ["modal", "boolean", "Overlay, focus trap and scroll lock. Off for a persistent sheet.", "true"], ["dismissible", "boolean", "Allow closing by dragging down, Escape, the overlay and the close button.", "true"], ["showCloseButton", "boolean", "Shows the header close button.", "true"], ["className / overlayClassName / headerClassName / contentClassName / handleClassName", "string", "Part styling."]),
     "Drag the handle or header between snap points; a quick flick moves to the next one and dragging below the lowest point dismisses. The handle is a real button: click or Enter cycles the snap points, Arrow Up/Down step through them (Down at the lowest point closes). Modal sheets trap focus and restore it on close; the content scrolls within the visible height.",
   ),
+  "components/hover-card": () => detail(
+    `<p className="max-w-md text-sm leading-6 text-muted-foreground">
+  Reviewed by{" "}
+  <HoverCard
+    content={
+      <div className="flex gap-3">
+        <Avatar name="Ada Lovelace" size="lg" />
+        <div className="grid gap-1">
+          <p className="font-semibold">Ada Lovelace</p>
+          <p className="text-muted-foreground">@ada · Staff engineer, Platform</p>
+          <p className="text-muted-foreground">Joined March 2021 · 1.2k commits</p>
+          <a href="#/components/avatar" className="font-medium text-accent-strong underline underline-offset-4">View profile</a>
+        </div>
+      </div>
+    }
+  >
+    <a href="#/components/hover-card" className="font-medium text-foreground underline decoration-dotted underline-offset-4">@ada</a>
+  </HoverCard>{" "}
+  and merged into main two hours ago.
+</p>`,
+    <p className="max-w-md text-sm leading-6 text-muted-foreground">
+  Reviewed by{" "}
+  <R.HoverCard
+    content={
+      <div className="flex gap-3">
+        <R.Avatar name="Ada Lovelace" size="lg" />
+        <div className="grid gap-1">
+          <p className="font-semibold">Ada Lovelace</p>
+          <p className="text-muted-foreground">@ada · Staff engineer, Platform</p>
+          <p className="text-muted-foreground">Joined March 2021 · 1.2k commits</p>
+          <a href="#/components/avatar" className="font-medium text-accent-strong underline underline-offset-4">View profile</a>
+        </div>
+      </div>
+    }
+  >
+    <a href="#/components/hover-card" className="font-medium text-foreground underline decoration-dotted underline-offset-4">@ada</a>
+  </R.HoverCard>{" "}
+  and merged into main two hours ago.
+</p>,
+    api(["content", "ReactNode", "The card body."], ["children", "ReactElement", "The trigger; hover and focus handlers are merged onto it."], ["side / align", "\"top\" | \"bottom\" | \"left\" | \"right\" / \"start\" | \"center\" | \"end\"", "Preferred placement; flips and clamps to the viewport.", "\"bottom\" / \"center\""], ["openDelay / closeDelay", "number", "Delays in ms.", "500 / 200"], ["open / defaultOpen / onOpenChange", "boolean", "Controlled or initial visibility."], ["width", "number | string", "Card width.", "\"18rem\""], ["className / wrapperClassName", "string", "Card and wrapper styling."]),
+    "Opens after a short delay on hover or keyboard focus and closes on blur, pointer leave or Escape. Unlike Tooltip the card is interactive: moving the pointer onto it keeps it open. The trigger references the card with aria-describedby while it is open. Treat the card as a preview; anything essential should also be reachable without hovering.",
+  ),
   "components/resizable": () => detail(
     `<div className="h-80 w-full overflow-hidden rounded-xl border border-border bg-surface">
   <Resizable defaultSizes={[22, 56, 22]} minSizes={[15, 30, 15]} panelLabels={["Explorer", "Editor", "Inspector"]}>

@@ -1,9 +1,9 @@
 {
   "version": "0.0.11",
   "stylesheet": {
-    "raw": 108167,
-    "gzip": 17912,
-    "brotli": 14331
+    "raw": 108688,
+    "gzip": 17994,
+    "brotli": 14395
   },
   "sharedRuntime": {
     "raw": 37806,
@@ -180,6 +180,22 @@
       },
       "lazy": null,
       "modules": 3,
+      "peers": []
+    },
+    "Banner": {
+      "entry": "components/banner.js",
+      "total": {
+        "raw": 44919,
+        "gzip": 11986,
+        "brotli": 10327
+      },
+      "specific": {
+        "raw": 7113,
+        "gzip": 2386,
+        "brotli": 2099
+      },
+      "lazy": null,
+      "modules": 5,
       "peers": []
     },
     "BillingIntervalToggle": {
@@ -1096,6 +1112,24 @@
       },
       "lazy": null,
       "modules": 7,
+      "peers": [
+        "framer-motion"
+      ]
+    },
+    "HoverCard": {
+      "entry": "components/hover-card.js",
+      "total": {
+        "raw": 52778,
+        "gzip": 14690,
+        "brotli": 12606
+      },
+      "specific": {
+        "raw": 14972,
+        "gzip": 5024,
+        "brotli": 4463
+      },
+      "lazy": null,
+      "modules": 9,
       "peers": [
         "framer-motion"
       ]

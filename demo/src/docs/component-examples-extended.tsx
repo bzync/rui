@@ -1812,6 +1812,24 @@ export default function App() {
       <NowPlayingSheetExample />),
   ],
 
+  "components/hover-card": () => [
+    ex("sides", "Placement", "Each card prefers a side and flips at the viewport edge. These open faster with openDelay={150}.",
+      `<div className="flex flex-wrap items-center gap-3">
+  {(["top", "right", "bottom", "left"] as const).map((side) => (
+    <HoverCard key={side} side={side} openDelay={150} width={220} content={<p className="text-muted-foreground">Opens on the <strong className="text-foreground">{side}</strong>, flipping when there is no room.</p>}>
+      <Button variant="secondary">{side}</Button>
+    </HoverCard>
+  ))}
+</div>`,
+      <div className="flex flex-wrap items-center gap-3">
+  {(["top", "right", "bottom", "left"] as const).map((side) => (
+    <R.HoverCard key={side} side={side} openDelay={150} width={220} content={<p className="text-muted-foreground">Opens on the <strong className="text-foreground">{side}</strong>, flipping when there is no room.</p>}>
+      <R.Button variant="secondary">{side}</R.Button>
+    </R.HoverCard>
+  ))}
+</div>),
+  ],
+
   "components/resizable": () => [
     ex("persisted", "Persisted with a grip", "storageKey remembers the layout across reloads; withHandle shows a grip. Resize, then reload the page.",
       `<div className="h-56 w-full overflow-hidden rounded-xl border border-border bg-surface">
