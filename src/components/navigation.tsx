@@ -2,6 +2,10 @@
 
 import { cn } from "@/lib/cn"
 import { focusRingStyles, iconButtonStyles } from "@/lib/component-styles"
+import { useAnchoredPosition } from "@/hooks/use-anchored-position"
+import { useControllableState } from "@/hooks/use-controllable-state"
+import { mergeRefs } from "@/lib/merge-refs"
+import { ThemePortal } from "./theme-provider"
 import {
   AnchorHTMLAttributes,
   ButtonHTMLAttributes,
@@ -10,8 +14,10 @@ import {
   forwardRef,
   type Ref,
   useEffect,
+  useId,
+  useRef,
+  useState,
 } from "react"
-import { useControllableState } from "@/hooks/use-controllable-state"
 
 export interface NavigationItem {
   id: string
@@ -20,6 +26,8 @@ export interface NavigationItem {
   icon?: ReactNode
   badge?: ReactNode
   disabled?: boolean
+  children?: NavigationItem[]
+  defaultOpen?: boolean
 }
 
 interface NavigationItemProps extends NavigationItem {
@@ -176,6 +184,171 @@ export interface SidebarProps extends NavigationListProps {
   expandLabel?: string
 }
 
+function SidebarItem({
+  item,
+  activeId,
+  onSelect,
+  rail,
+}: {
+  item: NavigationItem
+  activeId?: string
+  onSelect?: (id: string) => void
+  rail?: boolean
+}) {
+  const hasChildren = Boolean(item.children && item.children.length > 0)
+  const isChildActive = Boolean(hasChildren && item.children!.some((child) => child.id === activeId))
+  const isSelfActive = activeId === item.id
+  const isActive = isSelfActive || isChildActive
+
+  const [open, setOpen] = useState(item.defaultOpen ?? isChildActive)
+  const [flyoutOpen, setFlyoutOpen] = useState(false)
+  const triggerRef = useRef<HTMLButtonElement | null>(null)
+  const panelRef = useRef<HTMLDivElement | null>(null)
+  const subMenuId = useId()
+
+  const { setFloating, style } = useAnchoredPosition({
+    open: Boolean(rail && flyoutOpen),
+    anchorRef: triggerRef,
+    side: "right",
+    align: "start",
+    gap: 8,
+    padding: 8,
+  })
+
+  useEffect(() => {
+    if (isChildActive) setOpen(true)
+  }, [isChildActive])
+
+  if (!hasChildren) {
+    return (
+      <NavigationLink
+        {...item}
+        rail={rail}
+        active={isSelfActive}
+        onSelect={onSelect}
+        className={rail ? undefined : "w-full justify-start"}
+      />
+    )
+  }
+
+  if (rail) {
+    return (
+      <div
+        className="relative"
+        onMouseEnter={() => setFlyoutOpen(true)}
+        onMouseLeave={() => setFlyoutOpen(false)}
+      >
+        <button
+          ref={triggerRef}
+          type="button"
+          aria-haspopup="menu"
+          aria-expanded={flyoutOpen}
+          aria-label={item.label}
+          onClick={() => setFlyoutOpen(!flyoutOpen)}
+          className={cn(
+            "group relative inline-flex size-10 shrink-0 items-center justify-center rounded-[var(--radius-md)] font-medium transition-colors",
+            focusRingStyles,
+            isActive
+              ? "bg-accent-500/10 text-accent-strong"
+              : "text-muted-foreground hover:bg-muted hover:text-foreground",
+            item.disabled && "pointer-events-none opacity-40",
+          )}
+        >
+          {item.icon ? (
+            <span className="shrink-0" aria-hidden="true">{item.icon}</span>
+          ) : (
+            <span aria-hidden="true" className="text-xs font-semibold">{item.label.slice(0, 2)}</span>
+          )}
+          {item.badge && <span aria-hidden="true" className="absolute right-1.5 top-1.5 size-2 rounded-full bg-accent-500 ring-2 ring-surface" />}
+        </button>
+
+        {flyoutOpen && (
+          <ThemePortal>
+            <div
+              ref={mergeRefs(panelRef, setFloating)}
+              style={style}
+              role="menu"
+              aria-label={item.label}
+              onMouseEnter={() => setFlyoutOpen(true)}
+              onMouseLeave={() => setFlyoutOpen(false)}
+              className="z-(--z-popover) min-w-[170px] flex flex-col gap-1 rounded-[var(--radius-md)] border border-border bg-surface p-1.5 shadow-floating ring-1 ring-foreground/5 animate-in fade-in zoom-in-95 duration-100"
+            >
+              <div className="px-2.5 py-1 text-xs font-semibold text-foreground border-b border-border/60 mb-0.5">
+                {item.label}
+              </div>
+              {item.children!.map((child) => (
+                <NavigationLink
+                  key={child.id}
+                  {...child}
+                  active={activeId === child.id}
+                  onSelect={(id) => {
+                    onSelect?.(id)
+                    setFlyoutOpen(false)
+                  }}
+                  className="w-full justify-start text-xs h-8 px-2"
+                />
+              ))}
+            </div>
+          </ThemePortal>
+        )}
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex flex-col w-full">
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-controls={subMenuId}
+        disabled={item.disabled}
+        onClick={() => setOpen(!open)}
+        className={cn(
+          "group relative flex w-full items-center justify-between gap-2 rounded-[var(--radius-md)] px-3 h-9 text-sm font-medium transition-colors",
+          focusRingStyles,
+          isActive
+            ? "text-foreground font-semibold"
+            : "text-muted-foreground hover:bg-muted hover:text-foreground",
+          item.disabled && "pointer-events-none opacity-40",
+        )}
+      >
+        <span className="flex items-center gap-2 truncate">
+          {item.icon && <span className="shrink-0" aria-hidden="true">{item.icon}</span>}
+          <span className="truncate">{item.label}</span>
+        </span>
+
+        <span className="flex items-center gap-1.5 shrink-0">
+          {item.badge}
+          <span className={cn("text-muted-foreground transition-transform duration-200", open && "rotate-180")}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </span>
+        </span>
+      </button>
+
+      {open && (
+        <div
+          id={subMenuId}
+          role="group"
+          aria-label={item.label}
+          className="ml-4 flex flex-col gap-0.5 border-l border-border pl-2.5 pt-0.5 mt-0.5"
+        >
+          {item.children!.map((child) => (
+            <NavigationLink
+              key={child.id}
+              {...child}
+              active={activeId === child.id}
+              onSelect={onSelect}
+              className="w-full justify-start text-xs h-8 px-2"
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export const Sidebar = forwardRef<HTMLElement, SidebarProps>(function Sidebar({
   items,
   activeId,
@@ -228,13 +401,12 @@ export const Sidebar = forwardRef<HTMLElement, SidebarProps>(function Sidebar({
       {header && <div className={cn("border-b border-border", rail ? "grid place-items-center px-2 py-4" : "p-4")}>{render(header)}</div>}
       <nav aria-label={ariaLabel} className={cn("flex flex-1 flex-col gap-1 p-2", rail && "items-center")}>
         {items.map((item) => (
-          <NavigationLink
+          <SidebarItem
             key={item.id}
-            {...item}
+            item={item}
             rail={rail}
-            active={activeId === item.id}
+            activeId={activeId}
             onSelect={onSelect}
-            className={rail ? undefined : "w-full justify-start"}
           />
         ))}
       </nav>

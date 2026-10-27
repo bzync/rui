@@ -55,6 +55,7 @@ const actions = [
   component("Info Button", "Opens contextual information from a compact icon action.", "Actions", ["icon button", "help"], "InfoButton"),
   component("Billing Interval Toggle", "Switches between monthly, quarterly, and annual billing intervals.", "Actions", [], "BillingIntervalToggle"),
   component("Theme Switcher", "Switches between light, dark, and system color modes with multiple UI/UX layouts.", "Actions", ["theme", "mode", "dark mode", "light mode", "switcher"], "ThemeSwitcher"),
+  component("Inline Edit", "Edits text in-place without opening modals or forms.", "Actions", ["editable text", "click to edit"], "InlineEdit"),
 ]
 
 const forms = [
@@ -70,12 +71,15 @@ const forms = [
   component("Switch", "Toggles a setting with immediate effect.", "Forms", ["toggle"]),
   component("Radio Group", "Selects exactly one option from a related set.", "Forms", ["radio"], "RadioGroup"),
   component("Slider", "Selects a numeric value from a range.", "Forms", ["range"]),
+  component("Range Slider", "Selects a numeric range between min and max bounds.", "Forms", ["slider", "dual range", "price range"], "RangeSlider"),
   component("Number Input", "Edits numeric values with increment and decrement controls.", "Forms", [], "NumberInput"),
   component("OTP Input", "Collects fixed-length one-time passcodes.", "Forms", ["code", "verification"], "OtpInput"),
   component("File Upload", "Selects one or more local files.", "Forms", ["dropzone"], "FileUpload"),
   component("Date Picker", "Selects a date through an input and calendar.", "Forms", ["date"], "DatePicker"),
   component("Date Range Picker", "Selects a start and end date with presets.", "Forms", ["range", "period", "from to"], "DateRangePicker"),
+  component("Date Time Picker", "Selects both date and time in an integrated popover.", "Forms", ["datetime", "schedule", "calendar"], "DateTimePicker"),
   component("Time Picker", "Selects a time through a responsive custom picker.", "Forms", ["time"], "TimePicker"),
+  component("Color Picker", "Selects colors from canvas, hue slider, and preset swatches.", "Forms", ["palette", "hex", "eyedropper"], "ColorPicker"),
   component("Calendar", "Displays selectable month and week calendar views.", "Forms"),
   component("Label", "Provides an accessible label for a form control.", "Forms"),
   component("Form", "Validates and submits forms with useForm, schemas and accessible errors.", "Forms", ["validation", "useForm", "zod", "schema"], "Form"),
@@ -123,6 +127,7 @@ const feedback = [
 
 const overlays = [
   component("Modal", "Presents a focused task in an accessible modal dialog.", "Overlays", ["dialog"]),
+  component("Responsive Dialog", "Adaptive dialog rendering a modal on desktop and a bottom sheet on mobile.", "Overlays", ["adaptive modal", "drawer", "sheet", "dialog"], "ResponsiveDialog"),
   component("Confirm Dialog", "Confirms a consequential action.", "Overlays", ["confirmation"], "ConfirmDialog"),
   component("Drawer", "Presents contextual content from a viewport edge.", "Overlays", ["sheet"]),
   component("Sheet", "Bottom sheet that rests at draggable snap points.", "Overlays", ["bottom sheet", "drawer", "snap"]),
@@ -140,6 +145,7 @@ const navigation = [
   component("Breadcrumb", "Shows location within a hierarchy.", "Navigation", ["breadcrumbs"]),
   component("Tabs", "Switches between related panels without leaving the page.", "Navigation"),
   component("Accordion", "Expands and collapses sections of content.", "Navigation", ["disclosure"]),
+  component("Collapsible", "Expands and collapses arbitrary sections of content.", "Navigation", ["disclosure", "collapse"], "Collapsible"),
   component("Pagination", "Moves through paged data.", "Navigation", ["pages"]),
   component("Stepper", "Shows progress through a sequence.", "Navigation", ["steps"]),
   component("Navigation Menu", "Site navigation with dropdown mega-menu panels.", "Navigation", ["mega menu", "header nav", "dropdown nav"], "NavigationMenu"),
@@ -150,6 +156,7 @@ const data = [
   component("Table", "Provides responsive semantic table primitives.", "Data"),
   component("Data Table", "Adds sorting, search, loading, and pagination to tabular data.", "Data", ["grid"], "DataTable"),
   component("Sortable", "Reorderable lists and Kanban boards with accessible keyboard and pointer drag.", "Data", ["sortable", "drag and drop", "dnd", "kanban", "reorder"], "SortableList"),
+  component("Drag and Drop", "Composable drag and drop primitives for child components, kanban boards, and lists.", "Data", ["dnd", "draggable", "droppable", "kanban"], "DndContext"),
   component("Bar Chart", "Compares categorical values with bars.", "Data visualization", [], "BarChart"),
   component("Line Chart", "Shows change across an ordered series.", "Data visualization", [], "LineChart"),
   component("Multi Line Chart", "Compares multiple ordered series.", "Data visualization", [], "MultiLineChart"),

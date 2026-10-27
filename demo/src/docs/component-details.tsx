@@ -58,6 +58,123 @@ function ThemeSwitcherUsagePreview() {
   )
 }
 
+function RangeSliderUsagePreview() {
+  const [range, setRange] = useState<[number, number]>([25, 75])
+  return (
+    <div className="w-full max-w-sm">
+      <R.RangeSlider label="Price Range" min={0} max={100} step={5} value={range} onChange={setRange} showTooltip formatValue={(v) => `$${v}`} />
+    </div>
+  )
+}
+
+function DateTimePickerUsagePreview() {
+  const [val, setVal] = useState<Date | null>(new Date())
+  return (
+    <div className="w-full max-w-sm">
+      <R.DateTimePicker label="Release Date & Time" value={val} onChange={setVal} />
+    </div>
+  )
+}
+
+function ColorPickerUsagePreview() {
+  const [color, setColor] = useState("#3b82f6")
+  return (
+    <div className="w-full max-w-xs">
+      <R.ColorPicker label="Brand Accent Color" value={color} onChange={setColor} />
+    </div>
+  )
+}
+
+function InlineEditUsagePreview() {
+  const [name, setName] = useState("Alpha Project")
+  return (
+    <div className="flex flex-col items-start gap-2">
+      <span className="text-xs text-muted-foreground">Click to rename:</span>
+      <R.InlineEdit value={name} onSave={setName} />
+    </div>
+  )
+}
+
+function ResponsiveDialogUsagePreview() {
+  const [open, setOpen] = useState(false)
+  return (
+    <R.ResponsiveDialog open={open} onOpenChange={setOpen}>
+      <R.ResponsiveDialogTrigger className="inline-flex h-9 items-center justify-center rounded-[var(--radius-md)] bg-accent px-3 text-sm font-semibold text-accent-foreground shadow-xs">
+        Edit Profile
+      </R.ResponsiveDialogTrigger>
+      <R.ResponsiveDialogContent title="Edit Profile" description="Make changes to your profile settings here.">
+        <div className="space-y-3 py-2 text-sm">
+          <p className="text-muted-foreground">Adapts to a centered modal on desktop and a bottom sheet on mobile.</p>
+        </div>
+        <R.ResponsiveDialogFooter>
+          <R.ResponsiveDialogClose className="inline-flex h-8 items-center justify-center rounded-[var(--radius-md)] border border-border px-3 text-xs font-medium">
+            Done
+          </R.ResponsiveDialogClose>
+        </R.ResponsiveDialogFooter>
+      </R.ResponsiveDialogContent>
+    </R.ResponsiveDialog>
+  )
+}
+
+function CollapsibleUsagePreview() {
+  const [open, setOpen] = useState(false)
+  return (
+    <div className="w-full max-w-md rounded-[var(--radius-md)] border border-border p-3">
+      <R.Collapsible open={open} onOpenChange={setOpen}>
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-semibold">Repository Details</span>
+          <R.CollapsibleTrigger className="rounded px-2 py-1 text-xs border border-border bg-surface-muted">
+            {open ? "Hide" : "Show"}
+          </R.CollapsibleTrigger>
+        </div>
+        <R.CollapsibleContent className="text-xs text-muted-foreground pt-3 space-y-1">
+          <p>Commit: 32188ef</p>
+          <p>Branch: components-roadmap</p>
+        </R.CollapsibleContent>
+      </R.Collapsible>
+    </div>
+  )
+}
+
+function DndUsagePreview() {
+  const [itemsA, setItemsA] = useState(["Task 1", "Task 2"])
+  const [itemsB, setItemsB] = useState(["Task 3"])
+
+  const handleDragEnd = ({ activeId, targetDroppableId }: R.DragEndEvent) => {
+    if (!targetDroppableId) return
+    if (targetDroppableId === "col-b" && itemsA.includes(activeId)) {
+      setItemsA((prev) => prev.filter((i) => i !== activeId))
+      setItemsB((prev) => [...prev, activeId])
+    } else if (targetDroppableId === "col-a" && itemsB.includes(activeId)) {
+      setItemsB((prev) => prev.filter((i) => i !== activeId))
+      setItemsA((prev) => [...prev, activeId])
+    }
+  }
+
+  return (
+    <R.DndContext onDragEnd={handleDragEnd}>
+      <div className="grid grid-cols-2 gap-4 w-full max-w-md">
+        <R.Droppable id="col-a" className="rounded-lg border border-border bg-surface-muted/50 p-3 min-h-[140px] flex flex-col gap-2">
+          <span className="text-xs font-semibold text-muted-foreground">To Do ({itemsA.length})</span>
+          {itemsA.map((t) => (
+            <R.Draggable key={t} id={t} className="rounded border border-border bg-surface p-2 text-xs shadow-xs">
+              {t}
+            </R.Draggable>
+          ))}
+        </R.Droppable>
+        <R.Droppable id="col-b" className="rounded-lg border border-border bg-surface-muted/50 p-3 min-h-[140px] flex flex-col gap-2">
+          <span className="text-xs font-semibold text-muted-foreground">Done ({itemsB.length})</span>
+          {itemsB.map((t) => (
+            <R.Draggable key={t} id={t} className="rounded border border-border bg-surface p-2 text-xs shadow-xs">
+              {t}
+            </R.Draggable>
+          ))}
+        </R.Droppable>
+      </div>
+    </R.DndContext>
+  )
+}
+
 function InfoButtonPreview() {
   const [open, setOpen] = useState(false)
   return <>
@@ -1839,5 +1956,224 @@ const columns: ColumnDef<(typeof services)[number]>[] = [
     <R.WaterfallChart className="w-full" height={220} data={[{ label: "Base", value: 200 }, { label: "Compute", value: 120 }, { label: "Storage", value: 45 }, { label: "Discount", value: -60 }, { label: "Total", value: 0, total: true }]} formatValue={(value) => `$${Math.abs(value)}`} />,
     chartProps,
     "Positive, negative, and total values need textual labels; add a table for accounting-critical figures.",
+  ),
+  "components/range-slider": () => detail(
+    `function PriceRangeFilter() {
+  const [range, setRange] = useState<[number, number]>([25, 75])
+  return (
+    <div className="w-full max-w-sm">
+      <RangeSlider
+        label="Price Range"
+        min={0}
+        max={100}
+        step={5}
+        value={range}
+        onChange={setRange}
+        showTooltip
+        formatValue={(v) => \`\$\${v}\`}
+      />
+    </div>
+  )
+}`,
+    <RangeSliderUsagePreview />,
+    api(
+      ["min / max / step", "number", "Range boundaries and increment.", "0 / 100 / 1"],
+      ["value / defaultValue", "[number, number]", "Controlled or initial dual-thumb range values."],
+      ["onChange", "(value: [number, number]) => void", "Change callback."],
+      ["onChangeEnd", "(value: [number, number]) => void", "Fires when user commits drag."],
+      ["label", "ReactNode", "Accessible field label."],
+      ["formatValue", "(value: number) => string", "Value tooltip and aria text formatter."],
+      ["showTooltip", "boolean", "Displays floating tooltip over thumbs on hover/drag.", "false"],
+      ["marks", "RangeSliderMark[]", "Custom tick marks rendered along track."],
+      ["disabled", "boolean", "Disables range interaction.", "false"],
+      ["size", '"sm" | "md" | "lg"', "Track and thumb size.", '"md"'],
+    ),
+    "Renders two native-accessible slider thumbs with role='slider', aria-valuemin, aria-valuemax, aria-valuenow, and aria-valuetext. Fully keyboard navigable with Arrow keys, PageUp, PageDown, Home, and End.",
+  ),
+  "components/date-time-picker": () => detail(
+    `function ScheduleDeployment() {
+  const [val, setVal] = useState<Date | null>(new Date())
+  return (
+    <div className="w-full max-w-sm">
+      <DateTimePicker
+        label="Release Date & Time"
+        value={val}
+        onChange={setVal}
+      />
+    </div>
+  )
+}`,
+    <DateTimePickerUsagePreview />,
+    api(
+      ["value / defaultValue", "Date | null", "Controlled or initial date-time value."],
+      ["onChange", "(date: Date | null) => void", "Callback when date or time changes."],
+      ["label / hint / error", "ReactNode", "Accessible field messaging."],
+      ["is24Hour", "boolean", "24-hour time format toggle.", "false"],
+      ["showPresets", "boolean", "Show quick preset buttons (Now, Tomorrow, etc.).", "true"],
+      ["minDate / maxDate", "Date", "Selectable date limits."],
+      ["size", '"sm" | "md" | "lg"', "Field trigger size.", '"md"'],
+      ["clearable", "boolean", "Allows clearing the selected value.", "true"],
+    ),
+    "Trigger button communicates popup state via aria-haspopup='dialog' and aria-expanded. Calendar grid supports standard arrow key navigation, and time controls provide accessible spinbutton or select semantics.",
+  ),
+  "components/color-picker": () => detail(
+    `function BrandColorSelector() {
+  const [color, setColor] = useState("#3b82f6")
+  return (
+    <div className="w-full max-w-xs">
+      <ColorPicker
+        label="Brand Accent Color"
+        value={color}
+        onChange={setColor}
+      />
+    </div>
+  )
+}`,
+    <ColorPickerUsagePreview />,
+    api(
+      ["value / defaultValue", "string", "Controlled or initial hex/rgb color string."],
+      ["onChange", "(color: string) => void", "Color change callback."],
+      ["label / hint / error", "ReactNode", "Accessible field messaging."],
+      ["swatches", "string[]", "Array of preset color swatches."],
+      ["showEyeDropper", "boolean", "Enables native browser EyeDropper API button if supported.", "true"],
+      ["format", '"hex" | "rgb"', "Color text representation.", '"hex"'],
+      ["disabled", "boolean", "Disables color interaction.", "false"],
+    ),
+    "Color swatch buttons have accessible labels indicating their color name or hex value. Hue slider and canvas support keyboard adjustments, and text inputs allow direct hex entry.",
+  ),
+  "components/inline-edit": () => detail(
+    `function RenameProject() {
+  const [name, setName] = useState("Alpha Project")
+  return (
+    <div className="flex flex-col items-start gap-2">
+      <span className="text-xs text-muted-foreground">Click to rename:</span>
+      <InlineEdit value={name} onSave={setName} />
+    </div>
+  )
+}`,
+    <InlineEditUsagePreview />,
+    api(
+      ["value / defaultValue", "string", "Controlled or initial display value."],
+      ["onSave", "(value: string) => void | Promise<void>", "Save callback on commit or Enter."],
+      ["onCancel", "() => void", "Callback when editing is cancelled."],
+      ["validate", "(value: string) => string | boolean | undefined", "Validation rule returning an error message."],
+      ["multiline", "boolean", "Renders a textarea instead of an input.", "false"],
+      ["showButtons", "boolean", "Renders explicit save and cancel check/cross buttons.", "true"],
+      ["saveOnBlur", "boolean", "Automatically commits changes on blur.", "true"],
+      ["placeholder", "string", "Placeholder text when value is empty.", '"Click to edit…"'],
+      ["disabled", "boolean", "Disables editing.", "false"],
+    ),
+    "Display mode renders a button with accessible label and aria-description. In edit mode, auto-focuses the input, commits with Enter, and cancels with Escape. Save/cancel buttons have accessible tooltips and labels.",
+  ),
+  "components/responsive-dialog": () => detail(
+    `function EditProfileDialog() {
+  const [open, setOpen] = useState(false)
+  return (
+    <ResponsiveDialog open={open} onOpenChange={setOpen}>
+      <ResponsiveDialogTrigger className="inline-flex h-9 items-center justify-center rounded-[var(--radius-md)] bg-accent px-3 text-sm font-semibold text-accent-foreground shadow-xs">
+        Edit Profile
+      </ResponsiveDialogTrigger>
+      <ResponsiveDialogContent title="Edit Profile" description="Make changes to your profile settings here.">
+        <div className="space-y-3 py-2 text-sm">
+          <p className="text-muted-foreground">Adapts to a centered modal on desktop and a bottom sheet on mobile.</p>
+        </div>
+        <ResponsiveDialogFooter>
+          <ResponsiveDialogClose className="inline-flex h-8 items-center justify-center rounded-[var(--radius-md)] border border-border px-3 text-xs font-medium">
+            Done
+          </ResponsiveDialogClose>
+        </ResponsiveDialogFooter>
+      </ResponsiveDialogContent>
+    </ResponsiveDialog>
+  )
+}`,
+    <ResponsiveDialogUsagePreview />,
+    api(
+      ["open / defaultOpen / onOpenChange", "boolean / (open: boolean) => void", "Controlled or initial open state."],
+      ["breakpoint", "string", "Breakpoint for desktop vs mobile rendering.", '"sm" (640px)'],
+      ["ResponsiveDialogTrigger", "component", "Trigger element opening the dialog."],
+      ["ResponsiveDialogContent", "component", "Dialog body with title, description, and close button."],
+      ["ResponsiveDialogHeader / Footer", "components", "Header and footer containers for actions."],
+      ["ResponsiveDialogClose", "component", "Dismiss button."],
+    ),
+    "Renders with role='dialog' or role='alertdialog', aria-modal='true', and links title/description via aria-labelledby and aria-describedby. Traps focus on open, closes with Escape, and restores focus to the trigger on dismiss.",
+  ),
+  "components/collapsible": () => detail(
+    `function RepoDetailsDisclosure() {
+  const [open, setOpen] = useState(false)
+  return (
+    <div className="w-full max-w-md rounded-[var(--radius-md)] border border-border p-3">
+      <Collapsible open={open} onOpenChange={setOpen}>
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-semibold">Repository Details</span>
+          <CollapsibleTrigger className="rounded px-2 py-1 text-xs border border-border bg-surface-muted">
+            {open ? "Hide" : "Show"}
+          </CollapsibleTrigger>
+        </div>
+        <CollapsibleContent className="text-xs text-muted-foreground pt-3 space-y-1">
+          <p>Commit: 32188ef</p>
+          <p>Branch: components-roadmap</p>
+        </CollapsibleContent>
+      </Collapsible>
+    </div>
+  )
+}`,
+    <CollapsibleUsagePreview />,
+    api(
+      ["open / defaultOpen / onOpenChange", "boolean / (open: boolean) => void", "Controlled or initial expansion state."],
+      ["disabled", "boolean", "Disables triggering expansion.", "false"],
+      ["CollapsibleTrigger", "component", "Interactive toggle button with aria-expanded."],
+      ["CollapsibleContent", "component", "Animated expandable disclosure region with aria-hidden."],
+    ),
+    "Follows the WAI-ARIA disclosure pattern: CollapsibleTrigger renders a native button with aria-expanded and aria-controls linking directly to CollapsibleContent's unique id.",
+  ),
+  "components/drag-and-drop": () => detail(
+    `function KanbanBoard() {
+  const [itemsA, setItemsA] = useState(["Task 1", "Task 2"])
+  const [itemsB, setItemsB] = useState(["Task 3"])
+
+  const handleDragEnd = ({ activeId, targetDroppableId }: DragEndEvent) => {
+    if (!targetDroppableId) return
+    if (targetDroppableId === "col-b" && itemsA.includes(activeId)) {
+      setItemsA((prev) => prev.filter((i) => i !== activeId))
+      setItemsB((prev) => [...prev, activeId])
+    } else if (targetDroppableId === "col-a" && itemsB.includes(activeId)) {
+      setItemsB((prev) => prev.filter((i) => i !== activeId))
+      setItemsA((prev) => [...prev, activeId])
+    }
+  }
+
+  return (
+    <DndContext onDragEnd={handleDragEnd}>
+      <div className="grid grid-cols-2 gap-4 w-full max-w-md">
+        <Droppable id="col-a" className="rounded-lg border border-border bg-surface-muted/50 p-3 min-h-[140px] flex flex-col gap-2">
+          <span className="text-xs font-semibold text-muted-foreground">To Do ({itemsA.length})</span>
+          {itemsA.map((t) => (
+            <Draggable key={t} id={t} className="rounded border border-border bg-surface p-2 text-xs shadow-xs">
+              {t}
+            </Draggable>
+          ))}
+        </Droppable>
+        <Droppable id="col-b" className="rounded-lg border border-border bg-surface-muted/50 p-3 min-h-[140px] flex flex-col gap-2">
+          <span className="text-xs font-semibold text-muted-foreground">In Progress ({itemsB.length})</span>
+          {itemsB.map((t) => (
+            <Draggable key={t} id={t} className="rounded border border-border bg-surface p-2 text-xs shadow-xs">
+              {t}
+            </Draggable>
+          ))}
+        </Droppable>
+      </div>
+    </DndContext>
+  )
+}`,
+    <DndUsagePreview />,
+    api(
+      ["<DndContext onDragStart onDragMove onDragEnd />", "component", "Wraps drag-and-drop hierarchy and manages drag state."],
+      ["<Droppable id disabled />", "component", "Defines drop target region, exposes isOver state via render prop or context."],
+      ["<Draggable id droppableId disabled />", "component", "Interactive draggable element with keyboard and pointer grab."],
+      ["<DragHandle />", "component", "Optional dedicated grab handle button for draggables."],
+      ["useDndContext()", "hook", "Provides activeId, activeDroppableId, overDroppableId, and isDragging state."],
+      ["useDroppable({ id }) / useDraggable({ id })", "hooks", "Primitive hooks for custom draggable/droppable elements."],
+    ),
+    "Full keyboard accessible drag-and-drop: Draggables and DragHandles are keyboard focusable buttons with aria-grabbed / aria-roledescription='draggable'. Press Space or Enter to pick up, Arrow keys to navigate between droppable targets, Space or Enter to drop, and Escape to cancel. Position updates are announced politely via aria-live.",
   ),
 }

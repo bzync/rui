@@ -189,6 +189,27 @@ describe("overlay and feedback components", () => {
     expect(await screen.findByRole("region", { name: "Notifications" })).toHaveClass("custom-snackbar-region")
     expect(screen.getByText("Styled").closest("[class*='custom-toast']")).toHaveClass("custom-toast", "custom-toast-item")
   })
+
+  it("handles async operations with snackbar.promise", async () => {
+    const user = userEvent.setup()
+    function Trigger() {
+      const { promise } = useSnackbar()
+      const run = () => {
+        const asyncOp = new Promise<string>((resolve) => setTimeout(() => resolve("Success data"), 10))
+        promise(asyncOp, {
+          loading: "Saving changes…",
+          success: (data) => `Done: ${data}`,
+          error: "Error saving",
+        })
+      }
+      return <button onClick={run}>Run Promise</button>
+    }
+
+    render(<SnackbarProvider><Trigger /></SnackbarProvider>)
+    await user.click(screen.getByRole("button", { name: "Run Promise" }))
+    expect(await screen.findByText("Saving changes…")).toBeInTheDocument()
+    expect(await screen.findByText("Done: Success data")).toBeInTheDocument()
+  })
 })
 
 describe("portalled dialogs", () => {

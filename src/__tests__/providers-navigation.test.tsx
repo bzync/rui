@@ -1,7 +1,11 @@
 import { render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { describe, expect, it, vi } from "vitest"
-import { BottomBar, BrandLink, Navbar, NavigationMenu, Sidebar, ThemeProvider, ThemeSwitcher, ThemeToggle, Topbar, TopbarTitle } from "@/index"
+import {
+  BottomBar, BrandLink, Navbar, NavigationMenu, ResponsiveDialog, ResponsiveDialogContent,
+  ResponsiveDialogHeader, ResponsiveDialogTitle, ResponsiveDialogTrigger, ResponsiveDialogClose,
+  Sidebar, ThemeProvider, ThemeSwitcher, ThemeToggle, Topbar, TopbarTitle,
+} from "@/index"
 
 describe("themes", () => {
   it("toggles a scoped theme and exposes the active preference", async () => {
@@ -136,6 +140,38 @@ describe("Sidebar rail", () => {
     const again = render(<Sidebar collapsible storageKey="test-rail" items={railItems} />)
     await waitFor(() => expect(again.container.querySelector("aside")).toHaveAttribute("data-collapsed", "true"))
     window.localStorage.removeItem("test-rail")
+  })
+
+  it("supports nested menu items with collapsible disclosure", async () => {
+    const user = userEvent.setup()
+    const onSelect = vi.fn()
+    const nestedItems = [
+      { id: "dashboard", label: "Dashboard", href: "/dashboard" },
+      {
+        id: "settings",
+        label: "Settings",
+        children: [
+          { id: "general", label: "General", href: "/settings/general" },
+          { id: "security", label: "Security", href: "/settings/security" },
+        ],
+      },
+    ]
+
+    render(<Sidebar items={nestedItems} onSelect={onSelect} />)
+
+    const parentBtn = screen.getByRole("button", { name: /Settings/ })
+    expect(parentBtn).toHaveAttribute("aria-expanded", "false")
+    expect(screen.queryByRole("link", { name: "General" })).not.toBeInTheDocument()
+
+    // Click to expand nested items
+    await user.click(parentBtn)
+    expect(parentBtn).toHaveAttribute("aria-expanded", "true")
+    expect(screen.getByRole("link", { name: "General" })).toBeInTheDocument()
+    expect(screen.getByRole("link", { name: "Security" })).toBeInTheDocument()
+
+    // Click child item
+    await user.click(screen.getByRole("link", { name: "General" }))
+    expect(onSelect).toHaveBeenCalledWith("general")
   })
 })
 
@@ -314,5 +350,33 @@ describe("ThemeSwitcher", () => {
 
     await user.click(btn)
     expect(onChange).toHaveBeenCalledWith("light")
+  })
+})
+
+describe("ResponsiveDialog", () => {
+  it("opens dialog on trigger click and closes on close button", async () => {
+    const user = userEvent.setup()
+    const onOpenChange = vi.fn()
+
+    render(
+      <ResponsiveDialog onOpenChange={onOpenChange}>
+        <ResponsiveDialogTrigger>Open Dialog</ResponsiveDialogTrigger>
+        <ResponsiveDialogContent title="Dialog Title" description="Dialog Description">
+          <p>Dialog body text</p>
+          <ResponsiveDialogClose>Cancel</ResponsiveDialogClose>
+        </ResponsiveDialogContent>
+      </ResponsiveDialog>,
+    )
+
+    const trigger = screen.getByRole("button", { name: "Open Dialog" })
+    await user.click(trigger)
+
+    expect(onOpenChange).toHaveBeenCalledWith(true)
+    expect(screen.getByText("Dialog Title")).toBeInTheDocument()
+    expect(screen.getByText("Dialog body text")).toBeInTheDocument()
+
+    const closeBtn = screen.getByRole("button", { name: "Cancel" })
+    await user.click(closeBtn)
+    expect(onOpenChange).toHaveBeenCalledWith(false)
   })
 })

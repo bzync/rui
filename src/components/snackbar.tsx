@@ -50,10 +50,19 @@ interface SnackbarItem extends SnackbarOptions {
   id: string
 }
 
-interface SnackbarContextValue {
+export interface SnackbarContextValue {
   show: (opts: SnackbarOptions) => string
   dismiss: (id: string) => void
   dismissAll: () => void
+  promise: <T>(
+    promise: Promise<T>,
+    messages: {
+      loading: ReactNode
+      success: ReactNode | ((data: T) => ReactNode)
+      error: ReactNode | ((err: unknown) => ReactNode)
+    },
+    opts?: Omit<SnackbarOptions, "message" | "variant">,
+  ) => Promise<T>
 }
 
 const SnackbarCtx = createContext<SnackbarContextValue | null>(null)
@@ -125,8 +134,36 @@ export function SnackbarProvider({
     [dismiss, maxVisible],
   )
 
+  const promise = useCallback(
+    <T,>(
+      p: Promise<T>,
+      messages: {
+        loading: ReactNode
+        success: ReactNode | ((data: T) => ReactNode)
+        error: ReactNode | ((err: unknown) => ReactNode)
+      },
+      opts?: Omit<SnackbarOptions, "message" | "variant">,
+    ): Promise<T> => {
+      const id = opts?.id ?? Math.random().toString(36).slice(2, 9)
+      show({ ...opts, id, message: messages.loading, variant: "info", duration: 0 })
+
+      return p
+        .then((data) => {
+          const successMsg = typeof messages.success === "function" ? messages.success(data) : messages.success
+          show({ ...opts, id, message: successMsg, variant: "success", duration: opts?.duration ?? 4000 })
+          return data
+        })
+        .catch((err) => {
+          const errorMsg = typeof messages.error === "function" ? messages.error(err) : messages.error
+          show({ ...opts, id, message: errorMsg, variant: "danger", duration: opts?.duration ?? 5000 })
+          throw err
+        })
+    },
+    [show],
+  )
+
   return (
-    <SnackbarCtx.Provider value={{ show, dismiss, dismissAll }}>
+    <SnackbarCtx.Provider value={{ show, dismiss, dismissAll, promise }}>
       {children}
       {viewportMounted && (
         <Suspense fallback={null}>

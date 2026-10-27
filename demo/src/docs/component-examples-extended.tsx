@@ -2587,6 +2587,233 @@ export default function App() {
 </ul>`,
       <div className="demo-stack w-full max-w-sm"><R.Heading size="md">Configure <R.InlineCode>ThemeProvider</R.InlineCode></R.Heading><ul className="list-disc space-y-1 pl-5 text-sm"><li>Set <R.InlineCode>{"storageKey={false}"}</R.InlineCode> to disable persistence.</li><li>Token: <R.InlineCode>example-deploy-token-0000-1111-2222-3333-4444-5555-not-a-secret</R.InlineCode></li></ul></div>, "start"),
   ],
+
+  "components/inline-edit": () => [
+    ex("validation", "With validation", "Validates input synchronously or asynchronously before committing.",
+      `function InlineEditValidation() {
+  const [email, setEmail] = useState("admin@company.com")
+  return (
+    <div className="demo-stack items-start">
+      <InlineEdit
+        value={email}
+        onSave={setEmail}
+        validate={(v) => (!v.includes("@") ? "Must be a valid email" : undefined)}
+        placeholder="Enter an email…"
+      />
+    </div>
+  )
+}`,
+      <InlineEditValidationExample />),
+    ex("multiline", "Multiline text", "Edits longer text with an auto-expanding textarea, save/cancel buttons, and keyboard shortcuts.",
+      `function InlineEditMultiline() {
+  const [bio, setBio] = useState("Frontend engineer working on component systems, web performance, and developer tools.")
+  return (
+    <div className="w-full max-w-md">
+      <InlineEdit
+        multiline
+        value={bio}
+        onSave={setBio}
+        placeholder="Add a bio…"
+      />
+    </div>
+  )
+}`,
+      <InlineEditMultilineExample />),
+  ],
+
+  "components/range-slider": () => [
+    ex("marks", "Tick marks and snapping", "Displays reference marks and snaps to discrete step intervals.",
+      `function RangeSliderMarks() {
+  const [hours, setHours] = useState<[number, number]>([9, 17])
+  return (
+    <div className="w-full max-w-md">
+      <RangeSlider
+        label="Working Hours"
+        min={0}
+        max={24}
+        step={1}
+        value={hours}
+        onChange={setHours}
+        formatValue={(v) => \`\${v}:00\`}
+        marks={[
+          { value: 0, label: "00:00" },
+          { value: 6, label: "06:00" },
+          { value: 12, label: "12:00" },
+          { value: 18, label: "18:00" },
+          { value: 24, label: "24:00" },
+        ]}
+      />
+    </div>
+  )
+}`,
+      <RangeSliderMarksExample />),
+    ex("sizes", "Sizes", "Available in small and large track scales.",
+      `function RangeSliderSizes() {
+  const [val, setVal] = useState<[number, number]>([20, 80])
+  return (
+    <div className="demo-stack w-full max-w-sm">
+      <RangeSlider size="sm" value={val} onChange={setVal} label="Small" />
+      <RangeSlider size="lg" value={val} onChange={setVal} label="Large" />
+    </div>
+  )
+}`,
+      <RangeSliderSizesExample />),
+  ],
+
+  "components/date-time-picker": () => [
+    ex("twenty-four-hour", "24-hour time format", "Switches from 12-hour AM/PM to 24-hour military time.",
+      `function DateTimePicker24h() {
+  const [date, setDate] = useState<Date | null>(new Date())
+  return (
+    <div className="w-full max-w-sm">
+      <DateTimePicker
+        label="Server Maintenance Window"
+        value={date}
+        onChange={setDate}
+        is24Hour
+        hint="Specified in 24-hour UTC format"
+      />
+    </div>
+  )
+}`,
+      <DateTimePicker24hExample />),
+    ex("states", "Error and disabled states", "Shows accessible validation error message and disabled mode.",
+      `<div className="demo-stack w-full max-w-sm">
+  <DateTimePicker label="Required Start Date" error="Start date and time is required." />
+  <DateTimePicker label="Archived Release" defaultValue={new Date()} disabled />
+</div>`,
+      <div className="demo-stack w-full max-w-sm"><R.DateTimePicker label="Required Start Date" error="Start date and time is required." /><R.DateTimePicker label="Archived Release" defaultValue={new Date()} disabled /></div>),
+  ],
+
+  "components/color-picker": () => [
+    ex("swatches", "Custom palette swatches", "Provides a curated list of color swatches for fast selection.",
+      `function ColorPickerSwatches() {
+  const [color, setColor] = useState("#10b981")
+  return (
+    <div className="w-full max-w-xs">
+      <ColorPicker
+        label="Badge Color"
+        value={color}
+        onChange={setColor}
+        swatches={["#ef4444", "#f59e0b", "#10b981", "#3b82f6", "#6366f1", "#8b5cf6", "#ec4899"]}
+      />
+    </div>
+  )
+}`,
+      <ColorPickerSwatchesExample />),
+    ex("eyedropper", "EyeDropper integration", "Sample any pixel from the display when supported by the browser.",
+      `function ColorPickerEyeDropper() {
+  const [color, setColor] = useState("#6366f1")
+  return (
+    <div className="w-full max-w-xs">
+      <ColorPicker
+        label="Accent Color"
+        value={color}
+        onChange={setColor}
+        showEyeDropper
+      />
+    </div>
+  )
+}`,
+      <ColorPickerEyeDropperExample />),
+  ],
+
+  "components/responsive-dialog": () => [
+    ex("form", "Form inside responsive dialog", "Maintains form state and keyboard accessibility across desktop modal and mobile bottom sheet.",
+      `function ResponsiveDialogForm() {
+  const [open, setOpen] = useState(false)
+  const [name, setName] = useState("")
+  return (
+    <ResponsiveDialog open={open} onOpenChange={setOpen}>
+      <ResponsiveDialogTrigger className="inline-flex h-9 items-center justify-center rounded-[var(--radius-md)] bg-accent px-3 text-sm font-semibold text-accent-foreground shadow-xs">
+        New Workspace
+      </ResponsiveDialogTrigger>
+      <ResponsiveDialogContent title="New Workspace" description="Create a workspace to collaborate with your team.">
+        <div className="space-y-4 py-2">
+          <Input label="Workspace name" placeholder="acme-corp" value={name} onChange={(e) => setName(e.target.value)} />
+        </div>
+        <ResponsiveDialogFooter>
+          <ResponsiveDialogClose className="inline-flex h-8 items-center justify-center rounded-[var(--radius-md)] border border-border px-3 text-xs font-medium">
+            Cancel
+          </ResponsiveDialogClose>
+          <Button size="sm" onClick={() => setOpen(false)}>Create</Button>
+        </ResponsiveDialogFooter>
+      </ResponsiveDialogContent>
+    </ResponsiveDialog>
+  )
+}`,
+      <ResponsiveDialogFormExample />),
+  ],
+
+  "components/collapsible": () => [
+    ex("filters", "Collapsible filter panel", "Reveals advanced search and filter controls on demand.",
+      `function CollapsibleFilter() {
+  const [open, setOpen] = useState(false)
+  return (
+    <div className="w-full max-w-md rounded-xl border border-border bg-surface p-4">
+      <Collapsible open={open} onOpenChange={setOpen}>
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-medium">Filters & Options</span>
+          <CollapsibleTrigger className="rounded-md border border-border bg-surface px-2.5 py-1 text-xs font-medium text-foreground hover:bg-surface-muted">
+            {open ? "Less options" : "More options"}
+          </CollapsibleTrigger>
+        </div>
+        <CollapsibleContent className="space-y-3 pt-4">
+          <Checkbox label="Show archived items" />
+          <Checkbox label="Include deleted records" />
+          <Checkbox label="Send email digest" defaultChecked />
+        </CollapsibleContent>
+      </Collapsible>
+    </div>
+  )
+}`,
+      <CollapsibleFilterExample />),
+  ],
+
+  "components/drag-and-drop": () => [
+    ex("handles", "Dedicated drag handles", "Limits drag initiation to a specialized DragHandle button.",
+      `function DndHandleExample() {
+  const [items, setItems] = useState(["Deploy API", "Update DNS", "Run Migrations"])
+  const [done, setDone] = useState<string[]>([])
+
+  const handleDragEnd = ({ activeId, targetDroppableId }: DragEndEvent) => {
+    if (!targetDroppableId) return
+    if (targetDroppableId === "done" && items.includes(activeId)) {
+      setItems((prev) => prev.filter((i) => i !== activeId))
+      setDone((prev) => [...prev, activeId])
+    } else if (targetDroppableId === "todo" && done.includes(activeId)) {
+      setDone((prev) => prev.filter((i) => i !== activeId))
+      setItems((prev) => [...prev, activeId])
+    }
+  }
+
+  return (
+    <DndContext onDragEnd={handleDragEnd}>
+      <div className="grid grid-cols-2 gap-4 w-full max-w-md">
+        <Droppable id="todo" className="rounded-lg border border-border bg-surface-muted/50 p-3 min-h-[140px] flex flex-col gap-2">
+          <span className="text-xs font-semibold text-muted-foreground">To Do ({items.length})</span>
+          {items.map((t) => (
+            <Draggable key={t} id={t} className="flex items-center justify-between rounded border border-border bg-surface p-2 text-xs shadow-xs">
+              <span>{t}</span>
+              <DragHandle className="rounded p-1 hover:bg-surface-muted text-muted-foreground" aria-label={\`Drag \${t}\`} />
+            </Draggable>
+          ))}
+        </Droppable>
+        <Droppable id="done" className="rounded-lg border border-border bg-surface-muted/50 p-3 min-h-[140px] flex flex-col gap-2">
+          <span className="text-xs font-semibold text-muted-foreground">Done ({done.length})</span>
+          {done.map((t) => (
+            <Draggable key={t} id={t} className="flex items-center justify-between rounded border border-border bg-surface p-2 text-xs shadow-xs">
+              <span>{t}</span>
+              <DragHandle className="rounded p-1 hover:bg-surface-muted text-muted-foreground" aria-label={\`Drag \${t}\`} />
+            </Draggable>
+          ))}
+        </Droppable>
+      </div>
+    </DndContext>
+  )
+}`,
+      <DndHandleExample />),
+  ],
 }
 
 function ContextMenuTableExample() {
@@ -2640,5 +2867,195 @@ function DatePickerStatesExample() {
       <R.DatePicker label="Start date" error="Start date is required." />
       <R.DatePicker label="Renewal date" value={renewal} onChange={setRenewal} clearable={false} />
     </div>
+  )
+}
+
+function InlineEditValidationExample() {
+  const [email, setEmail] = useState("admin@company.com")
+  return (
+    <div className="demo-stack items-start">
+      <R.InlineEdit
+        value={email}
+        onSave={setEmail}
+        validate={(v) => (!v.includes("@") ? "Must be a valid email" : undefined)}
+        placeholder="Enter an email…"
+      />
+    </div>
+  )
+}
+
+function InlineEditMultilineExample() {
+  const [bio, setBio] = useState("Frontend engineer working on component systems, web performance, and developer tools.")
+  return (
+    <div className="w-full max-w-md">
+      <R.InlineEdit
+        multiline
+        value={bio}
+        onSave={setBio}
+        placeholder="Add a bio…"
+      />
+    </div>
+  )
+}
+
+function RangeSliderMarksExample() {
+  const [hours, setHours] = useState<[number, number]>([9, 17])
+  return (
+    <div className="w-full max-w-md">
+      <R.RangeSlider
+        label="Working Hours"
+        min={0}
+        max={24}
+        step={1}
+        value={hours}
+        onChange={setHours}
+        formatValue={(v) => `${v}:00`}
+        marks={[
+          { value: 0, label: "00:00" },
+          { value: 6, label: "06:00" },
+          { value: 12, label: "12:00" },
+          { value: 18, label: "18:00" },
+          { value: 24, label: "24:00" },
+        ]}
+      />
+    </div>
+  )
+}
+
+function RangeSliderSizesExample() {
+  const [val, setVal] = useState<[number, number]>([20, 80])
+  return (
+    <div className="demo-stack w-full max-w-sm">
+      <R.RangeSlider size="sm" value={val} onChange={setVal} label="Small" />
+      <R.RangeSlider size="lg" value={val} onChange={setVal} label="Large" />
+    </div>
+  )
+}
+
+function DateTimePicker24hExample() {
+  const [date, setDate] = useState<Date | null>(new Date())
+  return (
+    <div className="w-full max-w-sm">
+      <R.DateTimePicker
+        label="Server Maintenance Window"
+        value={date}
+        onChange={setDate}
+        is24Hour
+        hint="Specified in 24-hour UTC format"
+      />
+    </div>
+  )
+}
+
+function ColorPickerSwatchesExample() {
+  const [color, setColor] = useState("#10b981")
+  return (
+    <div className="w-full max-w-xs">
+      <R.ColorPicker
+        label="Badge Color"
+        value={color}
+        onChange={setColor}
+        swatches={["#ef4444", "#f59e0b", "#10b981", "#3b82f6", "#6366f1", "#8b5cf6", "#ec4899"]}
+      />
+    </div>
+  )
+}
+
+function ColorPickerEyeDropperExample() {
+  const [color, setColor] = useState("#6366f1")
+  return (
+    <div className="w-full max-w-xs">
+      <R.ColorPicker
+        label="Accent Color"
+        value={color}
+        onChange={setColor}
+        showEyeDropper
+      />
+    </div>
+  )
+}
+
+function ResponsiveDialogFormExample() {
+  const [open, setOpen] = useState(false)
+  const [name, setName] = useState("")
+  return (
+    <R.ResponsiveDialog open={open} onOpenChange={setOpen}>
+      <R.ResponsiveDialogTrigger className="inline-flex h-9 items-center justify-center rounded-[var(--radius-md)] bg-accent px-3 text-sm font-semibold text-accent-foreground shadow-xs">
+        New Workspace
+      </R.ResponsiveDialogTrigger>
+      <R.ResponsiveDialogContent title="New Workspace" description="Create a workspace to collaborate with your team.">
+        <div className="space-y-4 py-2">
+          <R.Input label="Workspace name" placeholder="acme-corp" value={name} onChange={(e) => setName(e.target.value)} />
+        </div>
+        <R.ResponsiveDialogFooter>
+          <R.ResponsiveDialogClose className="inline-flex h-8 items-center justify-center rounded-[var(--radius-md)] border border-border px-3 text-xs font-medium">
+            Cancel
+          </R.ResponsiveDialogClose>
+          <R.Button size="sm" onClick={() => setOpen(false)}>Create</R.Button>
+        </R.ResponsiveDialogFooter>
+      </R.ResponsiveDialogContent>
+    </R.ResponsiveDialog>
+  )
+}
+
+function CollapsibleFilterExample() {
+  const [open, setOpen] = useState(false)
+  return (
+    <div className="w-full max-w-md rounded-xl border border-border bg-surface p-4">
+      <R.Collapsible open={open} onOpenChange={setOpen}>
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-medium">Filters & Options</span>
+          <R.CollapsibleTrigger className="rounded-md border border-border bg-surface px-2.5 py-1 text-xs font-medium text-foreground hover:bg-surface-muted">
+            {open ? "Less options" : "More options"}
+          </R.CollapsibleTrigger>
+        </div>
+        <R.CollapsibleContent className="space-y-3 pt-4">
+          <R.Checkbox label="Show archived items" />
+          <R.Checkbox label="Include deleted records" />
+          <R.Checkbox label="Send email digest" defaultChecked />
+        </R.CollapsibleContent>
+      </R.Collapsible>
+    </div>
+  )
+}
+
+function DndHandleExample() {
+  const [items, setItems] = useState(["Deploy API", "Update DNS", "Run Migrations"])
+  const [done, setDone] = useState<string[]>([])
+
+  const handleDragEnd = ({ activeId, targetDroppableId }: R.DragEndEvent) => {
+    if (!targetDroppableId) return
+    if (targetDroppableId === "done" && items.includes(activeId)) {
+      setItems((prev) => prev.filter((i) => i !== activeId))
+      setDone((prev) => [...prev, activeId])
+    } else if (targetDroppableId === "todo" && done.includes(activeId)) {
+      setDone((prev) => prev.filter((i) => i !== activeId))
+      setItems((prev) => [...prev, activeId])
+    }
+  }
+
+  return (
+    <R.DndContext onDragEnd={handleDragEnd}>
+      <div className="grid grid-cols-2 gap-4 w-full max-w-md">
+        <R.Droppable id="todo" className="rounded-lg border border-border bg-surface-muted/50 p-3 min-h-[140px] flex flex-col gap-2">
+          <span className="text-xs font-semibold text-muted-foreground">To Do ({items.length})</span>
+          {items.map((t) => (
+            <R.Draggable key={t} id={t} className="flex items-center justify-between rounded border border-border bg-surface p-2 text-xs shadow-xs">
+              <span>{t}</span>
+              <R.DragHandle className="rounded p-1 hover:bg-surface-muted text-muted-foreground" aria-label={`Drag ${t}`} />
+            </R.Draggable>
+          ))}
+        </R.Droppable>
+        <R.Droppable id="done" className="rounded-lg border border-border bg-surface-muted/50 p-3 min-h-[140px] flex flex-col gap-2">
+          <span className="text-xs font-semibold text-muted-foreground">Done ({done.length})</span>
+          {done.map((t) => (
+            <R.Draggable key={t} id={t} className="flex items-center justify-between rounded border border-border bg-surface p-2 text-xs shadow-xs">
+              <span>{t}</span>
+              <R.DragHandle className="rounded p-1 hover:bg-surface-muted text-muted-foreground" aria-label={`Drag ${t}`} />
+            </R.Draggable>
+          ))}
+        </R.Droppable>
+      </div>
+    </R.DndContext>
   )
 }

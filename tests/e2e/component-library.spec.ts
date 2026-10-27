@@ -210,7 +210,7 @@ test("component catalog filters by text and category", async ({ page }) => {
   await page.goto("/#/components")
   const filter = page.getByRole("textbox", { name: "Filter component catalog" })
   await filter.fill("dialog")
-  await expect(page.getByRole("status")).toContainText("2 components")
+  await expect(page.getByRole("status")).toContainText("3 components")
   await expect(page.locator("main").getByRole("link", { name: /Modal/ })).toBeVisible()
   await page.getByRole("button", { name: "Data" }).click()
   await expect(page.getByRole("status")).toContainText("0 components")

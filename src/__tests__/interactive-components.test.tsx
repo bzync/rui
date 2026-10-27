@@ -2,9 +2,12 @@ import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { describe, expect, it, vi } from "vitest"
 import {
-  Accordion, Alert, BillingIntervalToggle, Breadcrumb, Stepper, Button, ButtonGroup, Collapsible, ConfirmDialog,
-  IconButton, Kanban, NumberInput, Pagination, Popover, PopoverContent, SortableList, Tabs, TabsContent,
-  TabsList, TabsTrigger, Tag, Toggle, ToggleGroup, ToggleGroupItem, Tree,
+  Accordion, Alert, BillingIntervalToggle, Breadcrumb, Stepper, Button, ButtonGroup,
+  Collapsible, CollapsibleTrigger, CollapsibleContent, ColorPicker, ConfirmDialog,
+  DateTimePreset, DateTimePicker, DndContext, Droppable, Draggable, DragHandle,
+  IconButton, InlineEdit, Kanban, NumberInput, Pagination, Popover, PopoverContent,
+  RangeSlider, SortableList, Tabs, TabsContent, TabsList, TabsTrigger, Tag, Toggle,
+  ToggleGroup, ToggleGroupItem, Tree,
 } from "@/index"
 
 describe("interactive component contracts", () => {
@@ -401,5 +404,140 @@ describe("SortableList and Kanban", () => {
       ],
       { id: "t1", fromColumn: "todo", toColumn: "done", fromIndex: 0, toIndex: 0 },
     )
+  })
+
+  it("handles DndContext with Draggable and Droppable", async () => {
+    const user = userEvent.setup()
+    const onDragEnd = vi.fn()
+
+    render(
+      <DndContext onDragEnd={onDragEnd}>
+        <Droppable id="col-a">
+          <Draggable id="card-1">Card One</Draggable>
+        </Droppable>
+        <Droppable id="col-b">
+          <span>Drop here</span>
+        </Droppable>
+      </DndContext>,
+    )
+
+    const draggable = screen.getByRole("button", { name: "Card One" })
+    expect(draggable).toBeInTheDocument()
+
+    draggable.focus()
+    // Pick up with Space
+    await user.keyboard(" ")
+    // Move to next droppable container
+    await user.keyboard("{ArrowRight}")
+    // Drop
+    await user.keyboard(" ")
+
+    expect(onDragEnd).toHaveBeenCalledWith(
+      expect.objectContaining({
+        activeId: "card-1",
+        targetDroppableId: "col-b",
+      }),
+    )
+  })
+
+  it("toggles compound Collapsible with CollapsibleTrigger and CollapsibleContent", async () => {
+    const user = userEvent.setup()
+    const onOpenChange = vi.fn()
+
+    render(
+      <Collapsible onOpenChange={onOpenChange}>
+        <CollapsibleTrigger>Toggle Details</CollapsibleTrigger>
+        <CollapsibleContent>Secret Details</CollapsibleContent>
+      </Collapsible>,
+    )
+
+    const trigger = screen.getByRole("button", { name: "Toggle Details" })
+    expect(trigger).toHaveAttribute("aria-expanded", "false")
+    expect(screen.queryByText("Secret Details")).not.toBeInTheDocument()
+
+    await user.click(trigger)
+    expect(onOpenChange).toHaveBeenCalledWith(true)
+    expect(trigger).toHaveAttribute("aria-expanded", "true")
+    expect(screen.getByText("Secret Details")).toBeInTheDocument()
+  })
+
+  it("manages dual-thumb RangeSlider with keyboard", async () => {
+    const user = userEvent.setup()
+    const onChange = vi.fn()
+
+    render(
+      <RangeSlider
+        min={0}
+        max={100}
+        step={5}
+        defaultValue={[20, 80]}
+        onChange={onChange}
+      />,
+    )
+
+    const minThumb = screen.getByRole("slider", { name: "Minimum value" })
+    const maxThumb = screen.getByRole("slider", { name: "Maximum value" })
+
+    expect(minThumb).toHaveAttribute("aria-valuenow", "20")
+    expect(maxThumb).toHaveAttribute("aria-valuenow", "80")
+
+    minThumb.focus()
+    await user.keyboard("{ArrowRight}")
+    expect(onChange).toHaveBeenCalledWith([25, 80])
+
+    maxThumb.focus()
+    await user.keyboard("{ArrowLeft}")
+    expect(onChange).toHaveBeenCalledWith([25, 75])
+  })
+
+  it("edits text in-place with InlineEdit", async () => {
+    const user = userEvent.setup()
+    const onSave = vi.fn()
+
+    render(<InlineEdit defaultValue="Project Title" onSave={onSave} />)
+
+    const display = screen.getByRole("button", { name: "Editable text" })
+    expect(display).toHaveTextContent("Project Title")
+
+    await user.click(display)
+    const input = screen.getByRole("textbox")
+    expect(input).toHaveValue("Project Title")
+
+    await user.clear(input)
+    await user.type(input, "New Title")
+    await user.keyboard("{Enter}")
+
+    expect(onSave).toHaveBeenCalledWith("New Title")
+  })
+
+  it("renders DateTimePicker and opens picker dialog", async () => {
+    const user = userEvent.setup()
+    const date = new Date(2026, 9, 27, 14, 30)
+
+    render(<DateTimePicker value={date} />)
+
+    const trigger = screen.getByRole("button", { name: /Oct 27, 2026/ })
+    expect(trigger).toBeInTheDocument()
+
+    await user.click(trigger)
+    expect(screen.getByRole("dialog", { name: "Choose date and time" })).toBeInTheDocument()
+    expect(screen.getByText("October 2026")).toBeInTheDocument()
+  })
+
+  it("renders ColorPicker and updates color", async () => {
+    const user = userEvent.setup()
+    const onChange = vi.fn()
+
+    render(<ColorPicker value="#ef4444" onChange={onChange} />)
+
+    const trigger = screen.getByRole("button", { name: /#ef4444/i })
+    expect(trigger).toBeInTheDocument()
+
+    await user.click(trigger)
+    expect(screen.getByRole("dialog", { name: "Color picker" })).toBeInTheDocument()
+
+    const bluePreset = screen.getByRole("button", { name: "Select color #3b82f6" })
+    await user.click(bluePreset)
+    expect(onChange).toHaveBeenCalledWith("#3b82f6")
   })
 })

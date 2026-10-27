@@ -30,6 +30,7 @@ import "@bzync/rui/styles.css" // once, near app root
 | `CopyButton` | `text`, `onCopy` |
 | `BillingIntervalToggle` | `value: monthly\|yearly`, `onChange` |
 | `ThemeSwitcher` | `variant: segmented\|dropdown\|switch\|radio\|icon-button`, `size: sm\|md\|lg`, `includeSystem`, `value`, `onChange` |
+| `InlineEdit` | `value/defaultValue`, `onSave`, `onCancel`, `validate`, `multiline`, `saveOnBlur`, `placeholder`, `disabled` |
 | `ButtonGroup` | `orientation: horizontal\|vertical`, `aria-label`, wraps `Button` children, `role=group` |
 | `Toggle` / `ToggleGroup` / `ToggleGroupItem` | `pressed/defaultPressed`, `onPressedChange`, `variant: default\|outline`, `size: sm\|md\|lg\|icon`, `type: single\|multiple`, `orientation`, `loop`, `aria-pressed` |
 
@@ -45,16 +46,19 @@ import "@bzync/rui/styles.css" // once, near app root
 | `Switch` | `label`, `checked`, `onCheckedChange` |
 | `Radio` / `RadioGroup` | `value`, `onChange`, `label`, `options` |
 | `Slider` | `label`, `value/defaultValue`, `min/max/step`, `onChange` |
+| `RangeSlider` | `label`, `value/defaultValue`, `min/max/step`, `onChange/onChangeEnd`, `formatValue`, `showTooltip`, `marks`, `size: sm\|md\|lg` |
 | `NumberInput` | `label`, `value/defaultValue`, `onChange`, `min/max/step` |
 | `OtpInput` | `length`, `value`, `onChange`, `label` |
 | `FileUpload` | `label`, `accept`, `multiple`, `onFilesChange` |
 | `DatePicker` | `label`, `value`, `onChange` |
+| `DateTimePicker` | `label`, `value/defaultValue`, `onChange`, `format: 12\|24`, `is24Hour`, `presets`, `minDate/maxDate`, `clearable` |
+| `TimePicker` | `label`, `value/defaultValue`, `onValueChange`, `format: 12\|24`, `minuteStep`, `showSeconds`, `min/max`, `side: top\|bottom`, `clearable`, `placeholder`, dialog + `listbox/option` time columns |
+| `ColorPicker` | `label`, `value/defaultValue`, `onChange`, `presets/swatches`, `showEyeDropper`, `showAlpha`, `size: sm\|md\|lg` |
 | `Calendar` | `value: Date`, `onChange`, month/week views |
 | `Label` | `htmlFor`, `required`, `hint` |
 | `FormField` | `label`, `htmlFor`, `required`, `hint`, `error` |
 | `Kbd` | children (keys) |
 | `Stepper` | steps, activeStep |
-| `TimePicker` | `label`, `value/defaultValue`, `onValueChange`, `format: 12\|24`, `minuteStep`, `showSeconds`, `min/max`, `side: top\|bottom`, `clearable`, `placeholder`, dialog + `listbox/option` time columns |
 | `Rating` | `label`, `value/defaultValue`, `onValueChange`, `max`, `size: sm\|md\|lg`, `readOnly`, `showLabel/showValue`, `radiogroup` + `radio` |
 | `ToggleGroup` | see Actions — `ToggleGroup` / `ToggleGroupItem` |
 
@@ -98,6 +102,7 @@ import "@bzync/rui/styles.css" // once, near app root
 | Component | Key props |
 |---|---|
 | `Modal` | `open`, `onClose`, `title`, `description`, `size: sm\|md\|lg\|xl\|2xl\|7xl\|full`, `scrollable`, focus trap + Escape |
+| `ResponsiveDialog` | `open`, `onOpenChange`, `breakpoint: sm`, `ResponsiveDialogTrigger/Content/Header/Footer/Close`, modal on desktop, swipeable bottom sheet on mobile |
 | `Drawer` | `open`, `onClose`, `title`, `size`, focus trap |
 | `Sheet` | `open`, `onClose`, `snapPoints`, `defaultSnap`, draggable handle |
 | `Tour` | `steps: TourStep[]`, `open/onOpenChange`, `step/onStepChange`, `mask`, spotlight, keyboard navigation |
@@ -106,16 +111,12 @@ import "@bzync/rui/styles.css" // once, near app root
 | `Popover` + `PopoverContent` | trigger, open/onOpenChange |
 | `DropdownMenu` | `trigger`, `items: [{label,onClick}]` |
 | `Command` / `CommandPalette` + `CommandProvider` | searchable command palette |
-| `SnackbarProvider` + `useSnackbar()` | programmatic toasts |
+| `SnackbarProvider` + `useSnackbar()` | programmatic toasts, `snackbar.promise(promise, {loading, success, error})` helper |
 | `Pagination` | `page`, `totalPages`, `onPageChange` |
 | `Tabs` / `TabsList/Trigger/Content` | `value`, `onValueChange` |
 | `Accordion` | `items: [{id, trigger, content}]` |
+| `Collapsible` | `open/onOpenChange`, `CollapsibleTrigger`, `CollapsibleContent`, WAI-ARIA disclosure primitive |
 | `Terminal` / `TerminalBlock` / `TerminalEmulator` | `fs`, shell commands, run |
-| `SnackbarProvider` + `useSnackbar()` | programmatic toasts |
-| `Pagination` | `page`, `totalPages`, `onPageChange` |
-| `Tabs` + `TabsList/Trigger/Content` | `value`, `onValueChange` |
-| `Accordion` | `items: [{id, trigger, content}]` |
-| `Terminal` / `TerminalBlock` / `TerminalEmulator` | `fs`, shell commands, `run` |
 
 ## Navigation & layout
 
@@ -125,7 +126,7 @@ import "@bzync/rui/styles.css" // once, near app root
 | `AppShellBody` / `AppShellMain {scrollable?}` / `AppShellHeader {sticky?}` / `Footer {sticky?}` | layout composition |
 | `Container` | `size: sm\|md\|lg\|xl\|full`, `gutter?` |
 | `Stack` / `Inline` / `PageHeader` | spacing/header |
-| `Navbar` / `Sidebar` / `Topbar` / `BottomBar` | `items: NavigationItem[]`, `activeId`, `onSelect` |
+| `Navbar` / `Sidebar` / `Topbar` / `BottomBar` | `items: NavigationItem[]` (supports nested submenus via `children`), `activeId`, `onSelect`, expandable disclosure in expanded sidebar, portalled flyout menu in rail mode |
 | `NavigationLink` | `id`, `label`, `href?`, `icon?`, `badge?`, `active?`, `compact?` |
 | `Breadcrumb` | `items` |
 | `DropdownMenu` / `Drawer` / `Pagination` / `Stepper` | see above |
@@ -137,6 +138,7 @@ import "@bzync/rui/styles.css" // once, near app root
 | `Table` family | primitive — `Table/Head/Header/Body/Row/Cell` |
 | `DataTable<T>` | `columns: ColumnDef[]`, `data: T[]`, `searchable`, `searchPlaceholder`, `pageSizeOptions`, `defaultPageSize`, `loading`, `emptyMessage`, `onRowClick` — built-in sort/filter/pagination |
 | `SortableList` / `Kanban` | `items/columns`, `onReorder/onChange`, `getLabel`, `renderItem/renderCard`, keyboard & pointer drag-and-drop |
+| `DndContext` / `Droppable` / `Draggable` / `DragHandle` | `onDragStart/Move/End`, `useDndContext`, `useDroppable`, `useDraggable`, composable kanban/scrum/list drag-and-drop with keyboard & pointer accessibility |
 
 ## Charts (`@bzync/rui/charts`)
 
