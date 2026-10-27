@@ -1970,6 +1970,20 @@ export default function App() {
 </div>),
   ],
 
+  "components/sparkline": () => [
+    ex("bars", "Bar strip with a target", "type=\"bar\" emphasizes the latest period; reference draws a dashed target.",
+      `<div className="flex items-center gap-3 text-sm">
+  <span className="text-muted-foreground">Daily orders</span>
+  <Sparkline type="bar" data={[18, 24, 21, 30, 27, 33, 41]} reference={30} width={120} height={32} />
+  <span className="font-semibold tabular-nums">41</span>
+</div>`,
+      <div className="flex items-center gap-3 text-sm">
+  <span className="text-muted-foreground">Daily orders</span>
+  <R.Sparkline type="bar" data={[18, 24, 21, 30, 27, 33, 41]} reference={30} width={120} height={32} />
+  <span className="font-semibold tabular-nums">41</span>
+</div>),
+  ],
+
   "components/resizable": () => [
     ex("persisted", "Persisted with a grip", "storageKey remembers the layout across reloads; withHandle shows a grip. Resize, then reload the page.",
       `<div className="h-56 w-full overflow-hidden rounded-xl border border-border bg-surface">

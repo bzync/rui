@@ -250,6 +250,63 @@ function MaskedInputUsagePreview() {
   )
 }
 
+function AreaChartUsagePreview() {
+  const [stacked, setStacked] = useState(true)
+  return (
+    <div className="grid w-full gap-4">
+      <R.ToggleGroup
+        type="single"
+        aria-label="Layout"
+        value={stacked ? "stacked" : "overlap"}
+        onValueChange={(value) => setStacked(value === "stacked")}
+      >
+        <R.ToggleGroupItem value="stacked">Stacked</R.ToggleGroupItem>
+        <R.ToggleGroupItem value="overlap">Overlapping</R.ToggleGroupItem>
+      </R.ToggleGroup>
+      <R.AreaChart
+        ariaLabel="Weekly visitors by channel"
+        stacked={stacked}
+        labels={["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]}
+        series={[
+          { label: "Organic", data: [1200, 1350, 1280, 1510, 1620, 980, 870] },
+          { label: "Paid", data: [640, 720, 810, 760, 900, 520, 460] },
+          { label: "Referral", data: [210, 260, 240, 300, 280, 190, 170] },
+        ]}
+        formatValue={(value) => value.toLocaleString("en-US")}
+      />
+    </div>
+  )
+}
+
+function StackedBarUsagePreview() {
+  const [mode, setMode] = useState<"stacked" | "percent" | "grouped">("stacked")
+  return (
+    <div className="grid w-full gap-4">
+      <R.ToggleGroup
+        type="single"
+        aria-label="Mode"
+        value={mode}
+        onValueChange={(value) => setMode(value as typeof mode)}
+      >
+        <R.ToggleGroupItem value="stacked">Stacked</R.ToggleGroupItem>
+        <R.ToggleGroupItem value="percent">100%</R.ToggleGroupItem>
+        <R.ToggleGroupItem value="grouped">Grouped</R.ToggleGroupItem>
+      </R.ToggleGroup>
+      <R.StackedBarChart
+        ariaLabel="Revenue by plan per quarter"
+        mode={mode}
+        labels={["Q1", "Q2", "Q3", "Q4"]}
+        series={[
+          { label: "Starter", data: [32, 38, 41, 45] },
+          { label: "Team", data: [54, 61, 70, 82] },
+          { label: "Enterprise", data: [40, 48, 66, 90] },
+        ]}
+        formatValue={(value) => `$${value}k`}
+      />
+    </div>
+  )
+}
+
 function ResizableUsagePreview() {
   return (
     <div className="h-80 w-full overflow-hidden rounded-xl border border-border bg-surface">
@@ -1250,6 +1307,115 @@ const columns: ColumnDef<(typeof services)[number]>[] = [
     <MaskedInputUsagePreview />,
     api(["MaskedInput mask", "string", "9 = digit, a = letter, * = either; other characters are literals."], ["MaskedInput value / onValueChange", "string / (raw, formatted, complete) => void", "Raw slot characters without literals."], ["CurrencyInput value / onValueChange", "number | null", "Plain number; null when empty."], ["CurrencyInput currency / locale / decimals", "string / string / number", "Symbol, grouping and fraction digits from Intl.", "\"USD\" / runtime / currency default"], ["CurrencyInput min / max / allowNegative / hideSymbol", "number / number / boolean / boolean", "Clamped and rounded on blur."], ["PhoneInput value / onValueChange", "string / (digits, e164, complete) => void", "National digits plus the E.164 number."], ["PhoneInput country / defaultCountry / onCountryChange / countries", "string / PhoneCountry[]", "Country selector; masks per country.", "\"US\" / defaultPhoneCountries"], ["applyMask(mask, raw)", "function", "The formatter, for validation or display."]),
     "Formatting happens as you type while the caret stays where you are editing. Each field sets a suitable inputmode (numeric, decimal, tel) for mobile keyboards; PhoneInput's country selector is a labelled native select; CurrencyInput announces its currency with aria-description. Values are reported unformatted so they can be stored directly.",
+  ),
+  "components/area-chart": () => detail(
+    `function TrafficChart() {
+  const [stacked, setStacked] = useState(true)
+  return (
+    <div className="grid w-full gap-4">
+      <ToggleGroup
+        type="single"
+        aria-label="Layout"
+        value={stacked ? "stacked" : "overlap"}
+        onValueChange={(value) => setStacked(value === "stacked")}
+      >
+        <ToggleGroupItem value="stacked">Stacked</ToggleGroupItem>
+        <ToggleGroupItem value="overlap">Overlapping</ToggleGroupItem>
+      </ToggleGroup>
+      <AreaChart
+        ariaLabel="Weekly visitors by channel"
+        stacked={stacked}
+        labels={["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]}
+        series={[
+          { label: "Organic", data: [1200, 1350, 1280, 1510, 1620, 980, 870] },
+          { label: "Paid", data: [640, 720, 810, 760, 900, 520, 460] },
+          { label: "Referral", data: [210, 260, 240, 300, 280, 190, 170] },
+        ]}
+        formatValue={(value) => value.toLocaleString("en-US")}
+      />
+    </div>
+  )
+}`,
+    <AreaChartUsagePreview />,
+    api(["labels / series", "string[] / { label; data; color? }[]", "X-axis categories and named series in fixed color order."], ["stacked", "boolean", "Stack series to show the total and each share.", "false"], ["curve", "\"smooth\" | \"linear\"", "Line interpolation; smooth never overshoots the data.", "\"smooth\""], ["height / ticks / maxLabels", "number", "Plot height, y intervals and x label thinning.", "240 / 4 / 8"], ["formatValue", "(value) => string", "Axis, tooltip and table formatting."], ["ariaLabel / showLegend", "string / boolean", "Accessible summary and legend (shown for 2+ series).", "\"Area chart\" / true"]),
+    "The plot is focusable: Left/Right, Home and End move a crosshair column by column and a polite live region reads every series at that point, while the tooltip shows the same values (plus the stack total). A visually hidden table carries all values, and the legend names every series so identity never depends on color alone.",
+  ),
+  "components/stacked-bar-chart": () => detail(
+    `function RevenueMix() {
+  const [mode, setMode] = useState<"stacked" | "percent" | "grouped">("stacked")
+  return (
+    <div className="grid w-full gap-4">
+      <ToggleGroup
+        type="single"
+        aria-label="Mode"
+        value={mode}
+        onValueChange={(value) => setMode(value as typeof mode)}
+      >
+        <ToggleGroupItem value="stacked">Stacked</ToggleGroupItem>
+        <ToggleGroupItem value="percent">100%</ToggleGroupItem>
+        <ToggleGroupItem value="grouped">Grouped</ToggleGroupItem>
+      </ToggleGroup>
+      <StackedBarChart
+        ariaLabel="Revenue by plan per quarter"
+        mode={mode}
+        labels={["Q1", "Q2", "Q3", "Q4"]}
+        series={[
+          { label: "Starter", data: [32, 38, 41, 45] },
+          { label: "Team", data: [54, 61, 70, 82] },
+          { label: "Enterprise", data: [40, 48, 66, 90] },
+        ]}
+        formatValue={(value) => \`$\${value}k\`}
+      />
+    </div>
+  )
+}`,
+    <StackedBarUsagePreview />,
+    api(["labels / series", "string[] / { label; data; color? }[]", "Categories and named series (values ≥ 0)."], ["mode", "\"stacked\" | \"percent\" | \"grouped\"", "Totals, shares of 100%, or side-by-side bars.", "\"stacked\""], ["height / ticks / maxLabels", "number", "Plot height, y intervals and label thinning.", "240 / 4 / 12"], ["formatValue", "(value) => string", "Axis, tooltip and table formatting."], ["ariaLabel / showLegend", "string / boolean", "Accessible summary and legend.", "\"Bar chart\" / true"]),
+    "Segments are separated by a 2px gap and only the top of each stack is rounded. Hover a column or focus the chart and use the arrow keys; a live region reads every series in the column and the tooltip adds the total (and each share in 100% mode). A hidden data table lists all values.",
+  ),
+  "components/sparkline": () => detail(
+    `<div className="w-full max-w-md divide-y divide-border rounded-xl border border-border bg-surface">
+  {[
+    { name: "api-gateway", latency: [120, 118, 131, 127, 140, 122, 115, 109], unit: "ms" },
+    { name: "auth", latency: [42, 45, 41, 60, 58, 47, 44, 43], unit: "ms" },
+    { name: "search", latency: [210, 190, 230, 205, 180, 170, 160, 150], unit: "ms" },
+  ].map((service) => (
+    <div key={service.name} className="flex items-center gap-4 px-4 py-3 text-sm">
+      <span className="min-w-0 flex-1 truncate font-medium">{service.name}</span>
+      <Sparkline data={service.latency} width={96} area showExtremes formatValue={(value) => \`\${value} \${service.unit}\`} />
+      <span className="w-14 text-right tabular-nums text-muted-foreground">{service.latency.at(-1)} {service.unit}</span>
+    </div>
+  ))}
+</div>`,
+    <div className="w-full max-w-md divide-y divide-border rounded-xl border border-border bg-surface">
+  {[
+    { name: "api-gateway", latency: [120, 118, 131, 127, 140, 122, 115, 109], unit: "ms" },
+    { name: "auth", latency: [42, 45, 41, 60, 58, 47, 44, 43], unit: "ms" },
+    { name: "search", latency: [210, 190, 230, 205, 180, 170, 160, 150], unit: "ms" },
+  ].map((service) => (
+    <div key={service.name} className="flex items-center gap-4 px-4 py-3 text-sm">
+      <span className="min-w-0 flex-1 truncate font-medium">{service.name}</span>
+      <R.Sparkline data={service.latency} width={96} area showExtremes formatValue={(value) => `${value} ${service.unit}`} />
+      <span className="w-14 text-right tabular-nums text-muted-foreground">{service.latency.at(-1)} {service.unit}</span>
+    </div>
+  ))}
+</div>,
+    api(["data", "number[]", "Values in order."], ["width / height", "number | string / number", "Size; the line stretches to the width.", "96 / 28"], ["type", "\"line\" | \"bar\"", "Line or bar strip.", "\"line\""], ["area / showLast / showExtremes", "boolean", "Fill, last-point dot and min/max dots.", "false / true / false"], ["reference", "number", "Dashed reference line, e.g. a target."], ["color", "string", "Stroke color.", "\"var(--chart-1)\""], ["ariaLabel / formatValue", "string / (value) => string", "Override or format the generated summary."]),
+    "A sparkline has no axes, so it is an image named by a summary: first and last value, low and high (\"Trend from 120 ms to 109 ms; low 109 ms, high 140 ms.\"). Keep the exact current value as text next to it, as in the example.",
+  ),
+  "components/gauge": () => detail(
+    `<div className="flex flex-wrap items-end justify-center gap-8">
+  <Gauge label="CPU" value={38} caption="8 cores" formatValue={(value) => \`\${value}%\`} thresholds={[{ from: 0, tone: "success", label: "Healthy" }, { from: 70, tone: "warning", label: "Busy" }, { from: 90, tone: "danger", label: "Critical" }]} />
+  <Gauge label="Storage" value={82} caption="410 of 500 GB" formatValue={(value) => \`\${value}%\`} thresholds={[{ from: 0, tone: "success", label: "OK" }, { from: 75, tone: "warning", label: "Filling up" }, { from: 95, tone: "danger", label: "Full" }]} />
+  <Gauge label="NPS" variant="dial" value={47} min={-100} max={100} size={160} caption="Target 50" />
+</div>`,
+    <div className="flex flex-wrap items-end justify-center gap-8">
+  <R.Gauge label="CPU" value={38} caption="8 cores" formatValue={(value) => `${value}%`} thresholds={[{ from: 0, tone: "success", label: "Healthy" }, { from: 70, tone: "warning", label: "Busy" }, { from: 90, tone: "danger", label: "Critical" }]} />
+  <R.Gauge label="Storage" value={82} caption="410 of 500 GB" formatValue={(value) => `${value}%`} thresholds={[{ from: 0, tone: "success", label: "OK" }, { from: 75, tone: "warning", label: "Filling up" }, { from: 95, tone: "danger", label: "Full" }]} />
+  <R.Gauge label="NPS" variant="dial" value={47} min={-100} max={100} size={160} caption="Target 50" />
+</div>,
+    api(["value / min / max", "number", "Value and range; values are clamped.", "— / 0 / 100"], ["label", "string", "Visible and accessible name."], ["thresholds", "{ from; tone; label? }[]", "Tone (and text) per range."], ["tone", "\"default\" | \"info\" | \"success\" | \"warning\" | \"danger\"", "Arc tone without thresholds.", "\"default\""], ["showBands", "boolean", "Faint threshold bands outside the track.", "true with thresholds"], ["variant / size", "\"half\" | \"dial\" / number", "180° or 270° sweep; width in px.", "\"half\" / 180"], ["valueLabel / formatValue / caption", "ReactNode / (value) => string / ReactNode", "Center text and supporting text."]),
+    "Rendered as role=\"meter\" with aria-valuemin, aria-valuemax, aria-valuenow and aria-valuetext. When a threshold applies, its label is shown under the value and included in the value text, so the state never relies on color.",
   ),
   "components/resizable": () => detail(
     `<div className="h-80 w-full overflow-hidden rounded-xl border border-border bg-surface">
