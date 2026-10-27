@@ -4,7 +4,7 @@
 /* eslint-disable react-refresh/only-export-components */
 
 import * as R from "@bzync/rui"
-import { Activity, Box, ChevronRight, Database, Home, Settings, Trash2 } from "lucide-react"
+import { Activity, Box, FileText, ChevronRight, Database, Home, Settings, Trash2 } from "lucide-react"
 import { Fragment, type ReactNode, useState } from "react"
 import { RuiBrandMark } from "../_shared/brand"
 import type { ApiProp } from "./primitives"
@@ -128,6 +128,45 @@ function TagInputUsagePreview() {
         hint="Press Enter or comma, or paste a list"
       />
       <span className="text-sm text-muted-foreground" role="status">{`${emails.length} ${emails.length === 1 ? "invite" : "invites"} ready`}</span>
+    </div>
+  )
+}
+
+function ContextMenuUsagePreview() {
+  const [last, setLast] = useState("Right-click the file (or focus it and press Shift+F10)")
+  return (
+    <div className="grid w-full max-w-sm gap-3">
+      <R.ContextMenu
+        items={[
+          { label: "Open", shortcut: "↵", onClick: () => setLast("Opened report.pdf") },
+          { label: "Rename", shortcut: "F2", onClick: () => setLast("Renaming report.pdf") },
+          { label: "Duplicate", onClick: () => setLast("Duplicated report.pdf") },
+          { group: "Danger zone", items: [{ label: "Delete", destructive: true, onClick: () => setLast("Deleted report.pdf") }] },
+        ]}
+      >
+        <button type="button" className="flex w-full items-center gap-3 rounded-lg border border-dashed border-border-strong bg-surface p-4 text-left text-sm">
+          <FileText size={18} aria-hidden="true" />
+          report.pdf
+        </button>
+      </R.ContextMenu>
+      <span className="text-sm text-muted-foreground" role="status">{last}</span>
+    </div>
+  )
+}
+
+function MenubarUsagePreview() {
+  const [last, setLast] = useState("Use the arrow keys between menus")
+  return (
+    <div className="grid gap-3">
+      <R.Menubar
+        menus={[
+          { label: "File", items: [{ label: "New file", shortcut: "⌘N", onClick: () => setLast("New file") }, { label: "Save", shortcut: "⌘S", onClick: () => setLast("Saved") }] },
+          { label: "Edit", items: [{ label: "Undo", shortcut: "⌘Z", onClick: () => setLast("Undo") }, { label: "Redo", shortcut: "⇧⌘Z", onClick: () => setLast("Redo") }] },
+          { label: "View", items: [{ label: "Zoom in", shortcut: "⌘+", onClick: () => setLast("Zoomed in") }, { label: "Zoom out", shortcut: "⌘-", onClick: () => setLast("Zoomed out") }] },
+          { label: "Help", disabled: true, items: [] },
+        ]}
+      />
+      <span className="text-sm text-muted-foreground" role="status">{last}</span>
     </div>
   )
 }
@@ -855,6 +894,53 @@ const columns: ColumnDef<(typeof services)[number]>[] = [
     <DevModePreview />,
     api(["enabled", "boolean", "Renders nothing when false; gate it with import.meta.env.DEV or similar.", "true"], ["defaultPosition", '"top-left" | "top-right" | "bottom-left" | "bottom-right"', "Initial corner; the move button cycles corners.", '"bottom-left"'], ["breakpoints", "Record<string, number>", "Named min-width breakpoints in px.", "Tailwind sm–2xl"], ["defaultCollapsed", "boolean", "Start collapsed to the breakpoint pill.", "false"], ["hotkey", "string | false", "Ctrl/⌘ + Shift + key toggles visibility.", '"d"'], ["floating", "boolean", "Fixed to a viewport corner; false renders inline.", "true"], ["storageKey", "string | false", "localStorage key remembering position, collapsed/hidden state and active tools across reloads; false disables.", '"rui-devmode"'], ["resolveBreakpoint(width, breakpoints?)", "function", "Exported helper returning the active breakpoint name for a width."]),
     "Tools: Inspect spacing (hover any element to see its margin, border, padding and content as colour bands with exact values; Escape exits) and Outline layout boxes. A labelled region with named buttons (toggles expose aria-pressed). It does not announce size changes, to avoid live-region noise while resizing. It renders after hydration only, so server and client markup match.",
+  ),
+  "components/context-menu": () => detail(
+    `function FileRow() {
+  const [last, setLast] = useState("Right-click the file (or focus it and press Shift+F10)")
+  return (
+    <div className="grid w-full max-w-sm gap-3">
+      <ContextMenu
+        items={[
+          { label: "Open", shortcut: "↵", onClick: () => setLast("Opened report.pdf") },
+          { label: "Rename", shortcut: "F2", onClick: () => setLast("Renaming report.pdf") },
+          { label: "Duplicate", onClick: () => setLast("Duplicated report.pdf") },
+          { group: "Danger zone", items: [{ label: "Delete", destructive: true, onClick: () => setLast("Deleted report.pdf") }] },
+        ]}
+      >
+        <button type="button" className="flex w-full items-center gap-3 rounded-lg border border-dashed border-border-strong bg-surface p-4 text-left text-sm">
+          <FileText size={18} aria-hidden="true" />
+          report.pdf
+        </button>
+      </ContextMenu>
+      <span className="text-sm text-muted-foreground" role="status">{last}</span>
+    </div>
+  )
+}`,
+    <ContextMenuUsagePreview />,
+    api(["items", "DropdownMenuSection[]", "Same item model as DropdownMenu: label, icon, shortcut, destructive, disabled, groups."], ["children", "ReactNode", "The region that opens the menu."], ["disabled", "boolean", "Shows the browser menu instead.", "false"], ["onOpenChange", "(open) => void", "Open-state callback."], ["ariaLabel / menuClassName", "string", "Menu name and styling."]),
+    "Opens at the pointer on right-click, and from the keyboard with Shift+F10 or the ContextMenu key at the focused element. Focus moves to the first item; arrows, Home and End navigate; Escape, Tab or a selection closes it and returns focus to the right-clicked control. Scrolling or resizing closes it.",
+  ),
+  "components/menubar": () => detail(
+    `function EditorMenus() {
+  const [last, setLast] = useState("Use the arrow keys between menus")
+  return (
+    <div className="grid gap-3">
+      <Menubar
+        menus={[
+          { label: "File", items: [{ label: "New file", shortcut: "⌘N", onClick: () => setLast("New file") }, { label: "Save", shortcut: "⌘S", onClick: () => setLast("Saved") }] },
+          { label: "Edit", items: [{ label: "Undo", shortcut: "⌘Z", onClick: () => setLast("Undo") }, { label: "Redo", shortcut: "⇧⌘Z", onClick: () => setLast("Redo") }] },
+          { label: "View", items: [{ label: "Zoom in", shortcut: "⌘+", onClick: () => setLast("Zoomed in") }, { label: "Zoom out", shortcut: "⌘-", onClick: () => setLast("Zoomed out") }] },
+          { label: "Help", disabled: true, items: [] },
+        ]}
+      />
+      <span className="text-sm text-muted-foreground" role="status">{last}</span>
+    </div>
+  )
+}`,
+    <MenubarUsagePreview />,
+    api(["menus", "{ label; items; disabled? }[]", "Top-level menus with DropdownMenu-style items."], ["ariaLabel", "string", "Name of the bar.", '"Menu bar"'], ["triggerClassName / menuClassName", "string", "Style the top-level buttons and the menus."]),
+    "Implements the WAI-ARIA menubar pattern: a single tab stop; Left/Right move between menus; Down, Enter or Space open one; while a menu is open Left/Right switch to the neighbouring menu and hovering another trigger switches too; Escape returns focus to the bar. Disabled menus are skipped.",
   ),
   "components/code-block": () => detail(
     `<CodeBlock className="w-full" language="ts" filename="status.ts" showLineNumbers code={'export const status = "ready"\\n\\nconsole.log(status)'} />`,

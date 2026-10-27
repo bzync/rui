@@ -117,6 +117,8 @@ const overlays = [
   component("Drawer", "Presents contextual content from a viewport edge.", "Overlays", ["sheet"]),
   component("Popover", "Displays contextual interactive content near a trigger.", "Overlays"),
   component("Dropdown Menu", "Presents a keyboard-navigable menu of actions.", "Overlays", ["dropdown", "menu"], "DropdownMenu"),
+  component("Context Menu", "Opens a menu of actions on right-click or Shift+F10.", "Overlays", ["right click", "contextmenu"], "ContextMenu"),
+  component("Menubar", "Application-style menu bar with keyboard navigation.", "Overlays", ["file menu", "app menu"], "Menubar"),
   component("Tooltip", "Provides concise supplementary text on hover or focus.", "Overlays"),
   component("Command", "Searches and runs commands from a command palette.", "Overlays", ["cmdk", "command palette"]),
 ]

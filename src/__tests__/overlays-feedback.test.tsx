@@ -1,9 +1,9 @@
-import { act, render, screen } from "@testing-library/react"
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { hydrateRoot } from "react-dom/client"
 import { renderToString } from "react-dom/server"
 import { describe, expect, it, vi } from "vitest"
-import { CommandPalette, CommandProvider, ConfirmDialog, CopyButton, DatePicker, Drawer, DropdownMenu, InfoButton, Modal, Popover, PopoverContent, Select, SnackbarProvider, ThemeProvider, TimePicker, Tooltip, useSnackbar } from "@/index"
+import { CommandPalette, CommandProvider, ConfirmDialog, ContextMenu, Menubar, CopyButton, DatePicker, Drawer, DropdownMenu, InfoButton, Modal, Popover, PopoverContent, Select, SnackbarProvider, ThemeProvider, TimePicker, Tooltip, useSnackbar } from "@/index"
 
 describe("overlay and feedback components", () => {
   it("renders every anchored overlay outside a clipping table container, inside the theme scope", async () => {
@@ -260,5 +260,47 @@ describe("controlled overlay state", () => {
   it("opens the command palette from controlled provider state", async () => {
     render(<CommandProvider open onOpenChange={() => {}}><CommandPalette items={[{ id: "a", label: "Open settings", onSelect: () => {} }]} /></CommandProvider>)
     expect(await screen.findByRole("dialog", { name: "Command palette" })).toBeInTheDocument()
+  })
+})
+
+describe("ContextMenu and Menubar", () => {
+  it("opens a context menu at the pointer and from the keyboard, and restores focus", async () => {
+    const user = userEvent.setup(); const rename = vi.fn()
+    render(<ContextMenu items={[{ label: "Rename", onClick: rename }, { label: "Delete", destructive: true }]}><button>File row</button></ContextMenu>)
+    const row = screen.getByRole("button", { name: "File row" })
+    fireEvent.contextMenu(row, { clientX: 120, clientY: 80 })
+    await waitFor(() => expect(screen.getByRole("menuitem", { name: "Rename" })).toHaveFocus())
+    await user.keyboard("{ArrowDown}")
+    expect(screen.getByRole("menuitem", { name: "Delete" })).toHaveFocus()
+    await user.keyboard("{Escape}")
+    await waitFor(() => expect(screen.queryByRole("menu")).not.toBeInTheDocument())
+    await waitFor(() => expect(row).toHaveFocus())
+    await user.keyboard("{Shift>}{F10}{/Shift}")
+    await user.click(await screen.findByRole("menuitem", { name: "Rename" }))
+    expect(rename).toHaveBeenCalledOnce()
+  })
+
+  it("moves between menus with arrow keys and switches open menus", async () => {
+    const user = userEvent.setup(); const save = vi.fn()
+    render(<Menubar menus={[
+      { label: "File", items: [{ label: "Save", shortcut: "⌘S", onClick: save }] },
+      { label: "Edit", items: [{ label: "Undo" }, { label: "Redo" }] },
+      { label: "View", items: [{ label: "Zoom in" }] },
+    ]} />)
+    expect(screen.getByRole("menubar")).toBeInTheDocument()
+    const file = screen.getByRole("menuitem", { name: "File" })
+    expect(file).toHaveAttribute("tabindex", "0")
+    expect(screen.getByRole("menuitem", { name: "Edit" })).toHaveAttribute("tabindex", "-1")
+    file.focus()
+    await user.keyboard("{ArrowRight}")
+    expect(screen.getByRole("menuitem", { name: "Edit" })).toHaveFocus()
+    await user.keyboard("{ArrowDown}")
+    await waitFor(() => expect(screen.getByRole("menuitem", { name: "Undo" })).toHaveFocus())
+    await user.keyboard("{ArrowLeft}")
+    // The shortcut is part of the item's accessible name ("Save ⌘S").
+    await waitFor(() => expect(screen.getByRole("menuitem", { name: /^Save/ })).toHaveFocus())
+    await user.keyboard("{Enter}")
+    expect(save).toHaveBeenCalledOnce()
+    await waitFor(() => expect(file).toHaveFocus())
   })
 })

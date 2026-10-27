@@ -359,7 +359,10 @@ code, pre, kbd { font-feature-settings: "calt" 0; }
   background-image: radial-gradient(color-mix(in srgb, var(--color-foreground) 7%, transparent) 1px, transparent 1px);
   background-size: 16px 16px;
 }
-.component-preview-canvas > * { min-width: 0; max-width: 100%; }
+/* Layered so a preview root's own max-w-* / min-w-* utilities win over this default. */
+@layer components {
+  .component-preview-canvas > * { min-width: 0; max-width: 100%; }
+}
 .component-preview-canvas.items-start { align-items: flex-start; }
 .component-preview-code { margin-top: 0 !important; }
 .component-preview-code > div { border: 0 !important; border-radius: 0 0 var(--docs-radius) var(--docs-radius) !important; }
