@@ -28,7 +28,9 @@ function useTabsCtx() {
 }
 
 export interface TabsProps {
-  defaultValue: string
+  /** Initially active tab when uncontrolled. */
+  defaultValue?: string
+  /** Controlled active tab. */
   value?: string
   children: ReactNode
   className?: string
@@ -48,7 +50,7 @@ export function Tabs({
   onValueChange,
   onChange,
 }: TabsProps) {
-  const [localActive, setLocalActive] = useState(defaultValue)
+  const [localActive, setLocalActive] = useState(defaultValue ?? "")
   const active = value ?? localActive
   const tabsId = useId()
 

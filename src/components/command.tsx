@@ -7,6 +7,7 @@ import { AnimatePresence } from "framer-motion"
 import { motion } from "@/lib/motion-components"
 import { transitions } from "@/lib/motion"
 import { ThemePortal } from "./theme-provider"
+import { useControllableState } from "@/hooks/use-controllable-state"
 import {
   KeyboardEvent,
   ReactNode,
@@ -46,21 +47,27 @@ export function useCommand() {
 export interface CommandProviderProps {
   children: ReactNode
   shortcut?: string
+  /** Controlled open state of the palette. */
+  open?: boolean
+  /** Initial open state when uncontrolled. */
+  defaultOpen?: boolean
+  /** Called when the shortcut, a selection or Escape requests a change. */
+  onOpenChange?: (open: boolean) => void
 }
 
-export function CommandProvider({ children, shortcut = "k" }: CommandProviderProps) {
-  const [open, setOpen] = useState(false)
+export function CommandProvider({ children, shortcut = "k", open: controlledOpen, defaultOpen = false, onOpenChange }: CommandProviderProps) {
+  const [open, setOpen] = useControllableState({ value: controlledOpen, defaultValue: defaultOpen, onChange: onOpenChange })
 
   useEffect(() => {
     function onKey(e: globalThis.KeyboardEvent) {
       if ((e.metaKey || e.ctrlKey) && e.key === shortcut) {
         e.preventDefault()
-        setOpen((o) => !o)
+        setOpen(!open)
       }
     }
     document.addEventListener("keydown", onKey)
     return () => document.removeEventListener("keydown", onKey)
-  }, [shortcut])
+  }, [shortcut, open, setOpen])
 
   return (
     <CommandCtx.Provider value={{ open, setOpen }}>

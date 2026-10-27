@@ -174,3 +174,50 @@ describe("interactive component contracts", () => {
     expect(screen.getByRole("button", { name: "Confirm" })).toHaveClass("custom-confirm-button")
   })
 })
+
+describe("controlled and uncontrolled state", () => {
+  it("controls accordion panels with value/onValueChange", async () => {
+    const user = userEvent.setup(); const onValueChange = vi.fn()
+    const items = [{ id: "a", trigger: "Alpha", content: "Alpha body" }, { id: "b", trigger: "Beta", content: "Beta body" }]
+    const { rerender } = render(<Accordion items={items} value={["a"]} onValueChange={onValueChange} />)
+    expect(screen.getByText("Alpha body")).toBeInTheDocument()
+    await user.click(screen.getByRole("button", { name: "Beta" }))
+    expect(onValueChange).toHaveBeenCalledWith(["b"])
+    // Controlled: nothing changes until the parent passes the new value.
+    expect(screen.queryByText("Beta body")).not.toBeInTheDocument()
+    rerender(<Accordion items={items} value={["b"]} onValueChange={onValueChange} />)
+    expect(screen.getByText("Beta body")).toBeInTheDocument()
+  })
+
+  it("lets controlled Tabs omit defaultValue", async () => {
+    const user = userEvent.setup(); const onValueChange = vi.fn()
+    render(<Tabs value="two" onValueChange={onValueChange}><TabsList><TabsTrigger value="one">One</TabsTrigger><TabsTrigger value="two">Two</TabsTrigger></TabsList><TabsContent value="one">First</TabsContent><TabsContent value="two">Second</TabsContent></Tabs>)
+    expect(screen.getByRole("tab", { name: "Two" })).toHaveAttribute("aria-selected", "true")
+    await user.click(screen.getByRole("tab", { name: "One" }))
+    expect(onValueChange).toHaveBeenCalledWith("one")
+  })
+
+  it("runs Pagination uncontrolled from defaultPage", async () => {
+    const user = userEvent.setup(); const onPageChange = vi.fn()
+    render(<Pagination totalPages={5} defaultPage={2} onPageChange={onPageChange} />)
+    expect(screen.getByRole("button", { name: "Page 2" })).toHaveAttribute("aria-current", "page")
+    await user.click(screen.getByRole("button", { name: "Next page" }))
+    expect(screen.getByRole("button", { name: "Page 3" })).toHaveAttribute("aria-current", "page")
+    expect(onPageChange).toHaveBeenCalledWith(3)
+  })
+
+  it("supports uncontrolled Tree selection and controlled expansion", async () => {
+    const user = userEvent.setup(); const onExpandedChange = vi.fn()
+    const nodes = [{ id: "src", label: "src", children: [{ id: "app", label: "app.ts" }] }, { id: "readme", label: "README.md" }]
+    render(<Tree nodes={nodes} defaultSelected="readme" expanded={[]} onExpandedChange={onExpandedChange} />)
+    expect(screen.queryByText("app.ts")).not.toBeInTheDocument()
+    await user.click(screen.getByText("src"))
+    expect(onExpandedChange).toHaveBeenCalledWith(["src"])
+    expect(screen.queryByText("app.ts")).not.toBeInTheDocument()
+  })
+
+  it("opens a Popover from defaultOpen", () => {
+    render(<Popover defaultOpen trigger={<button>Filters</button>}><PopoverContent>Filter body</PopoverContent></Popover>)
+    expect(screen.getByRole("button", { name: "Filters" })).toHaveAttribute("aria-expanded", "true")
+  })
+})

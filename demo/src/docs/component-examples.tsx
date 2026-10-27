@@ -808,6 +808,13 @@ export const componentExamples: Record<string, () => ComponentExample[]> = {
   )
 }`,
       <RadioHorizontalExample />),
+    ex("uncontrolled", "Uncontrolled", "defaultValue lets the group manage its own state — no useState needed. Pair with name to submit it in a form.",
+      `<RadioGroup label="Notifications" name="notifications" defaultValue="mentions">
+  <Radio value="all" label="All activity" />
+  <Radio value="mentions" label="Mentions only" />
+  <Radio value="none" label="Nothing" />
+</RadioGroup>`,
+      <R.RadioGroup label="Notifications" name="notifications" defaultValue="mentions"><R.Radio value="all" label="All activity" /><R.Radio value="mentions" label="Mentions only" /><R.Radio value="none" label="Nothing" /></R.RadioGroup>),
     ex("error", "Validation", "Group-level error is announced with the group.",
       `<RadioGroup label="Billing contact" value="" onChange={setContact} error="Choose a billing contact.">
   <Radio value="owner" label="Workspace owner" />
@@ -1345,6 +1352,23 @@ export const componentExamples: Record<string, () => ComponentExample[]> = {
   ],
 
   "components/accordion": () => [
+    ex("controlled", "Controlled: expand and collapse all", "Pass value and onValueChange to drive open panels from outside the accordion.",
+      `function Faq() {
+  const faqs = [
+    { id: "limits", trigger: "What are the plan limits?", content: "Pro includes 1 TB bandwidth and 6,000 build minutes." },
+    { id: "regions", trigger: "Which regions are available?", content: "Twelve regions across four continents." },
+    { id: "support", trigger: "How do I contact support?", content: "Open a ticket from the dashboard; Pro replies within 4 hours." },
+  ]
+  const [open, setOpen] = useState<string[]>([])
+  return (
+    <>
+      <Button size="sm" variant="secondary" onClick={() => setOpen(faqs.map((faq) => faq.id))}>Expand all</Button>
+      <Button size="sm" variant="ghost" onClick={() => setOpen([])}>Collapse all</Button>
+      <Accordion multiple items={faqs} value={open} onValueChange={setOpen} />
+    </>
+  )
+}`,
+      <AccordionControlledExample />),
     ex("multiple", "Multiple open", "multiple lets readers compare panels; disabled items stay visible.",
       `<Accordion
   multiple
@@ -1540,6 +1564,24 @@ function TableOverlaysExample() {
         </div>
       </R.Modal>
     </>
+  )
+}
+
+function AccordionControlledExample() {
+  const faqs = [
+    { id: "limits", trigger: "What are the plan limits?", content: "Pro includes 1 TB bandwidth and 6,000 build minutes." },
+    { id: "regions", trigger: "Which regions are available?", content: "Twelve regions across four continents." },
+    { id: "support", trigger: "How do I contact support?", content: "Open a ticket from the dashboard; Pro replies within 4 hours." },
+  ]
+  const [open, setOpen] = useState<string[]>([])
+  return (
+    <div className="demo-stack w-full max-w-lg">
+      <div className="flex gap-2">
+        <R.Button size="sm" variant="secondary" onClick={() => setOpen(faqs.map((faq) => faq.id))}>Expand all</R.Button>
+        <R.Button size="sm" variant="ghost" onClick={() => setOpen([])}>Collapse all</R.Button>
+      </div>
+      <R.Accordion multiple items={faqs} value={open} onValueChange={setOpen} />
+    </div>
   )
 }
 

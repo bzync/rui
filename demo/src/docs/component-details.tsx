@@ -410,7 +410,7 @@ export const supplementalDetails: Record<string, () => SupplementalDetail> = {
   "components/autocomplete": () => detail(
     `<Autocomplete label="Runtime" placeholder="Search runtimes…" options={[\n  { value: "node", label: "Node.js 22" },\n  { value: "go", label: "Go 1.25" },\n]} onSelect={setRuntime} />`,
     <div className="w-full max-w-sm"><R.Autocomplete label="Runtime" placeholder="Search runtimes…" hint="Type to filter options" options={[{ value: "node", label: "Node.js 22" }, { value: "go", label: "Go 1.25" }, { value: "rust", label: "Rust" }]} /></div>,
-    api(["options", "AutocompleteOption[]", "Searchable option values and labels."], ["multiple", "boolean", "Enables multi-selection.", "false"], ["inputValue", "string", "Controlled query text."], ["onSelect", "(option, all?) => void", "Selection callback."], ["label / hint / error", "string", "Accessible field messaging."]),
+    api(["options", "AutocompleteOption[]", "Searchable option values and labels."], ["multiple", "boolean", "Enables multi-selection.", "false"], ["value / defaultValue", "V | V[]", "Controlled or initial selection; a single value shows its label in the input."], ["inputValue", "string", "Controlled query text."], ["onSelect", "(option, all?) => void", "Selection callback."], ["label / hint / error", "string", "Accessible field messaging."]),
     "Exposes combobox/listbox semantics with arrow-key navigation, Enter selection, Escape dismissal, and associated field messages.",
   ),
   "components/slider": () => detail(
@@ -428,7 +428,7 @@ export const supplementalDetails: Record<string, () => SupplementalDetail> = {
   "components/otp-input": () => detail(
     `<OtpInput label="Verification code" length={6} onComplete={verifyCode} />`,
     <R.OtpInput label="Verification code" length={6} hint="Paste or type the six-digit code" />,
-    api(["length", "number", "Number of digit fields.", "6"], ["value", "string", "Controlled code value."], ["onChange / onComplete", "(value: string) => void", "Edit and completion callbacks."], ["masked", "boolean", "Masks entered digits.", "false"]),
+    api(["length", "number", "Number of digit fields.", "6"], ["value / defaultValue", "string", "Controlled or initial code."], ["onChange / onComplete", "(value: string) => void", "Edit and completion callbacks."], ["masked", "boolean", "Masks entered digits.", "false"]),
     "Fields use numeric input modes, one-time-code autocomplete, paste support, and arrow-key navigation.",
   ),
   "components/file-upload": () => detail(
@@ -449,7 +449,7 @@ export const supplementalDetails: Record<string, () => SupplementalDetail> = {
   hint="September 1–October 31, 2026"
 />`,
     <DatePickerPreview />,
-    api(["value", "Date | null", "Controlled selected date."], ["onChange", "(date: Date | null) => void", "Selection callback."], ["minDate / maxDate", "Date", "Selectable date boundaries."], ["clearable", "boolean", "Allows clearing the value.", "true"]),
+    api(["value / defaultValue", "Date | null", "Controlled or initial selected date."], ["onChange", "(date: Date | null) => void", "Selection callback."], ["minDate / maxDate", "Date", "Selectable date boundaries."], ["clearable", "boolean", "Allows clearing the value.", "true"]),
     "The trigger exposes dialog state and associated field messages. Calendar days use roving focus with arrow, Home, End, Page Up, and Page Down navigation; Escape dismisses and restores trigger focus.",
   ),
   "components/calendar": () => detail(
@@ -527,7 +527,7 @@ export const supplementalDetails: Record<string, () => SupplementalDetail> = {
   "components/tree": () => detail(
     `<Tree nodes={nodes} selected={selectedId} onSelect={setSelectedId} defaultExpanded={["src"]} />`,
     <TreePreview />,
-    api(["nodes", "TreeNode[]", "Hierarchical node data."], ["selected", "string", "Controlled selected node ID."], ["onSelect", "(id: string) => void", "Node selection callback."], ["defaultExpanded", "string[]", "Initially expanded node IDs."]),
+    api(["nodes", "TreeNode[]", "Hierarchical node data."], ["selected / defaultSelected", "string", "Controlled or initial selected node ID."], ["onSelect", "(id: string) => void", "Node selection callback."], ["expanded / defaultExpanded", "string[]", "Controlled or initial expanded node IDs."], ["onExpandedChange", "(ids: string[]) => void", "Called with the next expanded node IDs."]),
     "Expandable nodes expose buttons with expanded state; selectable rows remain keyboard reachable.",
   ),
   "components/snackbar": () => detail(
@@ -563,13 +563,13 @@ export const supplementalDetails: Record<string, () => SupplementalDetail> = {
   "components/popover": () => detail(
     `<Popover trigger={<Button>Filters</Button>} side="bottom">\n  <PopoverContent>Filter controls</PopoverContent>\n</Popover>`,
     <R.Popover trigger={<R.Button variant="secondary">Filter options</R.Button>} side="bottom"><R.PopoverContent className="w-64"><p className="mb-3 text-sm font-semibold">Status</p><div className="demo-stack"><R.Checkbox label="Healthy" defaultChecked /><R.Checkbox label="Building" /></div></R.PopoverContent></R.Popover>,
-    api(["trigger", "ReactNode", "Element that toggles the panel."], ["open", "boolean", "Controlled open state."], ["onOpenChange", "(open: boolean) => void", "Open-state callback."], ["side", '"top" | "right" | "bottom" | "left"', "Preferred placement.", '"bottom"'], ["align", '"start" | "center" | "end"', "Cross-axis alignment.", '"center"']),
+    api(["trigger", "ReactNode", "Element that toggles the panel."], ["open / defaultOpen", "boolean", "Controlled or initial open state."], ["onOpenChange", "(open: boolean) => void", "Open-state callback."], ["side", '"top" | "right" | "bottom" | "left"', "Preferred placement.", '"bottom"'], ["align", '"start" | "center" | "end"', "Cross-axis alignment.", '"center"']),
     "The trigger exposes expanded state; Escape and outside pointer interaction dismiss the panel.",
   ),
   "components/command": () => detail(
     `<CommandProvider>\n  <CommandTrigger />\n  <CommandPalette items={commands} />\n</CommandProvider>`,
     <CommandPreview />,
-    api(["items", "CommandItem[]", "Searchable commands and groups."], ["shortcut", "string", "Modifier-key shortcut.", '"k"'], ["placeholder", "string", "Search input placeholder."], ["ariaLabel", "string", "Accessible dialog name.", '"Command palette"']),
+    api(["items", "CommandItem[]", "Searchable commands and groups."], ["shortcut", "string", "Modifier-key shortcut.", '"k"'], ["CommandProvider open / defaultOpen", "boolean", "Controlled or initial palette state."], ["CommandProvider onOpenChange", "(open: boolean) => void", "Called when the palette requests to open or close."], ["placeholder", "string", "Search input placeholder."], ["ariaLabel", "string", "Accessible dialog name.", '"Command palette"']),
     "The palette is a labeled modal dialog with a focus trap, searchable listbox behavior, arrow navigation, Escape dismissal, and focus restoration.",
   ),
   "components/breadcrumb": () => detail(
@@ -617,7 +617,7 @@ export const supplementalDetails: Record<string, () => SupplementalDetail> = {
   "components/rich-text": () => detail(
     `<RichTextEditor value={html} onChange={setHtml} placeholder="Write release notes…" />`,
     <RichTextPreview />,
-    api(["value", "string", "Controlled HTML value."], ["onChange", "(html: string) => void", "Edit callback."], ["placeholder", "string", "Empty editor guidance."], ["disabled", "boolean", "Disables editing controls."], ["className", "string", "Composes editor layout styles."]),
+    api(["value / defaultValue", "string", "Controlled HTML, or initial HTML applied once when uncontrolled."], ["onChange", "(html: string) => void", "Edit callback."], ["placeholder", "string", "Empty editor guidance."], ["disabled", "boolean", "Disables editing controls."], ["className", "string", "Composes editor layout styles."]),
     "Toolbar controls are named buttons and the editable surface supports keyboard text editing.",
   ),
   "components/terminal": () => detail(

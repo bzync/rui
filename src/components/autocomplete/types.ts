@@ -9,7 +9,7 @@ export interface AutocompleteOption<V = string> {
 }
 
 export interface AutocompletePropsBase<V = string>
-  extends Omit<InputHTMLAttributes<HTMLInputElement>, "value" | "onChange" | "onSelect" | "prefix"> {
+  extends Omit<InputHTMLAttributes<HTMLInputElement>, "value" | "defaultValue" | "onChange" | "onSelect" | "prefix"> {
   options: AutocompleteOption<V>[]
   /** Submits the selected option value(s) with the form (one entry per value), not the typed text. */
   name?: string
@@ -46,14 +46,20 @@ export interface AutocompletePropsBase<V = string>
 
 export interface AutocompletePropsSingle<V = string> extends AutocompletePropsBase<V> {
   multiple?: false
+  /** Controlled selected value; its option label is shown in the input. */
   value?: V | null
+  /** Initially selected value when uncontrolled. */
+  defaultValue?: V | null
   onSelect?: (option: AutocompleteOption<V>) => void
   onDeselect?: never
 }
 
 export interface AutocompletePropsMulti<V = string> extends AutocompletePropsBase<V> {
   multiple: true
+  /** Controlled selected values. */
   value?: V[]
+  /** Initially selected values when uncontrolled. */
+  defaultValue?: V[]
   onSelect?: (option: AutocompleteOption<V>, allSelected: AutocompleteOption<V>[]) => void
   onDeselect?: (option: AutocompleteOption<V>, allSelected: AutocompleteOption<V>[]) => void
 }

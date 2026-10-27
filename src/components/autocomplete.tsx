@@ -67,6 +67,7 @@ function AutocompleteInner<V = string>(
   } = props
   const {
     value: selectionValue,
+    defaultValue: defaultSelection,
     onSelect: selectionHandler,
     onDeselect: deselectionHandler,
     // Form participation belongs to the selection, not the typed text.
@@ -76,6 +77,7 @@ function AutocompleteInner<V = string>(
     ...textInputProps
   } = inputProps
   void selectionValue
+  void defaultSelection
   void selectionHandler
   void deselectionHandler
   const nativeInputProps = { ...textInputProps, "aria-required": required || undefined }
@@ -85,7 +87,10 @@ function AutocompleteInner<V = string>(
   const listId = `${inputId}-list`
   const messageId = `${inputId}-message`
 
-  const [localInput, setLocalInput] = useState("")
+  // Uncontrolled initial selection, resolved to options once on mount.
+  const [initialSingle] = useState<AutocompleteOption<V> | null>(() =>
+    !multiple && defaultSelection != null ? options.find((o) => o.value === defaultSelection) ?? null : null)
+  const [localInput, setLocalInput] = useState(initialSingle?.label ?? "")
   const inputText = controlledInput !== undefined ? controlledInput : localInput
   const onInputChangeStable = useEventCallback((v: string) => onInputChange?.(v))
 
@@ -94,9 +99,19 @@ function AutocompleteInner<V = string>(
     else setLocalInput(v)
   }, [controlledInput, onInputChangeStable])
 
-  const [localSelected, setLocalSelected] = useState<AutocompleteOption<V>[]>([])
+  const [localSelected, setLocalSelected] = useState<AutocompleteOption<V>[]>(() =>
+    multiple && Array.isArray(defaultSelection) ? options.filter((o) => (defaultSelection as V[]).includes(o.value)) : [])
   // Uncontrolled single selection, so a form can submit the chosen value.
-  const [localSingle, setLocalSingle] = useState<AutocompleteOption<V> | null>(null)
+  const [localSingle, setLocalSingle] = useState<AutocompleteOption<V> | null>(initialSingle)
+
+  // A controlled single value shows its option label in the input (unless the
+  // text itself is controlled). Previously the input stayed empty.
+  const controlledSingle = !multiple ? (props as AutocompletePropsSingle<V>).value : undefined
+  useEffect(() => {
+    if (multiple || controlledSingle === undefined || controlledInput !== undefined) return
+    setLocalInput(options.find((o) => o.value === controlledSingle)?.label ?? "")
+    // Only when the selected value changes; `options` identity churns every render.
+  }, [controlledSingle, multiple, controlledInput])
 
   const selected: AutocompleteOption<V>[] = useMemo(() => {
     if (!multiple) return []

@@ -240,3 +240,25 @@ describe("portalled dialogs", () => {
     host.remove()
   })
 })
+
+describe("controlled overlay state", () => {
+  it("controls DropdownMenu open state", async () => {
+    const user = userEvent.setup(); const onOpenChange = vi.fn()
+    const { rerender } = render(<DropdownMenu open={false} onOpenChange={onOpenChange} trigger={<button>Actions</button>} items={[{ label: "Deploy" }]} />)
+    await user.click(screen.getByRole("button", { name: "Actions" }))
+    expect(onOpenChange).toHaveBeenCalledWith(true)
+    expect(screen.queryByRole("menu")).not.toBeInTheDocument()
+    rerender(<DropdownMenu open onOpenChange={onOpenChange} trigger={<button>Actions</button>} items={[{ label: "Deploy" }]} />)
+    expect(await screen.findByRole("menuitem", { name: "Deploy" })).toBeInTheDocument()
+  })
+
+  it("shows a controlled Tooltip without hover", async () => {
+    render(<Tooltip open content="Always visible"><button>Help</button></Tooltip>)
+    expect(await screen.findByRole("tooltip")).toHaveTextContent("Always visible")
+  })
+
+  it("opens the command palette from controlled provider state", async () => {
+    render(<CommandProvider open onOpenChange={() => {}}><CommandPalette items={[{ id: "a", label: "Open settings", onSelect: () => {} }]} /></CommandProvider>)
+    expect(await screen.findByRole("dialog", { name: "Command palette" })).toBeInTheDocument()
+  })
+})

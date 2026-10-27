@@ -6,7 +6,10 @@ import { useRef, useEffect, useCallback } from "react"
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface RichTextEditorProps {
+  /** Controlled HTML. Changes are written into the editor. */
   value?: string
+  /** Initial HTML when uncontrolled; applied once on mount. */
+  defaultValue?: string
   onChange?: (html: string) => void
   placeholder?: string
   className?: string
@@ -103,7 +106,8 @@ function sanitizeHtml(html: string, sanitize?: boolean | ((html: string) => stri
 // ─── RichTextEditor ───────────────────────────────────────────────────────────
 
 export function RichTextEditor({
-  value = "",
+  value,
+  defaultValue = "",
   onChange,
   placeholder = "Start typing…",
   className,
@@ -111,15 +115,19 @@ export function RichTextEditor({
   sanitize = false,
 }: RichTextEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null)
-  const lastHtml = useRef(value)
+  const lastHtml = useRef(value ?? defaultValue)
+  const seeded = useRef(false)
 
   useEffect(() => {
-    const safe = sanitizeHtml(value, sanitize)
+    // Uncontrolled: seed defaultValue once, then the DOM owns the content.
+    if (value === undefined && seeded.current) return
+    seeded.current = true
+    const safe = sanitizeHtml(value ?? defaultValue, sanitize)
     if (editorRef.current && editorRef.current.innerHTML !== safe) {
       editorRef.current.innerHTML = safe
       lastHtml.current = safe
     }
-  }, [value, sanitize])
+  }, [value, defaultValue, sanitize])
 
   const emit = useCallback(() => {
     const raw = editorRef.current?.innerHTML ?? ""

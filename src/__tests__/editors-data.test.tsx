@@ -118,3 +118,12 @@ describe("data, editor, and advanced field components", () => {
     expect(html).toMatch(/https:\/\/ok\.example/)
   })
 })
+
+describe("editor and code defaults", () => {
+  it("seeds uncontrolled OtpInput and RichTextEditor from defaultValue", () => {
+    const { container } = render(<><OtpInput label="Code" length={4} defaultValue="12" /><RichTextEditor defaultValue="<p>Seeded</p>" /></>)
+    const digits = screen.getAllByRole("textbox").filter((input) => input.getAttribute("inputmode") === "numeric")
+    expect(digits[0]).toHaveValue("1"); expect(digits[1]).toHaveValue("2")
+    expect(container.querySelector("[contenteditable]")).toHaveTextContent("Seeded")
+  })
+})

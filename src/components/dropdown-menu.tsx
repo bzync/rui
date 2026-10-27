@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/cn"
 import { useAnchoredPosition } from "@/hooks/use-anchored-position"
+import { useControllableState } from "@/hooks/use-controllable-state"
 import { HTMLAttributes, MouseEvent as ReactMouseEvent, ReactElement, ReactNode, Suspense, cloneElement, isValidElement, lazy, useEffect, useRef, useState } from "react"
 
 // The animated menu surface pulls in framer-motion, so it lives in its own
@@ -40,6 +41,12 @@ export interface DropdownMenuProps {
   groupLabelClassName?: string
   separatorClassName?: string
   ariaLabel?: string
+  /** Controlled open state. */
+  open?: boolean
+  /** Initial open state when uncontrolled. */
+  defaultOpen?: boolean
+  /** Called when the trigger, an item, Escape/Tab or an outside click requests a change. */
+  onOpenChange?: (open: boolean) => void
 }
 
 export function DropdownMenu({
@@ -53,8 +60,11 @@ export function DropdownMenu({
   groupLabelClassName,
   separatorClassName,
   ariaLabel = "Actions menu",
+  open: controlledOpen,
+  defaultOpen = false,
+  onOpenChange,
 }: DropdownMenuProps) {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useControllableState({ value: controlledOpen, defaultValue: defaultOpen, onChange: onOpenChange })
   // Latches true on the first open so the lazy panel stays mounted for exit
   // animations and instant re-opens.
   const [panelMounted, setPanelMounted] = useState(false)
@@ -69,6 +79,7 @@ export function DropdownMenu({
   }, [open])
 
   useEffect(() => {
+    if (!open) return
     function onOutside(e: MouseEvent) {
       const target = e.target as Node
       if (containerRef.current?.contains(target) || menuRef.current?.contains(target)) return
@@ -76,7 +87,7 @@ export function DropdownMenu({
     }
     document.addEventListener("mousedown", onOutside)
     return () => document.removeEventListener("mousedown", onOutside)
-  }, [])
+  }, [open, setOpen])
 
   useEffect(() => {
     if (!open) return
@@ -111,9 +122,9 @@ export function DropdownMenu({
     "aria-expanded": open,
     onClick: (event: ReactMouseEvent<HTMLElement>) => {
       ;(trigger.props as MenuTriggerProps).onClick?.(event)
-      if (!event.defaultPrevented) setOpen((current) => !current)
+      if (!event.defaultPrevented) setOpen(!open)
     },
-  }) : <button type="button" aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen((current) => !current)}>{trigger}</button>
+  }) : <button type="button" aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen(!open)}>{trigger}</button>
 
   return (
     <div ref={containerRef} className={cn("relative inline-flex", wrapperClassName)}>

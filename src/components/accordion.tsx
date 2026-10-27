@@ -4,7 +4,8 @@ import { cn } from "@/lib/cn"
 import { focusRingStyles } from "@/lib/component-styles"
 import { AnimatePresence } from "framer-motion"
 import { motion } from "@/lib/motion-components"
-import { HTMLAttributes, ReactNode, useId, useState } from "react"
+import { useControllableState } from "@/hooks/use-controllable-state"
+import { HTMLAttributes, ReactNode, useId } from "react"
 
 export interface AccordionItem {
   id: string
@@ -16,24 +17,24 @@ export interface AccordionItem {
 export interface AccordionProps extends HTMLAttributes<HTMLDivElement> {
   items: AccordionItem[]
   multiple?: boolean
+  /** Initially open item IDs when uncontrolled. */
   defaultOpen?: string[]
+  /** Controlled open item IDs. */
+  value?: string[]
+  /** Called with the next open item IDs. */
+  onValueChange?: (value: string[]) => void
 }
 
-export function Accordion({ items, multiple = false, defaultOpen = [], className, ...props }: AccordionProps) {
-  const [open, setOpen] = useState<Set<string>>(new Set(defaultOpen))
+const EMPTY: string[] = []
+
+export function Accordion({ items, multiple = false, defaultOpen = EMPTY, value, onValueChange, className, ...props }: AccordionProps) {
+  const [openIds, setOpenIds] = useControllableState({ value, defaultValue: defaultOpen, onChange: onValueChange })
+  const open = new Set(openIds)
   const accordionId = useId()
 
   function toggle(id: string) {
-    setOpen((prev) => {
-      const next = new Set(prev)
-      if (next.has(id)) {
-        next.delete(id)
-      } else {
-        if (!multiple) next.clear()
-        next.add(id)
-      }
-      return next
-    })
+    if (open.has(id)) setOpenIds(openIds.filter((openId) => openId !== id))
+    else setOpenIds(multiple ? [...openIds, id] : [id])
   }
 
   return (
@@ -112,15 +113,9 @@ export function Collapsible({
   children,
   className,
 }: CollapsibleProps) {
-  const [localOpen, setLocalOpen] = useState(defaultOpen)
+  const [open, setOpen] = useControllableState({ value: controlledOpen, defaultValue: defaultOpen, onChange: onOpenChange })
   const contentId = useId()
-  const open = controlledOpen ?? localOpen
-
-  function toggle() {
-    const next = !open
-    if (controlledOpen === undefined) setLocalOpen(next)
-    onOpenChange?.(next)
-  }
+  const toggle = () => setOpen(!open)
 
   return (
     <div className={className}>

@@ -5,7 +5,10 @@ import { ClipboardEvent, KeyboardEvent, useId, useRef, useState } from "react"
 
 export interface OtpInputProps {
   length?: number
+  /** Controlled code. */
   value?: string
+  /** Initial code when uncontrolled. */
+  defaultValue?: string
   onChange?: (value: string) => void
   onComplete?: (value: string) => void
   label?: string
@@ -19,6 +22,7 @@ export interface OtpInputProps {
 export function OtpInput({
   length = 6,
   value: controlledValue,
+  defaultValue = "",
   onChange,
   onComplete,
   label,
@@ -29,7 +33,7 @@ export function OtpInput({
   masked = false,
 }: OtpInputProps) {
   const uid = useId()
-  const [localValue, setLocalValue] = useState("")
+  const [localValue, setLocalValue] = useState(defaultValue)
   const value = controlledValue ?? localValue
   const digits = value.split("").slice(0, length)
   const inputsRef = useRef<(HTMLInputElement | null)[]>([])

@@ -2,11 +2,15 @@
 
 import { cn } from "@/lib/cn"
 import { focusRingStyles } from "@/lib/component-styles"
+import { useControllableState } from "@/hooks/use-controllable-state"
 
 export interface PaginationProps {
-  page: number
+  /** Controlled one-based page. */
+  page?: number
+  /** Initial page when uncontrolled. */
+  defaultPage?: number
   totalPages: number
-  onPageChange: (page: number) => void
+  onPageChange?: (page: number) => void
   siblingCount?: number
   className?: string
 }
@@ -46,12 +50,14 @@ const chevronRight = (
 )
 
 export function Pagination({
-  page,
+  page: controlledPage,
+  defaultPage = 1,
   totalPages,
-  onPageChange,
+  onPageChange: onPageChangeProp,
   siblingCount = 1,
   className,
 }: PaginationProps) {
+  const [page, onPageChange] = useControllableState({ value: controlledPage, defaultValue: defaultPage, onChange: onPageChangeProp })
   if (totalPages <= 1) return null
 
   const pages = buildPages(page, totalPages, siblingCount)

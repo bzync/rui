@@ -3,6 +3,7 @@
 import { cn } from "@/lib/cn"
 import { fieldDescriptionStyles, fieldErrorStyles, fieldLabelStyles, fieldRootStyles } from "@/lib/component-styles"
 import { motion } from "@/lib/motion-components"
+import { useControllableState } from "@/hooks/use-controllable-state"
 import { createContext, useContext, useId, ReactNode } from "react"
 
 interface RadioContextValue {
@@ -22,8 +23,11 @@ function useRadioCtx() {
 
 export interface RadioGroupProps {
   name?: string
-  value: string
-  onChange: (value: string) => void
+  /** Controlled selected value. */
+  value?: string
+  /** Initially selected value when uncontrolled. */
+  defaultValue?: string
+  onChange?: (value: string) => void
   disabled?: boolean
   label?: string
   hint?: string
@@ -35,8 +39,9 @@ export interface RadioGroupProps {
 
 export function RadioGroup({
   name: externalName,
-  value,
-  onChange,
+  value: controlledValue,
+  defaultValue = "",
+  onChange: onValueChange,
   disabled,
   label,
   hint,
@@ -45,6 +50,7 @@ export function RadioGroup({
   className,
   children,
 }: RadioGroupProps) {
+  const [value, onChange] = useControllableState({ value: controlledValue, defaultValue, onChange: onValueChange })
   const uid = useId()
   const name = externalName ?? uid
   const labelId = `${name}-label`

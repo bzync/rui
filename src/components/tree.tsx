@@ -3,7 +3,8 @@
 import { cn } from "@/lib/cn"
 import { AnimatePresence } from "framer-motion"
 import { motion } from "@/lib/motion-components"
-import { ReactNode, useState } from "react"
+import { useControllableState } from "@/hooks/use-controllable-state"
+import { ReactNode } from "react"
 
 export interface TreeNode {
   id: string
@@ -15,30 +16,43 @@ export interface TreeNode {
 
 export interface TreeProps {
   nodes: TreeNode[]
+  /** Controlled selected node ID. */
   selected?: string
+  /** Initially selected node ID when uncontrolled. */
+  defaultSelected?: string
   onSelect?: (id: string) => void
+  /** Controlled expanded node IDs. */
+  expanded?: string[]
+  /** Initially expanded node IDs when uncontrolled. */
   defaultExpanded?: string[]
+  /** Called with the next expanded node IDs. */
+  onExpandedChange?: (expanded: string[]) => void
   className?: string
 }
 
-export function Tree({ nodes, selected, onSelect, defaultExpanded = [], className }: TreeProps) {
-  const [expanded, setExpanded] = useState<Set<string>>(new Set(defaultExpanded))
+const NO_IDS: string[] = []
+
+export function Tree({
+  nodes,
+  selected: controlledSelected,
+  defaultSelected,
+  onSelect,
+  expanded: controlledExpanded,
+  defaultExpanded = NO_IDS,
+  onExpandedChange,
+  className,
+}: TreeProps) {
+  const [selected, setSelected] = useControllableState<string | undefined>({ value: controlledSelected, defaultValue: defaultSelected, onChange: (id) => id && onSelect?.(id) })
+  const [expandedIds, setExpandedIds] = useControllableState({ value: controlledExpanded, defaultValue: defaultExpanded, onChange: onExpandedChange })
+  const expanded = new Set(expandedIds)
 
   function toggle(id: string) {
-    setExpanded((prev) => {
-      const next = new Set(prev)
-      if (next.has(id)) {
-        next.delete(id)
-      } else {
-        next.add(id)
-      }
-      return next
-    })
+    setExpandedIds(expanded.has(id) ? expandedIds.filter((expandedId) => expandedId !== id) : [...expandedIds, id])
   }
 
   return (
     <div className={cn("select-none", className)}>
-      <TreeNodes nodes={nodes} expanded={expanded} selected={selected} onToggle={toggle} onSelect={onSelect} depth={0} />
+      <TreeNodes nodes={nodes} expanded={expanded} selected={selected} onToggle={toggle} onSelect={setSelected} depth={0} />
     </div>
   )
 }

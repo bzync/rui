@@ -6,7 +6,8 @@ import { motion } from "@/lib/motion-components"
 import { transitions } from "@/lib/motion"
 import { useAnchoredPosition } from "@/hooks/use-anchored-position"
 import { ThemePortal } from "./theme-provider"
-import { FocusEvent as ReactFocusEvent, HTMLAttributes, MouseEvent as ReactMouseEvent, ReactElement, ReactNode, cloneElement, isValidElement, useEffect, useId, useRef, useState } from "react"
+import { useControllableState } from "@/hooks/use-controllable-state"
+import { FocusEvent as ReactFocusEvent, HTMLAttributes, MouseEvent as ReactMouseEvent, ReactElement, ReactNode, cloneElement, isValidElement, useEffect, useId, useRef } from "react"
 
 type PopoverSide = "top" | "bottom" | "left" | "right"
 type PopoverAlign = "start" | "center" | "end"
@@ -18,7 +19,10 @@ export interface PopoverProps {
   align?: PopoverAlign
   className?: string
   wrapperClassName?: string
+  /** Controlled open state. */
   open?: boolean
+  /** Initial open state when uncontrolled. */
+  defaultOpen?: boolean
   onOpenChange?: (open: boolean) => void
   ariaLabel?: string
 }
@@ -40,11 +44,11 @@ export function Popover({
   className,
   wrapperClassName,
   open: controlledOpen,
+  defaultOpen = false,
   onOpenChange,
   ariaLabel = "Popover",
 }: PopoverProps) {
-  const [localOpen, setLocalOpen] = useState(false)
-  const open = controlledOpen ?? localOpen
+  const [open, setOpen] = useControllableState({ value: controlledOpen, defaultValue: defaultOpen, onChange: onOpenChange })
   const containerRef = useRef<HTMLDivElement>(null)
   const panelRef = useRef<HTMLDivElement | null>(null)
   const contentId = useId()
@@ -52,16 +56,8 @@ export function Popover({
   // area or overflow-hidden card can never clip it or stack above it.
   const { setFloating, style, placement } = useAnchoredPosition({ open, anchorRef: containerRef, side, align, gap: 8 })
 
-  function toggle() {
-    const next = !open
-    if (controlledOpen === undefined) setLocalOpen(next)
-    onOpenChange?.(next)
-  }
-
-  function close() {
-    if (controlledOpen === undefined) setLocalOpen(false)
-    onOpenChange?.(false)
-  }
+  const toggle = () => setOpen(!open)
+  const close = () => setOpen(false)
 
   const focusTrigger = () => containerRef.current?.querySelector<HTMLElement>('[aria-haspopup="dialog"]')?.focus()
 

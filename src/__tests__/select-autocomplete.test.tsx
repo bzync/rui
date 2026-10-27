@@ -180,3 +180,21 @@ describe("Autocomplete form participation", () => {
     expect(form.checkValidity()).toBe(false)
   })
 })
+
+describe("autocomplete selection state", () => {
+  const runtimes = [{ value: "node", label: "Node.js" }, { value: "go", label: "Go" }, { value: "rust", label: "Rust" }]
+
+  it("shows a controlled single value's label in the input and follows changes", () => {
+    const { rerender } = render(<Autocomplete label="Runtime" options={runtimes} value="go" />)
+    expect(screen.getByRole("combobox", { name: "Runtime" })).toHaveValue("Go")
+    rerender(<Autocomplete label="Runtime" options={runtimes} value="rust" />)
+    expect(screen.getByRole("combobox", { name: "Runtime" })).toHaveValue("Rust")
+  })
+
+  it("starts from defaultValue in single and multiple modes", () => {
+    render(<><Autocomplete label="Single" options={runtimes} defaultValue="node" /><Autocomplete multiple label="Many" options={runtimes} defaultValue={["go", "rust"]} /></>)
+    expect(screen.getByRole("combobox", { name: "Single" })).toHaveValue("Node.js")
+    expect(screen.getByText("Go")).toBeInTheDocument()
+    expect(screen.getByText("Rust")).toBeInTheDocument()
+  })
+})

@@ -33,8 +33,11 @@ function dateKey(date: Date) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`
 }
 
-export interface DatePickerProps extends Omit<HTMLAttributes<HTMLDivElement>, "onChange"> {
+export interface DatePickerProps extends Omit<HTMLAttributes<HTMLDivElement>, "onChange" | "defaultValue"> {
+  /** Controlled selected date. */
   value?: Date | null
+  /** Initially selected date when uncontrolled. */
+  defaultValue?: Date | null
   onChange?: (date: Date | null) => void
   label?: string
   hint?: string
@@ -48,6 +51,7 @@ export interface DatePickerProps extends Omit<HTMLAttributes<HTMLDivElement>, "o
 
 export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(({
   value: controlledValue,
+  defaultValue = null,
   onChange,
   label,
   hint,
@@ -60,7 +64,7 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(({
   className,
   ...props
 }, forwardedRef) => {
-  const [localValue, setLocalValue] = useState<Date | null>(null)
+  const [localValue, setLocalValue] = useState<Date | null>(defaultValue)
   const value = controlledValue !== undefined ? controlledValue : localValue
 
   const today = new Date()

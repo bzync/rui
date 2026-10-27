@@ -183,3 +183,19 @@ describe("form controls", () => {
     expect(endLabelId).not.toBe(startLabelId)
   })
 })
+
+describe("uncontrolled form defaults", () => {
+  it("runs RadioGroup uncontrolled from defaultValue", async () => {
+    const user = userEvent.setup(); const onChange = vi.fn()
+    render(<RadioGroup label="Plan" defaultValue="pro" onChange={onChange}><Radio value="hobby" label="Hobby" /><Radio value="pro" label="Pro" /></RadioGroup>)
+    expect(screen.getByRole("radio", { name: "Pro" })).toBeChecked()
+    await user.click(screen.getByRole("radio", { name: "Hobby" }))
+    expect(screen.getByRole("radio", { name: "Hobby" })).toBeChecked()
+    expect(onChange).toHaveBeenCalledWith("hobby")
+  })
+
+  it("shows a DatePicker defaultValue", () => {
+    render(<DatePicker label="Due" defaultValue={new Date(2026, 8, 18)} />)
+    expect(screen.getByRole("button", { name: "Due" })).toHaveTextContent("Sep 18, 2026")
+  })
+})

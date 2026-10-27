@@ -6,7 +6,8 @@ import { motion } from "@/lib/motion-components"
 import { transitions } from "@/lib/motion"
 import { useAnchoredPosition } from "@/hooks/use-anchored-position"
 import { ThemePortal } from "./theme-provider"
-import { FocusEvent, HTMLAttributes, MouseEvent, ReactElement, ReactNode, cloneElement, isValidElement, useEffect, useId, useRef, useState } from "react"
+import { useControllableState } from "@/hooks/use-controllable-state"
+import { FocusEvent, HTMLAttributes, MouseEvent, ReactElement, ReactNode, cloneElement, isValidElement, useEffect, useId, useRef } from "react"
 
 type Position = "top" | "bottom" | "left" | "right"
 
@@ -22,6 +23,12 @@ export interface TooltipProps {
    * or `"none"` to never wrap. It is additionally clamped to the viewport.
    * Defaults to 20rem. */
   maxWidth?: number | string
+  /** Controlled visibility. */
+  open?: boolean
+  /** Initial visibility when uncontrolled. */
+  defaultOpen?: boolean
+  /** Called when hover or focus requests a visibility change. */
+  onOpenChange?: (open: boolean) => void
 }
 
 const enterFrom: Record<Position, { y?: number; x?: number }> = {
@@ -39,8 +46,11 @@ export function Tooltip({
   className,
   wrapperClassName,
   maxWidth,
+  open,
+  defaultOpen = false,
+  onOpenChange,
 }: TooltipProps) {
-  const [visible, setVisible] = useState(false)
+  const [visible, setVisible] = useControllableState({ value: open, defaultValue: defaultOpen, onChange: onOpenChange })
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const tooltipId = useId()
   const wrapperRef = useRef<HTMLDivElement>(null)
