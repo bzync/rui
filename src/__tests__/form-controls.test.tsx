@@ -235,3 +235,45 @@ describe("consistent control sizes", () => {
     expect(screen.getByRole("button", { name: "Question" })).toHaveClass("py-2.5")
   })
 })
+
+describe("DateRangePicker", () => {
+  const fmt = (d: Date) => `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`
+
+  it("selects a range with two clicks, swapping when the end is earlier", async () => {
+    const user = userEvent.setup(); const onChange = vi.fn()
+    render(<R.DateRangePicker label="Period" defaultValue={{ from: new Date(2026, 8, 10), to: null }} onChange={onChange} presets={false} numberOfMonths={1} />)
+    await user.click(screen.getByRole("button", { name: "Period" }))
+    const dialog = await screen.findByRole("dialog", { name: "Choose period" })
+    await user.click(within(dialog).getByRole("button", { name: /September 20, 2026/ }))
+    expect(within(dialog).getByRole("status")).toHaveTextContent("Select an end date")
+    await user.click(within(dialog).getByRole("button", { name: /September 12, 2026/ }))
+    const range = onChange.mock.lastCall![0]
+    expect([fmt(range.from), fmt(range.to)]).toEqual(["2026-9-12", "2026-9-20"])
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Period" })).toHaveTextContent(/Sep 12 – Sep 20, 2026/)
+  })
+
+  it("applies presets and clears", async () => {
+    const user = userEvent.setup(); const onChange = vi.fn()
+    render(<R.DateRangePicker label="Period" onChange={onChange} />)
+    await user.click(screen.getByRole("button", { name: "Period" }))
+    await user.click(await screen.findByRole("button", { name: "Last 7 days" }))
+    const { from, to } = onChange.mock.lastCall![0]
+    expect(Math.round((to.getTime() - from.getTime()) / 86_400_000)).toBe(6)
+    await user.click(screen.getByRole("button", { name: "Clear period" }))
+    expect(onChange).toHaveBeenLastCalledWith({ from: null, to: null })
+  })
+
+  it("navigates days with the keyboard and respects bounds", async () => {
+    const user = userEvent.setup()
+    render(<R.DateRangePicker label="Period" presets={false} numberOfMonths={1} defaultValue={{ from: new Date(2026, 8, 15), to: new Date(2026, 8, 15) }} minDate={new Date(2026, 8, 14)} />)
+    await user.click(screen.getByRole("button", { name: "Period" }))
+    const dialog = await screen.findByRole("dialog")
+    await waitFor(() => expect(within(dialog).getByRole("button", { name: /September 15, 2026/ })).toHaveFocus())
+    await user.keyboard("{ArrowRight}")
+    expect(within(dialog).getByRole("button", { name: /September 16, 2026/ })).toHaveFocus()
+    expect(within(dialog).getByRole("button", { name: /September 13, 2026/ })).toBeDisabled()
+    await user.keyboard("{Escape}")
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
+  })
+})

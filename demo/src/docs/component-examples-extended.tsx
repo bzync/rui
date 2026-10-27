@@ -102,6 +102,12 @@ function DatePickerRangeExample() {
   )
 }
 
+const fiscalPresets: R.DateRangePreset[] = [
+  { label: "This quarter", range: (today) => ({ from: new Date(today.getFullYear(), Math.floor(today.getMonth() / 3) * 3, 1), to: today }) },
+  { label: "Year to date", range: (today) => ({ from: new Date(today.getFullYear(), 0, 1), to: today }) },
+  { label: "Last year", range: (today) => ({ from: new Date(today.getFullYear() - 1, 0, 1), to: new Date(today.getFullYear() - 1, 11, 31) }) },
+]
+
 function TimePicker24Example() {
   const [time, setTime] = useState("14:30:00")
   return (
@@ -623,6 +629,33 @@ export const extendedExamples: Record<string, () => ComponentExample[]> = {
   )
 }`,
       <DatePickerStatesExample />),
+  ],
+
+  "components/date-range-picker": () => [
+    ex("presets", "Custom presets", "presets accepts any list of labelled ranges computed from today.",
+      `const fiscalPresets: DateRangePreset[] = [
+  { label: "This quarter", range: (today) => ({ from: new Date(today.getFullYear(), Math.floor(today.getMonth() / 3) * 3, 1), to: today }) },
+  { label: "Year to date", range: (today) => ({ from: new Date(today.getFullYear(), 0, 1), to: today }) },
+  { label: "Last year", range: (today) => ({ from: new Date(today.getFullYear() - 1, 0, 1), to: new Date(today.getFullYear() - 1, 11, 31) }) },
+]
+
+<DateRangePicker label="Fiscal period" presets={fiscalPresets} />`,
+      <div className="w-full max-w-sm"><R.DateRangePicker label="Fiscal period" presets={fiscalPresets} /></div>),
+    ex("booking", "Bookings: bounds, one month, no presets", "minDate / maxDate limit the selectable window; numberOfMonths={1} and presets={false} make a compact picker.",
+      `<DateRangePicker
+  label="Stay"
+  placeholder="Check-in – check-out"
+  minDate={new Date()}
+  maxDate={new Date(new Date().getFullYear() + 1, 0, 1)}
+  numberOfMonths={1}
+  presets={false}
+  hint="Bookings open up to the end of next year"
+/>`,
+      <div className="w-full max-w-sm"><R.DateRangePicker label="Stay" placeholder="Check-in – check-out" minDate={new Date()} maxDate={new Date(new Date().getFullYear() + 1, 0, 1)} numberOfMonths={1} presets={false} hint="Bookings open up to the end of next year" /></div>),
+    ex("sizes", "Sizes and validation", "Shares the field scale and error styling with every other control.",
+      `<DateRangePicker size="sm" label="Small" />
+<DateRangePicker size="lg" label="Large" error="Choose a range of at most 90 days." />`,
+      <div className="demo-form-grid"><R.DateRangePicker size="sm" label="Small" /><R.DateRangePicker size="lg" label="Large" error="Choose a range of at most 90 days." /></div>),
   ],
 
   "components/time-picker": () => [

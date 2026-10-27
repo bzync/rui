@@ -1,9 +1,9 @@
 {
   "version": "0.0.11",
   "stylesheet": {
-    "raw": 103684,
-    "gzip": 17203,
-    "brotli": 13860
+    "raw": 104363,
+    "gzip": 17280,
+    "brotli": 13927
   },
   "sharedRuntime": {
     "raw": 37806,
@@ -743,6 +743,22 @@
       "peers": [
         "framer-motion"
       ]
+    },
+    "DateRangePicker": {
+      "entry": "components/date-range-picker.js",
+      "total": {
+        "raw": 62628,
+        "gzip": 17471,
+        "brotli": 14906
+      },
+      "specific": {
+        "raw": 24822,
+        "gzip": 7691,
+        "brotli": 6836
+      },
+      "lazy": null,
+      "modules": 7,
+      "peers": []
     },
     "DatePicker": {
       "entry": "components/datepicker.js",

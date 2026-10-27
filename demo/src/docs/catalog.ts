@@ -68,6 +68,7 @@ const forms = [
   component("OTP Input", "Collects fixed-length one-time passcodes.", "Forms", ["code", "verification"], "OtpInput"),
   component("File Upload", "Selects one or more local files.", "Forms", ["dropzone"], "FileUpload"),
   component("Date Picker", "Selects a date through an input and calendar.", "Forms", ["date"], "DatePicker"),
+  component("Date Range Picker", "Selects a start and end date with presets.", "Forms", ["range", "period", "from to"], "DateRangePicker"),
   component("Time Picker", "Selects a time through a responsive custom picker.", "Forms", ["time"], "TimePicker"),
   component("Calendar", "Displays selectable month and week calendar views.", "Forms"),
   component("Label", "Provides an accessible label for a form control.", "Forms"),

@@ -82,6 +82,16 @@ function DatePickerPreview() {
   </div>
 }
 
+function DateRangeUsagePreview() {
+  const [range, setRange] = useState<R.DateRange>({ from: new Date(2026, 8, 1), to: new Date(2026, 8, 14) })
+  return (
+    <div className="grid w-full max-w-sm gap-3">
+      <R.DateRangePicker label="Reporting period" value={range} onChange={setRange} />
+      <span className="text-sm text-muted-foreground" role="status">{range.from && range.to ? `${Math.round((range.to.getTime() - range.from.getTime()) / 86_400_000) + 1} days selected` : "Pick a start and end date"}</span>
+    </div>
+  )
+}
+
 function TimePickerPreview() {
   const [value, setValue] = useState("09:30")
   const [confirmedValue, setConfirmedValue] = useState("09:30")
@@ -267,6 +277,22 @@ export const supplementalDetails: Record<string, () => SupplementalDetail> = {
     <R.Text>Run <R.InlineCode>npm run release:check</R.InlineCode> before publishing.</R.Text>,
     api(["children", "ReactNode", "Inline technical content."], ["className", "string", "Composes one-off text and surface styles."], ["...props", "HTMLAttributes<HTMLElement>", "Native code-element attributes."]),
     "Renders a semantic code element and allows long tokens to wrap instead of forcing viewport overflow.",
+  ),
+  "components/date-range-picker": () => detail(
+    `function ReportingPeriod() {
+  const [range, setRange] = useState<DateRange>({ from: new Date(2026, 8, 1), to: new Date(2026, 8, 14) })
+  return (
+    <div className="grid w-full max-w-sm gap-3">
+      <DateRangePicker label="Reporting period" value={range} onChange={setRange} />
+      <span className="text-sm text-muted-foreground" role="status">
+        {range.from && range.to ? \`\${Math.round((range.to.getTime() - range.from.getTime()) / 86_400_000) + 1} days selected\` : "Pick a start and end date"}
+      </span>
+    </div>
+  )
+}`,
+    <DateRangeUsagePreview />,
+    api(["value / defaultValue", "{ from: Date | null; to: Date | null }", "Controlled or initial range."], ["onChange", "(range) => void", "Called when a range is completed, a preset is applied or the value is cleared."], ["presets", "DateRangePreset[] | false", "Quick ranges beside the calendar; defaults to today, last 7/30 days, this and last month.", "defaultDateRangePresets"], ["numberOfMonths", "1 | 2", "Months side by side on wider screens (phones always show one).", "2"], ["minDate / maxDate", "Date", "Selectable bounds."], ["size", '"sm" | "md" | "lg"', "Trigger height, matching Input and Button.", '"md"'], ["formatRange", "(range) => string", "Custom trigger text."], ["label / hint / error / placeholder / clearable / disabled", "—", "Same field contract as DatePicker."]),
+    "The trigger opens a labelled dialog; each month is a grid of day buttons announcing range start, end or in range. Arrow keys, Home/End and PageUp/PageDown move focus; Enter picks; Escape closes and returns focus to the trigger. Presets are a labelled button group. On phones the panel becomes a bottom sheet.",
   ),
   "components/time-picker": () => detail(
     `const [time, setTime] = useState("09:30")
