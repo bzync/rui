@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor, within } from "@testing-library/react"
+import { act, cleanup, render, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { describe, expect, it } from "vitest"
 import {
@@ -305,7 +305,7 @@ describe("DevMode viewport inspector", () => {
   })
 
   it("omits the synthetic base segment when the scale starts at 0", () => {
-    render(<DevMode floating={false} hotkey={false} breakpoints={{ phone: 0, tablet: 600 }} />)
+    render(<DevMode floating={false} hotkey={false} storageKey={false} breakpoints={{ phone: 0, tablet: 600 }} />)
     const scale = screen.getByRole("list", { name: "Breakpoints" })
     expect(within(scale).queryByText("base")).not.toBeInTheDocument()
     expect(within(scale).getAllByRole("listitem")).toHaveLength(2)
@@ -313,7 +313,7 @@ describe("DevMode viewport inspector", () => {
 
   it("shows live size and the active breakpoint, and follows resizes", async () => {
     resizeTo(1024, 768)
-    render(<DevMode floating={false} hotkey={false} />)
+    render(<DevMode floating={false} hotkey={false} storageKey={false} />)
     expect(screen.getByRole("region", { name: "Viewport inspector" })).toBeInTheDocument()
     expect(screen.getByTestId("devmode-size")).toHaveTextContent("1024 × 768")
     expect(within(screen.getByRole("list", { name: "Breakpoints" })).getByText("lg")).toHaveAttribute("aria-current", "true")
@@ -326,7 +326,7 @@ describe("DevMode viewport inspector", () => {
   it("collapses, toggles layout outlines and hides with the hotkey", async () => {
     resizeTo(1280)
     const user = userEvent.setup()
-    render(<DevMode floating={false} />)
+    render(<DevMode floating={false} storageKey={false} />)
     await user.click(screen.getByRole("button", { name: "Outline layout boxes" }))
     expect(document.documentElement).toHaveAttribute("data-rui-devmode-outline")
     await user.click(screen.getByRole("button", { name: "Outline layout boxes" }))
@@ -344,9 +344,51 @@ describe("DevMode viewport inspector", () => {
     const { container, unmount } = render(<DevMode enabled={false} />)
     expect(container).toBeEmptyDOMElement()
     unmount()
-    const { container: floatingContainer } = render(<div data-testid="host"><DevMode /></div>)
+    const { container: floatingContainer } = render(<div data-testid="host"><DevMode storageKey={false} /></div>)
     const panel = screen.getByRole("region", { name: "Viewport inspector" })
     expect(floatingContainer).not.toContainElement(panel)
     expect(panel).toHaveClass("fixed")
+  })
+
+  it("persists settings across reloads and ignores corrupt storage", async () => {
+    resizeTo(1024)
+    window.localStorage.clear()
+    const user = userEvent.setup()
+    const first = render(<DevMode floating={false} storageKey="devmode-test" />)
+    await user.click(screen.getByRole("button", { name: "Inspect spacing" }))
+    await user.click(screen.getByRole("button", { name: "Collapse viewport inspector" }))
+    expect(JSON.parse(window.localStorage.getItem("devmode-test")!)).toMatchObject({ collapsed: true, inspect: true })
+    first.unmount()
+
+    // A fresh mount (page load) restores the collapsed pill.
+    render(<DevMode floating={false} storageKey="devmode-test" />)
+    expect(screen.getByRole("button", { name: /Expand viewport inspector/ })).toBeInTheDocument()
+    cleanup()
+
+    window.localStorage.setItem("devmode-test", "{not json")
+    render(<DevMode floating={false} storageKey="devmode-test" />)
+    expect(screen.getByTestId("devmode-size")).toBeInTheDocument()
+  })
+
+  it("draws margin, border, padding and content bands for the hovered element", async () => {
+    resizeTo(1024)
+    render(<><div data-testid="target" style={{ margin: "10px 20px", padding: "8px", border: "2px solid" }}>Box</div><DevMode floating={false} storageKey={false} /></>)
+    const target = screen.getByTestId("target")
+    target.getBoundingClientRect = () => ({ top: 100, left: 50, width: 200, height: 40, right: 250, bottom: 140, x: 50, y: 100, toJSON: () => ({}) })
+    const originalElementFromPoint = document.elementFromPoint
+    document.elementFromPoint = () => target
+    const user = userEvent.setup()
+    await user.click(screen.getByRole("button", { name: "Inspect spacing" }))
+    expect(screen.getByRole("list", { name: "Box model legend" })).toHaveTextContent("marginborderpaddingcontent")
+    act(() => { document.dispatchEvent(new PointerEvent("pointermove", { clientX: 60, clientY: 110 })) })
+    await waitFor(() => expect(screen.getByTestId("devmode-margin")).toBeInTheDocument())
+    expect(screen.getByTestId("devmode-margin").style.borderWidth).toBe("10px 20px")
+    expect(screen.getByTestId("devmode-border").style.borderWidth).toBe("2px")
+    expect(screen.getByTestId("devmode-padding").style.borderWidth).toBe("8px")
+    expect(screen.getByTestId("devmode-content").style.width).toBe(`${200 - 4 - 16}px`)
+    expect(screen.getByText(/m 10 20/)).toBeInTheDocument()
+    await user.keyboard("{Escape}")
+    expect(screen.queryByTestId("devmode-margin")).not.toBeInTheDocument()
+    document.elementFromPoint = originalElementFromPoint
   })
 })

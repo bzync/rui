@@ -1212,12 +1212,13 @@ export default function App() {
       `<DevMode
   floating={false}
   hotkey={false}
+  storageKey={false}
   breakpoints={{ phone: 0, tablet: 600, laptop: 1024, desktop: 1440 }}
 />`,
-      <R.DevMode floating={false} hotkey={false} breakpoints={{ phone: 0, tablet: 600, laptop: 1024, desktop: 1440 }} />),
+      <R.DevMode floating={false} hotkey={false} storageKey={false} breakpoints={{ phone: 0, tablet: 600, laptop: 1024, desktop: 1440 }} />),
     ex("collapsed", "Collapsed pill", "defaultCollapsed starts as a small breakpoint pill; click it to expand.",
-      `<DevMode floating={false} hotkey={false} defaultCollapsed />`,
-      <R.DevMode floating={false} hotkey={false} defaultCollapsed />),
+      `<DevMode floating={false} hotkey={false} storageKey={false} defaultCollapsed />`,
+      <R.DevMode floating={false} hotkey={false} storageKey={false} defaultCollapsed />),
     ex("app", "App-wide setup", "Render it once near the root, gated to development. ⌘/Ctrl + Shift + D hides it; the outline button reveals every layout box.",
       `// main.tsx / app root
 <ThemeProvider>
