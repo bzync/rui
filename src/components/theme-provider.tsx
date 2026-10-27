@@ -80,14 +80,14 @@ export interface ThemePalette {
   tokens?: ThemeTokens
 }
 
-interface ThemeContextValue {
+export interface ThemeContextValue {
   theme: Theme
   resolvedTheme: ResolvedTheme
   setTheme: (theme: Theme) => void
   toggleTheme: () => void
 }
 
-const ThemeContext = createContext<ThemeContextValue | null>(null)
+export const ThemeContext = createContext<ThemeContextValue | null>(null)
 
 /** What a portal needs to re-create the nearest ThemeProvider's scope. */
 interface ThemeScopeValue {

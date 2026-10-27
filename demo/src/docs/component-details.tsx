@@ -48,6 +48,16 @@ function BillingPreview() {
   )
 }
 
+function ThemeSwitcherUsagePreview() {
+  const [theme, setTheme] = useState<R.Theme>("system")
+  return (
+    <div className="flex flex-col items-center gap-4">
+      <R.ThemeSwitcher value={theme} onChange={setTheme} />
+      <span className="text-xs text-muted-foreground">Current selection: {theme}</span>
+    </div>
+  )
+}
+
 function InfoButtonPreview() {
   const [open, setOpen] = useState(false)
   return <>
@@ -785,6 +795,33 @@ export const supplementalDetails: Record<string, () => SupplementalDetail> = {
     <BillingPreview />,
     api(["value", "BillingInterval", "Controlled selected interval."], ["onChange", "(value) => void", "Selection callback."], ["options", "BillingIntervalToggleOption[]", "Intervals displayed by the segmented control."], ["size", '"sm" | "lg"', "Control density and selected-state emphasis.", '"sm"'], ["disabled", "boolean", "Disables every interval option.", "false"], ["aria-label", "string", "Accessible name for the option group.", '"Billing interval"'], ["className", "string", "Composes layout and surface overrides."]),
     "The named group contains native buttons with aria-pressed selection, focus-visible treatment, and disabled semantics.",
+  ),
+  "components/theme-switcher": () => detail(
+    `function ThemeSwitcherDemo() {
+  const [theme, setTheme] = useState<Theme>("system")
+  return (
+    <div className="flex flex-col items-center gap-4">
+      <ThemeSwitcher value={theme} onChange={setTheme} />
+      <span className="text-xs text-muted-foreground">Current selection: {theme}</span>
+    </div>
+  )
+}`,
+    <ThemeSwitcherUsagePreview />,
+    api(
+      ["variant", '"segmented" | "dropdown" | "switch" | "radio" | "icon-button"', "Visual layout presentation.", '"segmented"'],
+      ["size", '"sm" | "md" | "lg"', "Control size standard.", '"md"'],
+      ["includeSystem", "boolean", "Whether to include the system preference option.", "true"],
+      ["showLabels", "boolean", "Whether to render text labels alongside icons."],
+      ["value", '"light" | "dark" | "system"', "Controlled theme preference."],
+      ["onChange", "(theme: Theme) => void", "Callback invoked when theme changes."],
+      ["lightLabel", "string", "Custom label for light mode.", '"Light"'],
+      ["darkLabel", "string", "Custom label for dark mode.", '"Dark"'],
+      ["systemLabel", "string", "Custom label for system mode.", '"System"'],
+      ["lightIcon / darkIcon / systemIcon", "ReactNode", "Custom icons for modes."],
+      ["ariaLabel", "string", "Accessible name for the control.", '"Color theme"'],
+      ["className", "string", "Composes container styles."],
+    ),
+    "Renders accessible radio groups or menus with keyboard navigation (Arrow keys, Space/Enter, Escape). All interactive elements provide visible focus rings, aria-checked/aria-pressed attributes, and descriptive accessible names.",
   ),
   "components/autocomplete": () => detail(
     `<Autocomplete

@@ -18,6 +18,7 @@ import "@bzync/rui/styles.css" // once, near app root
 | `ThemeProvider` | `theme-provider.tsx` | `@bzync/rui` | `palette/lightPalette/darkPalette: {accent, neutral, colors, radius, fonts, spacing, shadows, tokens}`, `defaultTheme/theme/onThemeChange`, `storageKey`, `applyToRoot`. Semantic colors cover backgrounds, foregrounds, surfaces, borders, actions, statuses, and focus. Renders `.rui-theme` scope. |
 | `useTheme()` | `theme-provider.tsx` | `@bzync/rui` | `{theme, resolvedTheme, setTheme, toggleTheme}` — must be inside provider. |
 | `ThemeToggle` | `theme-toggle.tsx` | `@bzync/rui` | `lightIcon/darkIcon`, `showLabel`, `lightLabel/darkLabel`. `aria-pressed`, `aria-label`. |
+| `ThemeSwitcher` | `theme-switcher.tsx` | `@bzync/rui` | `variant: segmented\|dropdown\|switch\|radio\|icon-button`, `size: sm\|md\|lg`, `includeSystem`, `showLabels`, `value`, `onChange`. Multiple UI/UX layout options for light, dark, and system preferences. |
 | `cn()` | `lib/cn.ts` | `@bzync/rui` | `cn(...ClassValue[]) => twMerge(clsx(...))` |
 
 ## Actions
@@ -28,6 +29,7 @@ import "@bzync/rui/styles.css" // once, near app root
 | `IconButton` / `InfoButton` | `label` (aria), icon |
 | `CopyButton` | `text`, `onCopy` |
 | `BillingIntervalToggle` | `value: monthly\|yearly`, `onChange` |
+| `ThemeSwitcher` | `variant: segmented\|dropdown\|switch\|radio\|icon-button`, `size: sm\|md\|lg`, `includeSystem`, `value`, `onChange` |
 | `ButtonGroup` | `orientation: horizontal\|vertical`, `aria-label`, wraps `Button` children, `role=group` |
 | `Toggle` / `ToggleGroup` / `ToggleGroupItem` | `pressed/defaultPressed`, `onPressedChange`, `variant: default\|outline`, `size: sm\|md\|lg\|icon`, `type: single\|multiple`, `orientation`, `loop`, `aria-pressed` |
 

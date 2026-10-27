@@ -54,6 +54,7 @@ const actions = [
   component("Copy Button", "Copies a provided value with visible feedback.", "Actions", ["clipboard"], "CopyButton"),
   component("Info Button", "Opens contextual information from a compact icon action.", "Actions", ["icon button", "help"], "InfoButton"),
   component("Billing Interval Toggle", "Switches between monthly, quarterly, and annual billing intervals.", "Actions", [], "BillingIntervalToggle"),
+  component("Theme Switcher", "Switches between light, dark, and system color modes with multiple UI/UX layouts.", "Actions", ["theme", "mode", "dark mode", "light mode", "switcher"], "ThemeSwitcher"),
 ]
 
 const forms = [

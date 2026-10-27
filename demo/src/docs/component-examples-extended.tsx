@@ -763,6 +763,60 @@ function RichTextOutputExample() {
   )
 }
 
+function ThemeSwitcherVariantsExample() {
+  const [theme, setTheme] = useState<R.Theme>("system")
+  return (
+    <div className="flex flex-wrap items-center gap-6">
+      <div className="flex flex-col gap-1.5">
+        <span className="text-xs font-medium text-muted-foreground">Segmented</span>
+        <R.ThemeSwitcher variant="segmented" value={theme} onChange={setTheme} />
+      </div>
+      <div className="flex flex-col gap-1.5">
+        <span className="text-xs font-medium text-muted-foreground">Dropdown</span>
+        <R.ThemeSwitcher variant="dropdown" value={theme} onChange={setTheme} />
+      </div>
+      <div className="flex flex-col gap-1.5">
+        <span className="text-xs font-medium text-muted-foreground">Switch</span>
+        <R.ThemeSwitcher variant="switch" value={theme} onChange={setTheme} />
+      </div>
+      <div className="flex flex-col gap-1.5">
+        <span className="text-xs font-medium text-muted-foreground">Icon button</span>
+        <R.ThemeSwitcher variant="icon-button" value={theme} onChange={setTheme} />
+      </div>
+    </div>
+  )
+}
+
+function ThemeSwitcherRadioCardsExample() {
+  const [theme, setTheme] = useState<R.Theme>("system")
+  return (
+    <div className="w-full max-w-xl">
+      <R.ThemeSwitcher variant="radio" value={theme} onChange={setTheme} />
+    </div>
+  )
+}
+
+function ThemeSwitcherSizesExample() {
+  const [theme, setTheme] = useState<R.Theme>("system")
+  return (
+    <div className="flex flex-wrap items-center gap-4">
+      <R.ThemeSwitcher size="sm" value={theme} onChange={setTheme} />
+      <R.ThemeSwitcher size="md" value={theme} onChange={setTheme} />
+      <R.ThemeSwitcher size="lg" value={theme} onChange={setTheme} />
+    </div>
+  )
+}
+
+function ThemeSwitcherBinaryExample() {
+  const [theme, setTheme] = useState<R.Theme>("light")
+  return (
+    <div className="flex items-center gap-4">
+      <R.ThemeSwitcher includeSystem={false} value={theme} onChange={setTheme} />
+      <R.ThemeSwitcher variant="switch" value={theme} onChange={setTheme} />
+    </div>
+  )
+}
+
 // ─── Registry ───────────────────────────────────────────────────────────────
 
 export const extendedExamples: Record<string, () => ComponentExample[]> = {
@@ -820,6 +874,67 @@ export const extendedExamples: Record<string, () => ComponentExample[]> = {
     ex("disabled", "Disabled", "Lock the interval while a checkout is in progress.",
       `<BillingIntervalToggle value="yearly" onChange={setInterval} disabled />`,
       <R.BillingIntervalToggle value="yearly" onChange={() => {}} disabled />),
+  ],
+
+  "components/theme-switcher": () => [
+    ex("variants", "UI/UX Layout Variants", "Supports segmented track, dropdown menu, sliding switch, and cycling icon button.",
+      `function LayoutVariants() {
+  const [theme, setTheme] = useState<Theme>("system")
+  return (
+    <div className="flex flex-wrap items-center gap-6">
+      <div className="flex flex-col gap-1.5">
+        <span className="text-xs font-medium text-muted-foreground">Segmented</span>
+        <ThemeSwitcher variant="segmented" value={theme} onChange={setTheme} />
+      </div>
+      <div className="flex flex-col gap-1.5">
+        <span className="text-xs font-medium text-muted-foreground">Dropdown</span>
+        <ThemeSwitcher variant="dropdown" value={theme} onChange={setTheme} />
+      </div>
+      <div className="flex flex-col gap-1.5">
+        <span className="text-xs font-medium text-muted-foreground">Switch</span>
+        <ThemeSwitcher variant="switch" value={theme} onChange={setTheme} />
+      </div>
+      <div className="flex flex-col gap-1.5">
+        <span className="text-xs font-medium text-muted-foreground">Icon button</span>
+        <ThemeSwitcher variant="icon-button" value={theme} onChange={setTheme} />
+      </div>
+    </div>
+  )
+}`,
+      <ThemeSwitcherVariantsExample />),
+    ex("radio", "Settings Radio Cards", "Full-width preference cards featuring miniature preview illustrations for account settings.",
+      `function SettingsRadioCards() {
+  const [theme, setTheme] = useState<Theme>("system")
+  return (
+    <div className="w-full max-w-xl">
+      <ThemeSwitcher variant="radio" value={theme} onChange={setTheme} />
+    </div>
+  )
+}`,
+      <ThemeSwitcherRadioCardsExample />),
+    ex("sizes", "Control Sizes", "Available in sm (32px), md (36px), and lg (40px) matching the library form scale.",
+      `function SwitcherSizes() {
+  const [theme, setTheme] = useState<Theme>("system")
+  return (
+    <div className="flex flex-wrap items-center gap-4">
+      <ThemeSwitcher size="sm" value={theme} onChange={setTheme} />
+      <ThemeSwitcher size="md" value={theme} onChange={setTheme} />
+      <ThemeSwitcher size="lg" value={theme} onChange={setTheme} />
+    </div>
+  )
+}`,
+      <ThemeSwitcherSizesExample />),
+    ex("binary", "Binary Light/Dark Mode", "Disable the system preference option with includeSystem={false} for direct two-way toggling.",
+      `function BinaryModes() {
+  const [theme, setTheme] = useState<Theme>("light")
+  return (
+    <div className="flex items-center gap-4">
+      <ThemeSwitcher includeSystem={false} value={theme} onChange={setTheme} />
+      <ThemeSwitcher variant="switch" value={theme} onChange={setTheme} />
+    </div>
+  )
+}`,
+      <ThemeSwitcherBinaryExample />),
   ],
 
   "components/number-input": () => [

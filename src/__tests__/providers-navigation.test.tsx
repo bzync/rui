@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { describe, expect, it, vi } from "vitest"
-import { BottomBar, BrandLink, Navbar, NavigationMenu, Sidebar, ThemeProvider, ThemeToggle, Topbar, TopbarTitle } from "@/index"
+import { BottomBar, BrandLink, Navbar, NavigationMenu, Sidebar, ThemeProvider, ThemeSwitcher, ThemeToggle, Topbar, TopbarTitle } from "@/index"
 
 describe("themes", () => {
   it("toggles a scoped theme and exposes the active preference", async () => {
@@ -169,5 +169,150 @@ describe("NavigationMenu", () => {
     await user.keyboard("{ArrowLeft}")
     expect(screen.getByRole("link", { name: "Docs" })).toHaveFocus()
     expect(products).toHaveAttribute("aria-expanded", "false")
+  })
+})
+
+describe("ThemeSwitcher", () => {
+  it("renders segmented variant and switches themes inside ThemeProvider", async () => {
+    const user = userEvent.setup()
+    const onChange = vi.fn()
+    render(
+      <ThemeProvider defaultTheme="light" storageKey={false}>
+        <ThemeSwitcher onChange={onChange} />
+        <span>Content</span>
+      </ThemeProvider>,
+    )
+
+    const scope = screen.getByText("Content").parentElement
+    expect(scope).toHaveAttribute("data-theme", "light")
+
+    const lightBtn = screen.getByRole("radio", { name: "Light" })
+    const darkBtn = screen.getByRole("radio", { name: "Dark" })
+    const systemBtn = screen.getByRole("radio", { name: "System" })
+
+    expect(lightBtn).toHaveAttribute("aria-checked", "true")
+    expect(darkBtn).toHaveAttribute("aria-checked", "false")
+
+    await user.click(darkBtn)
+    expect(onChange).toHaveBeenCalledWith("dark")
+    expect(scope).toHaveAttribute("data-theme", "dark")
+    expect(darkBtn).toHaveAttribute("aria-checked", "true")
+
+    await user.click(systemBtn)
+    expect(onChange).toHaveBeenCalledWith("system")
+    expect(scope).toHaveAttribute("data-theme-preference", "system")
+    expect(systemBtn).toHaveAttribute("aria-checked", "true")
+  })
+
+  it("supports controlled value and onChange", async () => {
+    const user = userEvent.setup()
+    const onChange = vi.fn()
+    render(<ThemeSwitcher value="dark" onChange={onChange} />)
+
+    const darkBtn = screen.getByRole("radio", { name: "Dark" })
+    expect(darkBtn).toHaveAttribute("aria-checked", "true")
+
+    const lightBtn = screen.getByRole("radio", { name: "Light" })
+    await user.click(lightBtn)
+    expect(onChange).toHaveBeenCalledWith("light")
+  })
+
+  it("respects includeSystem={false}", () => {
+    render(<ThemeSwitcher includeSystem={false} />)
+    expect(screen.getByRole("radio", { name: "Light" })).toBeInTheDocument()
+    expect(screen.getByRole("radio", { name: "Dark" })).toBeInTheDocument()
+    expect(screen.queryByRole("radio", { name: "System" })).not.toBeInTheDocument()
+  })
+
+  it("renders switch variant and toggles between light and dark", async () => {
+    const user = userEvent.setup()
+    const onChange = vi.fn()
+    render(
+      <ThemeProvider defaultTheme="light" storageKey={false}>
+        <ThemeSwitcher variant="switch" onChange={onChange} />
+      </ThemeProvider>,
+    )
+
+    const switchBtn = screen.getByRole("switch")
+    expect(switchBtn).toHaveAttribute("aria-checked", "false")
+
+    await user.click(switchBtn)
+    expect(onChange).toHaveBeenCalledWith("dark")
+    expect(switchBtn).toHaveAttribute("aria-checked", "true")
+
+    await user.click(switchBtn)
+    expect(onChange).toHaveBeenCalledWith("light")
+    expect(switchBtn).toHaveAttribute("aria-checked", "false")
+  })
+
+  it("renders dropdown variant, opens menu, selects option, and closes on Escape", async () => {
+    const user = userEvent.setup()
+    const onChange = vi.fn()
+    render(
+      <ThemeProvider defaultTheme="light" storageKey={false}>
+        <ThemeSwitcher variant="dropdown" onChange={onChange} />
+      </ThemeProvider>,
+    )
+
+    const trigger = screen.getByRole("button", { name: /Color theme: Light/i })
+    expect(trigger).toHaveAttribute("aria-expanded", "false")
+
+    await user.click(trigger)
+    expect(trigger).toHaveAttribute("aria-expanded", "true")
+
+    const darkOption = await screen.findByRole("menuitemradio", { name: /Dark/i })
+    expect(darkOption).toBeInTheDocument()
+
+    // Test Escape closes dropdown and restores focus
+    await user.keyboard("{Escape}")
+    await waitFor(() => expect(screen.queryByRole("menuitemradio", { name: /Dark/i })).not.toBeInTheDocument())
+    expect(trigger).toHaveFocus()
+
+    // Open again and select Dark
+    await user.click(trigger)
+    const darkOption2 = await screen.findByRole("menuitemradio", { name: /Dark/i })
+    await user.click(darkOption2)
+    expect(onChange).toHaveBeenCalledWith("dark")
+    await waitFor(() => expect(screen.queryByRole("menuitemradio", { name: /Dark/i })).not.toBeInTheDocument())
+  })
+
+  it("renders radio card variant and supports keyboard selection", async () => {
+    const user = userEvent.setup()
+    const onChange = vi.fn()
+    render(
+      <ThemeProvider defaultTheme="light" storageKey={false}>
+        <ThemeSwitcher variant="radio" onChange={onChange} />
+      </ThemeProvider>,
+    )
+
+    const lightCard = screen.getByRole("radio", { name: /Light Light appearance for bright environments/i })
+    const darkCard = screen.getByRole("radio", { name: /Dark Dark appearance for low-light environments/i })
+    expect(lightCard).toHaveAttribute("aria-checked", "true")
+    expect(darkCard).toHaveAttribute("aria-checked", "false")
+
+    darkCard.focus()
+    await user.keyboard(" ")
+    expect(onChange).toHaveBeenCalledWith("dark")
+    expect(darkCard).toHaveAttribute("aria-checked", "true")
+  })
+
+  it("renders icon-button variant and cycles through themes on click", async () => {
+    const user = userEvent.setup()
+    const onChange = vi.fn()
+    render(
+      <ThemeProvider defaultTheme="light" storageKey={false}>
+        <ThemeSwitcher variant="icon-button" onChange={onChange} />
+      </ThemeProvider>,
+    )
+
+    const btn = screen.getByRole("button", { name: /Color theme: Light/i })
+    await user.click(btn)
+    expect(onChange).toHaveBeenCalledWith("dark")
+
+    await user.click(btn)
+    expect(onChange).toHaveBeenCalledWith("system")
+
+    await user.click(btn)
+    expect(onChange).toHaveBeenCalledWith("light")
   })
 })
