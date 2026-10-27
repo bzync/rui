@@ -21,7 +21,9 @@ export const controlBaseStyles = [
   "hover:border-border-strong",
   "focus-within:border-accent-500 focus-within:outline-none focus-within:ring-[3px] focus-within:ring-focus-ring/25",
   "has-[:disabled]:cursor-not-allowed has-[:disabled]:bg-surface-muted has-[:disabled]:opacity-60",
-  "has-[:read-only]:bg-surface-muted",
+  // Only real text fields: a bare :read-only also matches spans and buttons,
+  // which greyed out every button-based control (Select, pickers).
+  "has-[input:read-only:not([type=hidden])]:bg-surface-muted has-[textarea:read-only]:bg-surface-muted",
 ].join(" ")
 
 export type ControlSize = "sm" | "md" | "lg"
