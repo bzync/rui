@@ -1,9 +1,9 @@
 {
   "version": "0.0.11",
   "stylesheet": {
-    "raw": 107651,
-    "gzip": 17833,
-    "brotli": 14300
+    "raw": 108167,
+    "gzip": 17912,
+    "brotli": 14331
   },
   "sharedRuntime": {
     "raw": 37806,
@@ -695,21 +695,21 @@
     "ContextMenu": {
       "entry": "components/context-menu.js",
       "total": {
-        "raw": 43734,
-        "gzip": 11962,
-        "brotli": 10261
+        "raw": 43900,
+        "gzip": 11997,
+        "brotli": 10292
       },
       "specific": {
-        "raw": 5928,
-        "gzip": 2382,
-        "brotli": 2109
+        "raw": 6094,
+        "gzip": 2408,
+        "brotli": 2133
       },
       "lazy": {
         "raw": 12114,
         "gzip": 4082,
         "brotli": 3601
       },
-      "modules": 4,
+      "modules": 5,
       "peers": [
         "framer-motion"
       ]
@@ -751,17 +751,17 @@
     "DataTable": {
       "entry": "components/datatable.js",
       "total": {
-        "raw": 81414,
-        "gzip": 22475,
-        "brotli": 19269
+        "raw": 81587,
+        "gzip": 22504,
+        "brotli": 19282
       },
       "specific": {
-        "raw": 43608,
-        "gzip": 12674,
-        "brotli": 11234
+        "raw": 43781,
+        "gzip": 12704,
+        "brotli": 11252
       },
       "lazy": null,
-      "modules": 12,
+      "modules": 13,
       "peers": [
         "framer-motion"
       ]
@@ -769,17 +769,17 @@
     "DateRangePicker": {
       "entry": "components/date-range-picker.js",
       "total": {
-        "raw": 62686,
-        "gzip": 17495,
-        "brotli": 14952
+        "raw": 62852,
+        "gzip": 17540,
+        "brotli": 14956
       },
       "specific": {
-        "raw": 24880,
-        "gzip": 7710,
-        "brotli": 6873
+        "raw": 25046,
+        "gzip": 7750,
+        "brotli": 6892
       },
       "lazy": null,
-      "modules": 8,
+      "modules": 9,
       "peers": []
     },
     "DatePicker": {
@@ -917,21 +917,21 @@
     "DropdownMenu": {
       "entry": "components/dropdown-menu.js",
       "total": {
-        "raw": 43157,
-        "gzip": 11764,
-        "brotli": 10113
+        "raw": 43323,
+        "gzip": 11803,
+        "brotli": 10129
       },
       "specific": {
-        "raw": 5351,
-        "gzip": 2225,
-        "brotli": 1950
+        "raw": 5517,
+        "gzip": 2251,
+        "brotli": 1974
       },
       "lazy": {
         "raw": 12114,
         "gzip": 4082,
         "brotli": 3601
       },
-      "modules": 5,
+      "modules": 6,
       "peers": [
         "framer-motion"
       ]
@@ -1359,21 +1359,21 @@
     "Menubar": {
       "entry": "components/menubar.js",
       "total": {
-        "raw": 45657,
-        "gzip": 12571,
-        "brotli": 10780
+        "raw": 45823,
+        "gzip": 12614,
+        "brotli": 10835
       },
       "specific": {
-        "raw": 7851,
-        "gzip": 3040,
-        "brotli": 2700
+        "raw": 8017,
+        "gzip": 3064,
+        "brotli": 2723
       },
       "lazy": {
         "raw": 12114,
         "gzip": 4082,
         "brotli": 3601
       },
-      "modules": 5,
+      "modules": 6,
       "peers": [
         "framer-motion"
       ]
@@ -1701,17 +1701,17 @@
     "Popover": {
       "entry": "components/popover.js",
       "total": {
-        "raw": 53163,
-        "gzip": 14846,
-        "brotli": 12720
+        "raw": 53329,
+        "gzip": 14883,
+        "brotli": 12722
       },
       "specific": {
-        "raw": 15357,
-        "gzip": 5181,
-        "brotli": 4584
+        "raw": 15523,
+        "gzip": 5221,
+        "brotli": 4609
       },
       "lazy": null,
-      "modules": 8,
+      "modules": 9,
       "peers": [
         "framer-motion"
       ]
@@ -1719,17 +1719,17 @@
     "PopoverContent": {
       "entry": "components/popover.js",
       "total": {
-        "raw": 53163,
-        "gzip": 14846,
-        "brotli": 12720
+        "raw": 53329,
+        "gzip": 14883,
+        "brotli": 12722
       },
       "specific": {
-        "raw": 15357,
-        "gzip": 5181,
-        "brotli": 4584
+        "raw": 15523,
+        "gzip": 5221,
+        "brotli": 4609
       },
       "lazy": null,
-      "modules": 8,
+      "modules": 9,
       "peers": [
         "framer-motion"
       ]
@@ -1964,6 +1964,22 @@
       },
       "lazy": null,
       "modules": 2,
+      "peers": []
+    },
+    "Sheet": {
+      "entry": "components/sheet.js",
+      "total": {
+        "raw": 59636,
+        "gzip": 16809,
+        "brotli": 14336
+      },
+      "specific": {
+        "raw": 21830,
+        "gzip": 7049,
+        "brotli": 6278
+      },
+      "lazy": null,
+      "modules": 10,
       "peers": []
     },
     "Skeleton": {
@@ -2615,17 +2631,17 @@
     "Tooltip": {
       "entry": "components/tooltip.js",
       "total": {
-        "raw": 52505,
-        "gzip": 14619,
-        "brotli": 12560
+        "raw": 52671,
+        "gzip": 14657,
+        "brotli": 12579
       },
       "specific": {
-        "raw": 14699,
-        "gzip": 4983,
-        "brotli": 4416
+        "raw": 14865,
+        "gzip": 5021,
+        "brotli": 4447
       },
       "lazy": null,
-      "modules": 8,
+      "modules": 9,
       "peers": [
         "framer-motion"
       ]

@@ -3,7 +3,8 @@ import userEvent from "@testing-library/user-event"
 import { hydrateRoot } from "react-dom/client"
 import { renderToString } from "react-dom/server"
 import { describe, expect, it, vi } from "vitest"
-import { CommandPalette, CommandProvider, ConfirmDialog, ContextMenu, Menubar, CopyButton, DatePicker, Drawer, DropdownMenu, InfoButton, Modal, Popover, PopoverContent, Select, SnackbarProvider, ThemeProvider, TimePicker, Tooltip, useSnackbar } from "@/index"
+import { CommandPalette, CommandProvider, ConfirmDialog, ContextMenu, Menubar, CopyButton, DatePicker, Drawer, DropdownMenu, InfoButton, Modal, Popover, PopoverContent, Select, Sheet, SnackbarProvider, ThemeProvider, TimePicker, Tooltip, useSnackbar } from "@/index"
+import { useState } from "react"
 
 describe("overlay and feedback components", () => {
   it("renders every anchored overlay outside a clipping table container, inside the theme scope", async () => {
@@ -302,5 +303,56 @@ describe("ContextMenu and Menubar", () => {
     await user.keyboard("{Enter}")
     expect(save).toHaveBeenCalledOnce()
     await waitFor(() => expect(file).toHaveFocus())
+  })
+})
+
+describe("Sheet", () => {
+  function Harness({ onSnap, dismissible }: { onSnap?: (index: number) => void; dismissible?: boolean }) {
+    const [open, setOpen] = useState(true)
+    return (
+      <>
+        <button type="button" onClick={() => setOpen(true)}>Open</button>
+        <Sheet open={open} onOpenChange={setOpen} title="Filters" description="Narrow results" snapPoints={[0.4, 0.9]} onSnapChange={onSnap} dismissible={dismissible}>
+          <button type="button">Apply</button>
+        </Sheet>
+      </>
+    )
+  }
+
+  it("labels the dialog and steps through snap points from the handle", async () => {
+    const user = userEvent.setup()
+    const onSnap = vi.fn()
+    render(<Harness onSnap={onSnap} />)
+    const dialog = screen.getByRole("dialog", { name: "Filters" })
+    expect(dialog).toHaveAccessibleDescription("Narrow results")
+    expect(dialog).toHaveAttribute("data-snap", "0")
+    await user.click(screen.getByRole("button", { name: "Expand sheet" }))
+    expect(onSnap).toHaveBeenLastCalledWith(1)
+    expect(dialog).toHaveAttribute("data-snap", "1")
+    const handle = screen.getByRole("button", { name: "Collapse sheet" })
+    handle.focus()
+    await user.keyboard("{ArrowDown}")
+    expect(dialog).toHaveAttribute("data-snap", "0")
+  })
+
+  it("closes from the lowest snap point, Escape and the close button", async () => {
+    const user = userEvent.setup()
+    render(<Harness />)
+    screen.getByRole("button", { name: "Expand sheet" }).focus()
+    await user.keyboard("{ArrowDown}")
+    await waitFor(() => expect(screen.getByRole("dialog")).toHaveAttribute("data-state", "closed"))
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())
+    await user.click(screen.getByRole("button", { name: "Open" }))
+    await waitFor(() => expect(screen.getByRole("dialog")).toHaveAttribute("data-state", "open"))
+    await user.keyboard("{Escape}")
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())
+  })
+
+  it("keeps a non-dismissible sheet open", async () => {
+    const user = userEvent.setup()
+    render(<Harness dismissible={false} />)
+    expect(screen.queryByRole("button", { name: "Close sheet" })).not.toBeInTheDocument()
+    await user.keyboard("{Escape}")
+    expect(screen.getByRole("dialog")).toHaveAttribute("data-state", "open")
   })
 })

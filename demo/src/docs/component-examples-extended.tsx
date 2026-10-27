@@ -34,6 +34,26 @@ import { type ReactNode, useEffect, useState } from "react"
 import { RuiBrandMark } from "../_shared/brand"
 import type { ComponentExample } from "./component-examples"
 
+function NowPlayingSheetExample() {
+  const [open, setOpen] = useState(false)
+  return (
+    <>
+      <R.Button variant="secondary" onClick={() => setOpen(!open)}>{open ? "Hide player" : "Show player"}</R.Button>
+      <R.Sheet open={open} onOpenChange={setOpen} modal={false} dismissible={false} snapPoints={[132, 0.55]} ariaLabel="Now playing">
+        <div className="flex items-center gap-3 px-5 pb-4">
+          <div className="size-12 shrink-0 rounded-lg bg-accent-500" aria-hidden="true" />
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-semibold">Midnight City</p>
+            <p className="truncate text-xs text-muted-foreground">M83 · Hurry Up, We're Dreaming</p>
+          </div>
+          <R.Badge>Live</R.Badge>
+        </div>
+        <p className="px-5 text-sm text-muted-foreground">Up next: Wait · Outro · Steve McQueen</p>
+      </R.Sheet>
+    </>
+  )
+}
+
 const ex = (id: string, title: string, description: string, code: string, preview: ReactNode, align?: "center" | "start"): ComponentExample =>
   ({ id, title, description, code, preview, align })
 
@@ -1766,6 +1786,30 @@ export default function App() {
   </TableBody>
 </Table>`,
       <ContextMenuTableExample />),
+  ],
+
+  "components/sheet": () => [
+    ex("persistent", "Persistent mini player", "modal={false} keeps the page interactive and dismissible={false} keeps the sheet up; it rests at 132px and expands to 55% of the screen.",
+      `function NowPlaying() {
+  const [open, setOpen] = useState(false)
+  return (
+    <>
+      <Button variant="secondary" onClick={() => setOpen(!open)}>{open ? "Hide player" : "Show player"}</Button>
+      <Sheet open={open} onOpenChange={setOpen} modal={false} dismissible={false} snapPoints={[132, 0.55]} ariaLabel="Now playing">
+        <div className="flex items-center gap-3 px-5 pb-4">
+          <div className="size-12 shrink-0 rounded-lg bg-accent-500" aria-hidden="true" />
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-semibold">Midnight City</p>
+            <p className="truncate text-xs text-muted-foreground">M83 · Hurry Up, We're Dreaming</p>
+          </div>
+          <Badge>Live</Badge>
+        </div>
+        <p className="px-5 text-sm text-muted-foreground">Up next: Wait · Outro · Steve McQueen</p>
+      </Sheet>
+    </>
+  )
+}`,
+      <NowPlayingSheetExample />),
   ],
 
   "components/resizable": () => [

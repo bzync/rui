@@ -116,6 +116,7 @@ const overlays = [
   component("Modal", "Presents a focused task in an accessible modal dialog.", "Overlays", ["dialog"]),
   component("Confirm Dialog", "Confirms a consequential action.", "Overlays", ["confirmation"], "ConfirmDialog"),
   component("Drawer", "Presents contextual content from a viewport edge.", "Overlays", ["sheet"]),
+  component("Sheet", "Bottom sheet that rests at draggable snap points.", "Overlays", ["bottom sheet", "drawer", "snap"]),
   component("Popover", "Displays contextual interactive content near a trigger.", "Overlays"),
   component("Dropdown Menu", "Presents a keyboard-navigable menu of actions.", "Overlays", ["dropdown", "menu"], "DropdownMenu"),
   component("Context Menu", "Opens a menu of actions on right-click or Shift+F10.", "Overlays", ["right click", "contextmenu"], "ContextMenu"),

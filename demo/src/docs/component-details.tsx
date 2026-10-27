@@ -171,6 +171,30 @@ function MenubarUsagePreview() {
   )
 }
 
+function SheetUsagePreview() {
+  const [open, setOpen] = useState(false)
+  const [snap, setSnap] = useState(0)
+  const labels = ["Peek", "Half", "Full"]
+  return (
+    <div className="grid justify-items-center gap-3">
+      <R.Button onClick={() => setOpen(true)}>Show filters</R.Button>
+      <span className="text-sm text-muted-foreground" role="status">{open ? `Resting at: ${labels[snap]}` : "Drag the handle, or focus it and use ↑ ↓"}</span>
+      <R.Sheet open={open} onOpenChange={setOpen} snapPoints={[0.35, 0.6, 0.92]} snap={snap} onSnapChange={setSnap} title="Filters" description="128 results">
+        <div className="grid gap-5 p-5">
+          <div className="grid gap-3">
+            <p className="text-sm font-medium">Status</p>
+            <R.Checkbox label="Active" defaultChecked />
+            <R.Checkbox label="Paused" />
+            <R.Checkbox label="Archived" />
+          </div>
+          <R.Slider label="Max price" defaultValue={60} />
+          <R.Button onClick={() => setOpen(false)}>Show 128 results</R.Button>
+        </div>
+      </R.Sheet>
+    </div>
+  )
+}
+
 function ResizableUsagePreview() {
   return (
     <div className="h-80 w-full overflow-hidden rounded-xl border border-border bg-surface">
@@ -958,6 +982,34 @@ const columns: ColumnDef<(typeof services)[number]>[] = [
     <MenubarUsagePreview />,
     api(["menus", "{ label; items; disabled? }[]", "Top-level menus with DropdownMenu-style items."], ["ariaLabel", "string", "Name of the bar.", '"Menu bar"'], ["triggerClassName / menuClassName", "string", "Style the top-level buttons and the menus."]),
     "Implements the WAI-ARIA menubar pattern: a single tab stop; Left/Right move between menus; Down, Enter or Space open one; while a menu is open Left/Right switch to the neighbouring menu and hovering another trigger switches too; Escape returns focus to the bar. Disabled menus are skipped.",
+  ),
+  "components/sheet": () => detail(
+    `function FiltersSheet() {
+  const [open, setOpen] = useState(false)
+  const [snap, setSnap] = useState(0)
+  const labels = ["Peek", "Half", "Full"]
+  return (
+    <div className="grid justify-items-center gap-3">
+      <Button onClick={() => setOpen(true)}>Show filters</Button>
+      <span className="text-sm text-muted-foreground" role="status">{open ? \`Resting at: \${labels[snap]}\` : "Drag the handle, or focus it and use ↑ ↓"}</span>
+      <Sheet open={open} onOpenChange={setOpen} snapPoints={[0.35, 0.6, 0.92]} snap={snap} onSnapChange={setSnap} title="Filters" description="128 results">
+        <div className="grid gap-5 p-5">
+          <div className="grid gap-3">
+            <p className="text-sm font-medium">Status</p>
+            <Checkbox label="Active" defaultChecked />
+            <Checkbox label="Paused" />
+            <Checkbox label="Archived" />
+          </div>
+          <Slider label="Max price" defaultValue={60} />
+          <Button onClick={() => setOpen(false)}>Show 128 results</Button>
+        </div>
+      </Sheet>
+    </div>
+  )
+}`,
+    <SheetUsagePreview />,
+    api(["open / onOpenChange", "boolean / (open) => void", "Controlled visibility."], ["snapPoints", "number[]", "Rest heights, smallest first: ≤ 1 is a fraction of the viewport, larger is pixels.", "[0.5, 0.92]"], ["snap / defaultSnap / onSnapChange", "number", "Controlled or initial snap index.", "0"], ["title / description", "ReactNode", "Header; also names and describes the dialog."], ["modal", "boolean", "Overlay, focus trap and scroll lock. Off for a persistent sheet.", "true"], ["dismissible", "boolean", "Allow closing by dragging down, Escape, the overlay and the close button.", "true"], ["showCloseButton", "boolean", "Shows the header close button.", "true"], ["className / overlayClassName / headerClassName / contentClassName / handleClassName", "string", "Part styling."]),
+    "Drag the handle or header between snap points; a quick flick moves to the next one and dragging below the lowest point dismisses. The handle is a real button: click or Enter cycles the snap points, Arrow Up/Down step through them (Down at the lowest point closes). Modal sheets trap focus and restore it on close; the content scrolls within the visible height.",
   ),
   "components/resizable": () => detail(
     `<div className="h-80 w-full overflow-hidden rounded-xl border border-border bg-surface">
