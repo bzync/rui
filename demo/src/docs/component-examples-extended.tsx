@@ -1921,6 +1921,55 @@ export default function App() {
 </div>),
   ],
 
+  "components/password-input": () => [
+    ex("login", "Sign-in field", "Without meter or checklist the field uses autocomplete=\"current-password\" for password managers.",
+      `<div className="w-full max-w-sm">
+  <PasswordInput label="Password" hint="Forgot it? Reset from the sign-in page." />
+</div>`,
+      <div className="w-full max-w-sm">
+  <R.PasswordInput label="Password" hint="Forgot it? Reset from the sign-in page." />
+</div>),
+  ],
+
+  "components/search-input": () => [
+    ex("sizes", "Sizes and a bare-key shortcut", "Press S anywhere on the page (outside a text field) to focus the small field.",
+      `<div className="grid w-full max-w-sm gap-3">
+  <SearchInput size="sm" aria-label="Small search" shortcut="s" />
+  <SearchInput aria-label="Medium search" />
+  <SearchInput size="lg" aria-label="Large search" loading defaultValue="pending query" />
+</div>`,
+      <div className="grid w-full max-w-sm gap-3">
+  <R.SearchInput size="sm" aria-label="Small search" shortcut="s" />
+  <R.SearchInput aria-label="Medium search" />
+  <R.SearchInput size="lg" aria-label="Large search" loading defaultValue="pending query" />
+</div>),
+  ],
+
+  "components/masked-input": () => [
+    ex("currencies", "Currencies and locales", "Symbol position, grouping and decimals follow Intl for each currency and locale.",
+      `<div className="grid w-full max-w-sm gap-3">
+  <CurrencyInput label="Euro (German)" currency="EUR" locale="de-DE" defaultValue={1234.5} />
+  <CurrencyInput label="Yen (no decimals)" currency="JPY" locale="ja-JP" defaultValue={98000} />
+  <CurrencyInput label="Refund (negative allowed)" currency="GBP" locale="en-GB" allowNegative defaultValue={-42} />
+</div>`,
+      <div className="grid w-full max-w-sm gap-3">
+  <R.CurrencyInput label="Euro (German)" currency="EUR" locale="de-DE" defaultValue={1234.5} />
+  <R.CurrencyInput label="Yen (no decimals)" currency="JPY" locale="ja-JP" defaultValue={98000} />
+  <R.CurrencyInput label="Refund (negative allowed)" currency="GBP" locale="en-GB" allowNegative defaultValue={-42} />
+</div>),
+    ex("masks", "Custom masks", "Dates, postcodes and mixed letter/digit codes.",
+      `<div className="grid w-full max-w-sm gap-3">
+  <MaskedInput label="Expiry" mask="99/99" placeholder="MM/YY" />
+  <MaskedInput label="Licence plate" mask="aaa-9999" />
+  <MaskedInput label="Invite code" mask="****-****" />
+</div>`,
+      <div className="grid w-full max-w-sm gap-3">
+  <R.MaskedInput label="Expiry" mask="99/99" placeholder="MM/YY" />
+  <R.MaskedInput label="Licence plate" mask="aaa-9999" />
+  <R.MaskedInput label="Invite code" mask="****-****" />
+</div>),
+  ],
+
   "components/resizable": () => [
     ex("persisted", "Persisted with a grip", "storageKey remembers the layout across reloads; withHandle shows a grip. Resize, then reload the page.",
       `<div className="h-56 w-full overflow-hidden rounded-xl border border-border bg-surface">

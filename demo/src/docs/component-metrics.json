@@ -1,9 +1,9 @@
 {
   "version": "0.0.11",
   "stylesheet": {
-    "raw": 109265,
-    "gzip": 18064,
-    "brotli": 14449
+    "raw": 109878,
+    "gzip": 18142,
+    "brotli": 14513
   },
   "sharedRuntime": {
     "raw": 37806,
@@ -1390,6 +1390,54 @@
       "modules": 2,
       "peers": []
     },
+    "CurrencyInput": {
+      "entry": "components/masked-input.js",
+      "total": {
+        "raw": 50801,
+        "gzip": 13931,
+        "brotli": 11903
+      },
+      "specific": {
+        "raw": 12995,
+        "gzip": 4289,
+        "brotli": 3800
+      },
+      "lazy": null,
+      "modules": 6,
+      "peers": []
+    },
+    "MaskedInput": {
+      "entry": "components/masked-input.js",
+      "total": {
+        "raw": 50801,
+        "gzip": 13931,
+        "brotli": 11903
+      },
+      "specific": {
+        "raw": 12995,
+        "gzip": 4289,
+        "brotli": 3800
+      },
+      "lazy": null,
+      "modules": 6,
+      "peers": []
+    },
+    "PhoneInput": {
+      "entry": "components/masked-input.js",
+      "total": {
+        "raw": 50801,
+        "gzip": 13931,
+        "brotli": 11903
+      },
+      "specific": {
+        "raw": 12995,
+        "gzip": 4289,
+        "brotli": 3800
+      },
+      "lazy": null,
+      "modules": 6,
+      "peers": []
+    },
     "Menubar": {
       "entry": "components/menubar.js",
       "total": {
@@ -1748,6 +1796,22 @@
       "modules": 4,
       "peers": []
     },
+    "PasswordInput": {
+      "entry": "components/password-input.js",
+      "total": {
+        "raw": 48138,
+        "gzip": 12994,
+        "brotli": 11020
+      },
+      "specific": {
+        "raw": 10332,
+        "gzip": 3195,
+        "brotli": 2819
+      },
+      "lazy": null,
+      "modules": 5,
+      "peers": []
+    },
     "Popover": {
       "entry": "components/popover.js",
       "total": {
@@ -1916,6 +1980,22 @@
       },
       "lazy": null,
       "modules": 3,
+      "peers": []
+    },
+    "SearchInput": {
+      "entry": "components/search-input.js",
+      "total": {
+        "raw": 49328,
+        "gzip": 13505,
+        "brotli": 11412
+      },
+      "specific": {
+        "raw": 11522,
+        "gzip": 3761,
+        "brotli": 3265
+      },
+      "lazy": null,
+      "modules": 9,
       "peers": []
     },
     "Select": {

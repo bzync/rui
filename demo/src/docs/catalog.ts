@@ -57,6 +57,9 @@ const actions = [
 
 const forms = [
   component("Input", "Collects a single line of text with label, hint, and error states.", "Forms", ["text field"]),
+  component("Password Input", "Password field with show/hide, strength meter and requirements.", "Forms", ["password", "strength", "sign up"], "PasswordInput"),
+  component("Search Input", "Search field with clear, debounce, loading and a focus shortcut.", "Forms", ["search", "filter", "shortcut", "cmd k"], "SearchInput"),
+  component("Masked Input", "Formats codes, card numbers, currency and phone numbers as you type.", "Forms", ["mask", "currency", "money", "phone", "tel", "format"], "MaskedInput"),
   component("Textarea", "Collects multi-line text with consistent field messaging.", "Forms"),
   component("Select", "Selects one or multiple values from a keyboard-accessible listbox.", "Forms", ["dropdown", "listbox"]),
   component("Autocomplete", "Filters suggestions while the user types.", "Forms", ["combobox", "typeahead"]),

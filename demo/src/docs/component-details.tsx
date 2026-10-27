@@ -195,6 +195,61 @@ function SheetUsagePreview() {
   )
 }
 
+function PasswordInputUsagePreview() {
+  const [password, setPassword] = useState("")
+  return (
+    <div className="w-full max-w-sm">
+      <R.PasswordInput
+        label="Create a password"
+        value={password}
+        onChange={(event) => setPassword(event.target.value)}
+        showStrength
+        requirements={[
+          { label: "At least 12 characters", test: (p) => p.length >= 12 },
+          { label: "Upper and lower case letters", test: (p) => /[a-z]/.test(p) && /[A-Z]/.test(p) },
+          { label: "A number or symbol", test: (p) => /[\d\W]/.test(p) },
+        ]}
+      />
+    </div>
+  )
+}
+
+function SearchInputUsagePreview() {
+  const [query, setQuery] = useState("")
+  const [results, setResults] = useState<string[]>([])
+  const [loading, setLoading] = useState(false)
+  const pages = ["Button", "Banner", "Badge", "Breadcrumb", "Calendar", "Card", "Checkbox", "Sheet", "Sidebar", "Slider"]
+  return (
+    <div className="grid w-full max-w-sm gap-3">
+      <R.SearchInput
+        aria-label="Search components"
+        placeholder="Search components…"
+        shortcut="f"
+        value={query}
+        onValueChange={(value) => { setQuery(value); setLoading(Boolean(value)) }}
+        onSearch={(value) => { setResults(value ? pages.filter((page) => page.toLowerCase().includes(value.toLowerCase())) : []); setLoading(false) }}
+        loading={loading}
+      />
+      <p className="text-sm text-muted-foreground" role="status">
+        {query && !loading ? `${results.length} result${results.length === 1 ? "" : "s"}: ${results.join(", ") || "none"}` : "Press F to focus, type, then Escape to clear"}
+      </p>
+    </div>
+  )
+}
+
+function MaskedInputUsagePreview() {
+  const [amount, setAmount] = useState<number | null>(1250)
+  const [phone, setPhone] = useState("")
+  const [card, setCard] = useState({ raw: "", complete: false })
+  return (
+    <div className="grid w-full max-w-sm gap-4">
+      <R.CurrencyInput label="Amount" currency="USD" value={amount} onValueChange={setAmount} max={100000} hint={amount === null ? "Enter an amount" : `Value: ${amount}`} />
+      <R.PhoneInput label="Mobile number" defaultCountry="US" onValueChange={(_, e164) => setPhone(e164)} hint={phone ? `E.164: ${phone}` : "We'll text a receipt"} />
+      <R.MaskedInput label="Card number" mask="9999 9999 9999 9999" onValueChange={(raw, _, complete) => setCard({ raw, complete })} error={card.raw && !card.complete ? "Enter all 16 digits" : undefined} />
+    </div>
+  )
+}
+
 function ResizableUsagePreview() {
   return (
     <div className="h-80 w-full overflow-hidden rounded-xl border border-border bg-surface">
@@ -1128,6 +1183,73 @@ const columns: ColumnDef<(typeof services)[number]>[] = [
 </div>,
     api(["items", "NavigationMenuItem[]", "Top-level entries: a plain href, or a panel with links and/or content."], ["items[].links", "{ label; href; description?; icon? }[]", "Panel links in a responsive grid."], ["items[].content / columns", "ReactNode / 1 | 2 | 3", "Custom panel content and grid columns.", "— / 2"], ["items[].active", "boolean", "Marks the current section (aria-current on links)."], ["openDelay / closeDelay", "number", "Hover delays in ms.", "120 / 200"], ["ariaLabel / triggerClassName / panelClassName", "string", "Landmark name and part styling.", "\"Main\""]),
     "Follows the disclosure navigation pattern: each trigger is a button with aria-expanded and aria-controls, and its panel comes next in the tab order. Click, Enter or Space toggles a panel; Arrow Down opens it and focuses the first link; Up/Down move between links; Left/Right move between top-level items (opening the neighbour if a panel is open); Escape closes and returns focus. Clicking outside or tabbing out closes it.",
+  ),
+  "components/password-input": () => detail(
+    `function SignUpPassword() {
+  const [password, setPassword] = useState("")
+  return (
+    <div className="w-full max-w-sm">
+      <PasswordInput
+        label="Create a password"
+        value={password}
+        onChange={(event) => setPassword(event.target.value)}
+        showStrength
+        requirements={[
+          { label: "At least 12 characters", test: (p) => p.length >= 12 },
+          { label: "Upper and lower case letters", test: (p) => /[a-z]/.test(p) && /[A-Z]/.test(p) },
+          { label: "A number or symbol", test: (p) => /[\\d\\W]/.test(p) },
+        ]}
+      />
+    </div>
+  )
+}`,
+    <PasswordInputUsagePreview />,
+    api(["showStrength", "boolean", "Four-step strength meter with a text label.", "false"], ["strength", "(password) => 0–4", "Custom scorer; the default checks length, case, digits and symbols.", "scorePassword"], ["strengthLabels", "[string × 5]", "Labels for levels 0–4.", "\"Too weak\" … \"Strong\""], ["requirements", "{ label; test }[]", "Checklist ticked as each rule passes."], ["visible / defaultVisible / onVisibleChange", "boolean", "Controlled or initial visibility.", "false"], ["showLabel / hideLabel", "string", "Toggle button labels.", "\"Show password\" / \"Hide password\""], ["…InputProps", "", "label, hint, error, size, value, onChange and every native input attribute."]),
+    "The toggle is a button with aria-pressed and a label that names the action; it keeps focus in place. The meter and checklist are linked with aria-describedby, the strength label is announced politely, and each requirement reads as met or not met. autocomplete defaults to new-password when the meter or checklist is shown, otherwise current-password.",
+  ),
+  "components/search-input": () => detail(
+    `function DocsSearch() {
+  const [query, setQuery] = useState("")
+  const [results, setResults] = useState<string[]>([])
+  const [loading, setLoading] = useState(false)
+  const pages = ["Button", "Banner", "Badge", "Breadcrumb", "Calendar", "Card", "Checkbox", "Sheet", "Sidebar", "Slider"]
+  return (
+    <div className="grid w-full max-w-sm gap-3">
+      <SearchInput
+        aria-label="Search components"
+        placeholder="Search components…"
+        shortcut="f"
+        value={query}
+        onValueChange={(value) => { setQuery(value); setLoading(Boolean(value)) }}
+        onSearch={(value) => { setResults(value ? pages.filter((page) => page.toLowerCase().includes(value.toLowerCase())) : []); setLoading(false) }}
+        loading={loading}
+      />
+      <p className="text-sm text-muted-foreground" role="status">
+        {query && !loading ? \`\${results.length} result\${results.length === 1 ? "" : "s"}: \${results.join(", ") || "none"}\` : "Press F to focus, type, then Escape to clear"}
+      </p>
+    </div>
+  )
+}`,
+    <SearchInputUsagePreview />,
+    api(["value / defaultValue / onValueChange", "string", "Controlled or initial text; called on every keystroke."], ["onSearch", "(value) => void", "Debounced search; fires immediately on Enter and clear."], ["debounceMs", "number", "Debounce delay.", "250"], ["shortcut", "string", "Global focus shortcut such as \"/\" or \"mod+k\"; shown as a key hint."], ["loading", "boolean", "Replaces the search icon with a spinner.", "false"], ["clearLabel", "string", "Clear button label.", "\"Clear search\""], ["…InputProps", "", "label, hint, error, size and native input attributes."]),
+    "Renders a native search input with role=searchbox. The clear button has an accessible label and returns focus to the field; Escape clears when there is text. The shortcut is exposed through aria-keyshortcuts, and bare-key shortcuts like \"/\" are ignored while typing in another field.",
+  ),
+  "components/masked-input": () => detail(
+    `function CheckoutFields() {
+  const [amount, setAmount] = useState<number | null>(1250)
+  const [phone, setPhone] = useState("")
+  const [card, setCard] = useState({ raw: "", complete: false })
+  return (
+    <div className="grid w-full max-w-sm gap-4">
+      <CurrencyInput label="Amount" currency="USD" value={amount} onValueChange={setAmount} max={100000} hint={amount === null ? "Enter an amount" : \`Value: \${amount}\`} />
+      <PhoneInput label="Mobile number" defaultCountry="US" onValueChange={(_, e164) => setPhone(e164)} hint={phone ? \`E.164: \${phone}\` : "We'll text a receipt"} />
+      <MaskedInput label="Card number" mask="9999 9999 9999 9999" onValueChange={(raw, _, complete) => setCard({ raw, complete })} error={card.raw && !card.complete ? "Enter all 16 digits" : undefined} />
+    </div>
+  )
+}`,
+    <MaskedInputUsagePreview />,
+    api(["MaskedInput mask", "string", "9 = digit, a = letter, * = either; other characters are literals."], ["MaskedInput value / onValueChange", "string / (raw, formatted, complete) => void", "Raw slot characters without literals."], ["CurrencyInput value / onValueChange", "number | null", "Plain number; null when empty."], ["CurrencyInput currency / locale / decimals", "string / string / number", "Symbol, grouping and fraction digits from Intl.", "\"USD\" / runtime / currency default"], ["CurrencyInput min / max / allowNegative / hideSymbol", "number / number / boolean / boolean", "Clamped and rounded on blur."], ["PhoneInput value / onValueChange", "string / (digits, e164, complete) => void", "National digits plus the E.164 number."], ["PhoneInput country / defaultCountry / onCountryChange / countries", "string / PhoneCountry[]", "Country selector; masks per country.", "\"US\" / defaultPhoneCountries"], ["applyMask(mask, raw)", "function", "The formatter, for validation or display."]),
+    "Formatting happens as you type while the caret stays where you are editing. Each field sets a suitable inputmode (numeric, decimal, tel) for mobile keyboards; PhoneInput's country selector is a labelled native select; CurrencyInput announces its currency with aria-description. Values are reported unformatted so they can be stored directly.",
   ),
   "components/resizable": () => detail(
     `<div className="h-80 w-full overflow-hidden rounded-xl border border-border bg-surface">
