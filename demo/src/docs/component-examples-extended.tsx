@@ -1830,6 +1830,50 @@ export default function App() {
 </div>),
   ],
 
+  "components/banner": () => [
+    ex("tones", "Subtle tones", "Tinted strips for routine notices.",
+      `<div className="grid w-full gap-2">
+  <Banner title="Default" className="rounded-lg border">Workspace settings were updated.</Banner>
+  <Banner tone="info" title="Info" className="rounded-lg border">A new version is available.</Banner>
+  <Banner tone="success" title="Success" className="rounded-lg border">Your domain is verified.</Banner>
+  <Banner tone="warning" title="Warning" className="rounded-lg border">You have used 90% of your quota.</Banner>
+  <Banner tone="danger" title="Danger" className="rounded-lg border">Your last payment failed.</Banner>
+</div>`,
+      <div className="grid w-full gap-2">
+  <R.Banner title="Default" className="rounded-lg border">Workspace settings were updated.</R.Banner>
+  <R.Banner tone="info" title="Info" className="rounded-lg border">A new version is available.</R.Banner>
+  <R.Banner tone="success" title="Success" className="rounded-lg border">Your domain is verified.</R.Banner>
+  <R.Banner tone="warning" title="Warning" className="rounded-lg border">You have used 90% of your quota.</R.Banner>
+  <R.Banner tone="danger" title="Danger" className="rounded-lg border">Your last payment failed.</R.Banner>
+</div>),
+    ex("solid", "Solid tones", "Filled strips for notices that must not be missed.",
+      `<div className="grid w-full gap-2">
+  <Banner variant="solid" title="Default">Read-only mode while we migrate.</Banner>
+  <Banner variant="solid" tone="info" title="Info">Webinar starts in 10 minutes.</Banner>
+  <Banner variant="solid" tone="success" title="Success">All systems operational.</Banner>
+  <Banner variant="solid" tone="warning" title="Warning">Your trial ends in 3 days.</Banner>
+  <Banner variant="solid" tone="danger" title="Danger">Service disruption in eu-west-1.</Banner>
+</div>`,
+      <div className="grid w-full gap-2">
+  <R.Banner variant="solid" title="Default">Read-only mode while we migrate.</R.Banner>
+  <R.Banner variant="solid" tone="info" title="Info">Webinar starts in 10 minutes.</R.Banner>
+  <R.Banner variant="solid" tone="success" title="Success">All systems operational.</R.Banner>
+  <R.Banner variant="solid" tone="warning" title="Warning">Your trial ends in 3 days.</R.Banner>
+  <R.Banner variant="solid" tone="danger" title="Danger">Service disruption in eu-west-1.</R.Banner>
+</div>),
+    ex("persist", "Remembered dismissal", "With storageKey, a dismissed banner stays hidden after a reload.",
+      `<div className="w-full overflow-hidden rounded-xl border border-border">
+  <Banner tone="info" dismissible storageKey="docs-banner-cookies" action={<a href="#/docs/accessibility">Learn more</a>}>
+    Dismiss me, then reload: storageKey keeps me hidden.
+  </Banner>
+</div>`,
+      <div className="w-full overflow-hidden rounded-xl border border-border">
+  <R.Banner tone="info" dismissible storageKey="docs-banner-cookies" action={<a href="#/docs/accessibility">Learn more</a>}>
+    Dismiss me, then reload: storageKey keeps me hidden.
+  </R.Banner>
+</div>),
+  ],
+
   "components/resizable": () => [
     ex("persisted", "Persisted with a grip", "storageKey remembers the layout across reloads; withHandle shows a grip. Resize, then reload the page.",
       `<div className="h-56 w-full overflow-hidden rounded-xl border border-border bg-surface">

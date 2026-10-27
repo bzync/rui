@@ -502,3 +502,27 @@ describe("Resizable", () => {
     expect(restored).toHaveAttribute("aria-valuenow", "30")
   })
 })
+
+describe("Banner", () => {
+  it("announces by tone and renders title, message and action", () => {
+    const { rerender } = render(<R.Banner title="Maintenance" action={<a href="#/status">Status page</a>}>Saturday 02:00 UTC</R.Banner>)
+    expect(screen.getByRole("status")).toHaveTextContent("Maintenance·Saturday 02:00 UTC")
+    expect(screen.getByRole("link", { name: "Status page" })).toBeInTheDocument()
+    rerender(<R.Banner tone="danger" variant="solid">Payment failed</R.Banner>)
+    expect(screen.getByRole("alert")).toHaveAttribute("data-tone", "danger")
+  })
+
+  it("remembers a dismissal under storageKey", async () => {
+    const user = userEvent.setup()
+    window.localStorage.removeItem("test-banner")
+    const onDismiss = vi.fn()
+    const { unmount } = render(<R.Banner dismissible storageKey="test-banner" onDismiss={onDismiss}>Trial ends soon</R.Banner>)
+    await user.click(screen.getByRole("button", { name: "Dismiss" }))
+    expect(onDismiss).toHaveBeenCalled()
+    expect(screen.queryByText("Trial ends soon")).not.toBeInTheDocument()
+    unmount()
+    render(<R.Banner dismissible storageKey="test-banner">Trial ends soon</R.Banner>)
+    await waitFor(() => expect(screen.queryByText("Trial ends soon")).not.toBeInTheDocument())
+    window.localStorage.removeItem("test-banner")
+  })
+})

@@ -103,6 +103,7 @@ const display = [
 ]
 
 const feedback = [
+  component("Banner", "Full-width announcement strip for page-level notices.", "Feedback", ["announcement", "notice", "topbar", "strip"]),
   component("Alert", "Communicates persistent status and feedback.", "Feedback", ["banner", "notification"]),
   component("Snackbar", "Shows transient application feedback.", "Feedback", ["toast", "notification"]),
   component("Spinner", "Indicates indeterminate progress.", "Feedback", ["loading"]),

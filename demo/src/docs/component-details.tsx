@@ -4,7 +4,7 @@
 /* eslint-disable react-refresh/only-export-components */
 
 import * as R from "@bzync/rui"
-import { Activity, Box, FileText, ChevronRight, Database, Home, Settings, Trash2 } from "lucide-react"
+import { Activity, Box, FileText, ChevronRight, Database, Home, Settings, Trash2, Wrench } from "lucide-react"
 import { Fragment, type ReactNode, useState } from "react"
 import { RuiBrandMark } from "../_shared/brand"
 import type { ApiProp } from "./primitives"
@@ -1052,6 +1052,28 @@ const columns: ColumnDef<(typeof services)[number]>[] = [
 </p>,
     api(["content", "ReactNode", "The card body."], ["children", "ReactElement", "The trigger; hover and focus handlers are merged onto it."], ["side / align", "\"top\" | \"bottom\" | \"left\" | \"right\" / \"start\" | \"center\" | \"end\"", "Preferred placement; flips and clamps to the viewport.", "\"bottom\" / \"center\""], ["openDelay / closeDelay", "number", "Delays in ms.", "500 / 200"], ["open / defaultOpen / onOpenChange", "boolean", "Controlled or initial visibility."], ["width", "number | string", "Card width.", "\"18rem\""], ["className / wrapperClassName", "string", "Card and wrapper styling."]),
     "Opens after a short delay on hover or keyboard focus and closes on blur, pointer leave or Escape. Unlike Tooltip the card is interactive: moving the pointer onto it keeps it open. The trigger references the card with aria-describedby while it is open. Treat the card as a preview; anything essential should also be reachable without hovering.",
+  ),
+  "components/banner": () => detail(
+    `<div className="w-full overflow-hidden rounded-xl border border-border bg-bg">
+  <Banner variant="solid" tone="info" centered dismissible title="RUI 1.0 is here" action={<a href="#/docs/introduction">Read the announcement</a>}>
+    Resizable panels, sheets and hover cards.
+  </Banner>
+  <Banner tone="warning" icon={<Wrench />} action={<a href="#/components/banner">Status page</a>}>
+    Scheduled maintenance on Saturday from 02:00 to 03:00 UTC. Deploys are paused.
+  </Banner>
+  <div className="grid h-32 place-items-center text-sm text-muted-foreground">Your app</div>
+</div>`,
+    <div className="w-full overflow-hidden rounded-xl border border-border bg-bg">
+  <R.Banner variant="solid" tone="info" centered dismissible title="RUI 1.0 is here" action={<a href="#/docs/introduction">Read the announcement</a>}>
+    Resizable panels, sheets and hover cards.
+  </R.Banner>
+  <R.Banner tone="warning" icon={<Wrench />} action={<a href="#/components/banner">Status page</a>}>
+    Scheduled maintenance on Saturday from 02:00 to 03:00 UTC. Deploys are paused.
+  </R.Banner>
+  <div className="grid h-32 place-items-center text-sm text-muted-foreground">Your app</div>
+</div>,
+    api(["tone", "\"default\" | \"info\" | \"success\" | \"warning\" | \"danger\"", "Color and live-region role (warning and danger are alerts).", "\"default\""], ["variant", "\"subtle\" | \"solid\"", "Tinted strip or filled high-priority strip.", "\"subtle\""], ["title / children", "ReactNode", "Bold lead-in and message."], ["icon / action", "ReactNode", "Leading icon and trailing call to action."], ["dismissible / onDismiss", "boolean / () => void", "Shows a dismiss button."], ["storageKey", "string", "Remembers the dismissal in localStorage."], ["sticky", "boolean", "Sticks to the top of the scroll container.", "false"], ["centered", "boolean", "Centers the content.", "false"], ["dismissAriaLabel / contentClassName", "string", "Dismiss label and inner row styling."]),
+    "Warning and danger banners render with role=\"alert\"; other tones use role=\"status\" so they are announced politely. The dismiss button has an accessible label, and storageKey keeps a dismissed banner hidden on later visits (read after mount, so server rendering stays consistent).",
   ),
   "components/resizable": () => detail(
     `<div className="h-80 w-full overflow-hidden rounded-xl border border-border bg-surface">
