@@ -108,6 +108,57 @@ const fiscalPresets: R.DateRangePreset[] = [
   { label: "Last year", range: (today) => ({ from: new Date(today.getFullYear() - 1, 0, 1), to: new Date(today.getFullYear() - 1, 11, 31) }) },
 ]
 
+type ProfileValues = { username: string; bio: string }
+
+// The same shape Zod returns from safeParse — pass a real Zod schema instead.
+const profileSchema: R.FormSchema<ProfileValues> = {
+  safeParse(values) {
+    const issues: { path: string[]; message: string }[] = []
+    if (!/^[a-z0-9_]{3,15}$/.test(values.username)) issues.push({ path: ["username"], message: "3–15 lowercase letters, numbers or underscores." })
+    if (values.bio.length > 80) issues.push({ path: ["bio"], message: "Keep it under 80 characters." })
+    return issues.length ? { success: false, error: { issues } } : { success: true }
+  },
+}
+
+function FormSchemaExample() {
+  const [saved, setSaved] = useState(false)
+  const form = R.useForm<ProfileValues>({ defaultValues: { username: "", bio: "" }, schema: profileSchema, mode: "onChange" })
+  return (
+    <R.Form form={form} className="w-full max-w-sm" onSubmit={() => setSaved(true)}>
+      <R.Input label="Username" prefix="@" {...form.register("username")} />
+      <R.Textarea label="Bio" rows={3} hint={`${form.values.bio.length}/80`} {...form.register("bio")} />
+      <R.Button type="submit" disabled={!form.isDirty}>Save profile</R.Button>
+      {saved && <p className="text-sm text-muted-foreground" role="status">Profile saved</p>}
+    </R.Form>
+  )
+}
+
+type BookingValues = { guests: number; dates: R.DateRange; room: string; newsletter: boolean }
+
+function FormControlsExample() {
+  const [summary, setSummary] = useState("")
+  const form = R.useForm<BookingValues>({
+    defaultValues: { guests: 2, dates: { from: null, to: null }, room: "", newsletter: true },
+    validate: (values) => ({
+      dates: values.dates.from && values.dates.to ? undefined : "Choose check-in and check-out.",
+      room: values.room ? undefined : "Choose a room.",
+    }),
+  })
+  return (
+    <R.Form form={form} className="w-full max-w-sm" onSubmit={(values) => setSummary(`${values.guests} guests, ${values.room} room`)}>
+      <R.NumberInput label="Guests" min={1} max={6} {...form.control("guests")} />
+      <R.DateRangePicker label="Dates" presets={false} numberOfMonths={1} {...form.control("dates")} />
+      <R.RadioGroup label="Room" orientation="horizontal" {...form.control("room")}>
+        <R.Radio value="standard" label="Standard" />
+        <R.Radio value="suite" label="Suite" />
+      </R.RadioGroup>
+      <R.Switch label="Email me offers" {...form.register("newsletter", { type: "checkbox" })} />
+      <R.Button type="submit">Book</R.Button>
+      {summary && <p className="text-sm text-muted-foreground" role="status">{`Booked: ${summary}`}</p>}
+    </R.Form>
+  )
+}
+
 function TimePicker24Example() {
   const [time, setTime] = useState("14:30:00")
   return (
@@ -656,6 +707,62 @@ export const extendedExamples: Record<string, () => ComponentExample[]> = {
       `<DateRangePicker size="sm" label="Small" />
 <DateRangePicker size="lg" label="Large" error="Choose a range of at most 90 days." />`,
       <div className="demo-form-grid"><R.DateRangePicker size="sm" label="Small" /><R.DateRangePicker size="lg" label="Large" error="Choose a range of at most 90 days." /></div>),
+  ],
+
+  "components/form": () => [
+    ex("schema", "Schema validation, live", "schema accepts a Zod schema (or anything with the same safeParse shape — shown here without a dependency). mode=\"onChange\" validates as you type.",
+      `type ProfileValues = { username: string; bio: string }
+
+// The same shape Zod returns from safeParse — pass a real Zod schema instead.
+const profileSchema: FormSchema<ProfileValues> = {
+  safeParse(values) {
+    const issues: { path: string[]; message: string }[] = []
+    if (!/^[a-z0-9_]{3,15}$/.test(values.username)) issues.push({ path: ["username"], message: "3–15 lowercase letters, numbers or underscores." })
+    if (values.bio.length > 80) issues.push({ path: ["bio"], message: "Keep it under 80 characters." })
+    return issues.length ? { success: false, error: { issues } } : { success: true }
+  },
+}
+
+function ProfileForm() {
+  const [saved, setSaved] = useState(false)
+  const form = useForm<ProfileValues>({ defaultValues: { username: "", bio: "" }, schema: profileSchema, mode: "onChange" })
+  return (
+    <Form form={form} className="w-full max-w-sm" onSubmit={() => setSaved(true)}>
+      <Input label="Username" prefix="@" {...form.register("username")} />
+      <Textarea label="Bio" rows={3} hint={\`\${form.values.bio.length}/80\`} {...form.register("bio")} />
+      <Button type="submit" disabled={!form.isDirty}>Save profile</Button>
+      {saved && <p className="text-sm text-muted-foreground" role="status">Profile saved</p>}
+    </Form>
+  )
+}`,
+      <FormSchemaExample />),
+    ex("controls", "Every kind of control", "control() wires value-based components (NumberInput, DateRangePicker, RadioGroup); register(name, { type: \"checkbox\" }) wires Switch and Checkbox.",
+      `type BookingValues = { guests: number; dates: DateRange; room: string; newsletter: boolean }
+
+function BookingForm() {
+  const [summary, setSummary] = useState("")
+  const form = useForm<BookingValues>({
+    defaultValues: { guests: 2, dates: { from: null, to: null }, room: "", newsletter: true },
+    validate: (values) => ({
+      dates: values.dates.from && values.dates.to ? undefined : "Choose check-in and check-out.",
+      room: values.room ? undefined : "Choose a room.",
+    }),
+  })
+  return (
+    <Form form={form} className="w-full max-w-sm" onSubmit={(values) => setSummary(\`\${values.guests} guests, \${values.room} room\`)}>
+      <NumberInput label="Guests" min={1} max={6} {...form.control("guests")} />
+      <DateRangePicker label="Dates" presets={false} numberOfMonths={1} {...form.control("dates")} />
+      <RadioGroup label="Room" orientation="horizontal" {...form.control("room")}>
+        <Radio value="standard" label="Standard" />
+        <Radio value="suite" label="Suite" />
+      </RadioGroup>
+      <Switch label="Email me offers" {...form.register("newsletter", { type: "checkbox" })} />
+      <Button type="submit">Book</Button>
+      {summary && <p className="text-sm text-muted-foreground" role="status">{\`Booked: \${summary}\`}</p>}
+    </Form>
+  )
+}`,
+      <FormControlsExample />),
   ],
 
   "components/time-picker": () => [

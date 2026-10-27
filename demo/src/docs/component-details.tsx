@@ -92,6 +92,29 @@ function DateRangeUsagePreview() {
   )
 }
 
+type InviteValues = { name: string; email: string; role: string }
+
+function FormUsagePreview() {
+  const [sent, setSent] = useState<string | null>(null)
+  const form = R.useForm<InviteValues>({
+    defaultValues: { name: "", email: "", role: "" },
+    validate: (values) => ({
+      name: values.name.trim() ? undefined : "Enter a name.",
+      email: /^\S+@\S+\.\S+$/.test(values.email) ? undefined : "Enter a valid email.",
+      role: values.role ? undefined : "Choose a role.",
+    }),
+  })
+  return (
+    <R.Form form={form} errorSummary className="w-full max-w-sm" onSubmit={async (values) => { await new Promise((resolve) => setTimeout(resolve, 600)); setSent(values.email); form.reset() }}>
+      <R.Input label="Name" {...form.register("name")} />
+      <R.Input label="Email" type="email" {...form.register("email")} />
+      <R.Select label="Role" options={[{ value: "admin", label: "Admin" }, { value: "member", label: "Member" }]} {...form.control("role")} />
+      <R.Button type="submit" loading={form.isSubmitting}>Send invite</R.Button>
+      {sent && <p className="text-sm text-muted-foreground" role="status">{`Invite sent to ${sent}`}</p>}
+    </R.Form>
+  )
+}
+
 function TimePickerPreview() {
   const [value, setValue] = useState("09:30")
   const [confirmedValue, setConfirmedValue] = useState("09:30")
@@ -506,6 +529,33 @@ export const supplementalDetails: Record<string, () => SupplementalDetail> = {
     <R.Label htmlFor="label-demo" required hint="64 characters maximum">Project name</R.Label>,
     api(["htmlFor", "string", "ID of the associated form control."], ["required", "boolean", "Displays required-state text."], ["hint", "ReactNode", "Compact supplementary label content."], ["className", "string", "Composes label styles."]),
     "Renders a native label; htmlFor should match the target control ID.",
+  ),
+  "components/form": () => detail(
+    `type InviteValues = { name: string; email: string; role: string }
+
+function InviteForm() {
+  const [sent, setSent] = useState<string | null>(null)
+  const form = useForm<InviteValues>({
+    defaultValues: { name: "", email: "", role: "" },
+    validate: (values) => ({
+      name: values.name.trim() ? undefined : "Enter a name.",
+      email: /^\\S+@\\S+\\.\\S+$/.test(values.email) ? undefined : "Enter a valid email.",
+      role: values.role ? undefined : "Choose a role.",
+    }),
+  })
+  return (
+    <Form form={form} errorSummary className="w-full max-w-sm" onSubmit={async (values) => { await new Promise((resolve) => setTimeout(resolve, 600)); setSent(values.email); form.reset() }}>
+      <Input label="Name" {...form.register("name")} />
+      <Input label="Email" type="email" {...form.register("email")} />
+      <Select label="Role" options={[{ value: "admin", label: "Admin" }, { value: "member", label: "Member" }]} {...form.control("role")} />
+      <Button type="submit" loading={form.isSubmitting}>Send invite</Button>
+      {sent && <p className="text-sm text-muted-foreground" role="status">{\`Invite sent to \${sent}\`}</p>}
+    </Form>
+  )
+}`,
+    <FormUsagePreview />,
+    api(["useForm({ defaultValues, validate?, schema?, mode? })", "UseFormReturn<T>", "Form state: values, errors, touched, isSubmitting, isDirty, isValid, submitCount."], ["validate", "(values) => errors | Promise<errors>", "Returns a message per invalid field."], ["schema", "{ safeParse(values) }", "Zod-compatible schema (Zod works as-is); merged with validate."], ["mode", '"onSubmit" | "onBlur" | "onChange"', "When errors first appear; after a failed submit fields revalidate as you type.", '"onSubmit"'], ["register(name, { type? })", "field props", "For native-event fields: Input, Textarea, Checkbox, Switch (type: \"checkbox\")."], ["control(name)", "field props", "For value-based fields: Select, DatePicker, DateRangePicker, RadioGroup, NumberInput, Autocomplete…"], ["setValue / setError / reset / validateForm / handleSubmit", "functions", "Imperative helpers."], ["<Form form onSubmit onInvalid? errorSummary?>", "component", "Native form: validates on submit, focuses the first invalid field, optional error summary alert."], ["useFormContext()", "hook", "Access the nearest form from custom fields."]),
+    "Errors flow into each field's own error prop, so labels, aria-invalid and aria-describedby are wired automatically. A failed submit moves focus to the first invalid field; errorSummary adds an alert listing every problem. The form is noValidate, so the library's messages replace inconsistent browser bubbles, and aria-busy is set while submitting.",
   ),
   "components/form-field": () => detail(
     `<FormField className="w-full max-w-sm" label="Project name" htmlFor="project-demo" hint="Used in URLs and logs" required><Input id="project-demo" placeholder="api-gateway" /></FormField>`,

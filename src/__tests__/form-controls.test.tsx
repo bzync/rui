@@ -277,3 +277,88 @@ describe("DateRangePicker", () => {
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
   })
 })
+
+describe("Form and useForm", () => {
+  type Values = { email: string; plan: string; terms: boolean }
+  // A minimal Zod-compatible schema (rui never imports a schema library).
+  const schema: R.FormSchema<Values> = {
+    safeParse(values) {
+      const issues: { path: string[]; message: string }[] = []
+      if (!/^\S+@\S+\.\S+$/.test(values.email)) issues.push({ path: ["email"], message: "Enter a valid email." })
+      if (!values.plan) issues.push({ path: ["plan"], message: "Choose a plan." })
+      if (!values.terms) issues.push({ path: ["terms"], message: "Accept the terms." })
+      return issues.length ? { success: false, error: { issues } } : { success: true }
+    },
+  }
+
+  function Signup({ onSubmit }: { onSubmit: (values: Values) => void }) {
+    const form = R.useForm<Values>({ defaultValues: { email: "", plan: "", terms: false }, schema })
+    return (
+      <R.Form form={form} onSubmit={onSubmit} errorSummary>
+        <R.Input label="Email" {...form.register("email")} />
+        <R.Select label="Plan" options={[{ value: "pro", label: "Pro" }]} {...form.control("plan")} />
+        <R.Checkbox label="I accept the terms" {...form.register("terms", { type: "checkbox" })} />
+        <span data-testid="dirty">{String(form.isDirty)}</span>
+        <button type="submit">Create account</button>
+        <button type="button" onClick={() => form.reset()}>Reset</button>
+      </R.Form>
+    )
+  }
+
+  it("validates with a schema, summarizes errors and focuses the first invalid field", async () => {
+    const user = userEvent.setup(); const onSubmit = vi.fn()
+    render(<Signup onSubmit={onSubmit} />)
+    await user.click(screen.getByRole("button", { name: "Create account" }))
+    expect(onSubmit).not.toHaveBeenCalled()
+    expect(await screen.findByRole("alert", { name: undefined })).toHaveTextContent("Please fix 3 fields")
+    const email = screen.getByRole("textbox", { name: "Email" })
+    expect(email).toHaveAttribute("aria-invalid", "true")
+    // Once beside the field, once in the summary.
+    expect(screen.getAllByText("Enter a valid email.")).toHaveLength(2)
+    await waitFor(() => expect(email).toHaveFocus())
+
+    // After a failed submit, fields revalidate as you type.
+    await user.type(email, "ops@acme.dev")
+    await waitFor(() => expect(screen.queryByText("Enter a valid email.")).not.toBeInTheDocument())
+    expect(screen.getByTestId("dirty")).toHaveTextContent("true")
+
+    await user.click(screen.getByRole("combobox", { name: "Plan" }))
+    await user.click(await screen.findByRole("option", { name: "Pro" }))
+    await user.click(screen.getByRole("checkbox", { name: "I accept the terms" }))
+    await user.click(screen.getByRole("button", { name: "Create account" }))
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledWith({ email: "ops@acme.dev", plan: "pro", terms: true }))
+  })
+
+  it("resets to defaults and supports custom validate in onBlur mode", async () => {
+    const user = userEvent.setup()
+    function Rename() {
+      const form = R.useForm({ defaultValues: { name: "api" }, mode: "onBlur", validate: (v) => ({ name: v.name.length < 3 ? "At least 3 characters." : undefined }) })
+      return (
+        <R.Form form={form} onSubmit={() => {}}>
+          <R.Input label="Name" {...form.register("name")} />
+          <button type="button" onClick={() => form.reset()}>Reset</button>
+        </R.Form>
+      )
+    }
+    render(<Rename />)
+    const name = screen.getByRole("textbox", { name: "Name" })
+    await user.clear(name)
+    await user.type(name, "a")
+    expect(screen.queryByText("At least 3 characters.")).not.toBeInTheDocument()
+    await user.tab()
+    expect(await screen.findByText("At least 3 characters.")).toBeInTheDocument()
+    await user.click(screen.getByRole("button", { name: "Reset" }))
+    expect(name).toHaveValue("api")
+    expect(screen.queryByText("At least 3 characters.")).not.toBeInTheDocument()
+  })
+})
+
+describe("control surface", () => {
+  it("only treats real read-only text fields as read-only", () => {
+    // jsdom cannot evaluate :has(), so assert the class contract that the browser evaluates.
+    render(<><R.Input label="Readonly" readOnly defaultValue="x" /><R.Select label="Pick" options={[{ value: "a", label: "A" }]} /></>)
+    const select = screen.getByRole("combobox", { name: "Pick" })
+    expect(select.className).not.toMatch(/has-\[:read-only\]/)
+    expect(select.className).toContain("has-[input:read-only:not([type=hidden])]:bg-surface-muted")
+  })
+})

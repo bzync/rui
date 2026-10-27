@@ -72,6 +72,7 @@ const forms = [
   component("Time Picker", "Selects a time through a responsive custom picker.", "Forms", ["time"], "TimePicker"),
   component("Calendar", "Displays selectable month and week calendar views.", "Forms"),
   component("Label", "Provides an accessible label for a form control.", "Forms"),
+  component("Form", "Validates and submits forms with useForm, schemas and accessible errors.", "Forms", ["validation", "useForm", "zod", "schema"], "Form"),
   component("Form Field", "Composes labels, descriptions, errors, and controls.", "Forms", [], "FormField"),
   component("Toggle Group", "Selects one or multiple options in a compact button group.", "Forms", ["segmented control"], "ToggleGroup"),
   component("Rating", "Collects a rating with accessible radio controls.", "Forms", ["stars", "review"]),
