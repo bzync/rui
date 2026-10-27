@@ -77,6 +77,16 @@ function CollapsibleSidebarExample() {
   )
 }
 
+function SingleLightboxExample() {
+  const [open, setOpen] = useState(false)
+  return (
+    <>
+      <R.Button variant="secondary" onClick={() => setOpen(true)}>View floor plan</R.Button>
+      <R.Lightbox open={open} onOpenChange={setOpen} images={[{ src: "/gallery/coastal-cliffs.svg", alt: "Teal cliffs over a calm sea", caption: "Coastal cliffs, full resolution" }]} />
+    </>
+  )
+}
+
 const ex = (id: string, title: string, description: string, code: string, preview: ReactNode, align?: "center" | "start"): ComponentExample =>
   ({ id, title, description, code, preview, align })
 
@@ -1982,6 +1992,110 @@ export default function App() {
   <R.Sparkline type="bar" data={[18, 24, 21, 30, 27, 33, 41]} reference={30} width={120} height={32} />
   <span className="font-semibold tabular-nums">41</span>
 </div>),
+  ],
+
+  "components/navigation-menu": () => [
+    ex("single-column", "Compact panels", "columns={1} for short lists; plain links sit alongside panels.",
+      `<div className="w-full rounded-xl border border-border bg-surface px-3 py-2">
+  <NavigationMenu
+    ariaLabel="Account"
+    items={[
+      { label: "Workspace", columns: 1, links: [{ label: "Members", href: "#/components/avatar" }, { label: "Billing", href: "#/components/stat" }, { label: "Audit log", href: "#/components/timeline" }] },
+      { label: "Help", href: "#/docs/introduction" },
+    ]}
+  />
+</div>`,
+      <div className="w-full rounded-xl border border-border bg-surface px-3 py-2">
+  <R.NavigationMenu
+    ariaLabel="Account"
+    items={[
+      { label: "Workspace", columns: 1, links: [{ label: "Members", href: "#/components/avatar" }, { label: "Billing", href: "#/components/stat" }, { label: "Audit log", href: "#/components/timeline" }] },
+      { label: "Help", href: "#/docs/introduction" },
+    ]}
+  />
+</div>, "start"),
+  ],
+
+  "components/area-chart": () => [
+    ex("single", "Single series, linear", "One series needs no legend; curve=\"linear\" draws straight segments.",
+      `<AreaChart
+  ariaLabel="Requests per hour"
+  curve="linear"
+  height={200}
+  labels={["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"]}
+  series={[{ label: "Requests", data: [320, 210, 980, 1640, 1420, 760] }]}
+/>`,
+      <R.AreaChart
+  ariaLabel="Requests per hour"
+  curve="linear"
+  height={200}
+  labels={["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"]}
+  series={[{ label: "Requests", data: [320, 210, 980, 1640, 1420, 760] }]}
+/>),
+  ],
+
+  "components/stacked-bar-chart": () => [
+    ex("many", "Many categories", "Labels thin out automatically; every column stays hoverable and keyboard-readable.",
+      `<StackedBarChart
+  ariaLabel="Tickets by priority per day"
+  height={200}
+  maxLabels={6}
+  labels={["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14"]}
+  series={[
+    { label: "Low", data: [8, 6, 9, 7, 10, 4, 3, 9, 8, 11, 7, 6, 5, 9] },
+    { label: "High", data: [3, 4, 2, 5, 3, 1, 1, 4, 6, 3, 2, 4, 2, 3] },
+  ]}
+/>`,
+      <R.StackedBarChart
+  ariaLabel="Tickets by priority per day"
+  height={200}
+  maxLabels={6}
+  labels={["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14"]}
+  series={[
+    { label: "Low", data: [8, 6, 9, 7, 10, 4, 3, 9, 8, 11, 7, 6, 5, 9] },
+    { label: "High", data: [3, 4, 2, 5, 3, 1, 1, 4, 6, 3, 2, 4, 2, 3] },
+  ]}
+/>),
+  ],
+
+  "components/gauge": () => [
+    ex("tones", "Plain tones and sizes", "Without thresholds the arc uses tone; size scales the whole meter.",
+      `<div className="flex flex-wrap items-end justify-center gap-6">
+  <Gauge label="Uptime" value={99.9} min={95} max={100} tone="success" size={140} formatValue={(value) => \`\${value}%\`} />
+  <Gauge label="Error budget" value={22} tone="warning" size={140} formatValue={(value) => \`\${value}%\`} caption="remaining" />
+  <Gauge label="Score" value={640} min={300} max={850} variant="dial" size={140} />
+</div>`,
+      <div className="flex flex-wrap items-end justify-center gap-6">
+  <R.Gauge label="Uptime" value={99.9} min={95} max={100} tone="success" size={140} formatValue={(value) => `${value}%`} />
+  <R.Gauge label="Error budget" value={22} tone="warning" size={140} formatValue={(value) => `${value}%`} caption="remaining" />
+  <R.Gauge label="Score" value={640} min={300} max={850} variant="dial" size={140} />
+</div>),
+  ],
+
+  "components/image": () => [
+    ex("contain", "Fit and fixed size", "fit=\"contain\" letterboxes inside a fixed box; loading=\"eager\" for above-the-fold images.",
+      `<div className="flex flex-wrap items-center gap-4">
+  <Image src="/gallery/night-peaks.svg" alt="Dark peaks under a starry sky" width={160} height={160} fit="contain" loading="eager" />
+  <Image src="/gallery/pine-valley.svg" alt="Green valley full of pine trees" width={240} height={160} />
+</div>`,
+      <div className="flex flex-wrap items-center gap-4">
+  <R.Image src="/gallery/night-peaks.svg" alt="Dark peaks under a starry sky" width={160} height={160} fit="contain" loading="eager" />
+  <R.Image src="/gallery/pine-valley.svg" alt="Green valley full of pine trees" width={240} height={160} />
+</div>),
+  ],
+
+  "components/lightbox": () => [
+    ex("single", "Single image", "With one image there is no counter, arrows or thumbnails.",
+      `function SingleImage() {
+  const [open, setOpen] = useState(false)
+  return (
+    <>
+      <Button variant="secondary" onClick={() => setOpen(true)}>View floor plan</Button>
+      <Lightbox open={open} onOpenChange={setOpen} images={[{ src: "/gallery/coastal-cliffs.svg", alt: "Teal cliffs over a calm sea", caption: "Coastal cliffs, full resolution" }]} />
+    </>
+  )
+}`,
+      <SingleLightboxExample />),
   ],
 
   "components/resizable": () => [

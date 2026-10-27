@@ -103,6 +103,8 @@ const display = [
   component("Timeline", "Displays chronological events.", "Display", ["activity"]),
   component("Tree", "Displays expandable hierarchical data.", "Display", ["filesystem"]),
   component("Resizable", "Split views with draggable, keyboard-resizable panels.", "Display", ["split", "panels", "splitter", "pane"], "Resizable"),
+  component("Image", "Lazy image with reserved space, blur or skeleton placeholder and fallback.", "Display", ["img", "picture", "photo", "lazy", "placeholder"]),
+  component("Lightbox", "Full-screen image viewer with keyboard, swipe and thumbnails.", "Display", ["gallery", "image viewer", "carousel", "zoom"]),
   component("Scroll Area", "Provides a bounded, keyboard-scrollable content region.", "Display", ["overflow"], "ScrollArea"),
 ]
 

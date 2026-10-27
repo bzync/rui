@@ -1,9 +1,9 @@
 {
   "version": "0.0.11",
   "stylesheet": {
-    "raw": 111079,
-    "gzip": 18302,
-    "brotli": 14595
+    "raw": 114404,
+    "gzip": 18730,
+    "brotli": 14912
   },
   "sharedRuntime": {
     "raw": 37806,
@@ -1206,6 +1206,22 @@
         "framer-motion"
       ]
     },
+    "Image": {
+      "entry": "components/image.js",
+      "total": {
+        "raw": 41292,
+        "gzip": 10965,
+        "brotli": 9450
+      },
+      "specific": {
+        "raw": 3486,
+        "gzip": 1496,
+        "brotli": 1312
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
+    },
     "InfoButton": {
       "entry": "components/info-button.js",
       "total": {
@@ -1412,6 +1428,22 @@
       },
       "lazy": null,
       "modules": 2,
+      "peers": []
+    },
+    "Lightbox": {
+      "entry": "components/lightbox.js",
+      "total": {
+        "raw": 60183,
+        "gzip": 16744,
+        "brotli": 14272
+      },
+      "specific": {
+        "raw": 22377,
+        "gzip": 6982,
+        "brotli": 6156
+      },
+      "lazy": null,
+      "modules": 9,
       "peers": []
     },
     "Link": {

@@ -307,6 +307,33 @@ function StackedBarUsagePreview() {
   )
 }
 
+function LightboxUsagePreview() {
+  const photos = [
+    { src: "/gallery/dawn-ridge.svg", alt: "Purple ridges under a peach dawn sky", caption: "Dawn ridge · 05:42" },
+    { src: "/gallery/glacier-lake.svg", alt: "Blue mountains above a glacier lake", caption: "Glacier lake" },
+    { src: "/gallery/pine-valley.svg", alt: "Green valley full of pine trees", caption: "Pine valley" },
+    { src: "/gallery/desert-dunes.svg", alt: "Orange dunes under a pale sun", caption: "Desert dunes" },
+    { src: "/gallery/night-peaks.svg", alt: "Dark peaks under a starry sky and moon", caption: "Night peaks" },
+    { src: "/gallery/coastal-cliffs.svg", alt: "Teal cliffs over a calm sea", caption: "Coastal cliffs" },
+  ]
+  const [open, setOpen] = useState(false)
+  const [index, setIndex] = useState(0)
+  return (
+    <>
+      <ul className="grid w-full max-w-2xl grid-cols-2 gap-2 sm:grid-cols-3">
+        {photos.map((photo, i) => (
+          <li key={photo.src}>
+            <button type="button" aria-label={`Open ${photo.alt}`} onClick={() => { setIndex(i); setOpen(true) }} className="block w-full overflow-hidden rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring">
+              <R.Image src={photo.src} alt="" aspectRatio={4 / 3} rounded={false} className="transition-transform duration-300 hover:scale-105" />
+            </button>
+          </li>
+        ))}
+      </ul>
+      <R.Lightbox images={photos} open={open} onOpenChange={setOpen} index={index} onIndexChange={setIndex} loop />
+    </>
+  )
+}
+
 function ResizableUsagePreview() {
   return (
     <div className="h-80 w-full overflow-hidden rounded-xl border border-border bg-surface">
@@ -1416,6 +1443,69 @@ const columns: ColumnDef<(typeof services)[number]>[] = [
 </div>,
     api(["value / min / max", "number", "Value and range; values are clamped.", "— / 0 / 100"], ["label", "string", "Visible and accessible name."], ["thresholds", "{ from; tone; label? }[]", "Tone (and text) per range."], ["tone", "\"default\" | \"info\" | \"success\" | \"warning\" | \"danger\"", "Arc tone without thresholds.", "\"default\""], ["showBands", "boolean", "Faint threshold bands outside the track.", "true with thresholds"], ["variant / size", "\"half\" | \"dial\" / number", "180° or 270° sweep; width in px.", "\"half\" / 180"], ["valueLabel / formatValue / caption", "ReactNode / (value) => string / ReactNode", "Center text and supporting text."]),
     "Rendered as role=\"meter\" with aria-valuemin, aria-valuemax, aria-valuenow and aria-valuetext. When a threshold applies, its label is shown under the value and included in the value text, so the state never relies on color.",
+  ),
+  "components/image": () => detail(
+    `<div className="grid w-full max-w-2xl gap-4 sm:grid-cols-3">
+  <figure className="grid gap-2">
+    <Image src="/gallery/dawn-ridge.svg" alt="Purple ridges under a peach dawn sky" aspectRatio={4 / 3} />
+    <figcaption className="text-xs text-muted-foreground">Loaded with a skeleton</figcaption>
+  </figure>
+  <figure className="grid gap-2">
+    <Image src="/gallery/glacier-lake.svg" alt="Blue mountains above a glacier lake" aspectRatio={4 / 3} placeholder="blur" blurDataURL="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 3'%3E%3Crect width='4' height='3' fill='%237fb6dd'/%3E%3Crect y='2' width='4' height='1' fill='%234e7393'/%3E%3C/svg%3E" />
+    <figcaption className="text-xs text-muted-foreground">Blur placeholder</figcaption>
+  </figure>
+  <figure className="grid gap-2">
+    <Image src="/gallery/missing-photo.jpg" alt="Team offsite photo" aspectRatio={4 / 3} />
+    <figcaption className="text-xs text-muted-foreground">Broken source → fallback</figcaption>
+  </figure>
+</div>`,
+    <div className="grid w-full max-w-2xl gap-4 sm:grid-cols-3">
+  <figure className="grid gap-2">
+    <R.Image src="/gallery/dawn-ridge.svg" alt="Purple ridges under a peach dawn sky" aspectRatio={4 / 3} />
+    <figcaption className="text-xs text-muted-foreground">Loaded with a skeleton</figcaption>
+  </figure>
+  <figure className="grid gap-2">
+    <R.Image src="/gallery/glacier-lake.svg" alt="Blue mountains above a glacier lake" aspectRatio={4 / 3} placeholder="blur" blurDataURL="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 3'%3E%3Crect width='4' height='3' fill='%237fb6dd'/%3E%3Crect y='2' width='4' height='1' fill='%234e7393'/%3E%3C/svg%3E" />
+    <figcaption className="text-xs text-muted-foreground">Blur placeholder</figcaption>
+  </figure>
+  <figure className="grid gap-2">
+    <R.Image src="/gallery/missing-photo.jpg" alt="Team offsite photo" aspectRatio={4 / 3} />
+    <figcaption className="text-xs text-muted-foreground">Broken source → fallback</figcaption>
+  </figure>
+</div>,
+    api(["src / alt", "string", "Source and required alternative text (\"\" when decorative)."], ["aspectRatio", "number | string", "Reserves space before load so layout does not shift."], ["fit", "\"cover\" | \"contain\" | \"fill\" | \"none\" | \"scale-down\"", "object-fit.", "\"cover\""], ["placeholder / blurDataURL", "\"blur\" | \"skeleton\" | \"none\" / string", "What shows while loading.", "\"skeleton\""], ["fallbackSrc / fallback", "string / ReactNode", "Second source, then custom content when both fail."], ["loading", "\"lazy\" | \"eager\"", "Native lazy loading; use eager above the fold.", "\"lazy\""], ["rounded / wrapperClassName / className", "boolean / string", "Corner radius and part styling.", "true"]),
+    "The image keeps its alt text through every state: when both sources fail, the fallback is an image role named by the same alt text and shows it visibly. Placeholders are hidden from assistive technology. Images decode asynchronously and lazy-load by default.",
+  ),
+  "components/lightbox": () => detail(
+    `function Gallery() {
+  const photos = [
+    { src: "/gallery/dawn-ridge.svg", alt: "Purple ridges under a peach dawn sky", caption: "Dawn ridge · 05:42" },
+    { src: "/gallery/glacier-lake.svg", alt: "Blue mountains above a glacier lake", caption: "Glacier lake" },
+    { src: "/gallery/pine-valley.svg", alt: "Green valley full of pine trees", caption: "Pine valley" },
+    { src: "/gallery/desert-dunes.svg", alt: "Orange dunes under a pale sun", caption: "Desert dunes" },
+    { src: "/gallery/night-peaks.svg", alt: "Dark peaks under a starry sky and moon", caption: "Night peaks" },
+    { src: "/gallery/coastal-cliffs.svg", alt: "Teal cliffs over a calm sea", caption: "Coastal cliffs" },
+  ]
+  const [open, setOpen] = useState(false)
+  const [index, setIndex] = useState(0)
+  return (
+    <>
+      <ul className="grid w-full max-w-2xl grid-cols-2 gap-2 sm:grid-cols-3">
+        {photos.map((photo, i) => (
+          <li key={photo.src}>
+            <button type="button" aria-label={\`Open \${photo.alt}\`} onClick={() => { setIndex(i); setOpen(true) }} className="block w-full overflow-hidden rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring">
+              <Image src={photo.src} alt="" aspectRatio={4 / 3} rounded={false} className="transition-transform duration-300 hover:scale-105" />
+            </button>
+          </li>
+        ))}
+      </ul>
+      <Lightbox images={photos} open={open} onOpenChange={setOpen} index={index} onIndexChange={setIndex} loop />
+    </>
+  )
+}`,
+    <LightboxUsagePreview />,
+    api(["images", "{ src; alt; caption?; thumbnail? }[]", "Images in order."], ["open / onOpenChange", "boolean / (open) => void", "Controlled visibility."], ["index / defaultIndex / onIndexChange", "number", "Controlled or initial image.", "0"], ["loop", "boolean", "Wrap past the first and last image.", "false"], ["thumbnails", "boolean", "Thumbnail strip.", "true for 2+ images"], ["ariaLabel / className", "string", "Dialog name and styling.", "\"Image viewer\""]),
+    "A modal dialog: focus moves inside and is trapped, the page stops scrolling, and focus returns to the opening button on close. Left/Right, Home and End navigate; Escape closes; touch users can swipe. The position and current alt text are announced (\"2 of 6: Blue mountains above a glacier lake\"), and every control has a label. Neighbouring images are preloaded.",
   ),
   "components/resizable": () => detail(
     `<div className="h-80 w-full overflow-hidden rounded-xl border border-border bg-surface">

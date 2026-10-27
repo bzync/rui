@@ -526,3 +526,46 @@ describe("Banner", () => {
     window.localStorage.removeItem("test-banner")
   })
 })
+
+describe("Image", () => {
+  it("fades in on load, tries the fallback, then shows the alt text", () => {
+    const { container } = render(<R.Image src="/a.jpg" fallbackSrc="/b.jpg" alt="Mountain lake" aspectRatio={16 / 9} />)
+    const wrapper = container.firstElementChild as HTMLElement
+    const img = screen.getByRole("img", { name: "Mountain lake" })
+    expect(img).toHaveAttribute("loading", "lazy")
+    expect(wrapper).toHaveAttribute("data-status", "loading")
+    act(() => { img.dispatchEvent(new Event("error")) })
+    expect(screen.getByRole("img", { name: "Mountain lake" })).toHaveAttribute("src", "/b.jpg")
+    act(() => { screen.getByRole("img", { name: "Mountain lake" }).dispatchEvent(new Event("error")) })
+    expect(wrapper).toHaveAttribute("data-status", "error")
+    expect(screen.getByRole("img", { name: "Mountain lake" }).tagName).toBe("DIV")
+  })
+
+  it("marks the image loaded", () => {
+    const { container } = render(<R.Image src="/a.jpg" alt="" />)
+    act(() => { container.querySelector("img")!.dispatchEvent(new Event("load")) })
+    expect(container.firstElementChild).toHaveAttribute("data-status", "loaded")
+  })
+})
+
+describe("Lightbox", () => {
+  const images = [{ src: "/1.jpg", alt: "First" }, { src: "/2.jpg", alt: "Second", caption: "Second caption" }, { src: "/3.jpg", alt: "Third" }]
+
+  it("navigates with keys and buttons, and closes with Escape", async () => {
+    const user = userEvent.setup()
+    const onOpenChange = vi.fn()
+    const onIndexChange = vi.fn()
+    render(<R.Lightbox images={images} open onOpenChange={onOpenChange} onIndexChange={onIndexChange} />)
+    const dialog = screen.getByRole("dialog", { name: "Image viewer" })
+    expect(dialog).toHaveTextContent("1 of 3")
+    expect(screen.getAllByRole("button", { name: "Previous image" })[0]).toBeDisabled()
+    await user.keyboard("{ArrowRight}")
+    expect(onIndexChange).toHaveBeenLastCalledWith(1)
+    expect(screen.getByText("Second caption")).toBeInTheDocument()
+    await user.click(screen.getByRole("button", { name: "Show image 3: Third" }))
+    expect(dialog).toHaveTextContent("3 of 3")
+    expect(screen.getAllByRole("button", { name: "Next image" })[0]).toBeDisabled()
+    await user.keyboard("{Escape}")
+    expect(onOpenChange).toHaveBeenCalledWith(false)
+  })
+})
