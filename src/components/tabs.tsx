@@ -187,6 +187,7 @@ export const TabsTrigger = forwardRef<HTMLButtonElement, TabsTriggerProps>(funct
         triggerSizes[size],
         focusRingStyles,
         isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground",
+        "disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:text-muted-foreground",
         className,
       )}
       {...props}

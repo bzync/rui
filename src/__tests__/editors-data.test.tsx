@@ -127,3 +127,21 @@ describe("editor and code defaults", () => {
     expect(container.querySelector("[contenteditable]")).toHaveTextContent("Seeded")
   })
 })
+
+describe("DataTable part classNames", () => {
+  it("applies header, conditional row and per-column cell classes", () => {
+    render(<DataTable
+      headerClassName="head"
+      rowClassName={(row: { id: number; overdue: boolean }) => (row.overdue ? "row-overdue" : undefined)}
+      cellClassName="cell"
+      pageSizeOptions={false}
+      data={[{ id: 1, overdue: true }, { id: 2, overdue: false }]}
+      columns={[{ key: "id", header: "ID", headerClassName: "id-head", className: "id-cell", cell: (row) => `#${row.id}` }]}
+    />)
+    expect(screen.getByRole("columnheader", { name: "ID" })).toHaveClass("id-head")
+    expect(screen.getByRole("columnheader", { name: "ID" }).closest("thead")).toHaveClass("head")
+    expect(screen.getByText("#1").closest("tr")).toHaveClass("row-overdue")
+    expect(screen.getByText("#2").closest("tr")).not.toHaveClass("row-overdue")
+    expect(screen.getByText("#1")).toHaveClass("cell", "id-cell")
+  })
+})

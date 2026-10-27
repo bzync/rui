@@ -427,7 +427,7 @@ describe("ref forwarding", () => {
       ["Spinner", (ref) => <R.Spinner ref={ref} />, SVGSVGElement],
       ["Stat", (ref) => <R.Stat ref={ref} label="Users" value={3} />, HTMLDivElement],
       ["StatusDot", (ref) => <R.StatusDot ref={ref} status="online" />, HTMLSpanElement],
-      ["Stepper", (ref) => <R.Stepper ref={ref} steps={[{ label: "One" }]} current={0} />, HTMLDivElement],
+      ["Stepper", (ref) => <R.Stepper ref={ref} steps={[{ label: "One" }]} current={0} />, HTMLOListElement],
       ["Table", (ref) => <R.Table ref={ref}><R.TableBody><R.TableRow><R.TableCell>x</R.TableCell></R.TableRow></R.TableBody></R.Table>, HTMLDivElement],
       ["Tabs", (ref) => <R.Tabs ref={ref} defaultValue="a"><R.TabsList><R.TabsTrigger value="a">A</R.TabsTrigger></R.TabsList></R.Tabs>, HTMLDivElement],
       ["Tag", (ref) => <R.Tag ref={ref}>tag</R.Tag>, HTMLSpanElement],

@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { describe, expect, it, vi } from "vitest"
 import {
-  Accordion, Alert, BillingIntervalToggle, Button, ButtonGroup, Collapsible, ConfirmDialog,
+  Accordion, Alert, BillingIntervalToggle, Breadcrumb, Stepper, Button, ButtonGroup, Collapsible, ConfirmDialog,
   IconButton, NumberInput, Pagination, Popover, PopoverContent, Tabs, TabsContent,
   TabsList, TabsTrigger, Tag, Toggle, ToggleGroup, ToggleGroupItem, Tree,
 } from "@/index"
@@ -252,5 +252,46 @@ describe("tree keyboard support", () => {
     expect(src).toHaveFocus()
     await user.keyboard("{ArrowLeft}")
     expect(src).toHaveAttribute("aria-expanded", "false")
+  })
+})
+
+describe("disabled states and part classNames", () => {
+  it("navigates back through a clickable Stepper and respects disabled", async () => {
+    const user = userEvent.setup(); const onStepClick = vi.fn()
+    const steps = [{ label: "Account" }, { label: "Billing" }, { label: "Review" }]
+    const { rerender } = render(<Stepper steps={steps} current={2} onStepClick={onStepClick} labelClassName="custom-label" />)
+    expect(screen.getByRole("list")).toBeInTheDocument()
+    expect(screen.getAllByRole("listitem")[2]).toHaveAttribute("aria-current", "step")
+    expect(screen.getByText("Account")).toHaveClass("custom-label")
+    await user.click(screen.getByRole("button", { name: /Account, completed/ }))
+    expect(onStepClick).toHaveBeenCalledWith(0)
+    // The current and upcoming steps are not buttons; disabled removes them all.
+    expect(screen.queryByRole("button", { name: /Review/ })).not.toBeInTheDocument()
+    rerender(<Stepper steps={steps} current={2} onStepClick={onStepClick} disabled />)
+    expect(screen.queryAllByRole("button")).toHaveLength(0)
+  })
+
+  it("collapses a long Breadcrumb and styles its parts", () => {
+    render(<Breadcrumb maxItems={3} linkClassName="crumb-link" currentClassName="crumb-current" items={[{ label: "Home", href: "/" }, { label: "Org", href: "/o" }, { label: "Team", href: "/t" }, { label: "Projects", href: "/p" }, { label: "Atlas" }]} />)
+    expect(screen.getByText("Home")).toHaveClass("crumb-link")
+    expect(screen.getByLabelText("2 hidden levels")).toHaveTextContent("…")
+    expect(screen.queryByText("Org")).not.toBeInTheDocument()
+    expect(screen.getByText("Projects")).toBeInTheDocument()
+    expect(screen.getByText("Atlas")).toHaveClass("crumb-current")
+  })
+
+  it("disables Pagination, Accordion and Tree as a whole", async () => {
+    const user = userEvent.setup(); const onPageChange = vi.fn()
+    render(<>
+      <Pagination totalPages={4} disabled onPageChange={onPageChange} itemClassName="page-item" />
+      <Accordion disabled triggerClassName="acc-trigger" items={[{ id: "a", trigger: "Alpha", content: "Body" }]} />
+      <Tree disabled nodeClassName="tree-node" nodes={[{ id: "a", label: "alpha" }]} />
+    </>)
+    expect(screen.getByRole("button", { name: "Page 2" })).toBeDisabled()
+    expect(screen.getByRole("button", { name: "Page 2" })).toHaveClass("page-item")
+    expect(screen.getByRole("button", { name: "Alpha" })).toBeDisabled()
+    expect(screen.getByRole("button", { name: "Alpha" })).toHaveClass("acc-trigger")
+    expect(screen.getByRole("treeitem", { name: "alpha" })).toHaveAttribute("aria-disabled", "true")
+    expect(screen.getByRole("treeitem", { name: "alpha" })).toHaveClass("tree-node")
   })
 })

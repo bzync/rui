@@ -25,6 +25,14 @@ export interface AccordionProps extends HTMLAttributes<HTMLDivElement> {
   onValueChange?: (value: string[]) => void
   /** Trigger and content scale. */
   size?: "sm" | "md" | "lg"
+  /** Disables every item. */
+  disabled?: boolean
+  /** Styles each item wrapper. */
+  itemClassName?: string
+  /** Styles each trigger button. */
+  triggerClassName?: string
+  /** Styles each content panel. */
+  contentClassName?: string
 }
 
 const accordionSizes = {
@@ -35,7 +43,7 @@ const accordionSizes = {
 
 const EMPTY: string[] = []
 
-export const Accordion = forwardRef<HTMLDivElement, AccordionProps>(function Accordion({ items, multiple = false, defaultOpen = EMPTY, value, onValueChange, size = "md", className, ...props }, ref) {
+export const Accordion = forwardRef<HTMLDivElement, AccordionProps>(function Accordion({ items, multiple = false, defaultOpen = EMPTY, value, onValueChange, size = "md", disabled = false, itemClassName, triggerClassName, contentClassName, className, ...props }, ref) {
   const [openIds, setOpenIds] = useControllableState({ value, defaultValue: defaultOpen, onChange: onValueChange })
   const open = new Set(openIds)
   const accordionId = useId()
@@ -53,20 +61,21 @@ export const Accordion = forwardRef<HTMLDivElement, AccordionProps>(function Acc
         const triggerId = `${accordionId}-trigger-${safeId}`
         const panelId = `${accordionId}-panel-${safeId}`
         return (
-          <div key={item.id}>
+          <div key={item.id} className={itemClassName}>
             <button
               type="button"
               id={triggerId}
               aria-expanded={isOpen}
               aria-controls={panelId}
-              disabled={item.disabled}
+              disabled={item.disabled || disabled}
               onClick={() => toggle(item.id)}
               className={cn(
                 "flex items-center justify-between w-full text-left gap-3 transition-colors",
                 accordionSizes[size].trigger,
                 "text-foreground hover:text-foreground",
                 focusRingStyles,
-                item.disabled && "opacity-40 cursor-not-allowed",
+                (item.disabled || disabled) && "opacity-40 cursor-not-allowed",
+                triggerClassName,
               )}
             >
               <span className="flex-1 min-w-0">{item.trigger}</span>
@@ -92,7 +101,7 @@ export const Accordion = forwardRef<HTMLDivElement, AccordionProps>(function Acc
                   transition={{ duration: 0.2, ease: "easeInOut" }}
                   className="overflow-hidden"
                 >
-                  <div className={cn("text-muted-foreground", accordionSizes[size].content)}>
+                  <div className={cn("text-muted-foreground", accordionSizes[size].content, contentClassName)}>
                     {item.content}
                   </div>
                 </motion.div>

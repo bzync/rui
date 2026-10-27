@@ -1434,6 +1434,18 @@ export const componentExamples: Record<string, () => ComponentExample[]> = {
   )
 }`,
       <StepperWizardExample />),
+    ex("clickable", "Revisit completed steps", "onStepClick turns completed steps into buttons; clickable=\"all\" allows jumping ahead.",
+      `function Checkout() {
+  const [current, setCurrent] = useState(2)
+  return (
+    <Stepper
+      current={current}
+      onStepClick={setCurrent}
+      steps={[{ label: "Cart" }, { label: "Shipping" }, { label: "Payment" }, { label: "Confirm" }]}
+    />
+  )
+}`,
+      <StepperClickableExample />),
     ex("vertical", "Vertical", "orientation=\"vertical\" for narrow sidebars and long step descriptions.",
       `<Stepper
   orientation="vertical"
@@ -1591,6 +1603,11 @@ function AccordionControlledExample() {
       <R.Accordion multiple items={faqs} value={open} onValueChange={setOpen} />
     </div>
   )
+}
+
+function StepperClickableExample() {
+  const [current, setCurrent] = useState(2)
+  return <R.Stepper className="w-full max-w-lg" current={current} onStepClick={setCurrent} steps={[{ label: "Cart" }, { label: "Shipping" }, { label: "Payment" }, { label: "Confirm" }]} />
 }
 
 function TagListExample() {

@@ -15,7 +15,13 @@ export interface PaginationProps {
   siblingCount?: number
   /** Button scale. */
   size?: "sm" | "md" | "lg"
+  /** Disables every page button (e.g. while a page is loading). */
+  disabled?: boolean
   className?: string
+  /** Styles each page and arrow button. */
+  itemClassName?: string
+  /** Styles the current page button. */
+  activeItemClassName?: string
 }
 
 const pageSizes = {
@@ -65,14 +71,18 @@ export const Pagination = forwardRef<HTMLElement, PaginationProps>(function Pagi
   onPageChange: onPageChangeProp,
   siblingCount = 1,
   size = "md",
+  disabled: allDisabled = false,
   className,
+  itemClassName,
+  activeItemClassName,
 }, ref) {
   const [page, onPageChange] = useControllableState({ value: controlledPage, defaultValue: defaultPage, onChange: onPageChangeProp })
   if (totalPages <= 1) return null
 
   const pages = buildPages(page, totalPages, siblingCount)
 
-  function btn(label: React.ReactNode, target: number, disabled: boolean, active = false) {
+  function btn(label: React.ReactNode, target: number, edgeDisabled: boolean, active = false) {
+    const disabled = edgeDisabled || allDisabled
     return (
       <button
         key={typeof label === "number" ? label : `${label}-${target}`}
@@ -89,6 +99,8 @@ export const Pagination = forwardRef<HTMLElement, PaginationProps>(function Pagi
             ? "border-accent-500/25 bg-accent-500/10 text-accent-strong"
             : "border-transparent text-muted-foreground hover:bg-muted hover:text-foreground",
           disabled && "opacity-40 cursor-not-allowed pointer-events-none",
+          itemClassName,
+          active && activeItemClassName,
         )}
       >
         {label}
@@ -97,7 +109,7 @@ export const Pagination = forwardRef<HTMLElement, PaginationProps>(function Pagi
   }
 
   return (
-    <nav ref={ref} className={cn("flex items-center gap-1", className)} aria-label="Pagination">
+    <nav ref={ref} className={cn("flex items-center gap-1", className)} aria-label="Pagination" aria-disabled={allDisabled || undefined}>
       {btn(chevronLeft, page - 1, page <= 1)}
       {pages.map((p, i) =>
         p === "…" ? (

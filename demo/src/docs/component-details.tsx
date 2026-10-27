@@ -538,7 +538,7 @@ export const supplementalDetails: Record<string, () => SupplementalDetail> = {
   "components/tree": () => detail(
     `<Tree nodes={nodes} selected={selectedId} onSelect={setSelectedId} defaultExpanded={["src"]} />`,
     <TreePreview />,
-    api(["nodes", "TreeNode[]", "Hierarchical node data."], ["selected / defaultSelected", "string", "Controlled or initial selected node ID."], ["onSelect", "(id: string) => void", "Node selection callback."], ["expanded / defaultExpanded", "string[]", "Controlled or initial expanded node IDs."], ["onExpandedChange", "(ids: string[]) => void", "Called with the next expanded node IDs."]),
+    api(["nodes", "TreeNode[]", "Hierarchical node data."], ["selected / defaultSelected", "string", "Controlled or initial selected node ID."], ["onSelect", "(id: string) => void", "Node selection callback."], ["expanded / defaultExpanded", "string[]", "Controlled or initial expanded node IDs."], ["onExpandedChange", "(ids: string[]) => void", "Called with the next expanded node IDs."], ["disabled", "boolean", "Disables every node.", "false"], ["nodeClassName", "string", "Styles each node row."]),
     "Follows the WAI-ARIA tree pattern: role=tree with treeitems that expose level, expanded and selected state. One roving tab stop; Arrow Up/Down move between visible items, Right/Left expand or collapse, Home/End jump, Enter/Space select. Disabled items are skipped.",
   ),
   "components/snackbar": () => detail(
@@ -586,14 +586,14 @@ export const supplementalDetails: Record<string, () => SupplementalDetail> = {
   "components/breadcrumb": () => detail(
     `<Breadcrumb items={[{ label: "Projects", href: "/projects" }, { label: "Atlas", href: "/atlas" }, { label: "Deployments" }]} />`,
     <R.Breadcrumb items={[{ label: "Projects", href: "#projects" }, { label: "Atlas", href: "#atlas" }, { label: "Deployments" }]} />,
-    api(["items", "BreadcrumbItem[]", "Ordered hierarchy items."], ["separator", "ReactNode", "Custom visual separator."], ["className", "string", "Composes navigation styles."]),
+    api(["items", "BreadcrumbItem[]", "Ordered hierarchy items."], ["separator", "ReactNode", "Custom visual separator."], ["maxItems", "number", "Collapses middle items into an accessible \u201c\u2026\u201d beyond this count."], ["itemClassName / linkClassName / currentClassName / separatorClassName", "string", "Style each part."], ["className", "string", "Composes navigation styles."]),
     "Renders a named navigation landmark; the final item exposes aria-current=page.",
   ),
   "components/stepper": () => detail(
     `<Stepper current={1} steps={[{ label: "Configure" }, { label: "Review" }, { label: "Deploy" }]} />`,
     <R.Stepper className="w-full max-w-lg" current={1} steps={[{ label: "Configure", description: "Service settings" }, { label: "Review", description: "Confirm changes" }, { label: "Deploy", description: "Release service" }]} />,
-    api(["steps", "StepperStep[]", "Ordered workflow steps."], ["current", "number", "Zero-based current step."], ["orientation", '"horizontal" | "vertical"', "Layout direction.", '"horizontal"'], ["className", "string", "Composes layout styles."]),
-    "Text labels identify completed, current, and upcoming steps without relying on color alone.",
+    api(["steps", "StepperStep[]", "Ordered workflow steps; a step can be disabled."], ["current", "number", "Zero-based current step."], ["orientation", '"horizontal" | "vertical"', "Layout direction.", '"horizontal"'], ["onStepClick", "(index: number) => void", "Makes steps clickable buttons."], ["clickable", '"completed" | "all"', "Which steps are clickable.", '"completed"'], ["disabled", "boolean", "Disables every step click target.", "false"], ["stepClassName / indicatorClassName / labelClassName / connectorClassName", "string", "Style each part."]),
+    "Renders an ordered list; the current step has aria-current=\"step\" and every step announces completed, current or upcoming, so state never relies on color alone. Clickable steps are native buttons.",
   ),
   "components/navigation": () => detail(
     `<Navbar items={items} activeId={active} onSelect={setActive}>\n  <BrandLink href="/" mark={<img src="/rui-icon-192.png" alt="" />}>\n    @bzync/rui\n  </BrandLink>\n</Navbar>`,
@@ -610,7 +610,7 @@ export const supplementalDetails: Record<string, () => SupplementalDetail> = {
   "components/data-table": () => detail(
     `<DataTable columns={columns} data={services} searchable pageSizeOptions={false} />`,
     <div className="w-full"><R.DataTable ariaLabel="Services" columns={tableColumns} data={tableRows} searchable searchPlaceholder="Search services…" pageSizeOptions={false} /></div>,
-    api(["columns", "ColumnDef<T>[]", "Column definitions, cells, sort, and search settings."], ["data", "T[]", "Rows with stable IDs."], ["searchable", "boolean", "Displays the search field."], ["loading", "boolean", "Displays table skeletons."], ["pageSizeOptions", "number[] | false", "Page-size selector values or disabled state."]),
+    api(["columns", "ColumnDef<T>[]", "Column definitions, cells, sort, and search settings."], ["data", "T[]", "Rows with stable IDs."], ["searchable", "boolean", "Displays the search field."], ["loading", "boolean", "Displays table skeletons."], ["pageSizeOptions", "number[] | false", "Page-size selector values or disabled state."], ["headerClassName / cellClassName", "string", "Style the header row group and every body cell."], ["rowClassName", "string | (row) => string", "Styles body rows; the function form enables conditional styling."], ["ColumnDef.className / headerClassName", "string", "Per-column cell and header styles."]),
     "Provides a named native table, labeled search control, sortable headers, and keyboard-operable pagination.",
   ),
   "components/dev-mode": () => detail(

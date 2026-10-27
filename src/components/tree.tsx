@@ -28,7 +28,11 @@ export interface TreeProps {
   defaultExpanded?: string[]
   /** Called with the next expanded node IDs. */
   onExpandedChange?: (expanded: string[]) => void
+  /** Disables every node. */
+  disabled?: boolean
   className?: string
+  /** Styles each node row. */
+  nodeClassName?: string
 }
 
 const NO_IDS: string[] = []
@@ -41,8 +45,12 @@ export function Tree({
   expanded: controlledExpanded,
   defaultExpanded = NO_IDS,
   onExpandedChange,
+  disabled = false,
   className,
+  nodeClassName,
 }: TreeProps) {
+  const markDisabled = (list: TreeNode[]): TreeNode[] => list.map((node) => ({ ...node, disabled: true, children: node.children && markDisabled(node.children) }))
+  const treeNodes = disabled ? markDisabled(nodes) : nodes
   const [selected, setSelected] = useControllableState<string | undefined>({ value: controlledSelected, defaultValue: defaultSelected, onChange: (id) => id && onSelect?.(id) })
   const [expandedIds, setExpandedIds] = useControllableState({ value: controlledExpanded, defaultValue: defaultExpanded, onChange: onExpandedChange })
   const expanded = new Set(expandedIds)
@@ -58,12 +66,12 @@ export function Tree({
     if (!node.disabled) visible.push(node.id)
     if (node.children && expanded.has(node.id)) walk(node.children)
   })
-  walk(nodes)
+  walk(treeNodes)
   const tabStop = selected && visible.includes(selected) ? selected : visible[0]
 
   return (
     <div role="tree" className={cn("select-none", className)}>
-      <TreeNodes nodes={nodes} expanded={expanded} selected={selected} tabStop={tabStop} onToggle={toggle} onSelect={setSelected} depth={0} />
+      <TreeNodes nodes={treeNodes} expanded={expanded} selected={selected} tabStop={tabStop} onToggle={toggle} onSelect={setSelected} nodeClassName={nodeClassName} depth={0} />
     </div>
   )
 }
@@ -81,6 +89,7 @@ function TreeNodes({
   expanded,
   selected,
   tabStop,
+  nodeClassName,
   onToggle,
   onSelect,
   depth,
@@ -89,6 +98,7 @@ function TreeNodes({
   expanded: Set<string>
   selected?: string
   tabStop?: string
+  nodeClassName?: string
   onToggle: (id: string) => void
   onSelect?: (id: string) => void
   depth: number
@@ -142,6 +152,7 @@ function TreeNodes({
                   ? "bg-accent-500/10 text-accent-strong"
                   : "text-foreground/80 hover:bg-foreground/6",
                 node.disabled && "opacity-40 cursor-not-allowed",
+                nodeClassName,
               )}
             >
               {hasChildren ? (
@@ -178,6 +189,7 @@ function TreeNodes({
                     expanded={expanded}
                     selected={selected}
                     tabStop={tabStop}
+                    nodeClassName={nodeClassName}
                     onToggle={onToggle}
                     onSelect={onSelect}
                     depth={depth + 1}

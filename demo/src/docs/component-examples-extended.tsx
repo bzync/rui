@@ -290,6 +290,19 @@ const invoiceColumns: R.ColumnDef<Invoice>[] = [
   { key: "status", header: "Status", sortable: true, cell: (row) => <R.Badge variant={row.status === "Paid" ? "success" : row.status === "Due" ? "warning" : "danger"}>{row.status}</R.Badge> },
 ]
 
+function DataTableConditionalExample() {
+  return (
+    <R.DataTable
+      ariaLabel="Invoices with overdue rows highlighted"
+      columns={invoiceColumns}
+      data={invoices}
+      pageSizeOptions={false}
+      defaultPageSize={10}
+      rowClassName={(row) => (row.status === "Overdue" ? "bg-danger/5" : undefined)}
+    />
+  )
+}
+
 function DataTableFullExample() {
   const [opened, setOpened] = useState<string | null>(null)
   return (
@@ -852,6 +865,18 @@ function App() {
   ],
 
   "components/breadcrumb": () => [
+    ex("collapse", "Collapsing deep paths", "maxItems keeps the first item and the last few, replacing the middle with an accessible ellipsis — ideal on small screens.",
+      `<Breadcrumb
+  maxItems={3}
+  items={[
+    { label: "Home", href: "#/docs/introduction" },
+    { label: "Organization", href: "#/components" },
+    { label: "Platform team", href: "#/components" },
+    { label: "Projects", href: "#/components" },
+    { label: "Atlas" },
+  ]}
+/>`,
+      <R.Breadcrumb maxItems={3} items={[{ label: "Home", href: "#/docs/introduction" }, { label: "Organization", href: "#/components" }, { label: "Platform team", href: "#/components" }, { label: "Projects", href: "#/components" }, { label: "Atlas" }]} />),
     ex("icons", "Icons and custom separator", "Leading icons and any separator node.",
       `<Breadcrumb
   separator="›"
@@ -944,6 +969,16 @@ function Invoices({ invoices }: { invoices: Invoice[] }) {
   )
 }`,
       <DataTableFullExample />, "start"),
+    ex("conditional", "Conditional row styling", "rowClassName accepts a function, so rows can be styled from their data — here overdue invoices are tinted.",
+      `<DataTable
+  ariaLabel="Invoices with overdue rows highlighted"
+  columns={columns}
+  data={invoices}
+  pageSizeOptions={false}
+  defaultPageSize={10}
+  rowClassName={(row) => (row.status === "Overdue" ? "bg-danger/5" : undefined)}
+/>`,
+      <DataTableConditionalExample />, "start"),
     ex("states", "Loading and empty", "loading shows skeleton rows; emptyMessage explains an empty result. density=\"compact\" tightens rows.",
       `function InvoicesState() {
   const [loading, setLoading] = useState(true)
