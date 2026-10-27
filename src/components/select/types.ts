@@ -1,3 +1,4 @@
+import type { ControlSize } from "@/lib/component-styles"
 import { ReactNode } from "react"
 
 /** `error` is a deprecated alias of `danger`. */
@@ -33,6 +34,8 @@ export interface SelectPropsBase {
   /** Associates the Select with a `<form>` elsewhere in the document by its id. */
   form?: string
   clearable?: boolean
+  /** Trigger height and text scale, matching Input and Button. */
+  size?: ControlSize
   className?: string
   wrapperClassName?: string
   triggerClassName?: string

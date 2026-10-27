@@ -1,7 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/cn"
-import { controlBaseStyles, controlInvalidStyles, fieldDescriptionStyles, fieldErrorStyles, fieldLabelStyles, fieldRootStyles } from "@/lib/component-styles"
+import { controlBaseStyles, controlInvalidStyles, controlSizeStyles, fieldDescriptionStyles, fieldErrorStyles, fieldLabelStyles, fieldRootStyles } from "@/lib/component-styles"
 import { KeyboardEvent, forwardRef, useEffect, useId, useRef, useState } from "react"
 import type { SelectOption, SelectPropsMulti } from "./types"
 import { colorDot, flatten, useMenuPosition, XIcon, ChevronIcon } from "./utils"
@@ -24,6 +24,7 @@ export const SelectMulti = forwardRef<HTMLButtonElement, SelectPropsMulti>(
       name,
       form,
       clearable = false,
+      size = "md",
       className,
       wrapperClassName,
       triggerClassName,
@@ -161,7 +162,8 @@ export const SelectMulti = forwardRef<HTMLButtonElement, SelectPropsMulti>(
             setOpen((o) => !o)
           }}
           className={cn(
-            "flex min-h-9 w-full flex-wrap items-center gap-1.5 rounded-[var(--radius-md)] px-2.5 py-1.5 text-left outline-none",
+            "flex w-full flex-wrap items-center gap-1.5 rounded-[var(--radius-md)] px-2.5 py-1 text-left outline-none",
+            controlSizeStyles[size].minHeight,
             controlBaseStyles,
             "focus:border-accent-500 focus:ring-[3px] focus:ring-focus-ring/25",
             error && controlInvalidStyles,
@@ -170,7 +172,7 @@ export const SelectMulti = forwardRef<HTMLButtonElement, SelectPropsMulti>(
           )}
         >
           {selectedOpts.length === 0 ? (
-            <span className="flex-1 text-sm text-muted-foreground truncate">{placeholder}</span>
+            <span className={cn("flex-1 text-muted-foreground truncate", controlSizeStyles[size].text)}>{placeholder}</span>
           ) : (
             selectedOpts.map((opt) => (
               <span

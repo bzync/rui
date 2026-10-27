@@ -23,6 +23,17 @@ export const controlBaseStyles = [
   "has-[:read-only]:bg-surface-muted",
 ].join(" ")
 
+export type ControlSize = "sm" | "md" | "lg"
+
+/** One height scale for every field-like control, matching Button (sm 32 /
+ * md 36 / lg 40px) so a small input, select and button line up in a row.
+ * `minHeight` is for triggers that wrap chips (multi-select). */
+export const controlSizeStyles: Record<ControlSize, { height: string; minHeight: string; padding: string; text: string }> = {
+  sm: { height: "h-8", minHeight: "min-h-8", padding: "px-2.5", text: "text-xs" },
+  md: { height: "h-9", minHeight: "min-h-9", padding: "px-3", text: "text-sm" },
+  lg: { height: "h-10", minHeight: "min-h-10", padding: "px-3.5", text: "text-sm" },
+}
+
 export const controlInvalidStyles =
   "border-destructive/60 hover:border-destructive/70 focus-within:border-destructive focus-within:ring-destructive/25"
 

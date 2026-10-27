@@ -30,9 +30,9 @@ interface TimeOption {
 }
 
 const triggerSizes: Record<TimePickerSize, string> = {
-  sm: "h-10 px-2.5 text-xs sm:h-8",
-  md: "h-11 px-3 text-sm sm:h-9",
-  lg: "h-12 px-3.5 text-sm sm:h-10",
+  sm: "h-8 px-2.5 text-xs",
+  md: "h-9 px-3 text-sm",
+  lg: "h-10 px-3.5 text-sm",
 }
 
 const twoDigits = (value: number) => String(value).padStart(2, "0")

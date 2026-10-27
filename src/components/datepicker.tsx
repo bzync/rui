@@ -13,6 +13,14 @@ const MONTHS = [
   "July", "August", "September", "October", "November", "December",
 ]
 
+// Shares the field scale (see controlSizeStyles) at every width, so a picker
+// lines up with inputs, selects and buttons on phones too.
+const triggerSizes = {
+  sm: { height: "h-8", text: "text-xs" },
+  md: { height: "h-9", text: "text-sm" },
+  lg: { height: "h-10", text: "text-sm" },
+} as const
+
 function formatDate(d: Date): string {
   return `${MONTHS[d.getMonth()].slice(0, 3)} ${d.getDate()}, ${d.getFullYear()}`
 }
@@ -47,6 +55,8 @@ export interface DatePickerProps extends Omit<HTMLAttributes<HTMLDivElement>, "o
   clearable?: boolean
   minDate?: Date
   maxDate?: Date
+  /** Trigger height and text scale, matching Input, Select and Button. */
+  size?: "sm" | "md" | "lg"
 }
 
 export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(({
@@ -61,6 +71,7 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(({
   clearable = true,
   minDate,
   maxDate,
+  size = "md",
   className,
   ...props
 }, forwardedRef) => {
@@ -237,7 +248,7 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(({
       {label && (
         <label htmlFor={triggerId} className={fieldLabelStyles}>{label}</label>
       )}
-      <div className={cn("flex h-11 w-full items-center rounded-[var(--radius-md)] sm:h-9", controlBaseStyles, error && controlInvalidStyles, disabled && "cursor-not-allowed opacity-50")}>
+      <div className={cn("flex w-full items-center rounded-[var(--radius-md)]", triggerSizes[size].height, controlBaseStyles, error && controlInvalidStyles, disabled && "cursor-not-allowed opacity-50")}>
       <button
         ref={triggerRef}
         type="button"
@@ -254,11 +265,11 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(({
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground shrink-0">
           <rect width="18" height="18" x="3" y="4" rx="2" ry="2" /><line x1="16" x2="16" y1="2" y2="6" /><line x1="8" x2="8" y1="2" y2="6" /><line x1="3" x2="21" y1="10" y2="10" />
         </svg>
-        <span className={cn("flex-1 text-sm truncate", value ? "text-foreground" : "text-muted-foreground")}>
+        <span className={cn("flex-1 truncate", triggerSizes[size].text, value ? "text-foreground" : "text-muted-foreground")}>
           {value ? formatDate(value) : placeholder}
         </span>
       </button>
-      {clearable && value && !disabled && <button type="button" aria-label={`Clear ${label?.toLowerCase() ?? "date"}`} onClick={clear} className={cn(iconButtonStyles, "mr-1 size-9 sm:size-7")}><svg aria-hidden="true" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12" /></svg></button>}
+      {clearable && value && !disabled && <button type="button" aria-label={`Clear ${label?.toLowerCase() ?? "date"}`} onClick={clear} className={cn(iconButtonStyles, "mr-1 size-6")}><svg aria-hidden="true" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12" /></svg></button>}
       </div>
 
       {/* Portalled: `position: fixed` alone breaks under a transformed ancestor

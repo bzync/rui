@@ -1,7 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/cn"
-import { fieldDescriptionStyles, fieldErrorStyles, fieldLabelStyles, fieldRootStyles } from "@/lib/component-styles"
+import { controlSizeStyles, fieldDescriptionStyles, fieldErrorStyles, fieldLabelStyles, fieldRootStyles } from "@/lib/component-styles"
 import {
   KeyboardEvent,
   forwardRef,
@@ -45,6 +45,7 @@ function AutocompleteInner<V = string>(
     error,
     prefix,
     clearable = true,
+    size = "md",
     loading = false,
     emptyMessage = "No results",
     maxVisible = 8,
@@ -295,8 +296,8 @@ function AutocompleteInner<V = string>(
           onClear={handleClearSingle}
           messageId={error || hint ? messageId : undefined}
           inputProps={nativeInputProps}
-          className={triggerClassName}
-          inputClassName={inputClassName}
+          className={cn(controlSizeStyles[size].height, controlSizeStyles[size].padding, triggerClassName)}
+          inputClassName={cn(controlSizeStyles[size].text, inputClassName)}
         />
       )}
 
@@ -327,8 +328,8 @@ function AutocompleteInner<V = string>(
           onClearAll={handleClearMulti}
           messageId={error || hint ? messageId : undefined}
           inputProps={nativeInputProps}
-          className={triggerClassName}
-          inputClassName={inputClassName}
+          className={cn(controlSizeStyles[size].minHeight, "py-1", triggerClassName)}
+          inputClassName={cn(controlSizeStyles[size].text, inputClassName)}
         />
       )}
 

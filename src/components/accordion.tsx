@@ -23,11 +23,19 @@ export interface AccordionProps extends HTMLAttributes<HTMLDivElement> {
   value?: string[]
   /** Called with the next open item IDs. */
   onValueChange?: (value: string[]) => void
+  /** Trigger and content scale. */
+  size?: "sm" | "md" | "lg"
 }
+
+const accordionSizes = {
+  sm: { trigger: "py-2.5 text-sm", content: "pb-3 text-xs leading-5" },
+  md: { trigger: "py-3.5", content: "pb-4 text-sm leading-6" },
+  lg: { trigger: "py-4.5 text-base", content: "pb-5 text-base leading-7" },
+} as const
 
 const EMPTY: string[] = []
 
-export function Accordion({ items, multiple = false, defaultOpen = EMPTY, value, onValueChange, className, ...props }: AccordionProps) {
+export function Accordion({ items, multiple = false, defaultOpen = EMPTY, value, onValueChange, size = "md", className, ...props }: AccordionProps) {
   const [openIds, setOpenIds] = useControllableState({ value, defaultValue: defaultOpen, onChange: onValueChange })
   const open = new Set(openIds)
   const accordionId = useId()
@@ -54,7 +62,8 @@ export function Accordion({ items, multiple = false, defaultOpen = EMPTY, value,
               disabled={item.disabled}
               onClick={() => toggle(item.id)}
               className={cn(
-                "flex items-center justify-between w-full py-3.5 text-left gap-3 transition-colors",
+                "flex items-center justify-between w-full text-left gap-3 transition-colors",
+                accordionSizes[size].trigger,
                 "text-foreground hover:text-foreground",
                 focusRingStyles,
                 item.disabled && "opacity-40 cursor-not-allowed",
@@ -83,7 +92,7 @@ export function Accordion({ items, multiple = false, defaultOpen = EMPTY, value,
                   transition={{ duration: 0.2, ease: "easeInOut" }}
                   className="overflow-hidden"
                 >
-                  <div className="pb-4 text-sm leading-6 text-muted-foreground">
+                  <div className={cn("text-muted-foreground", accordionSizes[size].content)}>
                     {item.content}
                   </div>
                 </motion.div>

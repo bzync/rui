@@ -672,6 +672,14 @@ export const componentExamples: Record<string, () => ComponentExample[]> = {
   )
 }`,
       <SelectMultipleExample />),
+    ex("aligned", "Sizes that line up", "Every field and button shares one height scale (sm 32 / md 36 / lg 40px), so mixed toolbars align.",
+      `<div className="flex flex-wrap items-end gap-2">
+  <Input size="sm" label="Search" placeholder="Search…" wrapperClassName="w-40" />
+  <Select size="sm" label="Status" defaultValue="all" wrapperClassName="w-36" options={[{ value: "all", label: "All statuses" }, { value: "live", label: "Live" }]} />
+  <DatePicker size="sm" label="Since" className="w-40" />
+  <Button size="sm">Apply</Button>
+</div>`,
+      <div className="flex w-full max-w-xl flex-wrap items-end gap-2"><R.Input size="sm" label="Search" placeholder="Search…" wrapperClassName="w-40" /><R.Select size="sm" label="Status" defaultValue="all" wrapperClassName="w-36" options={[{ value: "all", label: "All statuses" }, { value: "live", label: "Live" }]} /><R.DatePicker size="sm" label="Since" className="w-40" /><R.Button size="sm">Apply</R.Button></div>),
     ex("status", "Status options", "Options can carry a semantic color and icon.",
       `<Select
   label="Status"

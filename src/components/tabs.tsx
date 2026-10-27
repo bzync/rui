@@ -17,6 +17,16 @@ interface TabsContextValue {
   setActive: (v: string) => void
   orientation: "horizontal" | "vertical"
   tabsId: string
+  size: TabsSize
+}
+
+export type TabsSize = "sm" | "md" | "lg"
+
+// Trigger text and padding per size; the base layout lives in triggerLayout.
+const triggerSizes: Record<TabsSize, string> = {
+  sm: "text-xs px-2.5 py-1",
+  md: "text-sm",
+  lg: "text-sm px-4 py-2",
 }
 
 const TabsContext = createContext<TabsContextValue | null>(null)
@@ -35,6 +45,8 @@ export interface TabsProps {
   children: ReactNode
   className?: string
   orientation?: "horizontal" | "vertical"
+  /** Trigger scale. */
+  size?: TabsSize
   /** Preferred — called when the active tab changes. */
   onValueChange?: (value: string) => void
   /** @deprecated Use onValueChange */
@@ -47,6 +59,7 @@ export function Tabs({
   children,
   className,
   orientation = "horizontal",
+  size = "md",
   onValueChange,
   onChange,
 }: TabsProps) {
@@ -61,7 +74,7 @@ export function Tabs({
   }
 
   return (
-    <TabsContext.Provider value={{ active, setActive: handleSet, orientation, tabsId }}>
+    <TabsContext.Provider value={{ active, setActive: handleSet, orientation, tabsId, size }}>
       <div
         className={cn(
           orientation === "vertical"
@@ -133,7 +146,7 @@ export function TabsTrigger({
   onKeyDown,
   ...props
 }: TabsTriggerProps) {
-  const { active, setActive, orientation, tabsId } = useTabsCtx()
+  const { active, setActive, orientation, tabsId, size } = useTabsCtx()
   const isActive = active === value
   const safeValue = encodeURIComponent(value)
   const triggerId = `${tabsId}-tab-${safeValue}`
@@ -167,6 +180,7 @@ export function TabsTrigger({
       className={cn(
         "relative rounded-md text-sm font-medium cursor-pointer transition-colors",
         triggerLayout[orientation === "vertical" ? "vertical" : "horizontal"][iconPosition],
+        triggerSizes[size],
         focusRingStyles,
         isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground",
         className,

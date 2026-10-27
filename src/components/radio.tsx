@@ -11,6 +11,16 @@ interface RadioContextValue {
   value: string
   onChange: (value: string) => void
   disabled?: boolean
+  size: RadioSize
+}
+
+export type RadioSize = "sm" | "md" | "lg"
+
+// Mirrors Checkbox sizes so mixed choice groups line up.
+const radioSizes: Record<RadioSize, { circle: string; dot: string; label: string; desc: string }> = {
+  sm: { circle: "size-3.5", dot: "size-[5px]", label: "text-xs", desc: "text-[11px]" },
+  md: { circle: "size-4", dot: "size-1.5", label: "text-sm", desc: "text-xs" },
+  lg: { circle: "size-5", dot: "size-2", label: "text-sm", desc: "text-xs" },
 }
 
 const RadioContext = createContext<RadioContextValue | null>(null)
@@ -33,6 +43,8 @@ export interface RadioGroupProps {
   hint?: string
   error?: string
   orientation?: "vertical" | "horizontal"
+  /** Radio and label scale, matching Checkbox. */
+  size?: RadioSize
   className?: string
   children: ReactNode
 }
@@ -47,6 +59,7 @@ export function RadioGroup({
   hint,
   error,
   orientation = "vertical",
+  size = "md",
   className,
   children,
 }: RadioGroupProps) {
@@ -61,7 +74,7 @@ export function RadioGroup({
       {label && (
         <p id={labelId} className={fieldLabelStyles}>{label}</p>
       )}
-      <RadioContext.Provider value={{ name, value, onChange, disabled }}>
+      <RadioContext.Provider value={{ name, value, onChange, disabled, size }}>
         <div
           role="radiogroup"
           aria-labelledby={label ? labelId : undefined}
@@ -90,7 +103,8 @@ export interface RadioProps {
 }
 
 export function Radio({ value, label, description, disabled: localDisabled, className }: RadioProps) {
-  const { name, value: groupValue, onChange, disabled: groupDisabled } = useRadioCtx()
+  const { name, value: groupValue, onChange, disabled: groupDisabled, size } = useRadioCtx()
+  const s = radioSizes[size]
   const id = useId()
   const isChecked = groupValue === value
   const isDisabled = localDisabled ?? groupDisabled
@@ -104,7 +118,7 @@ export function Radio({ value, label, description, disabled: localDisabled, clas
         className,
       )}
     >
-      <div className="relative mt-0.5 shrink-0 w-4 h-4">
+      <div className={cn("relative mt-0.5 shrink-0", s.circle)}>
         <input
           type="radio"
           id={id}
@@ -117,7 +131,7 @@ export function Radio({ value, label, description, disabled: localDisabled, clas
         />
         <div
           className={cn(
-            "w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors duration-[120ms] peer-focus-visible:ring-[3px] peer-focus-visible:ring-focus-ring/35 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-bg",
+            "size-full rounded-full border-2 flex items-center justify-center transition-colors duration-[120ms] peer-focus-visible:ring-[3px] peer-focus-visible:ring-focus-ring/35 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-bg",
             isChecked
               ? "bg-primary border-primary"
               : "bg-transparent border-foreground/25",
@@ -128,7 +142,7 @@ export function Radio({ value, label, description, disabled: localDisabled, clas
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ type: "spring", stiffness: 600, damping: 30 }}
-              className="w-1.5 h-1.5 rounded-full bg-white"
+              className={cn("rounded-full bg-white", s.dot)}
             />
           )}
         </div>
@@ -136,10 +150,10 @@ export function Radio({ value, label, description, disabled: localDisabled, clas
       {(label || description) && (
         <div className="min-w-0">
           {label && (
-            <p className="text-sm font-medium text-foreground leading-snug">{label}</p>
+            <p className={cn("font-medium text-foreground leading-snug", s.label)}>{label}</p>
           )}
           {description && (
-            <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>
+            <p className={cn("mt-0.5 text-muted-foreground", s.desc)}>{description}</p>
           )}
         </div>
       )}

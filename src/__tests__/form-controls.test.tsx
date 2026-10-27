@@ -2,6 +2,7 @@ import { render, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { useState } from "react"
 import { describe, expect, it, vi } from "vitest"
+import * as R from "@/index"
 import { Checkbox, DatePicker, Input, Radio, RadioGroup, Rating, Switch, Textarea, TimePicker } from "@/index"
 
 describe("form controls", () => {
@@ -197,5 +198,40 @@ describe("uncontrolled form defaults", () => {
   it("shows a DatePicker defaultValue", () => {
     render(<DatePicker label="Due" defaultValue={new Date(2026, 8, 18)} />)
     expect(screen.getByRole("button", { name: "Due" })).toHaveTextContent("Sep 18, 2026")
+  })
+})
+
+describe("consistent control sizes", () => {
+  it("matches Input and Button heights for sm and lg field triggers", () => {
+    render(<>
+      <R.Button size="sm">Small button</R.Button>
+      <R.Input size="sm" aria-label="Small input" wrapperClassName="small-input" />
+      <R.Select size="sm" label="Small select" options={[{ value: "a", label: "A" }]} />
+      <R.Select size="lg" label="Large select" options={[{ value: "a", label: "A" }]} />
+      <R.Autocomplete size="sm" label="Small autocomplete" options={[{ value: "a", label: "A" }]} />
+      <R.DatePicker size="lg" label="Large date" />
+    </>)
+    expect(screen.getByRole("button", { name: "Small button" })).toHaveClass("h-8")
+    expect(screen.getByRole("textbox", { name: "Small input" }).parentElement).toHaveClass("h-8")
+    expect(screen.getByRole("combobox", { name: "Small select" })).toHaveClass("h-8")
+    expect(screen.getByRole("combobox", { name: "Large select" })).toHaveClass("h-10")
+    expect(screen.getByRole("combobox", { name: "Small autocomplete" }).parentElement).toHaveClass("h-8")
+    expect(screen.getByRole("combobox", { name: "Small autocomplete" })).toHaveClass("text-xs")
+    expect(screen.getByRole("button", { name: "Large date" }).parentElement).toHaveClass("h-10")
+  })
+
+  it("scales slider, radio, tabs, pagination and accordion", () => {
+    render(<>
+      <R.Slider size="lg" label="Volume" />
+      <R.RadioGroup size="lg" label="Plan" defaultValue="a"><R.Radio value="a" label="Alpha" /></R.RadioGroup>
+      <R.Tabs size="sm" defaultValue="one"><R.TabsList><R.TabsTrigger value="one">One</R.TabsTrigger></R.TabsList></R.Tabs>
+      <R.Pagination size="lg" totalPages={3} />
+      <R.Accordion size="sm" items={[{ id: "q", trigger: "Question", content: "Answer" }]} />
+    </>)
+    expect(screen.getByRole("slider", { name: "Volume" }).parentElement).toHaveClass("h-6")
+    expect(screen.getByRole("radio", { name: "Alpha" }).parentElement).toHaveClass("size-5")
+    expect(screen.getByRole("tab", { name: "One" })).toHaveClass("text-xs")
+    expect(screen.getByRole("button", { name: "Page 1" })).toHaveClass("h-10")
+    expect(screen.getByRole("button", { name: "Question" })).toHaveClass("py-2.5")
   })
 })

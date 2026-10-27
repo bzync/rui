@@ -23,7 +23,7 @@ export interface InputProps
 }
 
 const inputSizes: Record<InputSize, { wrap: string; text: string }> = {
-  sm: { wrap: "h-7 px-2 gap-1.5",    text: "text-xs" },
+  sm: { wrap: "h-8 px-2.5 gap-1.5",  text: "text-xs" },
   md: { wrap: "h-9 px-3 gap-2",      text: "text-sm" },
   lg: { wrap: "h-10 px-3.5 gap-2.5", text: "text-sm" },
 }

@@ -13,7 +13,15 @@ export interface SliderProps extends Omit<InputHTMLAttributes<HTMLInputElement>,
   min?: number
   max?: number
   step?: number
+  /** Track and thumb scale. */
+  size?: "sm" | "md" | "lg"
 }
+
+const sliderSizes = {
+  sm: { root: "h-4", track: "h-1", thumb: "[&::-webkit-slider-thumb]:size-3.5 [&::-moz-range-thumb]:size-3.5" },
+  md: { root: "h-5", track: "h-1.5", thumb: "[&::-webkit-slider-thumb]:size-4 [&::-moz-range-thumb]:size-4" },
+  lg: { root: "h-6", track: "h-2", thumb: "[&::-webkit-slider-thumb]:size-5 [&::-moz-range-thumb]:size-5" },
+} as const
 
 export const Slider = forwardRef<HTMLInputElement, SliderProps>(
   (
@@ -27,6 +35,7 @@ export const Slider = forwardRef<HTMLInputElement, SliderProps>(
       min = 0,
       max = 100,
       step = 1,
+      size = "md",
       value: controlledValue,
       defaultValue,
       onChange,
@@ -67,8 +76,8 @@ export const Slider = forwardRef<HTMLInputElement, SliderProps>(
             )}
           </div>
         )}
-        <div className="relative flex items-center h-5">
-          <div className="absolute inset-x-0 h-1.5 rounded-full bg-muted">
+        <div className={cn("relative flex items-center", sliderSizes[size].root)}>
+          <div className={cn("absolute inset-x-0 rounded-full bg-muted", sliderSizes[size].track)}>
             <div
               className="absolute left-0 top-0 h-full rounded-full bg-accent-500"
               style={{ width: `${pct}%` }}
@@ -95,11 +104,12 @@ export const Slider = forwardRef<HTMLInputElement, SliderProps>(
               "relative w-full appearance-none bg-transparent cursor-pointer",
               "focus-visible:outline-none focus-visible:[&::-webkit-slider-thumb]:ring-4 focus-visible:[&::-webkit-slider-thumb]:ring-focus-ring/25",
               "disabled:cursor-not-allowed disabled:opacity-50",
-              "[&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4",
+              "[&::-webkit-slider-thumb]:appearance-none",
+              sliderSizes[size].thumb,
               "[&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white",
               "[&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-accent-500",
               "[&::-webkit-slider-thumb]:shadow-sm",
-              "[&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full",
+              "[&::-moz-range-thumb]:rounded-full",
               "[&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-accent-500",
               "[&::-moz-range-thumb]:shadow-md",
             )}

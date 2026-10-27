@@ -421,13 +421,13 @@ export const supplementalDetails: Record<string, () => SupplementalDetail> = {
   "components/autocomplete": () => detail(
     `<Autocomplete label="Runtime" placeholder="Search runtimes…" options={[\n  { value: "node", label: "Node.js 22" },\n  { value: "go", label: "Go 1.25" },\n]} onSelect={setRuntime} />`,
     <div className="w-full max-w-sm"><R.Autocomplete label="Runtime" placeholder="Search runtimes…" hint="Type to filter options" options={[{ value: "node", label: "Node.js 22" }, { value: "go", label: "Go 1.25" }, { value: "rust", label: "Rust" }]} /></div>,
-    api(["options", "AutocompleteOption[]", "Searchable option values and labels."], ["multiple", "boolean", "Enables multi-selection.", "false"], ["value / defaultValue", "V | V[]", "Controlled or initial selection; a single value shows its label in the input."], ["inputValue", "string", "Controlled query text."], ["onSelect", "(option, all?) => void", "Selection callback."], ["label / hint / error", "string", "Accessible field messaging."]),
+    api(["options", "AutocompleteOption[]", "Searchable option values and labels."], ["multiple", "boolean", "Enables multi-selection.", "false"], ["size", '"sm" | "md" | "lg"', "Trigger height, matching Input and Button.", '"md"'], ["value / defaultValue", "V | V[]", "Controlled or initial selection; a single value shows its label in the input."], ["inputValue", "string", "Controlled query text."], ["onSelect", "(option, all?) => void", "Selection callback."], ["label / hint / error", "string", "Accessible field messaging."]),
     "Exposes combobox/listbox semantics with arrow-key navigation, Enter selection, Escape dismissal, and associated field messages.",
   ),
   "components/slider": () => detail(
     `<Slider label="Memory" min={128} max={4096} step={128} defaultValue={1024} formatValue={(value) => \`${"${value}"} MB\`} />`,
     <R.Slider className="w-full max-w-sm" label="Memory" min={128} max={4096} step={128} defaultValue={1024} formatValue={(value) => `${value} MB`} />,
-    api(["min / max / step", "number", "Native range boundaries and increment."], ["value / defaultValue", "number", "Controlled or initial value."], ["formatValue", "(value) => string", "Accessible and visible value formatter."], ["showValue", "boolean", "Shows the current output.", "true"]),
+    api(["min / max / step", "number", "Native range boundaries and increment."], ["value / defaultValue", "number", "Controlled or initial value."], ["formatValue", "(value) => string", "Accessible and visible value formatter."], ["showValue", "boolean", "Shows the current output.", "true"], ["size", '"sm" | "md" | "lg"', "Track and thumb scale.", '"md"']),
     "Uses a native range input and supplies aria-valuetext from the formatted value.",
   ),
   "components/number-input": () => detail(
@@ -460,7 +460,7 @@ export const supplementalDetails: Record<string, () => SupplementalDetail> = {
   hint="September 1–October 31, 2026"
 />`,
     <DatePickerPreview />,
-    api(["value / defaultValue", "Date | null", "Controlled or initial selected date."], ["onChange", "(date: Date | null) => void", "Selection callback."], ["minDate / maxDate", "Date", "Selectable date boundaries."], ["clearable", "boolean", "Allows clearing the value.", "true"]),
+    api(["value / defaultValue", "Date | null", "Controlled or initial selected date."], ["onChange", "(date: Date | null) => void", "Selection callback."], ["minDate / maxDate", "Date", "Selectable date boundaries."], ["clearable", "boolean", "Allows clearing the value.", "true"], ["size", '"sm" | "md" | "lg"', "Trigger height; taller on touch screens.", '"md"']),
     "The trigger exposes dialog state and associated field messages. Calendar days use roving focus with arrow, Home, End, Page Up, and Page Down navigation; Escape dismisses and restores trigger focus.",
   ),
   "components/calendar": () => detail(

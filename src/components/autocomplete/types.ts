@@ -1,4 +1,5 @@
 import { InputHTMLAttributes, ReactNode } from "react"
+import type { ControlSize } from "@/lib/component-styles"
 
 export interface AutocompleteOption<V = string> {
   value: V
@@ -9,7 +10,7 @@ export interface AutocompleteOption<V = string> {
 }
 
 export interface AutocompletePropsBase<V = string>
-  extends Omit<InputHTMLAttributes<HTMLInputElement>, "value" | "defaultValue" | "onChange" | "onSelect" | "prefix"> {
+  extends Omit<InputHTMLAttributes<HTMLInputElement>, "value" | "defaultValue" | "onChange" | "onSelect" | "prefix" | "size"> {
   options: AutocompleteOption<V>[]
   /** Submits the selected option value(s) with the form (one entry per value), not the typed text. */
   name?: string
@@ -24,6 +25,8 @@ export interface AutocompletePropsBase<V = string>
   error?: string
   prefix?: ReactNode
   clearable?: boolean
+  /** Trigger height and text scale, matching Input and Button. */
+  size?: ControlSize
   loading?: boolean
   emptyMessage?: string
   maxVisible?: number

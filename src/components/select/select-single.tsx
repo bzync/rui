@@ -1,7 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/cn"
-import { controlBaseStyles, controlInvalidStyles, fieldDescriptionStyles, fieldErrorStyles, fieldLabelStyles, fieldRootStyles } from "@/lib/component-styles"
+import { controlBaseStyles, controlInvalidStyles, controlSizeStyles, fieldDescriptionStyles, fieldErrorStyles, fieldLabelStyles, fieldRootStyles } from "@/lib/component-styles"
 import { KeyboardEvent, forwardRef, useEffect, useId, useRef, useState, useMemo, useCallback } from "react"
 import type { SelectOption, SelectPropsSingle } from "./types"
 import { colorDot, flatten, useMenuPosition, XIcon, ChevronIcon } from "./utils"
@@ -25,6 +25,7 @@ export const SelectSingle = forwardRef<HTMLButtonElement, SelectPropsSingle>(
       name,
       form,
       clearable = false,
+      size = "md",
       className,
       wrapperClassName,
       triggerClassName,
@@ -159,7 +160,9 @@ export const SelectSingle = forwardRef<HTMLButtonElement, SelectPropsSingle>(
             if (!open) setActiveIdx(flat.find((o) => o.value === value && o.flatIdx >= 0)?.flatIdx ?? -1)
           }}
           className={cn(
-            "flex h-9 w-full items-center gap-2 rounded-[var(--radius-md)] px-3 text-left outline-none",
+            "flex w-full items-center gap-2 rounded-[var(--radius-md)] text-left outline-none",
+            controlSizeStyles[size].height,
+            controlSizeStyles[size].padding,
             controlBaseStyles,
             "focus:border-accent-500 focus:ring-[3px] focus:ring-focus-ring/25",
             error && controlInvalidStyles,
@@ -173,7 +176,7 @@ export const SelectSingle = forwardRef<HTMLButtonElement, SelectPropsSingle>(
           {selectedOpt?.color && selectedOpt.color !== "default" && (
             <span className={cn("w-2 h-2 rounded-full shrink-0", colorDot[selectedOpt.color])} />
           )}
-          <span className={cn("flex-1 min-w-0 text-sm truncate", selectedOpt ? "text-foreground" : "text-muted-foreground")}>
+          <span className={cn("flex-1 min-w-0 truncate", controlSizeStyles[size].text, selectedOpt ? "text-foreground" : "text-muted-foreground")}>
             {selectedOpt?.label ?? placeholder}
           </span>
           {clearable && value && !disabled && (

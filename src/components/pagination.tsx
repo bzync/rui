@@ -12,8 +12,16 @@ export interface PaginationProps {
   totalPages: number
   onPageChange?: (page: number) => void
   siblingCount?: number
+  /** Button scale. */
+  size?: "sm" | "md" | "lg"
   className?: string
 }
+
+const pageSizes = {
+  sm: "min-w-7 h-7 px-1.5 text-xs",
+  md: "min-w-8 h-8 px-2 text-sm",
+  lg: "min-w-10 h-10 px-3 text-sm",
+} as const
 
 function range(start: number, end: number): number[] {
   return Array.from({ length: end - start + 1 }, (_, i) => start + i)
@@ -55,6 +63,7 @@ export function Pagination({
   totalPages,
   onPageChange: onPageChangeProp,
   siblingCount = 1,
+  size = "md",
   className,
 }: PaginationProps) {
   const [page, onPageChange] = useControllableState({ value: controlledPage, defaultValue: defaultPage, onChange: onPageChangeProp })
@@ -72,7 +81,8 @@ export function Pagination({
         aria-current={active ? "page" : undefined}
         aria-label={typeof label === "number" ? `Page ${label}` : target < page ? "Previous page" : "Next page"}
         className={cn(
-          "flex items-center justify-center min-w-8 h-8 px-2 rounded-[var(--radius-md)] border text-sm font-medium transition-colors",
+          "flex items-center justify-center rounded-[var(--radius-md)] border font-medium transition-colors",
+          pageSizes[size],
           focusRingStyles,
           active
             ? "border-accent-500/25 bg-accent-500/10 text-accent-strong"
@@ -90,7 +100,7 @@ export function Pagination({
       {btn(chevronLeft, page - 1, page <= 1)}
       {pages.map((p, i) =>
         p === "…" ? (
-          <span key={`dots-${i}`} className="flex items-end justify-center w-8 h-8 text-muted-foreground text-sm pb-1">
+          <span key={`dots-${i}`} className={cn("flex items-end justify-center pb-1 text-muted-foreground", pageSizes[size])}>
             …
           </span>
         ) : (
