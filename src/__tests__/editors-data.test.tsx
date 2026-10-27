@@ -145,3 +145,98 @@ describe("DataTable part classNames", () => {
     expect(screen.getByText("#1")).toHaveClass("cell", "id-cell")
   })
 })
+
+describe("DataTable power features", () => {
+  type Row = { id: number; name: string; amount: number; locked?: boolean }
+  const rows: Row[] = [
+    { id: 1, name: "Atlas", amount: 900 },
+    { id: 2, name: "Beacon", amount: 80 },
+    { id: 3, name: "Comet", amount: 1500, locked: true },
+  ]
+  const columns = [
+    { key: "name", header: "Name", sortable: true, cell: (r: Row) => r.name },
+    { key: "amount", header: "Amount", sortable: true, sortValue: (r: Row) => r.amount, cell: (r: Row) => `$${r.amount}` },
+  ]
+
+  it("selects rows, selects all (skipping unselectable rows) and runs bulk actions", async () => {
+    const user = userEvent.setup(); const onSelectionChange = vi.fn(); const archive = vi.fn()
+    render(<DataTable ariaLabel="Projects" columns={columns} data={rows} selectable pageSizeOptions={false}
+      isRowSelectable={(r) => !r.locked} getRowLabel={(r) => r.name} onSelectionChange={onSelectionChange}
+      bulkActions={(selected, clear) => <button onClick={() => { archive(selected.map((r) => r.name)); clear() }}>Archive</button>} />)
+    await user.click(screen.getByRole("checkbox", { name: "Select Atlas" }))
+    expect(onSelectionChange).toHaveBeenLastCalledWith([1], [rows[0]])
+    const all = screen.getByRole("checkbox", { name: "Select all rows" }) as HTMLInputElement
+    expect(all.indeterminate).toBe(true)
+    expect(screen.getByRole("checkbox", { name: "Select Comet" })).toBeDisabled()
+    await user.click(all)
+    expect(onSelectionChange).toHaveBeenLastCalledWith([1, 2], [rows[0], rows[1]])
+    expect(screen.getByRole("region", { name: "Bulk actions" })).toHaveTextContent("2 selected")
+    await user.click(screen.getByRole("button", { name: "Archive" }))
+    expect(archive).toHaveBeenCalledWith(["Atlas", "Beacon"])
+    expect(screen.queryByRole("region", { name: "Bulk actions" })).not.toBeInTheDocument()
+  })
+
+  it("supports single selection", async () => {
+    const user = userEvent.setup()
+    render(<DataTable columns={columns} data={rows} selectable="single" pageSizeOptions={false} getRowLabel={(r) => r.name} />)
+    expect(screen.queryByRole("checkbox", { name: "Select all rows" })).not.toBeInTheDocument()
+    await user.click(screen.getByRole("checkbox", { name: "Select Atlas" }))
+    await user.click(screen.getByRole("checkbox", { name: "Select Beacon" }))
+    expect(screen.getByRole("checkbox", { name: "Select Atlas" })).not.toBeChecked()
+    expect(screen.getByRole("checkbox", { name: "Select Beacon" })).toBeChecked()
+  })
+
+  it("sorts numerically with sortValue and hides columns from the column menu", async () => {
+    const user = userEvent.setup()
+    render(<DataTable columns={columns} data={rows} columnToggle pageSizeOptions={false} />)
+    await user.click(screen.getByRole("button", { name: "Amount" }))
+    const amounts = () => screen.getAllByRole("row").slice(1).map((row) => row.lastElementChild?.textContent)
+    expect(amounts()).toEqual(["$80", "$900", "$1500"])
+    await user.click(screen.getByRole("button", { name: "Columns" }))
+    await user.click(await screen.findByRole("checkbox", { name: "Amount" }))
+    expect(screen.queryByRole("columnheader", { name: "Amount" })).not.toBeInTheDocument()
+  })
+
+  it("resizes columns with the keyboard", async () => {
+    const user = userEvent.setup(); const onColumnResize = vi.fn()
+    render(<DataTable columns={columns} data={rows} resizableColumns onColumnResize={onColumnResize} pageSizeOptions={false} />)
+    const handle = screen.getByRole("separator", { name: "Resize Name column" })
+    handle.focus()
+    await user.keyboard("{ArrowRight}")
+    expect(onColumnResize).toHaveBeenCalled()
+    expect(handle).toHaveAttribute("aria-valuenow")
+  })
+
+  it("pins columns with sticky positioning", () => {
+    render(<DataTable columns={[{ ...columns[0], pinned: "left" as const }, { ...columns[1], pinned: "right" as const }]} data={rows} pageSizeOptions={false} />)
+    expect(screen.getByRole("columnheader", { name: "Name" })).toHaveStyle({ position: "sticky", left: "0px" })
+    expect(screen.getByRole("columnheader", { name: "Amount" })).toHaveStyle({ position: "sticky", right: "0px" })
+  })
+
+  it("reports state changes without processing data in manual (server-side) mode", async () => {
+    const user = userEvent.setup(); const onSortChange = vi.fn(); const onPageChange = vi.fn(); const onQueryChange = vi.fn()
+    render(<DataTable manual searchable columns={columns} data={rows} rowCount={42} pageSizeOptions={[3]} onSortChange={onSortChange} onPageChange={onPageChange} onQueryChange={onQueryChange} />)
+    expect(screen.getByText("1–3 of 42")).toBeInTheDocument()
+    await user.click(screen.getByRole("button", { name: "Amount" }))
+    expect(onSortChange).toHaveBeenCalledWith({ key: "amount", dir: "asc" })
+    // Data order is untouched — the server sorts.
+    expect(screen.getAllByRole("row")[1]).toHaveTextContent("Atlas")
+    await user.type(screen.getByRole("searchbox"), "x")
+    expect(onQueryChange).toHaveBeenLastCalledWith("x")
+    expect(screen.getAllByRole("row")).toHaveLength(4)
+    await user.click(screen.getByRole("button", { name: "Next page" }))
+    expect(onPageChange).toHaveBeenLastCalledWith(2)
+  })
+
+  it("virtualizes large data sets", () => {
+    const many = Array.from({ length: 10_000 }, (_, i) => ({ id: i, name: `Row ${i}`, amount: i }))
+    render(<DataTable ariaLabel="Big" columns={columns} data={many} virtualized={{ height: 300, rowHeight: 40 }} />)
+    const table = screen.getByRole("table", { name: "Big" })
+    expect(table).toHaveAttribute("aria-rowcount", "10001")
+    // Header row + visible window (300/40 = 8, plus overscan 6) — far fewer than 10,000.
+    const rendered = screen.getAllByRole("row").filter((row) => !row.hasAttribute("aria-hidden"))
+    expect(rendered.length).toBeLessThan(30)
+    expect(screen.getByText("Row 0")).toBeInTheDocument()
+    expect(screen.queryByText("Row 5000")).not.toBeInTheDocument()
+  })
+})

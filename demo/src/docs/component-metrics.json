@@ -1,9 +1,9 @@
 {
   "version": "0.0.11",
   "stylesheet": {
-    "raw": 101724,
-    "gzip": 16872,
-    "brotli": 13636
+    "raw": 103684,
+    "gzip": 17203,
+    "brotli": 13860
   },
   "sharedRuntime": {
     "raw": 37806,
@@ -729,18 +729,20 @@
     "DataTable": {
       "entry": "components/datatable.js",
       "total": {
-        "raw": 51495,
-        "gzip": 13498,
-        "brotli": 11628
+        "raw": 81355,
+        "gzip": 22454,
+        "brotli": 19254
       },
       "specific": {
-        "raw": 13689,
-        "gzip": 3938,
-        "brotli": 3484
+        "raw": 43549,
+        "gzip": 12650,
+        "brotli": 11255
       },
       "lazy": null,
-      "modules": 4,
-      "peers": []
+      "modules": 11,
+      "peers": [
+        "framer-motion"
+      ]
     },
     "DatePicker": {
       "entry": "components/datepicker.js",
@@ -877,14 +879,14 @@
     "DropdownMenu": {
       "entry": "components/dropdown-menu.js",
       "total": {
-        "raw": 43102,
-        "gzip": 11755,
-        "brotli": 10090
+        "raw": 43159,
+        "gzip": 11758,
+        "brotli": 10083
       },
       "specific": {
-        "raw": 5296,
-        "gzip": 2214,
-        "brotli": 1936
+        "raw": 5353,
+        "gzip": 2219,
+        "brotli": 1939
       },
       "lazy": {
         "raw": 12114,
@@ -1621,13 +1623,13 @@
     "Popover": {
       "entry": "components/popover.js",
       "total": {
-        "raw": 53108,
+        "raw": 53170,
         "gzip": 14839,
-        "brotli": 12690
+        "brotli": 12707
       },
       "specific": {
-        "raw": 15302,
-        "gzip": 5181,
+        "raw": 15364,
+        "gzip": 5182,
         "brotli": 4577
       },
       "lazy": null,
@@ -1639,13 +1641,13 @@
     "PopoverContent": {
       "entry": "components/popover.js",
       "total": {
-        "raw": 53108,
+        "raw": 53170,
         "gzip": 14839,
-        "brotli": 12690
+        "brotli": 12707
       },
       "specific": {
-        "raw": 15302,
-        "gzip": 5181,
+        "raw": 15364,
+        "gzip": 5182,
         "brotli": 4577
       },
       "lazy": null,
@@ -2487,14 +2489,14 @@
     "Tooltip": {
       "entry": "components/tooltip.js",
       "total": {
-        "raw": 52450,
+        "raw": 52512,
         "gzip": 14613,
-        "brotli": 12513
+        "brotli": 12534
       },
       "specific": {
-        "raw": 14644,
-        "gzip": 4981,
-        "brotli": 4409
+        "raw": 14706,
+        "gzip": 4982,
+        "brotli": 4412
       },
       "lazy": null,
       "modules": 7,

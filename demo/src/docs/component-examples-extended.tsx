@@ -28,7 +28,7 @@ import {
   Users,
   WifiOff,
 } from "lucide-react"
-import { type ReactNode, useState } from "react"
+import { type ReactNode, useEffect, useState } from "react"
 import { RuiBrandMark } from "../_shared/brand"
 import type { ComponentExample } from "./component-examples"
 
@@ -320,6 +320,117 @@ function DataTableFullExample() {
       />
       <span className="text-sm text-muted-foreground" role="status">{opened ? `Opened invoice for ${opened}` : "Click a row to open it"}</span>
     </div>
+  )
+}
+
+function DataTableSelectionExample() {
+  const [archived, setArchived] = useState<string[]>([])
+  return (
+    <div className="demo-stack w-full">
+      <R.DataTable
+        ariaLabel="Invoices with selection"
+        columns={invoiceColumns}
+        data={invoices.filter((invoice) => !archived.includes(invoice.customer))}
+        selectable
+        isRowSelectable={(row) => row.status !== "Paid"}
+        getRowLabel={(row) => row.customer}
+        pageSizeOptions={false}
+        bulkActions={(selected, clear) => (
+          <>
+            <R.Button size="sm" variant="secondary" onClick={clear}>Clear</R.Button>
+            <R.Button size="sm" variant="danger" onClick={() => { setArchived([...archived, ...selected.map((row) => row.customer)]); clear() }}>
+              Archive
+            </R.Button>
+          </>
+        )}
+      />
+      <span className="text-sm text-muted-foreground" role="status">{archived.length ? `Archived: ${archived.join(", ")}` : "Paid invoices cannot be selected"}</span>
+    </div>
+  )
+}
+
+function DataTableColumnsExample() {
+  return (
+    <R.DataTable
+      ariaLabel="Invoices with column tools"
+      columns={[
+        { ...invoiceColumns[0], pinned: "left", hideable: false },
+        invoiceColumns[1],
+        invoiceColumns[2],
+        { key: "id", header: "Invoice", cell: (row) => `INV-${1000 + row.id}` },
+      ]}
+      data={invoices}
+      columnToggle
+      resizableColumns
+      pageSizeOptions={false}
+    />
+  )
+}
+
+// A stand-in for your API: filters, sorts and pages on the "server".
+function fetchInvoices({ query, sort, page, pageSize }: { query: string; sort: R.DataTableSort; page: number; pageSize: number }) {
+  return new Promise<{ rows: Invoice[]; total: number }>((resolve) => {
+    window.setTimeout(() => {
+      let result = invoices.filter((invoice) => invoice.customer.toLowerCase().includes(query.toLowerCase()))
+      if (sort.key && sort.dir) {
+        const key = sort.key as keyof Invoice
+        result = [...result].sort((a, b) => String(a[key]).localeCompare(String(b[key]), undefined, { numeric: true }) * (sort.dir === "asc" ? 1 : -1))
+      }
+      resolve({ rows: result.slice((page - 1) * pageSize, page * pageSize), total: result.length })
+    }, 400)
+  })
+}
+
+function DataTableServerExample() {
+  const [query, setQuery] = useState("")
+  const [sort, setSort] = useState<R.DataTableSort>({ key: null, dir: null })
+  const [page, setPage] = useState(1)
+  const [result, setResult] = useState<{ rows: Invoice[]; total: number } | null>(null)
+  useEffect(() => {
+    let current = true
+    fetchInvoices({ query, sort, page, pageSize: 3 }).then((next) => { if (current) setResult(next) })
+    return () => { current = false }
+  }, [query, sort, page])
+  return (
+    <R.DataTable
+      manual
+      ariaLabel="Invoices from the server"
+      columns={invoiceColumns}
+      data={result?.rows ?? []}
+      rowCount={result?.total ?? 0}
+      loading={!result}
+      searchable
+      searchPlaceholder="Search customers…"
+      query={query}
+      onQueryChange={setQuery}
+      sort={sort}
+      onSortChange={setSort}
+      page={page}
+      onPageChange={setPage}
+      pageSizeOptions={[3]}
+    />
+  )
+}
+
+const manyEvents = Array.from({ length: 10_000 }, (_, index) => ({
+  id: index,
+  event: ["deploy.succeeded", "deploy.failed", "build.started", "domain.verified"][index % 4],
+  latency: (index * 37) % 900,
+}))
+
+function DataTableVirtualExample() {
+  return (
+    <R.DataTable
+      ariaLabel="10,000 events"
+      columns={[
+        { key: "id", header: "#", sortable: true, cell: (row) => row.id },
+        { key: "event", header: "Event", sortable: true, cell: (row) => row.event },
+        { key: "latency", header: "Latency", sortable: true, align: "right", cell: (row) => `${row.latency} ms` },
+      ]}
+      data={manyEvents}
+      searchable
+      virtualized={{ height: 320, rowHeight: 41 }}
+    />
   )
 }
 
@@ -938,6 +1049,113 @@ function App() {
   ],
 
   "components/data-table": () => [
+    ex("selection", "Row selection and bulk actions", "selectable adds a checkbox column with select-all; bulkActions renders a bar while rows are selected. isRowSelectable locks rows (paid invoices here).",
+      `function InvoiceTable() {
+  const [archived, setArchived] = useState<string[]>([])
+  return (
+    <>
+      <DataTable
+        ariaLabel="Invoices with selection"
+        columns={invoiceColumns}
+        data={invoices.filter((invoice) => !archived.includes(invoice.customer))}
+        selectable
+        isRowSelectable={(row) => row.status !== "Paid"}
+        getRowLabel={(row) => row.customer}
+        pageSizeOptions={false}
+        bulkActions={(selected, clear) => (
+          <>
+            <Button size="sm" variant="secondary" onClick={clear}>Clear</Button>
+            <Button size="sm" variant="danger" onClick={() => { setArchived([...archived, ...selected.map((row) => row.customer)]); clear() }}>
+              Archive
+            </Button>
+          </>
+        )}
+      />
+      <span role="status">{archived.length ? \`Archived: \${archived.join(", ")}\` : "Paid invoices cannot be selected"}</span>
+    </>
+  )
+}`,
+      <DataTableSelectionExample />, "start"),
+    ex("columns", "Pin, resize and toggle columns", "pinned keeps a column visible while scrolling sideways; resizableColumns adds drag handles (arrow keys work too); columnToggle adds a Columns menu.",
+      `<DataTable
+  ariaLabel="Invoices with column tools"
+  columns={[
+    { ...invoiceColumns[0], pinned: "left", hideable: false },
+    invoiceColumns[1],
+    invoiceColumns[2],
+    { key: "id", header: "Invoice", cell: (row) => \`INV-\${1000 + row.id}\` },
+  ]}
+  data={invoices}
+  columnToggle
+  resizableColumns
+  pageSizeOptions={false}
+/>`,
+      <DataTableColumnsExample />, "start"),
+    ex("server", "Server-side data", "With manual, the table only reports query, sort and page changes; your API returns the current page and rowCount. This example simulates a 400 ms API.",
+      `// A stand-in for your API: filters, sorts and pages on the "server".
+function fetchInvoices({ query, sort, page, pageSize }: { query: string; sort: DataTableSort; page: number; pageSize: number }) {
+  return new Promise<{ rows: Invoice[]; total: number }>((resolve) => {
+    window.setTimeout(() => {
+      let result = invoices.filter((invoice) => invoice.customer.toLowerCase().includes(query.toLowerCase()))
+      if (sort.key && sort.dir) {
+        const key = sort.key as keyof Invoice
+        result = [...result].sort((a, b) => String(a[key]).localeCompare(String(b[key]), undefined, { numeric: true }) * (sort.dir === "asc" ? 1 : -1))
+      }
+      resolve({ rows: result.slice((page - 1) * pageSize, page * pageSize), total: result.length })
+    }, 400)
+  })
+}
+
+function ServerInvoices() {
+  const [query, setQuery] = useState("")
+  const [sort, setSort] = useState<DataTableSort>({ key: null, dir: null })
+  const [page, setPage] = useState(1)
+  const [result, setResult] = useState<{ rows: Invoice[]; total: number } | null>(null)
+  useEffect(() => {
+    let current = true
+    fetchInvoices({ query, sort, page, pageSize: 3 }).then((next) => { if (current) setResult(next) })
+    return () => { current = false }
+  }, [query, sort, page])
+  return (
+    <DataTable
+      manual
+      ariaLabel="Invoices from the server"
+      columns={invoiceColumns}
+      data={result?.rows ?? []}
+      rowCount={result?.total ?? 0}
+      loading={!result}
+      searchable
+      searchPlaceholder="Search customers…"
+      query={query}
+      onQueryChange={setQuery}
+      sort={sort}
+      onSortChange={setSort}
+      page={page}
+      onPageChange={setPage}
+      pageSizeOptions={[3]}
+    />
+  )
+}`,
+      <DataTableServerExample />, "start"),
+    ex("virtualized", "10,000 rows, virtualized", "virtualized renders only the rows in view (with a sticky header), so search and sort stay instant on large data sets.",
+      `const manyEvents = Array.from({ length: 10_000 }, (_, index) => ({
+  id: index,
+  event: ["deploy.succeeded", "deploy.failed", "build.started", "domain.verified"][index % 4],
+  latency: (index * 37) % 900,
+}))
+
+<DataTable
+  ariaLabel="10,000 events"
+  columns={[
+    { key: "id", header: "#", sortable: true, cell: (row) => row.id },
+    { key: "event", header: "Event", sortable: true, cell: (row) => row.event },
+    { key: "latency", header: "Latency", sortable: true, align: "right", cell: (row) => \`\${row.latency} ms\` },
+  ]}
+  data={manyEvents}
+  searchable
+  virtualized={{ height: 320, rowHeight: 41 }}
+/>`,
+      <DataTableVirtualExample />, "start"),
     ex("full", "Search, sort, paginate, row click", "Sortable columns, a custom cell renderer, page sizes and an accessible row action.",
       `type Invoice = { id: number; customer: string; amount: number; status: "Paid" | "Due" | "Overdue" }
 
