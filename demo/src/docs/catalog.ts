@@ -149,6 +149,10 @@ const editors = [
   component("Terminal", "Displays terminal output and an interactive shell emulator.", "Editors", ["console"], "TerminalEmulator"),
 ]
 
+const developer = [
+  component("Dev Mode", "Floating viewport inspector for checking responsive UI while you build.", "Developer", ["viewport", "breakpoint", "responsive", "screen size", "debug"], "DevMode"),
+]
+
 const typography = [
   component("Heading", "Renders semantic, responsively scaled headings.", "Typography", ["title"]),
   component("Text", "Renders semantic interface copy and localized date, time, number, percent, and currency values.", "Typography", ["paragraph", "copy", "status", "date", "time", "number", "percent", "currency"]),
@@ -166,6 +170,7 @@ export const componentGroups: DocsGroup[] = [
   { label: "Data", pages: data },
   { label: "Typography", pages: typography },
   { label: "Editors", pages: editors },
+  { label: "Developer", pages: developer },
 ]
 
 const patterns: DocsPage[] = [

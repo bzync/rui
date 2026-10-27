@@ -1,7 +1,8 @@
-import { render, screen } from "@testing-library/react"
+import { act, render, screen, waitFor, within } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
 import { describe, expect, it } from "vitest"
 import {
-  AspectRatio, AuthBackdrop, Avatar, AvatarGroup, AvatarGroupOverflow, Badge, Blockquote, Breadcrumb, Callout, Card, CardBody, CardDescription, CardFooter,
+  AspectRatio, AuthBackdrop, DevMode, resolveBreakpoint, Avatar, AvatarGroup, AvatarGroupOverflow, Badge, Blockquote, Breadcrumb, Callout, Card, CardBody, CardDescription, CardFooter,
   CardHeader, CardTitle, EmptyState, ErrorState, FormField, Input, Kbd, Label,
   Currency, DescriptionDetails, DescriptionItem, DescriptionList, DescriptionTerm, Divider, Heading, InlineCode, Link, List, ListItem, Progressbar, Prose, ScrollArea, Separator, Skeleton, SkeletonAvatar, SkeletonCard,
   Alert, Button, SkeletonList, SkeletonRegion, SkeletonStat, Tag,
@@ -283,5 +284,69 @@ describe("skeleton loading announcements", () => {
     expect(screen.getAllByRole("status")).toHaveLength(1)
     expect(screen.getByRole("status")).toHaveTextContent("Loading dashboard")
     expect(screen.getByRole("status")).toHaveAttribute("aria-busy", "true")
+  })
+})
+
+describe("DevMode viewport inspector", () => {
+  function resizeTo(width: number, height = 800) {
+    act(() => {
+      Object.defineProperty(window, "innerWidth", { configurable: true, value: width })
+      Object.defineProperty(window, "innerHeight", { configurable: true, value: height })
+      window.dispatchEvent(new Event("resize"))
+    })
+  }
+
+  it("resolves breakpoints, including custom scales", () => {
+    expect(resolveBreakpoint(320)).toBe("base")
+    expect(resolveBreakpoint(640)).toBe("sm")
+    expect(resolveBreakpoint(1300)).toBe("xl")
+    expect(resolveBreakpoint(900, { tablet: 600, desktop: 1200 })).toBe("tablet")
+    expect(resolveBreakpoint(320, { phone: 0, tablet: 600 })).toBe("phone")
+  })
+
+  it("omits the synthetic base segment when the scale starts at 0", () => {
+    render(<DevMode floating={false} hotkey={false} breakpoints={{ phone: 0, tablet: 600 }} />)
+    const scale = screen.getByRole("list", { name: "Breakpoints" })
+    expect(within(scale).queryByText("base")).not.toBeInTheDocument()
+    expect(within(scale).getAllByRole("listitem")).toHaveLength(2)
+  })
+
+  it("shows live size and the active breakpoint, and follows resizes", async () => {
+    resizeTo(1024, 768)
+    render(<DevMode floating={false} hotkey={false} />)
+    expect(screen.getByRole("region", { name: "Viewport inspector" })).toBeInTheDocument()
+    expect(screen.getByTestId("devmode-size")).toHaveTextContent("1024 × 768")
+    expect(within(screen.getByRole("list", { name: "Breakpoints" })).getByText("lg")).toHaveAttribute("aria-current", "true")
+    resizeTo(700, 900)
+    await waitFor(() => expect(screen.getByTestId("devmode-size")).toHaveTextContent("700 × 900"))
+    expect(within(screen.getByRole("list", { name: "Breakpoints" })).getByText("sm")).toHaveAttribute("aria-current", "true")
+    expect(screen.getByText("portrait")).toBeInTheDocument()
+  })
+
+  it("collapses, toggles layout outlines and hides with the hotkey", async () => {
+    resizeTo(1280)
+    const user = userEvent.setup()
+    render(<DevMode floating={false} />)
+    await user.click(screen.getByRole("button", { name: "Outline layout boxes" }))
+    expect(document.documentElement).toHaveAttribute("data-rui-devmode-outline")
+    await user.click(screen.getByRole("button", { name: "Outline layout boxes" }))
+    expect(document.documentElement).not.toHaveAttribute("data-rui-devmode-outline")
+
+    await user.click(screen.getByRole("button", { name: "Collapse viewport inspector" }))
+    await user.click(screen.getByRole("button", { name: /Expand viewport inspector \(xl, 1280px\)/ }))
+    expect(screen.getByTestId("devmode-size")).toBeInTheDocument()
+
+    await user.keyboard("{Control>}{Shift>}d{/Shift}{/Control}")
+    expect(screen.queryByRole("region", { name: "Viewport inspector" })).not.toBeInTheDocument()
+  })
+
+  it("renders nothing when disabled and floats in a portal by default", () => {
+    const { container, unmount } = render(<DevMode enabled={false} />)
+    expect(container).toBeEmptyDOMElement()
+    unmount()
+    const { container: floatingContainer } = render(<div data-testid="host"><DevMode /></div>)
+    const panel = screen.getByRole("region", { name: "Viewport inspector" })
+    expect(floatingContainer).not.toContainElement(panel)
+    expect(panel).toHaveClass("fixed")
   })
 })

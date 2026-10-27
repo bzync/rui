@@ -3,6 +3,7 @@
 import {
   Badge,
   Button,
+  DevMode,
   DropdownMenu,
   SnackbarProvider,
   ThemeProvider,
@@ -389,5 +390,12 @@ function DocsShell() {
 }
 
 export default function App() {
-  return <ThemeProvider defaultTheme="system" applyToRoot storageKey="rui-docs-theme"><DocsShell /></ThemeProvider>
+  return (
+    <ThemeProvider defaultTheme="system" applyToRoot storageKey="rui-docs-theme">
+      <DocsShell />
+      {/* Development-only viewport inspector; stripped from production builds
+          and skipped under browser automation so it can't intercept e2e clicks. */}
+      {import.meta.env.DEV && !navigator.webdriver && <DevMode defaultPosition="bottom-left" />}
+    </ThemeProvider>
+  )
 }

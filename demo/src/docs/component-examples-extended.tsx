@@ -1207,6 +1207,26 @@ export default function App() {
       <R.TerminalBlock className="w-full" title="deploy.log" lines={[{ type: "command", text: "npm run build" }, { type: "output", text: "vite v8.2.2 building for production..." }, { type: "success", text: "✓ built in 3.91s" }, { type: "command", text: "npm run deploy" }, { type: "info", text: "Uploading 42 files to us-east-1" }, { type: "error", text: "warning: 1 asset over 500 kB" }, { type: "muted", text: "Done in 12.4s" }]} />),
   ],
 
+  "components/dev-mode": () => [
+    ex("inline", "Inline with custom breakpoints", "floating={false} embeds the inspector in your own debug panel; breakpoints accepts any named scale.",
+      `<DevMode
+  floating={false}
+  hotkey={false}
+  breakpoints={{ phone: 0, tablet: 600, laptop: 1024, desktop: 1440 }}
+/>`,
+      <R.DevMode floating={false} hotkey={false} breakpoints={{ phone: 0, tablet: 600, laptop: 1024, desktop: 1440 }} />),
+    ex("collapsed", "Collapsed pill", "defaultCollapsed starts as a small breakpoint pill; click it to expand.",
+      `<DevMode floating={false} hotkey={false} defaultCollapsed />`,
+      <R.DevMode floating={false} hotkey={false} defaultCollapsed />),
+    ex("app", "App-wide setup", "Render it once near the root, gated to development. ⌘/Ctrl + Shift + D hides it; the outline button reveals every layout box.",
+      `// main.tsx / app root
+<ThemeProvider>
+  <App />
+  <DevMode enabled={import.meta.env.DEV} defaultPosition="bottom-right" />
+</ThemeProvider>`,
+      <R.Callout variant="info" title="This docs site runs DevMode in development" className="w-full max-w-lg">Start the docs with <R.InlineCode>npm --prefix demo run dev</R.InlineCode> and the inspector appears in the bottom-left corner.</R.Callout>),
+  ],
+
   "components/heading": () => [
     ex("scale", "Size scale", "Visual size is independent of the semantic level.",
       `<Heading as="h2" size="2xl">2xl heading</Heading>

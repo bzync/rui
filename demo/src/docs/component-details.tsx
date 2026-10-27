@@ -131,6 +131,17 @@ function NavigationPreview() {
   return <R.Navbar className="w-full rounded-xl" items={items} activeId={active} onSelect={setActive}><R.BrandLink href="#overview" mark={<RuiBrandMark />}>@bzync/rui</R.BrandLink></R.Navbar>
 }
 
+function DevModePreview() {
+  const [enabled, setEnabled] = useState(false)
+  return (
+    <div className="demo-stack items-center text-center">
+      <R.Button onClick={() => setEnabled(!enabled)}>{enabled ? "Hide DevMode" : "Show DevMode"}</R.Button>
+      <p className="text-sm text-muted-foreground">Resize the window and watch the bottom-left corner.</p>
+      <R.DevMode enabled={enabled} />
+    </div>
+  )
+}
+
 function CodeEditorPreview() {
   const [value, setValue] = useState("export const status = \"ready\"\n")
   return <R.CodeEditor className="w-full" language="ts" value={value} onChange={setValue} />
@@ -601,6 +612,23 @@ export const supplementalDetails: Record<string, () => SupplementalDetail> = {
     <div className="w-full"><R.DataTable ariaLabel="Services" columns={tableColumns} data={tableRows} searchable searchPlaceholder="Search services…" pageSizeOptions={false} /></div>,
     api(["columns", "ColumnDef<T>[]", "Column definitions, cells, sort, and search settings."], ["data", "T[]", "Rows with stable IDs."], ["searchable", "boolean", "Displays the search field."], ["loading", "boolean", "Displays table skeletons."], ["pageSizeOptions", "number[] | false", "Page-size selector values or disabled state."]),
     "Provides a named native table, labeled search control, sortable headers, and keyboard-operable pagination.",
+  ),
+  "components/dev-mode": () => detail(
+    `function App() {
+  const [enabled, setEnabled] = useState(false)
+  return (
+    <>
+      <Button onClick={() => setEnabled(!enabled)}>{enabled ? "Hide DevMode" : "Show DevMode"}</Button>
+      <DevMode enabled={enabled} />
+    </>
+  )
+}
+
+// In a real app, gate it to development:
+<DevMode enabled={import.meta.env.DEV} />`,
+    <DevModePreview />,
+    api(["enabled", "boolean", "Renders nothing when false; gate it with import.meta.env.DEV or similar.", "true"], ["defaultPosition", '"top-left" | "top-right" | "bottom-left" | "bottom-right"', "Initial corner; the move button cycles corners.", '"bottom-left"'], ["breakpoints", "Record<string, number>", "Named min-width breakpoints in px.", "Tailwind sm–2xl"], ["defaultCollapsed", "boolean", "Start collapsed to the breakpoint pill.", "false"], ["hotkey", "string | false", "Ctrl/⌘ + Shift + key toggles visibility.", '"d"'], ["floating", "boolean", "Fixed to a viewport corner; false renders inline.", "true"], ["resolveBreakpoint(width, breakpoints?)", "function", "Exported helper returning the active breakpoint name for a width."]),
+    "A labelled region with named buttons (outline toggle exposes aria-pressed). It does not announce size changes, to avoid live-region noise while resizing. It renders after hydration only, so server and client markup match.",
   ),
   "components/code-block": () => detail(
     `<CodeBlock language="ts" filename="status.ts" showLineNumbers code={'export const status = "ready"'} />`,
