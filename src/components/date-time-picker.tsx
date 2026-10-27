@@ -50,6 +50,7 @@ export interface DateTimePickerProps extends Omit<HTMLAttributes<HTMLDivElement>
   showSeconds?: boolean
   minuteStep?: number
   presets?: DateTimePreset[]
+  showPresets?: boolean
   minDate?: Date
   maxDate?: Date
   size?: DateTimePickerSize
@@ -62,13 +63,44 @@ const MONTHS = [
 
 const DAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]
 
-const triggerSizes: Record<DateTimePickerSize, string> = {
-  sm: "h-8 px-2.5 text-xs",
-  md: "h-9 px-3 text-sm",
-  lg: "h-10 px-3.5 text-sm",
+const triggerSizes: Record<DateTimePickerSize, { height: string; text: string }> = {
+  sm: { height: "h-8", text: "text-xs" },
+  md: { height: "h-9", text: "text-sm" },
+  lg: { height: "h-10", text: "text-sm" },
 }
 
 const twoDigits = (num: number) => String(num).padStart(2, "0")
+
+const DEFAULT_PRESETS: DateTimePreset[] = [
+  {
+    label: "Now",
+    getValue: () => new Date(),
+  },
+  {
+    label: "+1 Hour",
+    getValue: () => new Date(Date.now() + 60 * 60 * 1000),
+  },
+  {
+    label: "Tomorrow 9 AM",
+    getValue: () => {
+      const d = new Date()
+      d.setDate(d.getDate() + 1)
+      d.setHours(9, 0, 0, 0)
+      return d
+    },
+  },
+  {
+    label: "This Friday 5 PM",
+    getValue: () => {
+      const d = new Date()
+      const day = d.getDay()
+      const diff = (5 - day + 7) % 7 || 7
+      d.setDate(d.getDate() + diff)
+      d.setHours(17, 0, 0, 0)
+      return d
+    },
+  },
+]
 
 function formatDateTime(d: Date, format: DateTimePickerFormat, showSeconds: boolean): string {
   const month = MONTHS[d.getMonth()].slice(0, 3)
@@ -162,7 +194,7 @@ function TimeColumn({ label, name, options, value, onSelect }: TimeColumnProps) 
               onClick={() => onSelect(option.value)}
               onKeyDown={(e) => handleKeyDown(e, index)}
               className={cn(
-                "flex h-7 w-full items-center justify-center rounded-[var(--radius-xs)] text-xs tabular-nums transition-colors",
+                "flex h-7 w-full items-center justify-center rounded-[var(--radius-xs)] text-xs tabular-nums transition-colors cursor-pointer",
                 focusRingStyles,
                 selected
                   ? "bg-accent font-semibold text-accent-foreground shadow-xs"
@@ -194,6 +226,7 @@ export const DateTimePicker = forwardRef<HTMLDivElement, DateTimePickerProps>(fu
     showSeconds = false,
     minuteStep = 5,
     presets,
+    showPresets = false,
     minDate,
     maxDate,
     size = "md",
@@ -212,6 +245,7 @@ export const DateTimePicker = forwardRef<HTMLDivElement, DateTimePickerProps>(fu
 
   const [open, setOpen] = useState(false)
   const [mobileTab, setMobileTab] = useState<"date" | "time">("date")
+  const triggerContainerRef = useRef<HTMLDivElement | null>(null)
   const triggerRef = useRef<HTMLButtonElement | null>(null)
   const panelRef = useRef<HTMLDivElement | null>(null)
   const uid = useId()
@@ -231,9 +265,11 @@ export const DateTimePicker = forwardRef<HTMLDivElement, DateTimePickerProps>(fu
   )
   const [tempSeconds, setTempSeconds] = useState(activeDate.getSeconds())
 
+  const activePresets = presets ?? (showPresets ? DEFAULT_PRESETS : [])
+
   const { setFloating, style, placement } = useAnchoredPosition({
     open,
-    anchorRef: triggerRef,
+    anchorRef: triggerContainerRef,
     side: "bottom",
     align: "start",
     gap: 6,
@@ -266,7 +302,12 @@ export const DateTimePicker = forwardRef<HTMLDivElement, DateTimePickerProps>(fu
     }
     const handlePointerDown = (e: PointerEvent) => {
       const target = e.target as Node | null
-      if (panelRef.current?.contains(target) || triggerRef.current?.contains(target)) return
+      if (
+        panelRef.current?.contains(target) ||
+        triggerContainerRef.current?.contains(target)
+      ) {
+        return
+      }
       setOpen(false)
     }
     document.addEventListener("keydown", handleKeyDown)
@@ -325,6 +366,12 @@ export const DateTimePicker = forwardRef<HTMLDivElement, DateTimePickerProps>(fu
   const handleNow = () => {
     const now = new Date()
     setSelected(now)
+    setViewYear(now.getFullYear())
+    setViewMonth(now.getMonth())
+    setFocusDay(now.getDate())
+    setTempHours(now.getHours())
+    setTempMinutes(now.getMinutes())
+    setTempSeconds(now.getSeconds())
     setOpen(false)
     triggerRef.current?.focus()
   }
@@ -386,7 +433,17 @@ export const DateTimePicker = forwardRef<HTMLDivElement, DateTimePickerProps>(fu
         </label>
       )}
 
-      <div className="relative inline-block w-full">
+      <div
+        ref={triggerContainerRef}
+        className={cn(
+          "flex w-full items-center rounded-[var(--radius-md)]",
+          triggerSizes[size].height,
+          controlBaseStyles,
+          focusRingStyles,
+          error && controlInvalidStyles,
+          disabled && "cursor-not-allowed opacity-50",
+        )}
+      >
         <button
           ref={triggerRef}
           type="button"
@@ -398,59 +455,68 @@ export const DateTimePicker = forwardRef<HTMLDivElement, DateTimePickerProps>(fu
           aria-describedby={error || hint ? messageId : undefined}
           disabled={disabled}
           onClick={() => setOpen(!open)}
-          className={cn(
-            controlBaseStyles,
-            triggerSizes[size],
-            "w-full justify-between font-normal text-left",
-            !selected && "text-muted-foreground",
-            error && controlInvalidStyles,
-            disabled && "cursor-not-allowed opacity-50",
-            focusRingStyles,
-          )}
+          className="flex h-full min-w-0 flex-1 items-center gap-2.5 px-3 text-left outline-none cursor-pointer disabled:cursor-not-allowed"
         >
-          <span className="flex items-center gap-2 truncate">
-            <svg
-              width="15"
-              height="15"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="shrink-0 text-muted-foreground"
-              aria-hidden="true"
-            >
-              <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
-              <line x1="16" x2="16" y1="2" y2="6" />
-              <line x1="8" x2="8" y1="2" y2="6" />
-              <line x1="3" x2="21" y1="10" y2="10" />
-            </svg>
-            <span>{selected ? formatDateTime(selected, format, showSeconds) : placeholder}</span>
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="shrink-0 text-muted-foreground"
+            aria-hidden="true"
+          >
+            <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
+            <line x1="16" x2="16" y1="2" y2="6" />
+            <line x1="8" x2="8" y1="2" y2="6" />
+            <line x1="3" x2="21" y1="10" y2="10" />
+          </svg>
+          <span className={cn("flex-1 truncate", triggerSizes[size].text, selected ? "text-foreground" : "text-muted-foreground")}>
+            {selected ? formatDateTime(selected, format, showSeconds) : placeholder}
           </span>
+        </button>
 
-          {clearable && selected && !disabled && (
-            <span
-              role="button"
-              aria-label="Clear selected date and time"
-              tabIndex={0}
-              onClick={(e) => {
-                e.stopPropagation()
-                setSelected(null)
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.stopPropagation()
-                  setSelected(null)
-                }
-              }}
-              className="text-muted-foreground hover:text-foreground rounded p-0.5 transition-colors"
-            >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M18 6 6 18M6 6l12 12" />
-              </svg>
-            </span>
-          )}
+        {clearable && selected && !disabled && (
+          <button
+            type="button"
+            aria-label="Clear selected date and time"
+            onClick={(e) => {
+              e.stopPropagation()
+              setSelected(null)
+            }}
+            className={cn(iconButtonStyles, "mr-1 size-6 shrink-0 text-muted-foreground hover:text-foreground cursor-pointer")}
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 6 6 18M6 6l12 12" />
+            </svg>
+          </button>
+        )}
+
+        <button
+          type="button"
+          aria-label={open ? "Close date and time picker" : "Open date and time picker"}
+          aria-hidden="true"
+          tabIndex={-1}
+          disabled={disabled}
+          onClick={() => !disabled && setOpen(!open)}
+          className="mr-2.5 shrink-0 text-muted-foreground hover:text-foreground transition-colors cursor-pointer disabled:cursor-not-allowed"
+        >
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={cn("transition-transform duration-150", open && "rotate-180")}
+          >
+            <path d="m6 9 6 6 6-6" />
+          </svg>
         </button>
 
         <ThemePortal>
@@ -494,21 +560,26 @@ export const DateTimePicker = forwardRef<HTMLDivElement, DateTimePickerProps>(fu
                     ...style,
                     transformOrigin: placement === "top" ? "bottom left" : "top left",
                   }}
-                  className="z-(--z-popover) flex flex-col rounded-[var(--radius-lg)] border border-border bg-surface p-3.5 shadow-floating ring-1 ring-foreground/5 select-none"
+                  className="z-(--z-popover) flex max-w-[calc(100vw-1rem)] flex-col rounded-[var(--radius-lg)] border border-border bg-surface p-3.5 shadow-floating ring-1 ring-foreground/5 select-none"
                 >
                   {/* Presets header */}
-                  {presets && presets.length > 0 && (
+                  {activePresets.length > 0 && (
                     <div className="flex flex-wrap gap-1.5 pb-2.5 mb-2.5 border-b border-border">
-                      {presets.map((preset) => (
+                      {activePresets.map((preset) => (
                         <button
                           key={preset.label}
                           type="button"
                           onClick={() => {
                             const next = preset.getValue()
                             setSelected(next)
-                            setOpen(false)
+                            setViewYear(next.getFullYear())
+                            setViewMonth(next.getMonth())
+                            setFocusDay(next.getDate())
+                            setTempHours(next.getHours())
+                            setTempMinutes(next.getMinutes())
+                            setTempSeconds(next.getSeconds())
                           }}
-                          className="rounded-[var(--radius-sm)] border border-border bg-surface px-2 py-0.5 text-xs font-medium text-foreground transition-colors hover:border-border-strong hover:bg-foreground/5"
+                          className="rounded-[var(--radius-sm)] border border-border bg-surface px-2 py-0.5 text-xs font-medium text-foreground transition-colors hover:border-border-strong hover:bg-foreground/5 cursor-pointer"
                         >
                           {preset.label}
                         </button>
@@ -522,7 +593,7 @@ export const DateTimePicker = forwardRef<HTMLDivElement, DateTimePickerProps>(fu
                       type="button"
                       onClick={() => setMobileTab("date")}
                       className={cn(
-                        "flex-1 py-1 text-xs font-semibold rounded-[var(--radius-xs)] transition-colors text-center",
+                        "flex-1 py-1 text-xs font-semibold rounded-[var(--radius-xs)] transition-colors text-center cursor-pointer",
                         mobileTab === "date"
                           ? "bg-accent text-accent-foreground shadow-xs"
                           : "text-muted-foreground hover:text-foreground",
@@ -534,7 +605,7 @@ export const DateTimePicker = forwardRef<HTMLDivElement, DateTimePickerProps>(fu
                       type="button"
                       onClick={() => setMobileTab("time")}
                       className={cn(
-                        "flex-1 py-1 text-xs font-semibold rounded-[var(--radius-xs)] transition-colors text-center",
+                        "flex-1 py-1 text-xs font-semibold rounded-[var(--radius-xs)] transition-colors text-center cursor-pointer",
                         mobileTab === "time"
                           ? "bg-accent text-accent-foreground shadow-xs"
                           : "text-muted-foreground hover:text-foreground",
@@ -610,7 +681,7 @@ export const DateTimePicker = forwardRef<HTMLDivElement, DateTimePickerProps>(fu
                               aria-current={isToday ? "date" : undefined}
                               tabIndex={isSelected || (!selected && day === focusDay) ? 0 : -1}
                               className={cn(
-                                "flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-xs font-medium transition-colors",
+                                "flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-xs font-medium transition-colors cursor-pointer",
                                 focusRingStyles,
                                 isSelected
                                   ? "bg-accent text-accent-foreground font-semibold shadow-xs"
@@ -650,7 +721,7 @@ export const DateTimePicker = forwardRef<HTMLDivElement, DateTimePickerProps>(fu
                               if (isPM) setTempHours((h) => h - 12)
                             }}
                             className={cn(
-                              "flex-1 py-0.5 text-xs font-semibold rounded-[var(--radius-xs)] transition-colors text-center",
+                              "flex-1 py-0.5 text-xs font-semibold rounded-[var(--radius-xs)] transition-colors text-center cursor-pointer",
                               !isPM
                                 ? "bg-accent text-accent-foreground shadow-xs"
                                 : "text-muted-foreground hover:text-foreground",
@@ -666,7 +737,7 @@ export const DateTimePicker = forwardRef<HTMLDivElement, DateTimePickerProps>(fu
                               if (!isPM) setTempHours((h) => h + 12)
                             }}
                             className={cn(
-                              "flex-1 py-0.5 text-xs font-semibold rounded-[var(--radius-xs)] transition-colors text-center",
+                              "flex-1 py-0.5 text-xs font-semibold rounded-[var(--radius-xs)] transition-colors text-center cursor-pointer",
                               isPM
                                 ? "bg-accent text-accent-foreground shadow-xs"
                                 : "text-muted-foreground hover:text-foreground",
@@ -708,14 +779,14 @@ export const DateTimePicker = forwardRef<HTMLDivElement, DateTimePickerProps>(fu
                         <button
                           type="button"
                           onClick={handleNow}
-                          className="flex-1 rounded-[var(--radius-sm)] border border-border bg-surface px-2 py-1 text-xs font-medium text-foreground hover:bg-foreground/5 transition-colors"
+                          className="flex-1 rounded-[var(--radius-sm)] border border-border bg-surface px-2 py-1 text-xs font-medium text-foreground hover:bg-foreground/5 transition-colors cursor-pointer"
                         >
                           Now
                         </button>
                         <button
                           type="button"
                           onClick={handleApply}
-                          className="flex-1 rounded-[var(--radius-sm)] bg-accent px-2 py-1 text-xs font-semibold text-accent-foreground hover:opacity-90 transition-opacity"
+                          className="flex-1 rounded-[var(--radius-sm)] bg-accent px-2 py-1 text-xs font-semibold text-accent-foreground hover:opacity-90 transition-opacity cursor-pointer"
                         >
                           Done
                         </button>

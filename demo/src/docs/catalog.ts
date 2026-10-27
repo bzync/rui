@@ -212,9 +212,11 @@ const patterns: DocsPage[] = [
 ]
 
 const examples: DocsPage[] = [
-  { slug: "examples/settings", title: "Settings", description: "A realistic notification and account settings screen.", kind: "example", group: "Examples" },
-  { slug: "examples/authentication", title: "Authentication", description: "A compact, accessible sign-in form.", kind: "example", group: "Examples", aliases: ["login", "sign in"] },
-  { slug: "examples/team-management", title: "Team management", description: "A searchable team member table with actions.", kind: "example", group: "Examples", aliases: ["users", "members"] },
+  { slug: "examples/settings", title: "Settings", description: "A comprehensive application settings layout with profiles, theme switching, notifications, and security.", kind: "example", group: "Examples" },
+  { slug: "examples/authentication", title: "Authentication", description: "Production-ready auth screen with sign-in, registration, password visibility, and social providers.", kind: "example", group: "Examples", aliases: ["login", "sign in", "signup", "register"] },
+  { slug: "examples/team-management", title: "Team management", description: "Interactive team member workspace with KPI metrics, role filters, invite modal, and member actions.", kind: "example", group: "Examples", aliases: ["users", "members", "roles"] },
+  { slug: "examples/dashboard", title: "Executive dashboard", description: "An operational analytics dashboard combining real-time KPI metrics, responsive charts, and activity feeds.", kind: "example", group: "Examples", aliases: ["analytics", "metrics", "charts"] },
+  { slug: "examples/kanban", title: "Kanban board", description: "A full drag-and-drop project workflow with columns, draggable task cards, and assignee avatars.", kind: "example", group: "Examples", aliases: ["scrum", "board", "dnd", "tasks"] },
 ]
 
 const resources: DocsPage[] = [

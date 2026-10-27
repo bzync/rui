@@ -70,8 +70,20 @@ function RangeSliderUsagePreview() {
 function DateTimePickerUsagePreview() {
   const [val, setVal] = useState<Date | null>(new Date())
   return (
-    <div className="w-full max-w-sm">
-      <R.DateTimePicker label="Release Date & Time" value={val} onChange={setVal} />
+    <div className="w-full max-w-sm flex flex-col gap-3">
+      <R.DateTimePicker
+        label="Release Date & Time"
+        hint="Schedule automated production deployment"
+        value={val}
+        onChange={setVal}
+        showPresets
+      />
+      {val && (
+        <div className="flex items-center justify-between rounded-[var(--radius-md)] border border-border bg-surface-muted/50 px-3 py-2 text-xs">
+          <span className="text-muted-foreground">Scheduled for</span>
+          <span className="font-semibold text-foreground">{val.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}</span>
+        </div>
+      )}
     </div>
   )
 }
@@ -1994,12 +2006,20 @@ const columns: ColumnDef<(typeof services)[number]>[] = [
     `function ScheduleDeployment() {
   const [val, setVal] = useState<Date | null>(new Date())
   return (
-    <div className="w-full max-w-sm">
+    <div className="w-full max-w-sm flex flex-col gap-3">
       <DateTimePicker
         label="Release Date & Time"
+        hint="Schedule automated production deployment"
         value={val}
         onChange={setVal}
+        showPresets
       />
+      {val && (
+        <div className="flex items-center justify-between rounded-[var(--radius-md)] border border-border bg-surface-muted/50 px-3 py-2 text-xs">
+          <span className="text-muted-foreground">Scheduled for</span>
+          <span className="font-semibold text-foreground">{val.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}</span>
+        </div>
+      )}
     </div>
   )
 }`,

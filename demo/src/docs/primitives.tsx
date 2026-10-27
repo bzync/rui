@@ -138,15 +138,26 @@ export function PropsTable({ props, caption = "Component props" }: { props: ApiP
     <div className="docs-table-wrap">
       <table className="docs-props-table">
         <caption className="sr-only">{caption}</caption>
+        <colgroup>
+          <col style={{ width: "22%", minWidth: "140px" }} />
+          <col style={{ width: "32%", minWidth: "240px" }} />
+          <col style={{ width: "16%", minWidth: "110px" }} />
+          <col style={{ width: "30%", minWidth: "200px" }} />
+        </colgroup>
         <thead>
-          <tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr>
+          <tr>
+            <th scope="col">Prop</th>
+            <th scope="col">Type</th>
+            <th scope="col">Default</th>
+            <th scope="col">Description</th>
+          </tr>
         </thead>
         <tbody>
           {props.map((prop) => (
             <tr key={prop.name}>
               <td><code>{prop.name}</code></td>
               <td><code>{prop.type}</code></td>
-              <td>{prop.default ? <code>{prop.default}</code> : <span aria-label="Not applicable">—</span>}</td>
+              <td>{prop.default ? <code>{prop.default}</code> : <span aria-label="Not applicable" className="text-muted-foreground">—</span>}</td>
               <td>{prop.description}</td>
             </tr>
           ))}

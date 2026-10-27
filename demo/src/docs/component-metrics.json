@@ -1,9 +1,9 @@
 {
   "version": "0.0.11",
   "stylesheet": {
-    "raw": 128354,
-    "gzip": 20258,
-    "brotli": 16068
+    "raw": 128403,
+    "gzip": 20263,
+    "brotli": 16023
   },
   "sharedRuntime": {
     "raw": 37806,
@@ -927,14 +927,14 @@
     "DateTimePicker": {
       "entry": "components/date-time-picker.js",
       "total": {
-        "raw": 70218,
-        "gzip": 18875,
-        "brotli": 16206
+        "raw": 72270,
+        "gzip": 19227,
+        "brotli": 16462
       },
       "specific": {
-        "raw": 32412,
-        "gzip": 9113,
-        "brotli": 8074
+        "raw": 34464,
+        "gzip": 9408,
+        "brotli": 8352
       },
       "lazy": null,
       "modules": 9,

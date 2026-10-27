@@ -52,6 +52,8 @@ const pageSectionMap: Record<string, string[]> = {
   "examples/settings": ["preview", "implementation"],
   "examples/authentication": ["preview", "implementation"],
   "examples/team-management": ["preview", "implementation"],
+  "examples/dashboard": ["preview", "implementation"],
+  "examples/kanban": ["preview", "implementation"],
   "resources/component-api": ["inventory", "types"],
   "resources/accessibility": ["component-contract", "consumer-checklist", "testing"],
   "resources/contributing": ["workflow", "component-contract", "verification"],

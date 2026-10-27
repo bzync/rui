@@ -2677,6 +2677,38 @@ export default function App() {
   )
 }`,
       <DateTimePicker24hExample />),
+    ex("presets", "Custom presets", "Provides quick 1-click scheduling shortcuts for common milestones.",
+      `function DateTimePickerPresets() {
+  const [date, setDate] = useState<Date | null>(new Date())
+  const presets = [
+    { label: "Sprint Planning", getValue: () => new Date(Date.now() + 2 * 3600 * 1000) },
+    { label: "Code Freeze", getValue: () => new Date(Date.now() + 24 * 3600 * 1000) },
+    { label: "Release Cutoff", getValue: () => new Date(Date.now() + 48 * 3600 * 1000) },
+  ]
+  return (
+    <div className="w-full max-w-sm">
+      <DateTimePicker
+        label="Milestone Deadline"
+        value={date}
+        onChange={setDate}
+        presets={presets}
+      />
+    </div>
+  )
+}`,
+      <DateTimePickerPresetsExample />),
+    ex("sizes", "Sizes", "Available in small, medium, and large field scales matching standard inputs.",
+      `function DateTimePickerSizes() {
+  const [smVal, setSmVal] = useState<Date | null>(new Date())
+  const [lgVal, setLgVal] = useState<Date | null>(new Date())
+  return (
+    <div className="demo-stack w-full max-w-sm">
+      <DateTimePicker label="Compact size" size="sm" value={smVal} onChange={setSmVal} />
+      <DateTimePicker label="Large size" size="lg" value={lgVal} onChange={setLgVal} />
+    </div>
+  )
+}`,
+      <DateTimePickerSizesExample />),
     ex("states", "Error and disabled states", "Shows accessible validation error message and disabled mode.",
       `<div className="demo-stack w-full max-w-sm">
   <DateTimePicker label="Required Start Date" error="Start date and time is required." />
@@ -2943,6 +2975,36 @@ function DateTimePicker24hExample() {
         is24Hour
         hint="Specified in 24-hour UTC format"
       />
+    </div>
+  )
+}
+
+function DateTimePickerPresetsExample() {
+  const [date, setDate] = useState<Date | null>(new Date())
+  const presets = [
+    { label: "Sprint Planning", getValue: () => new Date(Date.now() + 2 * 3600 * 1000) },
+    { label: "Code Freeze", getValue: () => new Date(Date.now() + 24 * 3600 * 1000) },
+    { label: "Release Cutoff", getValue: () => new Date(Date.now() + 48 * 3600 * 1000) },
+  ]
+  return (
+    <div className="w-full max-w-sm">
+      <R.DateTimePicker
+        label="Milestone Deadline"
+        value={date}
+        onChange={setDate}
+        presets={presets}
+      />
+    </div>
+  )
+}
+
+function DateTimePickerSizesExample() {
+  const [smVal, setSmVal] = useState<Date | null>(new Date())
+  const [lgVal, setLgVal] = useState<Date | null>(new Date())
+  return (
+    <div className="demo-stack w-full max-w-sm">
+      <R.DateTimePicker label="Compact size" size="sm" value={smVal} onChange={setSmVal} />
+      <R.DateTimePicker label="Large size" size="lg" value={lgVal} onChange={setLgVal} />
     </div>
   )
 }
