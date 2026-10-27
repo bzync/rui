@@ -120,6 +120,16 @@ function CommandPreview() {
   return <R.CommandProvider><CommandTrigger /><R.CommandPalette items={[{ id: "projects", label: "Open projects", group: "Navigation", icon: <Box size={15} />, onSelect: () => {} }, { id: "settings", label: "Open settings", group: "Navigation", icon: <Settings size={15} />, onSelect: () => {} }]} /></R.CommandProvider>
 }
 
+function TagUsagePreview() {
+  const [tags, setTags] = useState(["us-east-1", "preview"])
+  return <div className="demo-row"><R.Tag>Node.js 22</R.Tag>{tags.map((tag) => <R.Tag key={tag} variant={tag === "preview" ? "info" : "success"} onRemove={() => setTags(tags.filter((t) => t !== tag))}>{tag}</R.Tag>)}</div>
+}
+
+function ErrorStateUsagePreview() {
+  const [retries, setRetries] = useState(0)
+  return <R.ErrorState className="w-full max-w-md" title="Failed to load deployments" description={retries ? `Still unreachable after ${retries} ${retries === 1 ? "retry" : "retries"}.` : "The API could not be reached."} error="connect ECONNREFUSED" onRetry={() => setRetries(retries + 1)} />
+}
+
 function TreePreview() {
   const [selected, setSelected] = useState("button")
   return <R.Tree className="w-full max-w-xs" selected={selected} onSelect={setSelected} defaultExpanded={["src", "components"]} nodes={[{ id: "src", label: "src", children: [{ id: "components", label: "components", children: [{ id: "button", label: "button.tsx" }, { id: "modal", label: "modal.tsx" }] }, { id: "index", label: "index.ts" }] }]} />
@@ -127,8 +137,8 @@ function TreePreview() {
 
 function NavigationPreview() {
   const [active, setActive] = useState("overview")
-  const items: R.NavigationItem[] = [{ id: "overview", label: "Overview", href: "#overview", icon: <Home size={15} /> }, { id: "projects", label: "Projects", href: "#projects", icon: <Box size={15} /> }, { id: "activity", label: "Activity", href: "#activity", icon: <Activity size={15} /> }]
-  return <R.Navbar className="w-full rounded-xl" items={items} activeId={active} onSelect={setActive}><R.BrandLink href="#overview" mark={<RuiBrandMark />}>@bzync/rui</R.BrandLink></R.Navbar>
+  const items: R.NavigationItem[] = [{ id: "overview", label: "Overview", icon: <Home size={15} /> }, { id: "projects", label: "Projects", icon: <Box size={15} /> }, { id: "activity", label: "Activity", icon: <Activity size={15} /> }]
+  return <R.Navbar className="w-full rounded-xl" items={items} activeId={active} onSelect={setActive}><R.BrandLink href="#/docs/introduction" mark={<RuiBrandMark />}>@bzync/rui</R.BrandLink></R.Navbar>
 }
 
 function DevModePreview() {
@@ -235,28 +245,19 @@ const chartProps = api(
 
 export const supplementalDetails: Record<string, () => SupplementalDetail> = {
   "components/heading": () => detail(
-    `<Heading as="h1" size="xl">Operational clarity at every scale.</Heading>`,
+    `<Heading as="h2" size="xl" className="max-w-2xl">Operational clarity at every scale.</Heading>`,
     <R.Heading as="h2" size="xl" className="max-w-2xl">Operational clarity at every scale.</R.Heading>,
     api(["as", '"h1" | "h2" | "h3" | "h4" | "h5" | "h6"', "Semantic heading level.", '"h2"'], ["size", '"xs" | "sm" | "md" | "lg" | "xl" | "2xl"', "Responsive visual scale; defaults from the heading level."], ["tone", '"default" | "muted" | "accent"', "Semantic text color.", '"default"'], ["weight", '"normal" | "medium" | "semibold" | "bold"', "Font weight.", '"semibold"'], ["balance", "boolean", "Balances multi-line headings where supported.", "true"]),
     "The as prop preserves the document outline independently from visual size. Choose levels in logical order and do not select them only for appearance.",
   ),
   "components/text": () => detail(
-    `<Text variant="lead">Monitor deployments without losing operational context.</Text>
-<Text variant="success">All systems operational</Text>
-<Text variant="date" value="2026-08-27" />
-<Text variant="time" value="13:45" hour12 />
-<Text variant="number" value={12480} />
-<Text variant="percent" value={0.962} />
-<Text variant="currency" value={12840.5} currency="USD" />`,
-    <div className="demo-stack max-w-lg"><R.Text variant="lead">Monitor deployments without losing operational context.</R.Text><R.Text>Semantic styles keep interface copy readable from mobile through wide operational screens.</R.Text><div className="demo-row"><R.Text variant="label">Environment</R.Text><R.Text variant="helper">Used for deployment targeting.</R.Text><R.Text variant="success">All systems operational</R.Text><R.Text variant="warning">Capacity nearing limit</R.Text><R.Text variant="danger">Deployment failed</R.Text><R.Text variant="info">Maintenance at 02:00 UTC</R.Text></div><div className="demo-row"><R.Text variant="date" value="2026-08-27" /><R.Text variant="time" value="13:45" hour12 /><R.Text variant="number" value={12480} /><R.Text variant="percent" value={0.962} numberOptions={{ maximumFractionDigits: 1 }} /><R.Text variant="currency" value={12840.5} currency="USD" /></div><R.Text variant="overline">Live operations</R.Text><R.Text variant="caption">Updated 2 minutes ago</R.Text></div>,
+    `<div className="grid gap-4 max-w-lg"><Text variant="lead">Monitor deployments without losing operational context.</Text><Text>Semantic styles keep interface copy readable from mobile through wide operational screens.</Text><div className="flex flex-wrap items-center justify-center gap-3"><Text variant="label">Environment</Text><Text variant="helper">Used for deployment targeting.</Text><Text variant="success">All systems operational</Text><Text variant="warning">Capacity nearing limit</Text><Text variant="danger">Deployment failed</Text><Text variant="info">Maintenance at 02:00 UTC</Text></div><div className="flex flex-wrap items-center justify-center gap-3"><Text variant="date" value="2026-08-27" /><Text variant="time" value="13:45" hour12 /><Text variant="number" value={12480} /><Text variant="percent" value={0.962} numberOptions={{ maximumFractionDigits: 1 }} /><Text variant="currency" value={12840.5} currency="USD" /></div><Text variant="overline">Live operations</Text><Text variant="caption">Updated 2 minutes ago</Text></div>`,
+    <div className="grid gap-4 max-w-lg"><R.Text variant="lead">Monitor deployments without losing operational context.</R.Text><R.Text>Semantic styles keep interface copy readable from mobile through wide operational screens.</R.Text><div className="flex flex-wrap items-center justify-center gap-3"><R.Text variant="label">Environment</R.Text><R.Text variant="helper">Used for deployment targeting.</R.Text><R.Text variant="success">All systems operational</R.Text><R.Text variant="warning">Capacity nearing limit</R.Text><R.Text variant="danger">Deployment failed</R.Text><R.Text variant="info">Maintenance at 02:00 UTC</R.Text></div><div className="flex flex-wrap items-center justify-center gap-3"><R.Text variant="date" value="2026-08-27" /><R.Text variant="time" value="13:45" hour12 /><R.Text variant="number" value={12480} /><R.Text variant="percent" value={0.962} numberOptions={{ maximumFractionDigits: 1 }} /><R.Text variant="currency" value={12840.5} currency="USD" /></div><R.Text variant="overline">Live operations</R.Text><R.Text variant="caption">Updated 2 minutes ago</R.Text></div>,
     api(["as", '"p" | "span" | "div" | "time"', "Rendered element; date/time variants default to time."], ["variant", '"body" | "lead" | "label" | "helper" | "muted" | "caption" | "overline" | "success" | "warning" | "danger" | "info" | "date" | "time" | "number" | "percent" | "currency"', "Purpose-oriented or formatted-value style.", '"body"'], ["value", "Date | number | bigint | string", "Value formatted by date, time, number, percent, and currency variants."], ["locale / timeZone", "string", "Locale and IANA timezone for temporal formatting."], ["hour12", "boolean", "Forces 12- or 24-hour time output."], ["formatOptions", "Intl.DateTimeFormatOptions", "Date/time formatting options."], ["numberOptions", "Intl.NumberFormatOptions", "Number and percent formatting options."], ["currency / accounting", "string / boolean", "Currency code and negative-value notation."], ["currencyOptions", "CurrencyFormatOptions", "Intl currency formatting options."], ["size", '"xs" | "sm" | "md" | "lg"', "Optional size override."], ["weight", '"normal" | "medium" | "semibold" | "bold"', "Optional weight override."], ["align", '"left" | "center" | "right"', "Text alignment.", '"left"'], ["wrap", '"normal" | "nowrap" | "balance" | "pretty"', "Wrapping and truncation behavior."]),
     "Text keeps HTML semantics explicit through as. Date and time variants render a machine-readable time element by default; calendar-only YYYY-MM-DD values do not shift across timezones. Formatted values fall back safely instead of throwing on invalid input.",
   ),
   "components/prose": () => detail(
-    `<Prose as="article" width="sm">
-  <h2>Deployment policy</h2>
-  <p>Every production change requires an audit trail.</p>
-</Prose>`,
+    `<Prose className="w-full" as="article" width="sm"><h2>Deployment policy</h2><p>Every production change requires an audit trail and a documented recovery path.</p><ul><li>Review the release diff.</li><li>Confirm health checks and rollback ownership.</li></ul><blockquote>Reliable operations favor explicit state over hidden assumptions.</blockquote></Prose>`,
     <R.Prose className="w-full" as="article" width="sm"><h2>Deployment policy</h2><p>Every production change requires an audit trail and a documented recovery path.</p><ul><li>Review the release diff.</li><li>Confirm health checks and rollback ownership.</li></ul><blockquote>Reliable operations favor explicit state over hidden assumptions.</blockquote></R.Prose>,
     api(["as", '"div" | "article" | "section"', "Document container element.", '"article"'], ["size", '"sm" | "md" | "lg"', "Long-form reading scale.", '"md"'], ["width", '"none" | "sm" | "md" | "lg"', "Maximum reading width.", '"sm"'], ["className", "string", "Composes content layout styles."]),
     "Prose styles semantic child markup without changing it. Keep heading order logical, describe images, and use table headers for tabular content.",
@@ -284,19 +285,13 @@ export const supplementalDetails: Record<string, () => SupplementalDetail> = {
     "The custom trigger controls a labeled dialog. Time columns expose listbox/option semantics with arrow, Home, and End navigation; Escape dismisses and restores trigger focus.",
   ),
   "components/currency": () => detail(
-    `<Currency value={12840.5} currency="USD" />
-<Currency value={-920} currency="EUR" locale="de-DE" accounting />
-<Currency value={1840000} options={{ notation: "compact" }} />`,
-    <div className="demo-row"><R.Currency value={12840.5} currency="USD" /><R.Currency value={-920} currency="EUR" locale="de-DE" accounting /><R.Currency value={1840000} options={{ notation: "compact", maximumFractionDigits: 1 }} tone="positive" /></div>,
+    `<div className="flex flex-wrap items-center justify-center gap-3"><Currency value={12840.5} currency="USD" /><Currency value={-920} currency="EUR" locale="de-DE" accounting /><Currency value={1840000} options={{ notation: "compact", maximumFractionDigits: 1 }} tone="positive" /></div>`,
+    <div className="flex flex-wrap items-center justify-center gap-3"><R.Currency value={12840.5} currency="USD" /><R.Currency value={-920} currency="EUR" locale="de-DE" accounting /><R.Currency value={1840000} options={{ notation: "compact", maximumFractionDigits: 1 }} tone="positive" /></div>,
     api(["value", "number | bigint", "Monetary value to format."], ["currency", "string", "ISO 4217 currency code.", '"USD"'], ["locale", "Intl.LocalesArgument", "Formatting locale.", '"en-US"'], ["accounting", "boolean", "Uses accounting notation for negative values.", "false"], ["options", "CurrencyFormatOptions", "Intl number-format options such as notation and fraction digits."], ["tone", '"auto" | "default" | "positive" | "negative" | "muted"', "Semantic text treatment.", '"auto"'], ["fallback", "ReactNode", "Content shown for invalid values or format options.", '"—"']),
     "Currency renders readable text and tabular numerals. Compact notation receives a full-value accessible label, while negative values use the destructive semantic token by default.",
   ),
   "components/avatar-group": () => detail(
-    `<AvatarGroup aria-label="Project members">
-  <Avatar name="Maya Chen" />
-  <Avatar name="Jordan Kim" />
-  <AvatarGroupOverflow count={4} />
-</AvatarGroup>`,
+    `<AvatarGroup aria-label="Project members"><Avatar name="Maya Chen" /><Avatar name="Jordan Kim" /><Avatar name="Sam Rivera" /><AvatarGroupOverflow count={4} /></AvatarGroup>`,
     <R.AvatarGroup aria-label="Project members"><R.Avatar name="Maya Chen" /><R.Avatar name="Jordan Kim" /><R.Avatar name="Sam Rivera" /><R.AvatarGroupOverflow count={4} /></R.AvatarGroup>,
     api(["spacing", '"tight" | "normal" | "loose"', "Amount of overlap between avatars.", '"normal"'], ["children", "ReactNode", "Avatar and AvatarGroupOverflow elements."], ["className", "string", "Composes layout styles."], ["AvatarGroupOverflow.count", "number", "Number of additional people not shown."]),
     "The root is a named group. AvatarGroupOverflow exposes a readable label such as “4 more people” instead of only its visual +4 text.",
@@ -312,138 +307,145 @@ export const supplementalDetails: Record<string, () => SupplementalDetail> = {
     "Uses role=\"group\" while preserving each child button's native keyboard and disabled behavior. Give the group a concise accessible name.",
   ),
   "components/description-list": () => detail(
-    `<DescriptionList columns={2}>
-  <DescriptionItem>
-    <DescriptionTerm>Region</DescriptionTerm>
-    <DescriptionDetails>US East</DescriptionDetails>
-  </DescriptionItem>
-</DescriptionList>`,
+    `<DescriptionList className="w-full max-w-lg" columns={2}><DescriptionItem><DescriptionTerm>Region</DescriptionTerm><DescriptionDetails>US East</DescriptionDetails></DescriptionItem><DescriptionItem><DescriptionTerm>Runtime</DescriptionTerm><DescriptionDetails>Node.js 22</DescriptionDetails></DescriptionItem><DescriptionItem><DescriptionTerm>Status</DescriptionTerm><DescriptionDetails><Badge variant="success" size="sm">Healthy</Badge></DescriptionDetails></DescriptionItem><DescriptionItem><DescriptionTerm>Version</DescriptionTerm><DescriptionDetails>v2.4.1</DescriptionDetails></DescriptionItem></DescriptionList>`,
     <R.DescriptionList className="w-full max-w-lg" columns={2}><R.DescriptionItem><R.DescriptionTerm>Region</R.DescriptionTerm><R.DescriptionDetails>US East</R.DescriptionDetails></R.DescriptionItem><R.DescriptionItem><R.DescriptionTerm>Runtime</R.DescriptionTerm><R.DescriptionDetails>Node.js 22</R.DescriptionDetails></R.DescriptionItem><R.DescriptionItem><R.DescriptionTerm>Status</R.DescriptionTerm><R.DescriptionDetails><R.Badge variant="success" size="sm">Healthy</R.Badge></R.DescriptionDetails></R.DescriptionItem><R.DescriptionItem><R.DescriptionTerm>Version</R.DescriptionTerm><R.DescriptionDetails>v2.4.1</R.DescriptionDetails></R.DescriptionItem></R.DescriptionList>,
     api(["columns", "1 | 2 | 3", "Responsive column count.", "1"], ["density", '"compact" | "default" | "relaxed"', "Space between entries.", '"default"'], ["DescriptionItem.orientation", '"stacked" | "inline"', "Term/value arrangement.", '"stacked"'], ["className", "string", "Composes list layout styles."]),
     "Renders native dl, dt, and dd elements so term/value relationships remain available to assistive technology.",
   ),
   "components/rating": () => detail(
-    `<Rating label="Service rating" defaultValue={4} showValue onValueChange={setRating} />`,
+    `<Rating label="Service rating" defaultValue={4} showValue />`,
     <R.Rating label="Service rating" defaultValue={4} showValue />,
     api(["label", "string", "Required accessible group label."], ["value / defaultValue", "number", "Controlled or initial rating."], ["onValueChange", "(value: number) => void", "Rating selection callback."], ["max", "number", "Number of rating choices.", "5"], ["readOnly", "boolean", "Prevents changes while preserving the value for reading.", "false"], ["size", '"sm" | "md" | "lg"', "Star size.", '"md"']),
     "Uses a labeled native radio group. Every choice has a textual star count, supports standard radio-keyboard behavior, and exposes read-only state.",
   ),
   "components/blockquote": () => detail(
-    `<Blockquote
-  variant="accent"
-  cite="https://example.com/report"
-  source="2026 reliability report"
-  sourceHref="/reports/reliability"
->
-  Reliable systems make failure visible.
-</Blockquote>`,
+    `<Blockquote className="w-full max-w-lg" variant="accent" source="2026 reliability report">Reliable systems make failure visible, understandable, and recoverable.</Blockquote>`,
     <R.Blockquote className="w-full max-w-lg" variant="accent" source="2026 reliability report">Reliable systems make failure visible, understandable, and recoverable.</R.Blockquote>,
     api(["variant", '"default" | "accent" | "subtle"', "Visual treatment.", '"default"'], ["size", '"sm" | "md" | "lg"', "Quote typography and spacing.", '"md"'], ["cite", "string", "Native URL identifying the quotation source."], ["source", "ReactNode", "Visible source attribution."], ["sourceHref", "string", "Optional link for the visible attribution."]),
     "Renders a semantic blockquote. The native cite attribute identifies the source in markup; source renders a visible attribution and can be linked.",
   ),
   "components/toggle": () => detail(
-    `<Toggle defaultPressed onPressedChange={setBold}>Bold</Toggle>`,
+    `<Toggle defaultPressed>Bold</Toggle>
+<Toggle variant="outline">Italic</Toggle>
+<Toggle disabled>Disabled</Toggle>`,
     <div className="demo-row"><R.Toggle defaultPressed>Bold</R.Toggle><R.Toggle variant="outline">Italic</R.Toggle><R.Toggle disabled>Disabled</R.Toggle></div>,
     api(["pressed / defaultPressed", "boolean", "Controlled or initial pressed state."], ["onPressedChange", "(pressed: boolean) => void", "Called when the user changes the pressed state."], ["variant", '"default" | "outline"', "Visual treatment.", '"default"'], ["size", '"sm" | "md" | "lg" | "icon"', "Control density.", '"md"']),
     "Uses a native button with aria-pressed, visible focus treatment, and native disabled behavior.",
   ),
   "components/toggle-group": () => detail(
-    `<ToggleGroup type="multiple" defaultValue={["bold"]} aria-label="Formatting">
-  <ToggleGroupItem value="bold">Bold</ToggleGroupItem>
-  <ToggleGroupItem value="italic">Italic</ToggleGroupItem>
-  <ToggleGroupItem value="underline">Underline</ToggleGroupItem>
-</ToggleGroup>`,
+    `<ToggleGroup type="multiple" defaultValue={["bold"]} variant="outline" aria-label="Formatting"><ToggleGroupItem value="bold">Bold</ToggleGroupItem><ToggleGroupItem value="italic">Italic</ToggleGroupItem><ToggleGroupItem value="underline">Underline</ToggleGroupItem></ToggleGroup>`,
     <R.ToggleGroup type="multiple" defaultValue={["bold"]} variant="outline" aria-label="Formatting"><R.ToggleGroupItem value="bold">Bold</R.ToggleGroupItem><R.ToggleGroupItem value="italic">Italic</R.ToggleGroupItem><R.ToggleGroupItem value="underline">Underline</R.ToggleGroupItem></R.ToggleGroup>,
     api(["type", '"single" | "multiple"', "Selection behavior.", '"single"'], ["value / defaultValue", "string | string[]", "Controlled or initial selected values."], ["onValueChange", "(value: string | string[]) => void", "Selection callback."], ["orientation", '"horizontal" | "vertical"', "Layout and arrow-key axis.", '"horizontal"'], ["loop", "boolean", "Wraps arrow-key focus at group boundaries.", "true"]),
     "The group and native toggle buttons expose pressed states. Arrow keys move focus along the configured orientation; Home and End move to the boundaries.",
   ),
   "components/aspect-ratio": () => detail(
-    `<AspectRatio ratio={16 / 9} className="rounded-xl bg-surface-muted">
-  <img src="/dashboard.png" alt="Deployment dashboard" />
-</AspectRatio>`,
+    `<AspectRatio ratio={16 / 9} className="w-full max-w-lg rounded-xl border border-border bg-surface-muted"><div className="flex h-full w-full items-center justify-center text-sm text-muted-foreground">16:9 application preview</div></AspectRatio>`,
     <R.AspectRatio ratio={16 / 9} className="w-full max-w-lg rounded-xl border border-border bg-surface-muted"><div className="flex h-full w-full items-center justify-center text-sm text-muted-foreground">16:9 application preview</div></R.AspectRatio>,
     api(["ratio", "number", "Width divided by height.", "16 / 9"], ["className", "string", "Composes sizing, surface, and overflow styles."], ["style", "CSSProperties", "Native inline styles merged after the computed ratio."], ["children", "ReactNode", "Media or content constrained by the ratio."]),
     "AspectRatio is a visual layout primitive. Give contained images meaningful alt text, or empty alt text when decorative.",
   ),
   "components/scroll-area": () => detail(
-    `<ScrollArea className="h-52" aria-label="Recent deployments">
-  {deployments.map(deployment => <DeploymentRow key={deployment.id} />)}
-</ScrollArea>`,
-    <R.ScrollArea className="h-52 w-full max-w-sm rounded-xl border border-border bg-surface p-2" aria-label="Recent deployments"><div className="demo-stack">{Array.from({ length: 8 }, (_, index) => <div className="flex items-center justify-between rounded-lg bg-surface-muted px-3 py-2 text-sm" key={index}><span>Deployment #{842 - index}</span><R.Badge variant={index < 2 ? "success" : "muted"} size="sm">{index < 2 ? "Ready" : "Archived"}</R.Badge></div>)}</div></R.ScrollArea>,
+    `<ScrollArea className="h-52 w-full max-w-sm rounded-xl border border-border bg-surface p-2" aria-label="Recent deployments"><div className="grid gap-4">{Array.from({ length: 8 }, (_, index) => <div className="flex items-center justify-between rounded-lg bg-surface-muted px-3 py-2 text-sm" key={index}><span>Deployment #{842 - index}</span><Badge variant={index < 2 ? "success" : "muted"} size="sm">{index < 2 ? "Ready" : "Archived"}</Badge></div>)}</div></ScrollArea>`,
+    <R.ScrollArea className="h-52 w-full max-w-sm rounded-xl border border-border bg-surface p-2" aria-label="Recent deployments"><div className="grid gap-4">{Array.from({ length: 8 }, (_, index) => <div className="flex items-center justify-between rounded-lg bg-surface-muted px-3 py-2 text-sm" key={index}><span>Deployment #{842 - index}</span><R.Badge variant={index < 2 ? "success" : "muted"} size="sm">{index < 2 ? "Ready" : "Archived"}</R.Badge></div>)}</div></R.ScrollArea>,
     api(["orientation", '"vertical" | "horizontal" | "both"', "Allowed scroll axis.", '"vertical"'], ["hideScrollbar", "boolean", "Visually hides the native scrollbar while retaining scrolling.", "false"], ["keyboardNavigable", "boolean", "Adds the region to the tab order for keyboard scrolling.", "true"], ["className", "string", "Sets the region dimensions and composes visual styles."]),
     "Keyboard navigation is enabled by default. Supply aria-label or aria-labelledby when the scroll area is a meaningful standalone region.",
   ),
   "components/divider": () => detail(
-    `<Divider label="OR" />
-<Divider orientation="vertical" aria-label="Section divider" />
-<Divider variant="dashed" spacing="lg" />`,
-    <div className="demo-stack w-full max-w-lg"><div className="rounded-xl border border-border bg-surface p-4"><p className="text-sm text-muted-foreground">Deployment pipeline</p><R.Divider label="Production gate" /><p className="text-sm text-muted-foreground">Release ready</p></div><div className="flex h-24 items-stretch gap-4 rounded-xl border border-border bg-surface p-4"><span className="text-sm">Build</span><R.Divider orientation="vertical" decorative={false} aria-label="Section divider" /><span className="text-sm">Deploy</span></div></div>,
+    `<div className="grid gap-4 w-full max-w-lg"><div className="rounded-xl border border-border bg-surface p-4"><p className="text-sm text-muted-foreground">Deployment pipeline</p><Divider label="Production gate" /><p className="text-sm text-muted-foreground">Release ready</p></div><div className="flex h-24 items-stretch gap-4 rounded-xl border border-border bg-surface p-4"><span className="text-sm">Build</span><Divider orientation="vertical" decorative={false} aria-label="Section divider" /><span className="text-sm">Deploy</span></div></div>`,
+    <div className="grid gap-4 w-full max-w-lg"><div className="rounded-xl border border-border bg-surface p-4"><p className="text-sm text-muted-foreground">Deployment pipeline</p><R.Divider label="Production gate" /><p className="text-sm text-muted-foreground">Release ready</p></div><div className="flex h-24 items-stretch gap-4 rounded-xl border border-border bg-surface p-4"><span className="text-sm">Build</span><R.Divider orientation="vertical" decorative={false} aria-label="Section divider" /><span className="text-sm">Deploy</span></div></div>,
     api(["orientation", '"horizontal" | "vertical"', "Rule direction.", '"horizontal"'], ["variant", '"solid" | "dashed" | "dotted"', "Line style.", '"solid"'], ["spacing", '"none" | "sm" | "md" | "lg"', "Outer margin.", '"md"'], ["label", "ReactNode", "Optional centered label."], ["decorative", "boolean", "Hides the rule from assistive technology.", "true"]),
     "Divider renders presentational rules by default. Set decorative={false} and provide an accessible name when the separation conveys meaning.",
   ),
   "components/copy-button": () => detail(
-    `<CopyButton value="sk_live_abc123" label="Copy API key" />`,
-    <div className="demo-row"><code>sk_live_abc123</code><R.CopyButton value="sk_live_abc123" label="Copy API key" /></div>,
+    `<div className="flex flex-wrap items-center justify-center gap-3"><code>sk_live_abc123</code><CopyButton value="sk_live_abc123" label="Copy API key" /></div>`,
+    <div className="flex flex-wrap items-center justify-center gap-3"><code>sk_live_abc123</code><R.CopyButton value="sk_live_abc123" label="Copy API key" /></div>,
     api(["value", "string", "Text written to the clipboard."], ["label", "string", "Visible and accessible action label."], ["timeout", "number", "Copied-state duration in milliseconds.", "2000"]),
     "Uses a native button and announces its copied state through visible button text.",
   ),
   "components/info-button": () => detail(
-    `<div className="setting-row">
-  <span>Monthly request limit</span>
-  <Tooltip content="Learn about monthly request limits">
-    <InfoButton
-      label="Learn about monthly request limits"
-      onClick={() => setHelpOpen(true)}
-    />
-  </Tooltip>
-</div>`,
+    `function RequestLimitHelp() {
+  const [open, setOpen] = useState(false)
+  return (
+    <>
+      <div className="flex items-center justify-between gap-5">
+        <div>
+          <strong>Monthly request limit</strong>
+          <p>Requests reset on the first day of each month.</p>
+        </div>
+        <Tooltip content="Learn about monthly request limits">
+          <InfoButton label="Learn about monthly request limits" onClick={() => setOpen(true)} />
+        </Tooltip>
+      </div>
+      <Modal open={open} onClose={() => setOpen(false)} title="Monthly request limit" description="How usage is calculated" size="sm">
+        <p>Successful API requests count toward the workspace limit. Failed authentication attempts and health checks do not.</p>
+        <Button size="sm" onClick={() => setOpen(false)}>Got it</Button>
+      </Modal>
+    </>
+  )
+}`,
     <InfoButtonPreview />,
     api(["label", "string", "Required accessible name describing the information that opens."], ["onClick", "MouseEventHandler<HTMLButtonElement>", "Action invoked on activation."], ["className", "string", "Composes sizing and visual overrides."], ["...props", "ButtonHTMLAttributes<HTMLButtonElement>", "Native button attributes except children and aria-label."]),
     "Uses a 32px native button with a visible focus ring and required descriptive name. Pair it with nearby subject text; a Tooltip can make the action visible on hover and focus, while activation should open useful contextual content.",
   ),
   "components/billing-interval-toggle": () => detail(
-    `const intervals = [
-  { value: "monthly", label: "Monthly" },
-  { value: "quarterly", label: "Quarterly" },
-  { value: "yearly", label: "Annually", badge: "Save 20%" },
-]
-
-<BillingIntervalToggle
-  value={interval}
-  onChange={setInterval}
-  options={intervals}
-  size="lg"
-/>`,
+    `function BillingIntervals() {
+  const [value, setValue] = useState<BillingInterval>("yearly")
+  const options: BillingIntervalToggleOption[] = [
+    { value: "monthly", label: "Monthly" },
+    { value: "quarterly", label: "Quarterly" },
+    { value: "yearly", label: "Annually", badge: "Save 20%" },
+  ]
+  return (
+    <>
+      <BillingIntervalToggle value={value} onChange={setValue} options={options} />
+      <BillingIntervalToggle
+        value={value}
+        onChange={setValue}
+        options={options}
+        size="lg"
+      />
+    </>
+  )
+}`,
     <BillingPreview />,
     api(["value", "BillingInterval", "Controlled selected interval."], ["onChange", "(value) => void", "Selection callback."], ["options", "BillingIntervalToggleOption[]", "Intervals displayed by the segmented control."], ["size", '"sm" | "lg"', "Control density and selected-state emphasis.", '"sm"'], ["disabled", "boolean", "Disables every interval option.", "false"], ["aria-label", "string", "Accessible name for the option group.", '"Billing interval"'], ["className", "string", "Composes layout and surface overrides."]),
     "The named group contains native buttons with aria-pressed selection, focus-visible treatment, and disabled semantics.",
   ),
   "components/autocomplete": () => detail(
-    `<Autocomplete label="Runtime" placeholder="Search runtimes…" options={[\n  { value: "node", label: "Node.js 22" },\n  { value: "go", label: "Go 1.25" },\n]} onSelect={setRuntime} />`,
+    `<Autocomplete
+  label="Runtime"
+  placeholder="Search runtimes…"
+  hint="Type to filter options"
+  options={[
+    { value: "node", label: "Node.js 22" },
+    { value: "go", label: "Go 1.25" },
+    { value: "rust", label: "Rust" },
+  ]}
+/>`,
     <div className="w-full max-w-sm"><R.Autocomplete label="Runtime" placeholder="Search runtimes…" hint="Type to filter options" options={[{ value: "node", label: "Node.js 22" }, { value: "go", label: "Go 1.25" }, { value: "rust", label: "Rust" }]} /></div>,
     api(["options", "AutocompleteOption[]", "Searchable option values and labels."], ["multiple", "boolean", "Enables multi-selection.", "false"], ["size", '"sm" | "md" | "lg"', "Trigger height, matching Input and Button.", '"md"'], ["value / defaultValue", "V | V[]", "Controlled or initial selection; a single value shows its label in the input."], ["inputValue", "string", "Controlled query text."], ["onSelect", "(option, all?) => void", "Selection callback."], ["label / hint / error", "string", "Accessible field messaging."]),
     "Exposes combobox/listbox semantics with arrow-key navigation, Enter selection, Escape dismissal, and associated field messages.",
   ),
   "components/slider": () => detail(
-    `<Slider label="Memory" min={128} max={4096} step={128} defaultValue={1024} formatValue={(value) => \`${"${value}"} MB\`} />`,
+    `<Slider className="w-full max-w-sm" label="Memory" min={128} max={4096} step={128} defaultValue={1024} formatValue={(value) => \`\${value} MB\`} />`,
     <R.Slider className="w-full max-w-sm" label="Memory" min={128} max={4096} step={128} defaultValue={1024} formatValue={(value) => `${value} MB`} />,
     api(["min / max / step", "number", "Native range boundaries and increment."], ["value / defaultValue", "number", "Controlled or initial value."], ["formatValue", "(value) => string", "Accessible and visible value formatter."], ["showValue", "boolean", "Shows the current output.", "true"], ["size", '"sm" | "md" | "lg"', "Track and thumb scale.", '"md"']),
     "Uses a native range input and supplies aria-valuetext from the formatted value.",
   ),
   "components/number-input": () => detail(
-    `<NumberInput label="Replicas" min={1} max={10} defaultValue={3} />`,
+    `<NumberInput label="Replicas" min={1} max={10} defaultValue={3} hint="Containers running in each region" />`,
     <R.NumberInput label="Replicas" min={1} max={10} defaultValue={3} hint="Containers running in each region" />,
     api(["value / defaultValue", "number", "Controlled or initial numeric value."], ["min / max / step", "number", "Clamping boundaries and increment."], ["onChange", "(value: number) => void", "Called after a committed change."], ["size", '"sm" | "md" | "lg"', "Control density.", '"md"']),
     "The labeled native number field works with keyboard entry; increment and decrement buttons have accessible names.",
   ),
   "components/otp-input": () => detail(
-    `<OtpInput label="Verification code" length={6} onComplete={verifyCode} />`,
+    `<OtpInput label="Verification code" length={6} hint="Paste or type the six-digit code" />`,
     <R.OtpInput label="Verification code" length={6} hint="Paste or type the six-digit code" />,
     api(["length", "number", "Number of digit fields.", "6"], ["value / defaultValue", "string", "Controlled or initial code."], ["onChange / onComplete", "(value: string) => void", "Edit and completion callbacks."], ["masked", "boolean", "Masks entered digits.", "false"]),
     "Fields use numeric input modes, one-time-code autocomplete, paste support, and arrow-key navigation.",
   ),
   "components/file-upload": () => detail(
-    `<FileUpload label="Configuration" accept=".json,.yaml" maxSizeMB={5} onFilesChange={setFiles} />`,
+    `<FileUpload label="Configuration" accept=".json,.yaml" maxSizeMB={5} hint="JSON or YAML, up to 5 MB" />`,
     <R.FileUpload className="w-full max-w-md" label="Configuration" accept=".json,.yaml" maxSizeMB={5} hint="JSON or YAML, up to 5 MB" />,
     api(["accept", "string", "Accepted file types."], ["multiple", "boolean", "Allows multiple files."], ["maxSizeMB", "number", "Maximum size per file."], ["onFilesChange", "(files: File[]) => void", "Called when the file list changes."]),
     "Uses a labeled native file input and exposes validation through aria-invalid and associated messages.",
@@ -464,79 +466,116 @@ export const supplementalDetails: Record<string, () => SupplementalDetail> = {
     "The trigger exposes dialog state and associated field messages. Calendar days use roving focus with arrow, Home, End, Page Up, and Page Down navigation; Escape dismisses and restores trigger focus.",
   ),
   "components/calendar": () => detail(
-    `<Calendar defaultValue={new Date()} defaultView="month" events={events} />`,
+    `<Calendar
+  defaultValue={new Date()}
+  defaultView="month"
+  events={[{ id: "deploy", title: "Deploy API", date: new Date(), time: "10:00", color: "blue" }]}
+/>`,
     <R.Calendar className="w-full" defaultValue={new Date()} defaultView="month" events={[{ id: "deploy", title: "Deploy API", date: new Date(), time: "10:00", color: "blue" }]} />,
     api(["value / defaultValue", "Date | null", "Controlled or initial selected date."], ["view / defaultView", '"month" | "week"', "Controlled or initial calendar view."], ["events", "CalendarEvent[]", "Events rendered on dates."], ["editable", "boolean", "Enables event creation and editing.", "false"]),
     "Date controls are native buttons with labels; disabled dates cannot be selected.",
   ),
   "components/label": () => detail(
-    `<Label htmlFor="project-name" required hint="64 characters maximum">Project name</Label>`,
+    `<Label htmlFor="label-demo" required hint="64 characters maximum">Project name</Label>`,
     <R.Label htmlFor="label-demo" required hint="64 characters maximum">Project name</R.Label>,
     api(["htmlFor", "string", "ID of the associated form control."], ["required", "boolean", "Displays required-state text."], ["hint", "ReactNode", "Compact supplementary label content."], ["className", "string", "Composes label styles."]),
     "Renders a native label; htmlFor should match the target control ID.",
   ),
   "components/form-field": () => detail(
-    `<FormField label="Project name" htmlFor="project" hint="Used in URLs" required>\n  <Input id="project" />\n</FormField>`,
+    `<FormField className="w-full max-w-sm" label="Project name" htmlFor="project-demo" hint="Used in URLs and logs" required><Input id="project-demo" placeholder="api-gateway" /></FormField>`,
     <R.FormField className="w-full max-w-sm" label="Project name" htmlFor="project-demo" hint="Used in URLs and logs" required><R.Input id="project-demo" placeholder="api-gateway" /></R.FormField>,
     api(["label", "ReactNode", "Visible field label."], ["htmlFor", "string", "ID of the child control."], ["hint", "ReactNode", "Supporting field text."], ["error", "string", "Validation message."], ["required", "boolean", "Displays a required marker."]),
     "Connect htmlFor to the child control and let the child expose its own invalid and described-by attributes.",
   ),
   "components/avatar": () => detail(
-    `<Avatar name="Maya Chen" size="lg" status="online" />`,
-    <div className="demo-row"><R.Avatar name="Maya Chen" size="lg" status="online" /><R.Avatar name="Alex Rivera" size="lg" status="away" /><R.Avatar name="Sam Lee" size="lg" status="busy" /></div>,
+    `<div className="flex flex-wrap items-center justify-center gap-3"><Avatar name="Maya Chen" size="lg" status="online" /><Avatar name="Alex Rivera" size="lg" status="away" /><Avatar name="Sam Lee" size="lg" status="busy" /></div>`,
+    <div className="flex flex-wrap items-center justify-center gap-3"><R.Avatar name="Maya Chen" size="lg" status="online" /><R.Avatar name="Alex Rivera" size="lg" status="away" /><R.Avatar name="Sam Lee" size="lg" status="busy" /></div>,
     api(["name", "string", "Name used for fallback initials and accessible text."], ["src", "string", "Optional image source."], ["size", '"xs" | "sm" | "md" | "lg" | "xl"', "Avatar size.", '"md"'], ["status", "AvatarStatus", "Optional presence indicator."]),
     "Images include an accessible name; fallback initials are derived from the supplied name.",
   ),
   "components/callout": () => detail(
-    `<Callout variant="warning" title="Approaching limit">You have used 92% of build minutes.</Callout>`,
+    `<Callout className="w-full max-w-lg" variant="warning" title="Approaching limit">You have used 92% of this month's build minutes.</Callout>`,
     <R.Callout className="w-full max-w-lg" variant="warning" title="Approaching limit">You have used 92% of this month&apos;s build minutes.</R.Callout>,
     api(["variant", '"default" | "success" | "warning" | "danger" | "info" | "muted"', "Semantic treatment. \"error\" is a deprecated alias of \"danger\".", '"info"'], ["title", "ReactNode", "Optional heading."], ["icon", "ReactNode", "Custom leading icon."], ["children", "ReactNode", "Callout message."]),
     "Keep a textual title or message so meaning is not communicated by color alone.",
   ),
   "components/tag": () => detail(
-    `<Tag variant="success" onRemove={removeRegion}>us-east-1</Tag>`,
-    <div className="demo-row"><R.Tag>Node.js 22</R.Tag><R.Tag variant="success" onRemove={() => {}}>us-east-1</R.Tag><R.Tag variant="info" onRemove={() => {}}>preview</R.Tag></div>,
+    `function RegionTags() {
+  const [tags, setTags] = useState(["us-east-1", "preview"])
+  return (
+    <>
+      <Tag>Node.js 22</Tag>
+      {tags.map((tag) => (
+        <Tag key={tag} variant={tag === "preview" ? "info" : "success"} onRemove={() => setTags(tags.filter((t) => t !== tag))}>
+          {tag}
+        </Tag>
+      ))}
+    </>
+  )
+}`,
+    <TagUsagePreview />,
     api(["variant", "TagVariant", "Semantic visual style."], ["size", '"sm" | "md"', "Tag density.", '"md"'], ["icon", "ReactNode", "Leading icon."], ["onRemove", "() => void", "Adds and handles the remove button."]),
     "The optional remove action is a named native button; retain visible tag text.",
   ),
   "components/kbd": () => detail(
-    `<Kbd keys={["⌘", "K"]} />`,
-    <div className="demo-row"><span>Open search</span><R.Kbd keys={["⌘", "K"]} /><span>Dismiss</span><R.Kbd keys="ESC" /></div>,
+    `<div className="flex flex-wrap items-center justify-center gap-3"><span>Open search</span><Kbd keys={["⌘", "K"]} /><span>Dismiss</span><Kbd keys="ESC" /></div>`,
+    <div className="flex flex-wrap items-center justify-center gap-3"><span>Open search</span><R.Kbd keys={["⌘", "K"]} /><span>Dismiss</span><R.Kbd keys="ESC" /></div>,
     api(["keys", "string | string[]", "One key or a chord."], ["size", '"sm" | "md"', "Keycap size.", '"sm"'], ["className", "string", "Composes keycap styles."]),
     "Kbd is presentational; describe what the shortcut does in nearby text.",
   ),
   "components/status-dot": () => detail(
-    `<StatusDot status="online" label="Operational" pulse />`,
-    <div className="demo-row"><R.StatusDot status="online" label="Operational" pulse /><R.StatusDot status="pending" label="Deploying" pulse /><R.StatusDot status="error" label="Failed" /></div>,
+    `<div className="flex flex-wrap items-center justify-center gap-3"><StatusDot status="online" label="Operational" pulse /><StatusDot status="pending" label="Deploying" pulse /><StatusDot status="error" label="Failed" /></div>`,
+    <div className="flex flex-wrap items-center justify-center gap-3"><R.StatusDot status="online" label="Operational" pulse /><R.StatusDot status="pending" label="Deploying" pulse /><R.StatusDot status="error" label="Failed" /></div>,
     api(["status", "Status", "Operational state."], ["label", "string", "Visible state label."], ["pulse", "boolean", "Animates live states.", "false"], ["size", '"sm" | "md" | "lg"', "Indicator size.", '"md"']),
     "Provide a label or adjacent text so status is not conveyed by color alone.",
   ),
   "components/stat": () => detail(
-    `<Stat label="Requests" value="1.2M" trend="up" trendValue="+14%" description="vs last month" />`,
+    `<div className="grid w-full max-w-lg gap-3 sm:grid-cols-2"><Stat label="Requests" value="1.2M" trend="up" trendValue="+14%" description="vs last month" /><Stat label="Latency" value="38" unit="ms" trend="down" trendValue="-4ms" /></div>`,
     <div className="grid w-full max-w-lg gap-3 sm:grid-cols-2"><R.Stat label="Requests" value="1.2M" trend="up" trendValue="+14%" description="vs last month" /><R.Stat label="Latency" value="38" unit="ms" trend="down" trendValue="-4ms" /></div>,
     api(["label", "ReactNode", "Metric label."], ["value", "ReactNode", "Primary metric value."], ["unit", "ReactNode", "Optional unit."], ["trend", '"up" | "down" | "neutral"', "Trend direction."], ["trendValue", "ReactNode", "Visible change amount."]),
     "Use descriptive labels and trend text; arrows and color should reinforce rather than replace meaning.",
   ),
   "components/link": () => detail(
-    `<Link href="/docs" variant="underline">Read the documentation</Link>`,
-    <div className="demo-row"><R.Link href="#components">Default link</R.Link><R.Link href="#components" variant="muted">Muted link</R.Link><R.Link href="https://example.com" external>External link</R.Link></div>,
+    `<div className="flex flex-wrap items-center justify-center gap-3"><Link href="#components">Default link</Link><Link href="#components" variant="muted">Muted link</Link><Link href="https://example.com" external>External link</Link></div>`,
+    <div className="flex flex-wrap items-center justify-center gap-3"><R.Link href="#components">Default link</R.Link><R.Link href="#components" variant="muted">Muted link</R.Link><R.Link href="https://example.com" external>External link</R.Link></div>,
     api(["href", "string", "Native link destination."], ["variant", '"default" | "muted" | "underline"', "Visual treatment.", '"default"'], ["external", "boolean", "Adds external-link behavior and icon."], ["className", "string", "Composes anchor styles."]),
     "Renders a native anchor; link text should describe its destination.",
   ),
   "components/list": () => detail(
-    `<List>\n  <ListItem href="/projects" icon={<Box />}>Projects</ListItem>\n  <ListItem description="3 members">Team</ListItem>\n</List>`,
-    <R.List className="w-full max-w-sm"><R.ListItem href="#projects" icon={<Box size={15} />} trailing={<R.Badge size="sm">3</R.Badge>}>Projects</R.ListItem><R.ListItem href="#settings" icon={<Settings size={15} />} description="Workspace preferences">Settings</R.ListItem></R.List>,
+    `<List>
+  <ListItem href="#/components" icon={<Box size={15} />} trailing={<Badge size="sm">3</Badge>}>Components</ListItem>
+  <ListItem href="#/foundations/colors" icon={<Settings size={15} />} description="Theme tokens and palettes">Colors</ListItem>
+</List>`,
+    <R.List className="w-full max-w-sm"><R.ListItem href="#/components" icon={<Box size={15} />} trailing={<R.Badge size="sm">3</R.Badge>}>Components</R.ListItem><R.ListItem href="#/foundations/colors" icon={<Settings size={15} />} description="Theme tokens and palettes">Colors</R.ListItem></R.List>,
     api(["divided", "boolean", "Shows separators between items.", "true"], ["icon", "ReactNode", "ListItem leading icon."], ["description", "ReactNode", "ListItem supporting text."], ["trailing", "ReactNode", "ListItem trailing content."], ["href", "string", "Renders the item as a link."]),
     "Uses list semantics; linked items render anchors and interactive items preserve keyboard behavior.",
   ),
   "components/timeline": () => detail(
-    `<Timeline events={[\n  { id: "1", title: "Deployed", timestamp: "2m ago", variant: "success" },\n  { id: "2", title: "Build started", timestamp: "5m ago" },\n]} />`,
+    `<Timeline className="w-full max-w-md" events={[{ id: "1", title: "Deployed to production", description: "api-gateway v2.4.1 is live", timestamp: "2m ago", variant: "success" }, { id: "2", title: "Build completed", timestamp: "4m ago", variant: "info" }, { id: "3", title: "Deploy triggered", timestamp: "6m ago" }]} />`,
     <R.Timeline className="w-full max-w-md" events={[{ id: "1", title: "Deployed to production", description: "api-gateway v2.4.1 is live", timestamp: "2m ago", variant: "success" }, { id: "2", title: "Build completed", timestamp: "4m ago", variant: "info" }, { id: "3", title: "Deploy triggered", timestamp: "6m ago" }]} />,
     api(["events", "TimelineEvent[]", "Ordered event data."], ["title", "ReactNode", "Event heading."], ["description", "ReactNode", "Optional event details."], ["timestamp", "ReactNode", "Event time label."], ["variant", "TimelineVariant", "Semantic marker treatment."]),
     "Events remain in meaningful DOM order; include text for event state and time.",
   ),
   "components/tree": () => detail(
-    `<Tree nodes={nodes} selected={selectedId} onSelect={setSelectedId} defaultExpanded={["src"]} />`,
+    `function SourceTree() {
+  const [selected, setSelected] = useState("button")
+  return (
+    <Tree
+      selected={selected}
+      onSelect={setSelected}
+      defaultExpanded={["src", "components"]}
+      nodes={[
+        { id: "src", label: "src", children: [
+          { id: "components", label: "components", children: [
+            { id: "button", label: "button.tsx" },
+            { id: "modal", label: "modal.tsx" },
+          ] },
+          { id: "index", label: "index.ts" },
+        ] },
+      ]}
+    />
+  )
+}`,
     <TreePreview />,
     api(["nodes", "TreeNode[]", "Hierarchical node data."], ["selected / defaultSelected", "string", "Controlled or initial selected node ID."], ["onSelect", "(id: string) => void", "Node selection callback."], ["expanded / defaultExpanded", "string[]", "Controlled or initial expanded node IDs."], ["onExpandedChange", "(ids: string[]) => void", "Called with the next expanded node IDs."], ["disabled", "boolean", "Disables every node.", "false"], ["nodeClassName", "string", "Styles each node row."]),
     "Follows the WAI-ARIA tree pattern: role=tree with treeitems that expose level, expanded and selected state. One roving tab stop; Arrow Up/Down move between visible items, Right/Left expand or collapse, Home/End jump, Enter/Space select. Disabled items are skipped.",
@@ -548,55 +587,116 @@ export const supplementalDetails: Record<string, () => SupplementalDetail> = {
     "Toasts use live-region semantics, include named dismiss controls, and can remain persistent when duration is zero.",
   ),
   "components/spinner": () => detail(
-    `<Spinner size="md" />`,
-    <div className="demo-row"><R.Spinner size="xs" /><R.Spinner size="sm" /><R.Spinner size="md" /><R.Spinner size="lg" /><span>Loading deployments…</span></div>,
+    `<div className="flex flex-wrap items-center justify-center gap-3"><Spinner size="xs" /><Spinner size="sm" /><Spinner size="md" /><Spinner size="lg" /><span>Loading deployments…</span></div>`,
+    <div className="flex flex-wrap items-center justify-center gap-3"><R.Spinner size="xs" /><R.Spinner size="sm" /><R.Spinner size="md" /><R.Spinner size="lg" /><span>Loading deployments…</span></div>,
     api(["size", '"xs" | "sm" | "md" | "lg"', "Indicator size.", '"md"'], ["className", "string", "Composes color and layout styles."]),
     "Pair the decorative spinner with visible text or an accessible busy label on its containing region.",
   ),
   "components/empty-state": () => detail(
-    `<EmptyState icon={<Database />} title="No databases yet" description="Create one to store application data." action={<Button>Create database</Button>} />`,
+    `<EmptyState icon={<Database />} title="No databases yet" description="Create a database to store application data." action={<Button>Create database</Button>} />`,
     <R.EmptyState icon={<Database />} title="No databases yet" description="Create a database to store application data." action={<R.Button>Create database</R.Button>} />,
     api(["title", "string", "Empty-state heading."], ["description", "string", "Explanation or guidance."], ["icon", "ReactNode", "Decorative illustration."], ["action", "ReactNode", "Primary next action."], ["size", '"sm" | "md" | "lg"', "Empty-state spacing.", '"md"']),
     "Use a specific title and action label; decorative icons should not carry unique meaning.",
   ),
   "components/error-state": () => detail(
-    `<ErrorState title="Failed to load deployments" error={error} onRetry={reload} />`,
-    <R.ErrorState className="w-full max-w-md" title="Failed to load deployments" description="The API could not be reached." error="connect ECONNREFUSED" onRetry={() => {}} />,
+    `function DeploymentsError() {
+  const [retries, setRetries] = useState(0)
+  return (
+    <ErrorState
+      title="Failed to load deployments"
+      description={retries ? \`Still unreachable after \${retries} \${retries === 1 ? "retry" : "retries"}.\` : "The API could not be reached."}
+      error="connect ECONNREFUSED"
+      onRetry={() => setRetries(retries + 1)}
+    />
+  )
+}`,
+    <ErrorStateUsagePreview />,
     api(["title", "string", "Error heading."], ["description", "string", "Recovery guidance."], ["error", "string | Error", "Optional diagnostic detail."], ["onRetry", "() => void", "Displays and handles a retry action."], ["action", "ReactNode", "Additional recovery action."]),
     "The root uses role=alert and retry is a named native button.",
   ),
   "components/confirm-dialog": () => detail(
-    `<ConfirmDialog open={open} onClose={close} onConfirm={remove} title="Delete environment?" destructive />`,
+    `function DeleteEnvironment() {
+  const [open, setOpen] = useState(false)
+  return (
+    <>
+      <Button variant="danger" icon={<Trash2 size={15} />} onClick={() => setOpen(true)}>Delete environment</Button>
+      <ConfirmDialog
+        open={open}
+        onClose={() => setOpen(false)}
+        onConfirm={() => setOpen(false)}
+        title="Delete production environment?"
+        description="This permanently removes its containers and volumes."
+        confirmLabel="Delete environment"
+        destructive
+      />
+    </>
+  )
+}`,
     <ConfirmPreview />,
     api(["open", "boolean", "Controls dialog presence."], ["onClose", "() => void", "Dismiss callback."], ["onConfirm", "() => void", "Confirmation callback."], ["destructive", "boolean", "Uses destructive confirmation styling."], ["loading", "boolean", "Shows pending confirmation state."]),
     "Built on the modal focus trap with dialog labeling, Escape handling, scroll lock, and focus restoration.",
   ),
   "components/popover": () => detail(
-    `<Popover trigger={<Button>Filters</Button>} side="bottom">\n  <PopoverContent>Filter controls</PopoverContent>\n</Popover>`,
-    <R.Popover trigger={<R.Button variant="secondary">Filter options</R.Button>} side="bottom"><R.PopoverContent className="w-64"><p className="mb-3 text-sm font-semibold">Status</p><div className="demo-stack"><R.Checkbox label="Healthy" defaultChecked /><R.Checkbox label="Building" /></div></R.PopoverContent></R.Popover>,
+    `<Popover trigger={<Button variant="secondary">Filter options</Button>} side="bottom"><PopoverContent className="w-64"><p className="mb-3 text-sm font-semibold">Status</p><div className="grid gap-4"><Checkbox label="Healthy" defaultChecked /><Checkbox label="Building" /></div></PopoverContent></Popover>`,
+    <R.Popover trigger={<R.Button variant="secondary">Filter options</R.Button>} side="bottom"><R.PopoverContent className="w-64"><p className="mb-3 text-sm font-semibold">Status</p><div className="grid gap-4"><R.Checkbox label="Healthy" defaultChecked /><R.Checkbox label="Building" /></div></R.PopoverContent></R.Popover>,
     api(["trigger", "ReactNode", "Element that toggles the panel."], ["open / defaultOpen", "boolean", "Controlled or initial open state."], ["onOpenChange", "(open: boolean) => void", "Open-state callback."], ["side", '"top" | "right" | "bottom" | "left"', "Preferred placement.", '"bottom"'], ["align", '"start" | "center" | "end"', "Cross-axis alignment.", '"center"']),
     "The trigger exposes expanded state; Escape and outside pointer interaction dismiss the panel.",
   ),
   "components/command": () => detail(
-    `<CommandProvider>\n  <CommandTrigger />\n  <CommandPalette items={commands} />\n</CommandProvider>`,
+    `function CommandTrigger() {
+  const { setOpen } = useCommand()
+  return <Button onClick={() => setOpen(true)}>Open command palette</Button>
+}
+
+function App() {
+  return (
+    <CommandProvider>
+      <CommandTrigger />
+      <CommandPalette
+        items={[
+          { id: "projects", label: "Open projects", group: "Navigation", icon: <Box size={15} />, onSelect: () => {} },
+          { id: "settings", label: "Open settings", group: "Navigation", icon: <Settings size={15} />, onSelect: () => {} },
+        ]}
+      />
+    </CommandProvider>
+  )
+}`,
     <CommandPreview />,
     api(["items", "CommandItem[]", "Searchable commands and groups."], ["shortcut", "string", "Modifier-key shortcut.", '"k"'], ["CommandProvider open / defaultOpen", "boolean", "Controlled or initial palette state."], ["CommandProvider onOpenChange", "(open: boolean) => void", "Called when the palette requests to open or close."], ["placeholder", "string", "Search input placeholder."], ["ariaLabel", "string", "Accessible dialog name.", '"Command palette"']),
     "The palette is a labeled modal dialog with a focus trap, searchable listbox behavior, arrow navigation, Escape dismissal, and focus restoration.",
   ),
   "components/breadcrumb": () => detail(
-    `<Breadcrumb items={[{ label: "Projects", href: "/projects" }, { label: "Atlas", href: "/atlas" }, { label: "Deployments" }]} />`,
-    <R.Breadcrumb items={[{ label: "Projects", href: "#projects" }, { label: "Atlas", href: "#atlas" }, { label: "Deployments" }]} />,
+    `<Breadcrumb
+  items={[
+    { label: "Docs", href: "#/docs/introduction" },
+    { label: "Components", href: "#/components" },
+    { label: "Breadcrumb" },
+  ]}
+/>`,
+    <R.Breadcrumb items={[{ label: "Docs", href: "#/docs/introduction" }, { label: "Components", href: "#/components" }, { label: "Breadcrumb" }]} />,
     api(["items", "BreadcrumbItem[]", "Ordered hierarchy items."], ["separator", "ReactNode", "Custom visual separator."], ["maxItems", "number", "Collapses middle items into an accessible \u201c\u2026\u201d beyond this count."], ["itemClassName / linkClassName / currentClassName / separatorClassName", "string", "Style each part."], ["className", "string", "Composes navigation styles."]),
     "Renders a named navigation landmark; the final item exposes aria-current=page.",
   ),
   "components/stepper": () => detail(
-    `<Stepper current={1} steps={[{ label: "Configure" }, { label: "Review" }, { label: "Deploy" }]} />`,
+    `<Stepper className="w-full max-w-lg" current={1} steps={[{ label: "Configure", description: "Service settings" }, { label: "Review", description: "Confirm changes" }, { label: "Deploy", description: "Release service" }]} />`,
     <R.Stepper className="w-full max-w-lg" current={1} steps={[{ label: "Configure", description: "Service settings" }, { label: "Review", description: "Confirm changes" }, { label: "Deploy", description: "Release service" }]} />,
     api(["steps", "StepperStep[]", "Ordered workflow steps; a step can be disabled."], ["current", "number", "Zero-based current step."], ["orientation", '"horizontal" | "vertical"', "Layout direction.", '"horizontal"'], ["onStepClick", "(index: number) => void", "Makes steps clickable buttons."], ["clickable", '"completed" | "all"', "Which steps are clickable.", '"completed"'], ["disabled", "boolean", "Disables every step click target.", "false"], ["stepClassName / indicatorClassName / labelClassName / connectorClassName", "string", "Style each part."]),
     "Renders an ordered list; the current step has aria-current=\"step\" and every step announces completed, current or upcoming, so state never relies on color alone. Clickable steps are native buttons.",
   ),
   "components/navigation": () => detail(
-    `<Navbar items={items} activeId={active} onSelect={setActive}>\n  <BrandLink href="/" mark={<img src="/rui-icon-192.png" alt="" />}>\n    @bzync/rui\n  </BrandLink>\n</Navbar>`,
+    `function AppNavbar() {
+  const [active, setActive] = useState("overview")
+  const items: NavigationItem[] = [
+    { id: "overview", label: "Overview", icon: <Home size={15} /> },
+    { id: "projects", label: "Projects", icon: <Box size={15} /> },
+    { id: "activity", label: "Activity", icon: <Activity size={15} /> },
+  ]
+  return (
+    <Navbar items={items} activeId={active} onSelect={setActive}>
+      <BrandLink href="/" mark={<img src="/logo.svg" alt="" />}>@bzync/rui</BrandLink>
+    </Navbar>
+  )
+}`,
     <NavigationPreview />,
     api(["items", "NavigationItem[]", "Links with IDs, labels, hrefs, icons, and badges."], ["activeId", "string", "Current navigation item ID."], ["onSelect", "(id: string) => void", "Selection callback."], ["header / footer", "ReactNode", "Sidebar composition slots."]),
     "Navigation primitives use native landmarks and anchors, with aria-current on the active destination.",
@@ -608,7 +708,19 @@ export const supplementalDetails: Record<string, () => SupplementalDetail> = {
     "Expandable rows use a native button with aria-expanded and aria-controls; the detail content is rendered as an adjacent table row.",
   ),
   "components/data-table": () => detail(
-    `<DataTable columns={columns} data={services} searchable pageSizeOptions={false} />`,
+    `const services = [
+  { id: 1, name: "api-gateway", status: "Healthy", region: "us-east-1" },
+  { id: 2, name: "worker", status: "Building", region: "eu-west-1" },
+  { id: 3, name: "web", status: "Healthy", region: "ap-south-1" },
+]
+
+const columns: ColumnDef<(typeof services)[number]>[] = [
+  { key: "name", header: "Service", sortable: true, searchable: true, cell: (row) => row.name },
+  { key: "status", header: "Status", sortable: true, cell: (row) => <Badge variant={row.status === "Healthy" ? "success" : "warning"}>{row.status}</Badge> },
+  { key: "region", header: "Region", searchable: true, cell: (row) => row.region },
+]
+
+<DataTable ariaLabel="Services" columns={columns} data={services} searchable searchPlaceholder="Search services…" pageSizeOptions={false} />`,
     <div className="w-full"><R.DataTable ariaLabel="Services" columns={tableColumns} data={tableRows} searchable searchPlaceholder="Search services…" pageSizeOptions={false} /></div>,
     api(["columns", "ColumnDef<T>[]", "Column definitions, cells, sort, and search settings."], ["data", "T[]", "Rows with stable IDs."], ["searchable", "boolean", "Displays the search field."], ["loading", "boolean", "Displays table skeletons."], ["pageSizeOptions", "number[] | false", "Page-size selector values or disabled state."], ["headerClassName / cellClassName", "string", "Style the header row group and every body cell."], ["rowClassName", "string | (row) => string", "Styles body rows; the function form enables conditional styling."], ["ColumnDef.className / headerClassName", "string", "Per-column cell and header styles."]),
     "Provides a named native table, labeled search control, sortable headers, and keyboard-operable pagination.",
@@ -631,25 +743,31 @@ export const supplementalDetails: Record<string, () => SupplementalDetail> = {
     "Tools: Inspect spacing (hover any element to see its margin, border, padding and content as colour bands with exact values; Escape exits) and Outline layout boxes. A labelled region with named buttons (toggles expose aria-pressed). It does not announce size changes, to avoid live-region noise while resizing. It renders after hydration only, so server and client markup match.",
   ),
   "components/code-block": () => detail(
-    `<CodeBlock language="ts" filename="status.ts" showLineNumbers code={'export const status = "ready"'} />`,
+    `<CodeBlock className="w-full" language="ts" filename="status.ts" showLineNumbers code={'export const status = "ready"\\n\\nconsole.log(status)'} />`,
     <R.CodeBlock className="w-full" language="ts" filename="status.ts" showLineNumbers code={'export const status = "ready"\n\nconsole.log(status)'} />,
     api(["code", "string", "Source text to display and copy."], ["language", "string", "Tokenizer language.", '"js"'], ["filename", "string", "Optional header filename."], ["showLineNumbers", "boolean", "Displays line numbers.", "false"]),
     "The copy action is a native button with visible state feedback; source remains selectable text.",
   ),
   "components/code-editor": () => detail(
-    `<CodeEditor language="ts" value={code} onChange={setCode} />`,
+    `function StatusEditor() {
+  const [value, setValue] = useState('export const status = "ready"\\n')
+  return <CodeEditor language="ts" value={value} onChange={setValue} />
+}`,
     <CodeEditorPreview />,
     api(["value", "string", "Controlled source value."], ["onChange", "(value: string) => void", "Edit callback."], ["language", "string", "Language label."], ["minRows / maxRows", "number", "Editor height constraints."], ["readOnly", "boolean", "Prevents editing."]),
     "Uses a textarea with keyboard support for indentation and paired characters; readOnly preserves text navigation.",
   ),
   "components/rich-text": () => detail(
-    `<RichTextEditor value={html} onChange={setHtml} placeholder="Write release notes…" />`,
+    `function NoteEditor() {
+  const [value, setValue] = useState("<p>Write a deployment note…</p>")
+  return <RichTextEditor value={value} onChange={setValue} />
+}`,
     <RichTextPreview />,
     api(["value / defaultValue", "string", "Controlled HTML, or initial HTML applied once when uncontrolled."], ["onChange", "(html: string) => void", "Edit callback."], ["placeholder", "string", "Empty editor guidance."], ["disabled", "boolean", "Disables editing controls."], ["className", "string", "Composes editor layout styles."]),
     "Toolbar controls are named buttons and the editable surface supports keyboard text editing.",
   ),
   "components/terminal": () => detail(
-    `<TerminalEmulator title="user@production" user="user" hostname="production" />`,
+    `<TerminalEmulator className="w-full" title="user@production" user="user" hostname="production" />`,
     <R.TerminalEmulator className="w-full" title="user@production" user="user" hostname="production" />,
     api(["title", "string", "Terminal window title."], ["user", "string", "Prompt user name."], ["hostname", "string", "Prompt host name."], ["initialPath", "string", "Initial working directory."], ["className", "string", "Composes terminal dimensions."]),
     "The command input has an accessible label and supports command history and standard keyboard editing.",

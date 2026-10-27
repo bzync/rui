@@ -105,14 +105,15 @@ test("demo formats displayed and copied component code", async ({ page }, testIn
   const code = usage.locator(".component-preview-code table")
   await expect(code).toContainText("<BillingIntervalToggle")
   const displayedCode = await code.innerText()
-  expect(displayedCode).toContain("\n  value={interval}\n")
-  expect(displayedCode).toContain("\n  size=\"lg\"\n/>")
+  // Prettier breaks the long JSX element onto one attribute per line.
+  expect(displayedCode).toMatch(/\n\s+value=\{value\}\n/)
+  expect(displayedCode).toMatch(/\n\s+size="lg"\n\s+\/>/)
 
   await page.context().grantPermissions(["clipboard-read", "clipboard-write"])
   await usage.getByRole("button", { name: "Copy code" }).click()
   const copiedCode = await page.evaluate(() => navigator.clipboard.readText())
-  expect(copiedCode).toContain("\n  value={interval}\n")
-  expect(copiedCode).toContain("\n  size=\"lg\"\n/>")
+  expect(copiedCode).toMatch(/\n\s+value=\{value\}\n/)
+  expect(copiedCode).toMatch(/\n\s+size="lg"\n\s+\/>/)
 })
 
 test("billing interval toggles stay inside the preview at every viewport", async ({ page }) => {

@@ -115,12 +115,7 @@ function StatefulSelectPreview() {
 
 function StatefulModalPreview() {
   const [open, setOpen] = useState(false)
-  const triggerRef = useRef<HTMLButtonElement>(null)
-  const close = () => {
-    setOpen(false)
-    window.setTimeout(() => triggerRef.current?.focus(), 240)
-  }
-  return <><Button ref={triggerRef} onClick={() => setOpen(true)}>Create API key</Button><Modal open={open} onClose={close} title="Create API key" description="The secret is shown only once."><div className="demo-stack"><Input label="Key name" placeholder="Production deploys" autoFocus /><div className="demo-actions"><Button variant="secondary" onClick={close}>Cancel</Button><Button onClick={close}>Create key</Button></div></div></Modal></>
+  return <><Button onClick={() => setOpen(true)}>Create API key</Button><Modal open={open} onClose={() => setOpen(false)} title="Create API key" description="The secret is shown only once."><div className="demo-stack"><Input label="Key name" placeholder="Production deploys" autoFocus /><div className="demo-actions"><Button variant="secondary" onClick={() => setOpen(false)}>Cancel</Button><Button onClick={() => setOpen(false)}>Create key</Button></div></div></Modal></>
 }
 
 function StatefulDrawerPreview() {
@@ -140,8 +135,8 @@ function PaginationPreview() {
 
 const details: Record<string, () => Detail> = {
   "components/button": () => ({
-    code: `<Button variant="primary">Create project</Button>\n<Button variant="secondary">Save draft</Button>\n<Button variant="outline">View logs</Button>\n<Button variant="ghost">Cancel</Button>\n<Button variant="danger">Delete project</Button>`,
-    preview: <div className="demo-row"><Button>Create project</Button><Button variant="secondary">Save draft</Button><Button variant="outline">View logs</Button><Button variant="ghost">Cancel</Button><Button variant="danger">Delete project</Button></div>,
+    code: `<div className="flex flex-wrap items-center justify-center gap-3"><Button>Create project</Button><Button variant="secondary">Save draft</Button><Button variant="outline">View logs</Button><Button variant="ghost">Cancel</Button><Button variant="danger">Delete project</Button></div>`,
+    preview: <div className="flex flex-wrap items-center justify-center gap-3"><Button>Create project</Button><Button variant="secondary">Save draft</Button><Button variant="outline">View logs</Button><Button variant="ghost">Cancel</Button><Button variant="danger">Delete project</Button></div>,
     props: [
       { name: "variant", type: '"primary" | "secondary" | "ghost" | "outline" | "danger" | "link"', default: '"primary"', description: "Visual and semantic treatment." },
       { name: "size", type: '"sm" | "md" | "lg" | "icon"', default: '"md"', description: "Control height and padding." },
@@ -153,8 +148,8 @@ const details: Record<string, () => Detail> = {
     accessibility: "Renders a native button with type=\"button\" by default. Loading sets disabled and aria-busy. Icon-only buttons should use size=\"icon\" and provide an aria-label.",
   }),
   "components/input": () => ({
-    code: `<Input label="Project name" hint="Used in URLs and logs." placeholder="api-gateway" />\n<Input label="Email" error="Enter a valid email address." defaultValue="ops@" />`,
-    preview: <div className="demo-form-grid"><Input label="Project name" hint="Used in URLs and logs." placeholder="api-gateway" /><Input label="Email" error="Enter a valid email address." defaultValue="ops@" /></div>,
+    code: `<div className="grid w-full max-w-xl gap-4 sm:grid-cols-2"><Input label="Project name" hint="Used in URLs and logs." placeholder="api-gateway" /><Input label="Email" error="Enter a valid email address." defaultValue="ops@" /></div>`,
+    preview: <div className="grid w-full max-w-xl gap-4 sm:grid-cols-2"><Input label="Project name" hint="Used in URLs and logs." placeholder="api-gateway" /><Input label="Email" error="Enter a valid email address." defaultValue="ops@" /></div>,
     props: [
       { name: "label", type: "string", description: "Associated field label." }, { name: "hint", type: "string", description: "Supporting description shown when valid." },
       { name: "error", type: "string", description: "Error message; also sets aria-invalid." }, { name: "prefix / suffix", type: "ReactNode", description: "Content rendered before or after the input." },
@@ -163,104 +158,168 @@ const details: Record<string, () => Detail> = {
     accessibility: "A stable ID is generated with useId when no id is supplied. Labels use htmlFor, and hint or error text is connected through aria-describedby.",
   }),
   "components/textarea": () => ({
-    code: `<Textarea label="Release notes" hint="Summarize customer-visible changes." rows={5} />`,
+    code: `<Textarea label="Release notes" hint="Summarize customer-visible changes." rows={5} placeholder="Added audit log exports…" wrapperClassName="w-full max-w-lg" />`,
     preview: <Textarea label="Release notes" hint="Summarize customer-visible changes." rows={5} placeholder="Added audit log exports…" wrapperClassName="w-full max-w-lg" />,
     props: [{ name: "label", type: "string", description: "Associated field label." },{ name: "hint", type: "string", description: "Supporting field text." },{ name: "error", type: "string", description: "Validation message and invalid state." },{ name: "rows", type: "number", description: "Native visible row count." }],
     accessibility: "Uses a native textarea with generated label and message associations.",
   }),
   "components/select": () => ({
-    code: `<Select\n  label="Region"\n  value={region}\n  onChange={setRegion}\n  options={[\n    { value: "iad1", label: "US East — Virginia" },\n    { value: "fra1", label: "EU Central — Frankfurt" },\n  ]}\n/>`,
+    code: `function RegionSelect() {
+  const [value, setValue] = useState("iad1")
+  return (
+    <Select
+      label="Region"
+      value={value}
+      onChange={setValue}
+      wrapperClassName="w-full max-w-sm"
+      options={[
+        { value: "iad1", label: "US East — Virginia" },
+        { value: "sfo1", label: "US West — San Francisco" },
+        { value: "fra1", label: "EU Central — Frankfurt" },
+      ]}
+    />
+  )
+}`,
     preview: <StatefulSelectPreview />,
     props: [{ name: "options", type: "SelectItem[]", description: "Options or grouped options." },{ name: "multiple", type: "boolean", default: "false", description: "Switches between scalar and array values." },{ name: "name / form", type: "string", description: "Submits the selection with a native form: one name=value entry per selected value. required is enforced by native validation." },{ name: "value", type: "string | string[]", description: "Controlled selected value." },{ name: "defaultValue", type: "string | string[]", description: "Initial uncontrolled value." },{ name: "onChange", type: "(value) => void", description: "Called when selection changes." },{ name: "label / hint / error", type: "string", description: "Accessible field messaging." },{ name: "size", type: '"sm" | "md" | "lg"', default: '"md"', description: "Trigger height (32/36/40px), matching Input and Button." }],
     accessibility: "The trigger exposes combobox semantics and controls a listbox. Options support keyboard navigation, selection, dismissal with Escape, and disabled states.",
   }),
   "components/checkbox": () => ({
-    code: `<Checkbox label="Require review" description="A reviewer must approve production changes." defaultChecked />\n<Checkbox label="Override policy" indeterminate />`,
-    preview: <div className="demo-stack"><Checkbox label="Require review" description="A reviewer must approve production changes." defaultChecked /><Checkbox label="Override policy" indeterminate /></div>,
+    code: `<div className="grid gap-4"><Checkbox label="Require review" description="A reviewer must approve production changes." defaultChecked /><Checkbox label="Override policy" indeterminate /></div>`,
+    preview: <div className="grid gap-4"><Checkbox label="Require review" description="A reviewer must approve production changes." defaultChecked /><Checkbox label="Override policy" indeterminate /></div>,
     props: [{ name: "label", type: "string", description: "Clickable control label." },{ name: "description", type: "string", description: "Associated supporting text." },{ name: "size", type: '"sm" | "md" | "lg"', default: '"md"', description: "Control and label scale." },{ name: "indeterminate", type: "boolean", default: "false", description: "Mixed selection state." },{ name: "error", type: "string", description: "Associated invalid-state message." }],
     accessibility: "Uses a native checkbox. Indeterminate state is mirrored to the DOM property and aria-checked=\"mixed\".",
   }),
   "components/switch": () => ({
-    code: `<Switch\n  label="Deployment notifications"\n  description="Email me when a deployment finishes."\n  checked={enabled}\n  onCheckedChange={setEnabled}\n/>`,
+    code: `function NotificationSwitches() {
+  const [checked, setChecked] = useState(true)
+  return (
+    <>
+      <Switch
+        label="Deployment notifications"
+        description="Email me when a deployment finishes."
+        checked={checked}
+        onCheckedChange={setChecked}
+      />
+      <Switch label="Weekly summary" disabled />
+    </>
+  )
+}`,
     preview: <StatefulSwitchPreview />,
     props: [{ name: "label", type: "string", description: "Clickable setting label." },{ name: "description", type: "string", description: "Supporting text." },{ name: "checked", type: "boolean", description: "Controlled state." },{ name: "onCheckedChange", type: "(checked: boolean) => void", description: "Called after user interaction." },{ name: "size", type: '"sm" | "md"', default: '"md"', description: "Switch scale." }],
     accessibility: "Uses a native checkbox so Space, focus, form behavior, and disabled semantics remain available.",
   }),
   "components/radio-group": () => ({
-    code: `<RadioGroup label="Workspace visibility" value={value} onChange={setValue}>\n  <Radio value="private" label="Private" />\n  <Radio value="team" label="Organization" />\n</RadioGroup>`,
+    code: `function VisibilityPicker() {
+  const [value, setValue] = useState("team")
+  return (
+    <RadioGroup label="Workspace visibility" value={value} onChange={setValue}>
+      <Radio value="private" label="Private" description="Only invited members." />
+      <Radio value="team" label="Organization" description="Visible to everyone in your organization." />
+    </RadioGroup>
+  )
+}`,
     preview: <RadioPreview />,
     props: [{ name: "value / defaultValue", type: "string", description: "Controlled or initial selected value." },{ name: "onChange", type: "(value: string) => void", description: "Selection callback." },{ name: "orientation", type: '"vertical" | "horizontal"', default: '"vertical"', description: "Layout direction." },{ name: "size", type: '"sm" | "md" | "lg"', default: '"md"', description: "Radio and label scale, matching Checkbox." },{ name: "label / hint / error", type: "string", description: "Group-level messaging." }],
     accessibility: "The group supplies one generated name to its native radio inputs and connects group-level hint and error text.",
   }),
   "components/badge": () => ({
-    code: `<Badge>Active</Badge>\n<Badge variant="success" dot>Healthy</Badge>\n<Badge variant="warning">Review</Badge>\n<Badge variant="danger">Failed</Badge>\n<Badge variant="info">Queued</Badge>\n<Badge variant="muted">Draft</Badge>`,
-    preview: <div className="demo-row"><Badge>Active</Badge><Badge variant="success" dot>Healthy</Badge><Badge variant="warning">Review</Badge><Badge variant="danger">Failed</Badge><Badge variant="info">Queued</Badge><Badge variant="muted">Draft</Badge></div>,
+    code: `<div className="flex flex-wrap items-center justify-center gap-3"><Badge>Active</Badge><Badge variant="success" dot>Healthy</Badge><Badge variant="warning">Review</Badge><Badge variant="danger">Failed</Badge><Badge variant="info">Queued</Badge><Badge variant="muted">Draft</Badge></div>`,
+    preview: <div className="flex flex-wrap items-center justify-center gap-3"><Badge>Active</Badge><Badge variant="success" dot>Healthy</Badge><Badge variant="warning">Review</Badge><Badge variant="danger">Failed</Badge><Badge variant="info">Queued</Badge><Badge variant="muted">Draft</Badge></div>,
     props: [{ name: "variant", type: '"default" | "success" | "warning" | "danger" | "info" | "muted"', default: '"default"', description: "Semantic color treatment. \"error\" is a deprecated alias of \"danger\"." },{ name: "size", type: '"sm" | "md" | "lg"', default: '"md"', description: "Badge density." },{ name: "dot", type: "boolean", default: "false", description: "Adds a leading status dot." }],
     accessibility: "Badge is non-interactive metadata. Do not communicate meaning through color alone; keep descriptive text in the badge.",
   }),
   "components/card": () => ({
-    code: `<Card>\n  <CardHeader>\n    <CardTitle>Production API</CardTitle>\n    <CardDescription>Last deployed 8 minutes ago</CardDescription>\n  </CardHeader>\n  <CardBody>99.99% availability</CardBody>\n  <CardFooter><Button size="sm">View service</Button></CardFooter>\n</Card>`,
-    preview: <Card className="w-full max-w-md"><CardHeader><CardTitle>Production API</CardTitle><CardDescription>Last deployed 8 minutes ago</CardDescription></CardHeader><CardBody><div className="service-row"><span><Badge variant="success" dot>Healthy</Badge></span><strong>99.99% availability</strong></div></CardBody><CardFooter><Button size="sm">View service</Button></CardFooter></Card>,
+    code: `<Card className="w-full max-w-md"><CardHeader><CardTitle>Production API</CardTitle><CardDescription>Last deployed 8 minutes ago</CardDescription></CardHeader><CardBody><div className="flex items-center justify-between gap-4"><span><Badge variant="success" dot>Healthy</Badge></span><strong>99.99% availability</strong></div></CardBody><CardFooter><Button size="sm">View service</Button></CardFooter></Card>`,
+    preview: <Card className="w-full max-w-md"><CardHeader><CardTitle>Production API</CardTitle><CardDescription>Last deployed 8 minutes ago</CardDescription></CardHeader><CardBody><div className="flex items-center justify-between gap-4"><span><Badge variant="success" dot>Healthy</Badge></span><strong>99.99% availability</strong></div></CardBody><CardFooter><Button size="sm">View service</Button></CardFooter></Card>,
     props: [{ name: "variant", type: '"default" | "elevated" | "bordered" | "glass" | "flush"', default: '"default"', description: "Surface treatment." },{ name: "className", type: "string", description: "Composes consumer layout and one-off styles." },{ name: "unstyled", type: "boolean", default: "false", description: "Removes library visual styles." }],
     accessibility: "Card is a visual grouping and renders a div. Choose an article, section, or accessible label in the surrounding composition when the content requires stronger semantics.",
   }),
   "components/alert": () => ({
-    code: `<Alert variant="success" title="Deployment complete">\n  Production is serving the new release.\n</Alert>\n<Alert variant="warning" title="Action required">\n  Add a payment method before the next renewal.\n</Alert>`,
-    preview: <div className="demo-stack w-full"><Alert variant="success" title="Deployment complete">Production is serving the new release.</Alert><Alert variant="warning" title="Action required">Add a payment method before the next renewal.</Alert></div>,
+    code: `<div className="grid gap-4 w-full"><Alert variant="success" title="Deployment complete">Production is serving the new release.</Alert><Alert variant="warning" title="Action required">Add a payment method before the next renewal.</Alert></div>`,
+    preview: <div className="grid gap-4 w-full"><Alert variant="success" title="Deployment complete">Production is serving the new release.</Alert><Alert variant="warning" title="Action required">Add a payment method before the next renewal.</Alert></div>,
     props: [{ name: "variant", type: '"default" | "success" | "warning" | "danger" | "info" | "muted"', default: '"info"', description: "Feedback severity. \"error\" is a deprecated alias of \"danger\"." },{ name: "title", type: "string", description: "Concise feedback heading." },{ name: "dismissable", type: "boolean", default: "false", description: "Displays a dismiss action." },{ name: "onDismiss", type: "() => void", description: "Dismiss callback." }],
     accessibility: "Warning and danger variants use role=\"alert\". Other variants use role=\"status\". Dismiss actions have an accessible name.",
   }),
   "components/modal": () => ({
-    code: `<Modal\n  open={open}\n  onClose={() => setOpen(false)}\n  title="Create API key"\n  description="The secret is shown only once."\n>\n  <Input label="Key name" />\n</Modal>`,
+    code: `function CreateKeyModal() {
+  const [open, setOpen] = useState(false)
+  return (
+    <>
+      <Button onClick={() => setOpen(true)}>Create API key</Button>
+      <Modal open={open} onClose={() => setOpen(false)} title="Create API key" description="The secret is shown only once.">
+        <Input label="Key name" placeholder="Production deploys" autoFocus />
+        <Button variant="secondary" onClick={() => setOpen(false)}>Cancel</Button>
+        <Button onClick={() => setOpen(false)}>Create key</Button>
+      </Modal>
+    </>
+  )
+}`,
     preview: <StatefulModalPreview />,
     props: [{ name: "open", type: "boolean", description: "Controls presence of the dialog." },{ name: "portalled", type: "boolean", default: "true", description: "Renders through ThemePortal so table cells and other clipping ancestors cannot clip or out-stack it. False renders inline." },{ name: "onClose", type: "() => void", description: "Requested by Escape, overlay, or close button." },{ name: "size", type: '"sm" | "md" | "lg" | "xl" | "2xl" | "7xl" | "full"', default: '"md"', description: "Maximum panel width." },{ name: "title / description", type: "string", description: "Visible text connected to dialog ARIA attributes." },{ name: "closeOnEscape", type: "boolean", default: "true", description: "Enables Escape dismissal." },{ name: "closeOnOverlayClick", type: "boolean", default: "true", description: "Enables backdrop dismissal." }],
     accessibility: "Uses role=\"dialog\" and aria-modal. Focus moves inside, cycles within the panel, and returns to the previous element after close. Escape closes by default.",
   }),
   "components/drawer": () => ({
-    code: `<Drawer open={open} onClose={() => setOpen(false)} position="right" title="Deployment details">\n  <DeploymentDetails />\n</Drawer>`,
+    code: `function DeploymentDrawer() {
+  const [open, setOpen] = useState(false)
+  return (
+    <>
+      <Button variant="secondary" onClick={() => setOpen(true)}>View deployment</Button>
+      <Drawer open={open} onClose={() => setOpen(false)} position="right" title="Deployment details" width={380}>
+        <Badge variant="success">Ready</Badge>
+        <h3>api-production-7f31</h3>
+        <p>Deployed from main by Maya Chen.</p>
+        <Button variant="secondary" onClick={() => setOpen(false)}>Close details</Button>
+      </Drawer>
+    </>
+  )
+}`,
     preview: <StatefulDrawerPreview />,
     props: [{ name: "open", type: "boolean", description: "Controls presence." },{ name: "onClose", type: "() => void", description: "Close request callback." },{ name: "position", type: '"left" | "right" | "bottom"', default: '"left"', description: "Viewport edge." },{ name: "width", type: "number | string", default: "320", description: "Side drawer width." },{ name: "title", type: "ReactNode", description: "Visible, associated heading." }],
     accessibility: "Portals to document.body, traps focus, locks body scrolling, closes on Escape, and restores prior focus.",
   }),
   "components/tabs": () => ({
-    code: `<Tabs defaultValue="overview">\n  <TabsList>\n    <TabsTrigger value="overview">Overview</TabsTrigger>\n    <TabsTrigger value="deployments">Deployments</TabsTrigger>\n  </TabsList>\n  <TabsContent value="overview">Service details</TabsContent>\n  <TabsContent value="deployments">Deployment history</TabsContent>\n</Tabs>`,
-    preview: <Tabs defaultValue="overview" className="w-full max-w-lg"><TabsList><TabsTrigger value="overview">Overview</TabsTrigger><TabsTrigger value="deployments">Deployments</TabsTrigger><TabsTrigger value="settings">Settings</TabsTrigger></TabsList><TabsContent value="overview"><p className="demo-panel-copy">The service is healthy in three regions.</p></TabsContent><TabsContent value="deployments"><p className="demo-panel-copy">The latest deployment completed 8 minutes ago.</p></TabsContent><TabsContent value="settings"><p className="demo-panel-copy">Automatic scaling is enabled.</p></TabsContent></Tabs>,
+    code: `<Tabs defaultValue="overview" className="w-full max-w-lg"><TabsList><TabsTrigger value="overview">Overview</TabsTrigger><TabsTrigger value="deployments">Deployments</TabsTrigger><TabsTrigger value="settings">Settings</TabsTrigger></TabsList><TabsContent value="overview"><p className="rounded-lg border border-border p-4 text-sm text-muted-foreground">The service is healthy in three regions.</p></TabsContent><TabsContent value="deployments"><p className="rounded-lg border border-border p-4 text-sm text-muted-foreground">The latest deployment completed 8 minutes ago.</p></TabsContent><TabsContent value="settings"><p className="rounded-lg border border-border p-4 text-sm text-muted-foreground">Automatic scaling is enabled.</p></TabsContent></Tabs>`,
+    preview: <Tabs defaultValue="overview" className="w-full max-w-lg"><TabsList><TabsTrigger value="overview">Overview</TabsTrigger><TabsTrigger value="deployments">Deployments</TabsTrigger><TabsTrigger value="settings">Settings</TabsTrigger></TabsList><TabsContent value="overview"><p className="rounded-lg border border-border p-4 text-sm text-muted-foreground">The service is healthy in three regions.</p></TabsContent><TabsContent value="deployments"><p className="rounded-lg border border-border p-4 text-sm text-muted-foreground">The latest deployment completed 8 minutes ago.</p></TabsContent><TabsContent value="settings"><p className="rounded-lg border border-border p-4 text-sm text-muted-foreground">Automatic scaling is enabled.</p></TabsContent></Tabs>,
     props: [{ name: "value / defaultValue", type: "string", description: "Controlled or initial active tab; defaultValue is optional when controlled." },{ name: "onValueChange", type: "(value: string) => void", description: "Active-value callback." },{ name: "orientation", type: '"horizontal" | "vertical"', default: '"horizontal"', description: "Layout and arrow-key axis." },{ name: "size", type: '"sm" | "md" | "lg"', default: '"md"', description: "Trigger text and padding." },{ name: "TabsTrigger.icon", type: "ReactNode", description: "Icon rendered with the label." },{ name: "TabsTrigger.iconPosition", type: '"left" | "right" | "top"', default: '"left"', description: "Icon placement; top stacks it above the label." }],
     accessibility: "Uses tablist, tab, and tabpanel roles with linked IDs. Arrow keys wrap; Home and End move to the first and last enabled tab.",
   }),
   "components/accordion": () => ({
-    code: `<Accordion\n  defaultOpen={["billing"]}\n  items={[{\n    id: "billing",\n    trigger: "How does billing work?",\n    content: "Usage is invoiced monthly."\n  }]}\n/>`,
+    code: `<Accordion className="w-full max-w-lg" defaultOpen={["billing"]} items={[{ id: "billing", trigger: "How does usage billing work?", content: "Usage is metered per workspace and invoiced at the end of each month." },{ id: "cancel", trigger: "Can I cancel a plan?", content: "Yes. Your plan stays active until the end of the billing period." }]} />`,
     preview: <Accordion className="w-full max-w-lg" defaultOpen={["billing"]} items={[{ id: "billing", trigger: "How does usage billing work?", content: "Usage is metered per workspace and invoiced at the end of each month." },{ id: "cancel", trigger: "Can I cancel a plan?", content: "Yes. Your plan stays active until the end of the billing period." }]} />,
     props: [{ name: "items", type: "AccordionItem[]", description: "ID, trigger, content, and optional disabled state." },{ name: "multiple", type: "boolean", default: "false", description: "Allows more than one panel to stay open." },{ name: "value / defaultOpen", type: "string[]", default: "[]", description: "Controlled or initial open item IDs." },{ name: "onValueChange", type: "(value: string[]) => void", description: "Called with the next open item IDs." },{ name: "disabled", type: "boolean", default: "false", description: "Disables every item." },{ name: "itemClassName / triggerClassName / contentClassName", type: "string", description: "Style each part of every item." },{ name: "size", type: '"sm" | "md" | "lg"', default: '"md"', description: "Trigger and content scale." }],
     accessibility: "Each trigger is a button with aria-expanded and aria-controls. Panels use role=\"region\" and reference their trigger.",
   }),
   "components/dropdown-menu": () => ({
-    code: `<DropdownMenu\n  trigger={<Button variant="secondary">Actions</Button>}\n  items={[\n    { label: "View logs", onClick: openLogs },\n    { label: "Delete service", destructive: true, onClick: remove },\n  ]}\n/>`,
+    code: `<DropdownMenu ariaLabel="Service actions" align="end" trigger={<Button variant="secondary" icon={<MoreHorizontal size={15} />}>Actions</Button>} items={[{ label: "View logs", shortcut: "⌘L" },{ label: "Duplicate service" },{ group: "Danger zone", items: [{ label: "Delete service", destructive: true }]}]} />`,
     preview: <DropdownMenu ariaLabel="Service actions" align="end" trigger={<Button variant="secondary" icon={<MoreHorizontal size={15} />}>Actions</Button>} items={[{ label: "View logs", shortcut: "⌘L" },{ label: "Duplicate service" },{ group: "Danger zone", items: [{ label: "Delete service", destructive: true }]}]} />,
     props: [{ name: "trigger", type: "ReactNode", description: "Cloned trigger with menu ARIA state." },{ name: "items", type: "DropdownMenuSection[]", description: "Action items or labeled groups." },{ name: "side", type: '"bottom" | "top"', default: '"bottom"', description: "Vertical placement." },{ name: "align", type: '"start" | "end" | "center"', default: '"start"', description: "Horizontal alignment." },{ name: "ariaLabel", type: "string", default: '"Actions menu"', description: "Accessible menu name." },{ name: "open / defaultOpen", type: "boolean", description: "Controlled or initial open state." },{ name: "onOpenChange", type: "(open: boolean) => void", description: "Called when the menu requests to open or close." }],
     accessibility: "Focus moves to the first enabled item. Arrow keys, Home, End, and Escape are supported; Escape restores focus to the trigger.",
   }),
   "components/tooltip": () => ({
-    code: `<Tooltip content="Copy deployment URL" position="top">\n  <Button size="icon" variant="secondary" aria-label="Copy deployment URL">\n    <CopyIcon />\n  </Button>\n</Tooltip>`,
+    code: `<Tooltip content="View deployment documentation"><Button size="icon" variant="secondary" aria-label="View deployment documentation"><CircleHelp size={16} /></Button></Tooltip>`,
     preview: <Tooltip content="View deployment documentation"><Button size="icon" variant="secondary" aria-label="View deployment documentation"><CircleHelp size={16} /></Button></Tooltip>,
     props: [{ name: "content", type: "ReactNode", description: "Tooltip content." },{ name: "position", type: '"top" | "bottom" | "left" | "right"', default: '"top"', description: "Preferred placement." },{ name: "delayMs", type: "number", default: "0", description: "Delay before display." },{ name: "maxWidth", type: 'number | string | "none"', default: '"20rem"', description: "Width cap. The bubble sizes to its content and wraps only at this cap (always clamped to the viewport)." },{ name: "open / defaultOpen", type: "boolean", description: "Controlled or initial visibility." },{ name: "onOpenChange", type: "(open: boolean) => void", description: "Called when hover or focus requests a change." }],
     accessibility: "Appears on both hover and focus. The visible tooltip is connected to its trigger through aria-describedby.",
   }),
   "components/pagination": () => ({
-    code: `<Pagination page={page} totalPages={7} onPageChange={setPage} />`,
+    code: `function Pager() {
+  const [page, setPage] = useState(2)
+  return <Pagination page={page} totalPages={7} onPageChange={setPage} />
+}`,
     preview: <PaginationPreview />,
     props: [{ name: "page / defaultPage", type: "number", description: "Controlled or initial one-based page." },{ name: "totalPages", type: "number", description: "Available page count." },{ name: "onPageChange", type: "(page: number) => void", description: "Navigation callback." },{ name: "siblingCount", type: "number", default: "1", description: "Adjacent visible pages." },{ name: "disabled", type: "boolean", default: "false", description: "Disables every page button, e.g. while loading." },{ name: "itemClassName / activeItemClassName", type: "string", description: "Style each page button and the current one." },{ name: "size", type: '"sm" | "md" | "lg"', default: '"md"', description: "Page button scale." }],
     accessibility: "Uses a named navigation landmark, accessible labels for page controls, aria-current for the active page, and native disabled buttons at boundaries.",
   }),
   "components/progressbar": () => ({
-    code: `<Progressbar value={72} label="Upload progress" showValue />`,
-    preview: <div className="demo-stack w-full max-w-lg"><Progressbar value={72} label="Upload progress" showValue /><Progressbar value={34} variant="warning" size="sm" /></div>,
+    code: `<div className="grid gap-4 w-full max-w-lg"><Progressbar value={72} label="Upload progress" showValue /><Progressbar value={34} variant="warning" size="sm" /></div>`,
+    preview: <div className="grid gap-4 w-full max-w-lg"><Progressbar value={72} label="Upload progress" showValue /><Progressbar value={34} variant="warning" size="sm" /></div>,
     props: [{ name: "value", type: "number", description: "Current progress value." },{ name: "max", type: "number", default: "100", description: "Completion value." },{ name: "variant", type: '"default" | "success" | "warning" | "danger" | "info"', default: '"default"', description: "Semantic treatment. \"error\" is a deprecated alias of \"danger\"." },{ name: "size", type: '"xs" | "sm" | "md" | "lg"', default: '"md"', description: "Track height." }],
     accessibility: "Exposes progressbar semantics with current minimum, maximum, and value information.",
   }),
   "components/skeleton": () => ({
-    code: `<div className="space-y-3">\n  <Skeleton className="h-4 w-40" />\n  <Skeleton className="h-3 w-full" />\n  <Skeleton className="h-3 w-2/3" />\n</div>`,
-    preview: <div className="skeleton-demo"><div className="skeleton-avatar"><Skeleton className="size-10 rounded-full" /><div><Skeleton className="h-3 w-32" /><Skeleton className="mt-2 h-3 w-48" /></div></div><Skeleton className="h-20 w-full" /></div>,
+    code: `<div className="w-full max-w-md"><div className="mb-4 flex items-center gap-3"><Skeleton className="size-10 rounded-full" /><div className="flex-1"><Skeleton className="h-3 w-32" /><Skeleton className="mt-2 h-3 w-48" /></div></div><Skeleton className="h-20 w-full" /></div>`,
+    preview: <div className="w-full max-w-md"><div className="mb-4 flex items-center gap-3"><Skeleton className="size-10 rounded-full" /><div className="flex-1"><Skeleton className="h-3 w-32" /><Skeleton className="mt-2 h-3 w-48" /></div></div><Skeleton className="h-20 w-full" /></div>,
     props: [{ name: "width", type: "string | number", description: "Inline width for the placeholder." },{ name: "height", type: "string | number", description: "Inline height for the placeholder." },{ name: "rounded", type: '"sm" | "md" | "lg" | "full"', default: '"md"', description: "Placeholder corner radius." },{ name: "className", type: "string", description: "Composes final dimensions and layout." }],
     accessibility: "Skeletons are visual placeholders. Apply an accessible busy state and label to the containing region when loading affects user understanding.",
   }),
