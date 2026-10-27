@@ -55,6 +55,7 @@ test("documentation navigation resolves every configured page", async ({ page },
 
 test("every component page includes a live preview, copyable code, and API reference", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "desktop-1280", "The complete component audit only needs one desktop project")
+  test.setTimeout(180_000)
 
   const componentTargets = await page.locator('.docs-sidebar a[href^="#/components/"]').evaluateAll((elements) =>
     elements.map((element) => element.getAttribute("href")).filter((href): href is string => Boolean(href)),

@@ -87,6 +87,144 @@ function SingleLightboxExample() {
   )
 }
 
+function KanbanBoardExample() {
+  const [columns, setColumns] = useState([
+    {
+      id: "backlog",
+      title: "Backlog",
+      limit: 4,
+      items: [
+        { id: "b1", title: "GraphQL schema audit" },
+        { id: "b2", title: "Redis cache invalidation" },
+      ],
+    },
+    {
+      id: "in-progress",
+      title: "In Progress",
+      limit: 2,
+      items: [
+        { id: "p1", title: "OAuth 2.1 PKCE support" },
+      ],
+    },
+    {
+      id: "done",
+      title: "Done",
+      items: [
+        { id: "d1", title: "Dark mode tokens" },
+        { id: "d2", title: "Vitest migration" },
+      ],
+    },
+  ])
+  return (
+    <div className="w-full overflow-x-auto py-2">
+      <R.Kanban
+        columns={columns}
+        onChange={(next) => setColumns(next)}
+        getLabel={(item) => item.title}
+        renderCard={(item) => (
+          <div className="text-sm font-medium text-foreground">{item.title}</div>
+        )}
+      />
+    </div>
+  )
+}
+
+function SortableHorizontalExample() {
+  const [tags, setTags] = useState([
+    { id: "react", label: "React" },
+    { id: "ts", label: "TypeScript" },
+    { id: "tailwind", label: "Tailwind" },
+    { id: "vite", label: "Vite" },
+  ])
+  return (
+    <R.SortableList
+      orientation="horizontal"
+      items={tags}
+      onReorder={(next) => setTags(next)}
+      getLabel={(tag) => tag.label}
+      renderItem={(tag) => <span className="text-sm font-medium">{tag.label}</span>}
+    />
+  )
+}
+
+function NotificationCenterCustomExample() {
+  const [items, setItems] = useState<R.NotificationItem[]>([
+    { id: "m1", title: "@sarah mentioned you in PR #42", description: "Could you check the retry logic here?", timestamp: "12m ago", read: false, category: "mentions", avatar: { name: "Sarah Chen" } },
+    { id: "m2", title: "@alex requested your review", description: "feat: add webhook delivery retries", timestamp: "1h ago", read: false, category: "mentions", avatar: { name: "Alex Rivera" } },
+    { id: "s1", title: "Weekly security digest", description: "Zero vulnerabilities detected across 14 packages", timestamp: "1d ago", read: true, category: "system", tone: "info" },
+  ])
+  return (
+    <div className="flex items-center gap-4">
+      <R.NotificationCenter
+        items={items}
+        onItemsChange={setItems}
+        categories={["all", "mentions", "system"]}
+        trigger={<R.Button variant="secondary" size="sm">Inbox ({items.filter((i) => !i.read).length})</R.Button>}
+      />
+    </div>
+  )
+}
+
+function TourStepActionExample() {
+  const [open, setOpen] = useState(false)
+  const steps: R.TourStep[] = [
+    {
+      target: "#tour-card-1",
+      title: "Interactive spotlight",
+      content: "Each step anchors seamlessly to any element or selector.",
+      placement: "bottom",
+      action: { label: "Learn more", onClick: () => alert("Step action triggered") },
+    },
+    {
+      target: "#tour-card-2",
+      title: "Step completions",
+      content: "Finish or skip steps with keyboard navigation (Escape, Arrow keys).",
+      placement: "top",
+    },
+  ]
+  return (
+    <div className="demo-stack items-center w-full max-w-md">
+      <div className="grid grid-cols-2 gap-4 w-full">
+        <div id="tour-card-1" className="p-3 rounded-lg border border-border bg-surface text-xs font-medium">Element Alpha</div>
+        <div id="tour-card-2" className="p-3 rounded-lg border border-border bg-surface text-xs font-medium">Element Beta</div>
+      </div>
+      <R.Button size="sm" onClick={() => setOpen(true)}>Launch guide</R.Button>
+      <R.Tour steps={steps} open={open} onOpenChange={setOpen} />
+    </div>
+  )
+}
+
+function MenubarAppExample() {
+  const [activeAction, setActiveAction] = useState<string | null>(null)
+  return (
+    <div className="demo-stack w-full max-w-md">
+      <R.Menubar
+        menus={[
+          {
+            label: "Format",
+            items: [
+              { label: "Bold", shortcut: "⌘B", onClick: () => setActiveAction("Bold") },
+              { label: "Italic", shortcut: "⌘I", onClick: () => setActiveAction("Italic") },
+              { label: "Strikethrough", onClick: () => setActiveAction("Strikethrough") },
+            ],
+          },
+          {
+            label: "Insert",
+            items: [
+              { label: "Table", onClick: () => setActiveAction("Table inserted") },
+              { label: "Image…", onClick: () => setActiveAction("Image picker opened") },
+              { label: "Link…", shortcut: "⌘K", onClick: () => setActiveAction("Link dialog opened") },
+            ],
+          },
+        ]}
+      />
+      <span className="text-sm text-muted-foreground" role="status">
+        {activeAction ? `Action selected: ${activeAction}` : "Choose a formatting action from the menu"}
+      </span>
+    </div>
+  )
+}
+
 const ex = (id: string, title: string, description: string, code: string, preview: ReactNode, align?: "center" | "start"): ComponentExample =>
   ({ id, title, description, code, preview, align })
 
@@ -2111,6 +2249,161 @@ export default function App() {
   </Resizable>
 </div>`,
       <div className="h-56 w-full overflow-hidden rounded-xl border border-border bg-surface"><R.Resizable storageKey="docs-mail-layout" withHandle defaultSizes={[35, 65]} minSizes={[25, 35]} panelLabels={["Inbox", "Message"]}><R.ResizablePanel className="divide-y divide-border text-sm"><p className="px-3 py-2 font-medium">Deploy succeeded</p><p className="px-3 py-2">Weekly report</p><p className="px-3 py-2">New comment</p></R.ResizablePanel><R.ResizablePanel className="p-4 text-sm text-muted-foreground">api-gateway v2.4.1 is live in all regions.</R.ResizablePanel></R.Resizable></div>),
+  ],
+
+  "components/sortable": () => [
+    ex("kanban", "Kanban board", "Multi-column workflow board. Pick up cards with Space, move between columns with Left/Right, reorder with Up/Down, and drop with Space.",
+      `function KanbanBoard() {
+  const [columns, setColumns] = useState([
+    {
+      id: "backlog",
+      title: "Backlog",
+      limit: 4,
+      items: [
+        { id: "b1", title: "GraphQL schema audit" },
+        { id: "b2", title: "Redis cache invalidation" },
+      ],
+    },
+    {
+      id: "in-progress",
+      title: "In Progress",
+      limit: 2,
+      items: [
+        { id: "p1", title: "OAuth 2.1 PKCE support" },
+      ],
+    },
+    {
+      id: "done",
+      title: "Done",
+      items: [
+        { id: "d1", title: "Dark mode tokens" },
+        { id: "d2", title: "Vitest migration" },
+      ],
+    },
+  ])
+  return (
+    <div className="w-full overflow-x-auto py-2">
+      <Kanban
+        columns={columns}
+        onChange={(next) => setColumns(next)}
+        getLabel={(item) => item.title}
+        renderCard={(item) => (
+          <div className="text-sm font-medium text-foreground">{item.title}</div>
+        )}
+      />
+    </div>
+  )
+}`,
+      <KanbanBoardExample />),
+    ex("horizontal", "Horizontal reorder", "orientation=\"horizontal\" reorders items in an inline row or flex-wrap layout.",
+      `function TagOrder() {
+  const [tags, setTags] = useState([
+    { id: "react", label: "React" },
+    { id: "ts", label: "TypeScript" },
+    { id: "tailwind", label: "Tailwind" },
+    { id: "vite", label: "Vite" },
+  ])
+  return (
+    <SortableList
+      orientation="horizontal"
+      items={tags}
+      onReorder={(next) => setTags(next)}
+      getLabel={(tag) => tag.label}
+      renderItem={(tag) => <span className="text-sm font-medium">{tag.label}</span>}
+    />
+  )
+}`,
+      <SortableHorizontalExample />),
+  ],
+
+  "components/notification-center": () => [
+    ex("categories", "Category filters and custom trigger", "Separate notifications into categories like mentions and system alerts with a custom trigger button.",
+      `function CustomNotifications() {
+  const [items, setItems] = useState<NotificationItem[]>([
+    { id: "m1", title: "@sarah mentioned you in PR #42", description: "Could you check the retry logic here?", timestamp: "12m ago", read: false, category: "mentions", avatar: { name: "Sarah Chen" } },
+    { id: "m2", title: "@alex requested your review", description: "feat: add webhook delivery retries", timestamp: "1h ago", read: false, category: "mentions", avatar: { name: "Alex Rivera" } },
+    { id: "s1", title: "Weekly security digest", description: "Zero vulnerabilities detected across 14 packages", timestamp: "1d ago", read: true, category: "system", tone: "info" },
+  ])
+  return (
+    <div className="flex items-center gap-4">
+      <NotificationCenter
+        items={items}
+        onItemsChange={setItems}
+        categories={["all", "mentions", "system"]}
+        trigger={<Button variant="secondary" size="sm">Inbox ({items.filter((i) => !i.read).length})</Button>}
+      />
+    </div>
+  )
+}`,
+      <NotificationCenterCustomExample />),
+  ],
+
+  "components/tour": () => [
+    ex("actions", "Steps with custom actions", "Steps can embed dedicated action buttons and anchor around targeted card elements.",
+      `function GuidedTour() {
+  const [open, setOpen] = useState(false)
+  const steps: TourStep[] = [
+    {
+      target: "#tour-card-1",
+      title: "Interactive spotlight",
+      content: "Each step anchors seamlessly to any element or selector.",
+      placement: "bottom",
+      action: { label: "Learn more", onClick: () => alert("Step action triggered") },
+    },
+    {
+      target: "#tour-card-2",
+      title: "Step completions",
+      content: "Finish or skip steps with keyboard navigation (Escape, Arrow keys).",
+      placement: "top",
+    },
+  ]
+  return (
+    <div className="demo-stack items-center w-full max-w-md">
+      <div className="grid grid-cols-2 gap-4 w-full">
+        <div id="tour-card-1" className="p-3 rounded-lg border border-border bg-surface text-xs font-medium">Element Alpha</div>
+        <div id="tour-card-2" className="p-3 rounded-lg border border-border bg-surface text-xs font-medium">Element Beta</div>
+      </div>
+      <Button size="sm" onClick={() => setOpen(true)}>Launch guide</Button>
+      <Tour steps={steps} open={open} onOpenChange={setOpen} />
+    </div>
+  )
+}`,
+      <TourStepActionExample />),
+  ],
+
+  "components/menubar": () => [
+    ex("editor", "Document actions", "Menubar groups commands into accessible top-level categories with keyboard shortcuts.",
+      `function EditorMenubar() {
+  const [activeAction, setActiveAction] = useState<string | null>(null)
+  return (
+    <div className="demo-stack w-full max-w-md">
+      <Menubar
+        menus={[
+          {
+            label: "Format",
+            items: [
+              { label: "Bold", shortcut: "⌘B", onClick: () => setActiveAction("Bold") },
+              { label: "Italic", shortcut: "⌘I", onClick: () => setActiveAction("Italic") },
+              { label: "Strikethrough", onClick: () => setActiveAction("Strikethrough") },
+            ],
+          },
+          {
+            label: "Insert",
+            items: [
+              { label: "Table", onClick: () => setActiveAction("Table inserted") },
+              { label: "Image…", onClick: () => setActiveAction("Image picker opened") },
+              { label: "Link…", shortcut: "⌘K", onClick: () => setActiveAction("Link dialog opened") },
+            ],
+          },
+        ]}
+      />
+      <span className="text-sm text-muted-foreground" role="status">
+        {activeAction ? \`Action selected: \${activeAction}\` : "Choose a formatting action from the menu"}
+      </span>
+    </div>
+  )
+}`,
+      <MenubarAppExample />),
   ],
 
   "components/heading": () => [

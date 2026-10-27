@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event"
 import { describe, expect, it, vi } from "vitest"
 import {
   Accordion, Alert, BillingIntervalToggle, Breadcrumb, Stepper, Button, ButtonGroup, Collapsible, ConfirmDialog,
-  IconButton, NumberInput, Pagination, Popover, PopoverContent, Tabs, TabsContent,
+  IconButton, Kanban, NumberInput, Pagination, Popover, PopoverContent, SortableList, Tabs, TabsContent,
   TabsList, TabsTrigger, Tag, Toggle, ToggleGroup, ToggleGroupItem, Tree,
 } from "@/index"
 
@@ -293,5 +293,113 @@ describe("disabled states and part classNames", () => {
     expect(screen.getByRole("button", { name: "Alpha" })).toHaveClass("acc-trigger")
     expect(screen.getByRole("treeitem", { name: "alpha" })).toHaveAttribute("aria-disabled", "true")
     expect(screen.getByRole("treeitem", { name: "alpha" })).toHaveClass("tree-node")
+  })
+})
+
+describe("SortableList and Kanban", () => {
+  it("reorders list items using the keyboard and announces progress", async () => {
+    const user = userEvent.setup()
+    const onReorder = vi.fn()
+    const items = [
+      { id: "1", title: "Item 1" },
+      { id: "2", title: "Item 2" },
+      { id: "3", title: "Item 3" },
+    ]
+
+    render(
+      <SortableList
+        items={items}
+        onReorder={onReorder}
+        getLabel={(item) => item.title}
+        renderItem={(item) => <span>{item.title}</span>}
+      />,
+    )
+
+    const handle = screen.getByRole("button", { name: "Reorder Item 1" })
+    expect(handle).toBeInTheDocument()
+
+    handle.focus()
+    // Press Space to pick up
+    await user.keyboard(" ")
+    expect(screen.getByText(/Picked up Item 1/)).toBeInTheDocument()
+
+    // Press ArrowDown to move down
+    await user.keyboard("{ArrowDown}")
+    expect(screen.getByText(/Item 1 moved to position 2 of 3/)).toBeInTheDocument()
+
+    // Press Space to drop
+    await user.keyboard(" ")
+    expect(onReorder).toHaveBeenCalledWith(
+      [
+        { id: "2", title: "Item 2" },
+        { id: "1", title: "Item 1" },
+        { id: "3", title: "Item 3" },
+      ],
+      { id: "1", from: 0, to: 1 },
+    )
+  })
+
+  it("cancels list reordering on Escape without committing", async () => {
+    const user = userEvent.setup()
+    const onReorder = vi.fn()
+    const items = [
+      { id: "1", title: "Item 1" },
+      { id: "2", title: "Item 2" },
+    ]
+
+    render(
+      <SortableList
+        items={items}
+        onReorder={onReorder}
+        getLabel={(item) => item.title}
+        renderItem={(item) => <span>{item.title}</span>}
+      />,
+    )
+
+    const handle = screen.getByRole("button", { name: "Reorder Item 1" })
+    handle.focus()
+    await user.keyboard(" ")
+    await user.keyboard("{ArrowDown}")
+    await user.keyboard("{Escape}")
+
+    expect(onReorder).not.toHaveBeenCalled()
+    expect(screen.getByText(/Reorder cancelled/)).toBeInTheDocument()
+  })
+
+  it("moves Kanban cards between columns using keyboard", async () => {
+    const user = userEvent.setup()
+    const onChange = vi.fn()
+    const columns = [
+      { id: "todo", title: "To Do", items: [{ id: "t1", title: "Task 1" }] },
+      { id: "done", title: "Done", items: [{ id: "t2", title: "Task 2" }] },
+    ]
+
+    render(
+      <Kanban
+        columns={columns}
+        onChange={onChange}
+        getLabel={(item) => item.title}
+        renderCard={(item) => <span>{item.title}</span>}
+      />,
+    )
+
+    expect(screen.getByText("To Do")).toBeInTheDocument()
+    expect(screen.getByText("Done")).toBeInTheDocument()
+
+    const handle = screen.getByRole("button", { name: "Reorder Task 1" })
+    handle.focus()
+    await user.keyboard(" ")
+    // Move to next column
+    await user.keyboard("{ArrowRight}")
+    // Drop
+    await user.keyboard(" ")
+
+    expect(onChange).toHaveBeenCalledWith(
+      [
+        { id: "todo", title: "To Do", items: [] },
+        { id: "done", title: "Done", items: [{ id: "t1", title: "Task 1" }, { id: "t2", title: "Task 2" }] },
+      ],
+      { id: "t1", fromColumn: "todo", toColumn: "done", fromIndex: 0, toIndex: 0 },
+    )
   })
 })

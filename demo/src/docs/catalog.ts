@@ -112,6 +112,7 @@ const feedback = [
   component("Banner", "Full-width announcement strip for page-level notices.", "Feedback", ["announcement", "notice", "topbar", "strip"]),
   component("Alert", "Communicates persistent status and feedback.", "Feedback", ["banner", "notification"]),
   component("Snackbar", "Shows transient application feedback.", "Feedback", ["toast", "notification"]),
+  component("Notification Center", "Bell action with unread counts and a popover notification panel.", "Feedback", ["notifications", "inbox", "bell", "alerts"], "NotificationCenter"),
   component("Spinner", "Indicates indeterminate progress.", "Feedback", ["loading"]),
   component("Skeleton", "Reserves layout while content loads.", "Feedback", ["loading"]),
   component("Progressbar", "Shows determinate progress toward completion.", "Feedback", ["progress"]),
@@ -130,6 +131,7 @@ const overlays = [
   component("Context Menu", "Opens a menu of actions on right-click or Shift+F10.", "Overlays", ["right click", "contextmenu"], "ContextMenu"),
   component("Menubar", "Application-style menu bar with keyboard navigation.", "Overlays", ["file menu", "app menu"], "Menubar"),
   component("Tooltip", "Provides concise supplementary text on hover or focus.", "Overlays"),
+  component("Tour", "Multi-step onboarding walkthrough with spotlight and popover guidance.", "Overlays", ["spotlight", "walkthrough", "onboarding", "guide"], "Tour"),
   component("Command", "Searches and runs commands from a command palette.", "Overlays", ["cmdk", "command palette"]),
 ]
 
@@ -146,6 +148,7 @@ const navigation = [
 const data = [
   component("Table", "Provides responsive semantic table primitives.", "Data"),
   component("Data Table", "Adds sorting, search, loading, and pagination to tabular data.", "Data", ["grid"], "DataTable"),
+  component("Sortable", "Reorderable lists and Kanban boards with accessible keyboard and pointer drag.", "Data", ["sortable", "drag and drop", "dnd", "kanban", "reorder"], "SortableList"),
   component("Bar Chart", "Compares categorical values with bars.", "Data visualization", [], "BarChart"),
   component("Line Chart", "Shows change across an ordered series.", "Data visualization", [], "LineChart"),
   component("Multi Line Chart", "Compares multiple ordered series.", "Data visualization", [], "MultiLineChart"),

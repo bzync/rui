@@ -351,6 +351,75 @@ function ResizableUsagePreview() {
   )
 }
 
+function SortableUsagePreview() {
+  const [items, setItems] = useState([
+    { id: "1", title: "Configure authentication provider", tag: "Security" },
+    { id: "2", title: "Set up PostgreSQL read replica", tag: "Database" },
+    { id: "3", title: "Implement rate limiting middleware", tag: "API" },
+    { id: "4", title: "Audit responsive design on mobile", tag: "UI" },
+  ])
+  return (
+    <div className="w-full max-w-md">
+      <R.SortableList
+        items={items}
+        onReorder={(next) => setItems(next)}
+        getLabel={(item) => item.title}
+        renderItem={(item) => (
+          <div className="flex items-center justify-between gap-2">
+            <span className="font-medium">{item.title}</span>
+            <span className="rounded bg-foreground/6 px-1.5 py-0.5 text-xs text-muted-foreground">{item.tag}</span>
+          </div>
+        )}
+      />
+    </div>
+  )
+}
+
+function NotificationCenterUsagePreview() {
+  const [items, setItems] = useState<R.NotificationItem[]>([
+    { id: "1", title: "Deployment succeeded", description: "Production environment updated to release v2.4.0", timestamp: "5m ago", read: false, tone: "success" },
+    { id: "2", title: "Database backup completed", description: "Automated snapshot taken for postgres-prod", timestamp: "45m ago", read: false, tone: "info" },
+    { id: "3", title: "High memory usage alert", description: "Host node worker-03 exceeded 90% memory capacity", timestamp: "3h ago", read: true, tone: "warning" },
+  ])
+  return (
+    <div className="flex items-center justify-center p-6">
+      <R.NotificationCenter
+        items={items}
+        onItemsChange={setItems}
+        onClearAll={() => setItems([])}
+      />
+    </div>
+  )
+}
+
+function TourUsagePreview() {
+  const [open, setOpen] = useState(false)
+  const steps: R.TourStep[] = [
+    { target: "#tour-target-search", title: "Global Search", content: "Quickly locate any file, setting, or command with keyboard shortcuts." },
+    { target: "#tour-target-action", title: "Deploy Button", content: "Ship changes to staging or production with zero downtime." },
+    { target: "#tour-target-avatar", title: "User Account", content: "Manage team memberships, personal access tokens, and notifications." },
+  ]
+  return (
+    <div className="flex flex-col items-center gap-6 w-full max-w-lg p-4 rounded-xl border border-border bg-surface">
+      <div className="flex w-full items-center justify-between gap-2">
+        <div id="tour-target-search" className="rounded-lg border border-border bg-surface-muted px-3 py-1.5 text-xs text-muted-foreground">
+          🔍 Search project…
+        </div>
+        <div className="flex items-center gap-2">
+          <button id="tour-target-action" type="button" className="rounded-md bg-accent px-3 py-1 text-xs font-medium text-accent-foreground">
+            Deploy
+          </button>
+          <div id="tour-target-avatar" className="flex h-7 w-7 items-center justify-center rounded-full bg-foreground/10 text-xs font-semibold">
+            JD
+          </div>
+        </div>
+      </div>
+      <R.Button onClick={() => setOpen(true)} variant="secondary">Start interactive tour</R.Button>
+      <R.Tour steps={steps} open={open} onOpenChange={setOpen} />
+    </div>
+  )
+}
+
 function TimePickerPreview() {
   const [value, setValue] = useState("09:30")
   const [confirmedValue, setConfirmedValue] = useState("09:30")
@@ -1531,6 +1600,118 @@ const columns: ColumnDef<(typeof services)[number]>[] = [
     <ResizableUsagePreview />,
     api(["direction", '"horizontal" | "vertical"', "Split axis.", '"horizontal"'], ["defaultSizes / sizes", "number[]", "Initial or controlled sizes in percent."], ["onResize", "(sizes) => void", "Called while resizing."], ["minSizes / maxSizes", "number[]", "Per-panel limits in percent.", "10 / 90"], ["storageKey", "string", "Persists the layout in localStorage."], ["withHandle", "boolean", "Shows a grip on each handle.", "false"], ["panelLabels", "string[]", "Names used to label each handle for assistive technology."], ["ResizablePanel", "component", "A panel; scrolls its own overflow."]),
     "Each handle is a focusable separator with orientation, value and limits. Arrow keys resize by 2% (Shift: 10%), Home/End jump to the limits, and double-click restores the default layout. Name panels with panelLabels so handles read as “Resize Explorer and Editor”.",
+  ),
+  "components/sortable": () => detail(
+    `function TaskList() {
+  const [items, setItems] = useState([
+    { id: "1", title: "Configure authentication provider", tag: "Security" },
+    { id: "2", title: "Set up PostgreSQL read replica", tag: "Database" },
+    { id: "3", title: "Implement rate limiting middleware", tag: "API" },
+    { id: "4", title: "Audit responsive design on mobile", tag: "UI" },
+  ])
+  return (
+    <div className="w-full max-w-md">
+      <SortableList
+        items={items}
+        onReorder={(next) => setItems(next)}
+        getLabel={(item) => item.title}
+        renderItem={(item) => (
+          <div className="flex items-center justify-between gap-2">
+            <span className="font-medium">{item.title}</span>
+            <span className="rounded bg-foreground/6 px-1.5 py-0.5 text-xs text-muted-foreground">{item.tag}</span>
+          </div>
+        )}
+      />
+    </div>
+  )
+}`,
+    <SortableUsagePreview />,
+    api(
+      ["items", "T[]", "List of items with unique id properties."],
+      ["onReorder", "(items: T[], move: { id, from, to }) => void", "Callback when items are reordered."],
+      ["renderItem", "(item: T, state: { dragging: boolean }) => ReactNode", "Item renderer."],
+      ["getLabel", "(item: T) => string", "Text used in handle aria-label and announcements.", "(item) => item.id"],
+      ["orientation", '"vertical" | "horizontal"', "Layout direction.", '"vertical"'],
+      ["dragFromItem", "boolean", "Allows initiating drag anywhere on the item.", "false"],
+      ["instructions", "string", "Hidden instructions referenced by aria-describedby."],
+      ["messages", "Partial<Messages>", "Custom screen reader announcement templates."],
+    ),
+    "Every drag handle is a keyboard-operable button with aria-label, aria-describedby pointing to hidden instructions, and aria-pressed while picked up. Focus a handle, press Space or Enter to pick up, use Arrow keys to reorder, Space/Enter to drop, and Escape to cancel. Position and actions are announced to aria-live='assertive'.",
+  ),
+  "components/notification-center": () => detail(
+    `function NotificationInbox() {
+  const [items, setItems] = useState<NotificationItem[]>([
+    { id: "1", title: "Deployment succeeded", description: "Production environment updated to release v2.4.0", timestamp: "5m ago", read: false, tone: "success" },
+    { id: "2", title: "Database backup completed", description: "Automated snapshot taken for postgres-prod", timestamp: "45m ago", read: false, tone: "info" },
+    { id: "3", title: "High memory usage alert", description: "Host node worker-03 exceeded 90% memory capacity", timestamp: "3h ago", read: true, tone: "warning" },
+  ])
+  return (
+    <div className="flex items-center justify-center p-6">
+      <NotificationCenter
+        items={items}
+        onItemsChange={setItems}
+        onClearAll={() => setItems([])}
+      />
+    </div>
+  )
+}`,
+    <NotificationCenterUsagePreview />,
+    api(
+      ["items / defaultItems / onItemsChange", "NotificationItem[]", "Controlled or uncontrolled notifications list."],
+      ["open / defaultOpen / onOpenChange", "boolean", "Panel open state."],
+      ["title", "ReactNode", "Header title.", '"Notifications"'],
+      ["unreadCount", "number", "Custom unread badge count (default: count of !item.read)."],
+      ["categories", "string[]", "Filter tabs displayed under header.", '["all", "unread"]'],
+      ["onItemClick", "(item: NotificationItem) => void", "Called when an item row is clicked."],
+      ["onItemDismiss", "(id: string) => void", "Called when an item close button is clicked."],
+      ["onMarkAllAsRead", "() => void", "Called when the mark all read button is clicked."],
+      ["onClearAll", "() => void", "Called when the clear all button in the footer is clicked."],
+      ["trigger", "ReactNode", "Custom trigger button (default: bell button with unread count badge)."],
+      ["side / align", '"top" | "bottom" | "left" | "right" / "start" | "center" | "end"', "Popover placement.", '"bottom" / "end"'],
+      ["emptyLabel", "ReactNode", "Message displayed when the notification list is empty."],
+    ),
+    "Trigger button exposes aria-haspopup='dialog', aria-expanded, and an accessible label including unread count. The portalled dialog traps focus, supports Escape to close, and restores focus to the trigger.",
+  ),
+  "components/tour": () => detail(
+    `function AppOnboarding() {
+  const [open, setOpen] = useState(false)
+  const steps: TourStep[] = [
+    { target: "#tour-target-search", title: "Global Search", content: "Quickly locate any file, setting, or command with keyboard shortcuts." },
+    { target: "#tour-target-action", title: "Deploy Button", content: "Ship changes to staging or production with zero downtime." },
+    { target: "#tour-target-avatar", title: "User Account", content: "Manage team memberships, personal access tokens, and notifications." },
+  ]
+  return (
+    <div className="flex flex-col items-center gap-6 w-full max-w-lg p-4 rounded-xl border border-border bg-surface">
+      <div className="flex w-full items-center justify-between gap-2">
+        <div id="tour-target-search" className="rounded-lg border border-border bg-surface-muted px-3 py-1.5 text-xs text-muted-foreground">
+          🔍 Search project…
+        </div>
+        <div className="flex items-center gap-2">
+          <button id="tour-target-action" type="button" className="rounded-md bg-accent px-3 py-1 text-xs font-medium text-accent-foreground">
+            Deploy
+          </button>
+          <div id="tour-target-avatar" className="flex h-7 w-7 items-center justify-center rounded-full bg-foreground/10 text-xs font-semibold">
+            JD
+          </div>
+        </div>
+      </div>
+      <Button onClick={() => setOpen(true)} variant="secondary">Start interactive tour</Button>
+      <Tour steps={steps} open={open} onOpenChange={setOpen} />
+    </div>
+  )
+}`,
+    <TourUsagePreview />,
+    api(
+      ["steps", "TourStep[]", "Array of tour steps with target selector, title, content and placement."],
+      ["open / defaultOpen / onOpenChange", "boolean", "Controlled or uncontrolled visibility."],
+      ["step / defaultStep / onStepChange", "number", "Controlled or uncontrolled active step index."],
+      ["onFinish / onSkip", "() => void", "Callbacks when tour completes or is cancelled/skipped."],
+      ["mask", "boolean", "Display spotlight mask with cutout around target element.", "true"],
+      ["keyboard", "boolean", "Enable Escape to exit and Arrow Left/Right to navigate.", "true"],
+      ["nextLabel / prevLabel / finishLabel / skipLabel", "string", "Button labels.", '"Next" / "Back" / "Finish" / "Skip"'],
+      ["showStepNumbers", "boolean", "Show step count in card header.", "true"],
+    ),
+    "Announced as an accessible modal dialog with aria-labelledby and aria-describedby. Focus is placed inside the active card, Arrow keys navigate steps, and Escape skips the tour while restoring focus to the opening element.",
   ),
   "components/code-block": () => detail(
     `<CodeBlock className="w-full" language="ts" filename="status.ts" showLineNumbers code={'export const status = "ready"\\n\\nconsole.log(status)'} />`,

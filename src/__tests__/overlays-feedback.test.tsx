@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event"
 import { hydrateRoot } from "react-dom/client"
 import { renderToString } from "react-dom/server"
 import { describe, expect, it, vi } from "vitest"
-import { CommandPalette, CommandProvider, ConfirmDialog, ContextMenu, Menubar, CopyButton, DatePicker, Drawer, DropdownMenu, HoverCard, InfoButton, Modal, Popover, PopoverContent, Select, Sheet, SnackbarProvider, ThemeProvider, TimePicker, Tooltip, useSnackbar } from "@/index"
+import { CommandPalette, CommandProvider, ConfirmDialog, ContextMenu, Menubar, CopyButton, DatePicker, Drawer, DropdownMenu, HoverCard, InfoButton, Modal, NotificationCenter, Popover, PopoverContent, Select, Sheet, SnackbarProvider, ThemeProvider, TimePicker, Tooltip, Tour, useSnackbar } from "@/index"
 import { useState } from "react"
 
 describe("overlay and feedback components", () => {
@@ -384,5 +384,104 @@ describe("HoverCard", () => {
     render(<HoverCard content="Preview" openDelay={0}><button type="button">Repo</button></HoverCard>)
     act(() => { screen.getByRole("button", { name: "Repo" }).focus() })
     expect(await screen.findByText("Preview")).toBeInTheDocument()
+  })
+})
+
+describe("NotificationCenter", () => {
+  const sampleNotifications = [
+    { id: "1", title: "New release v1.4", description: "Production deployed successfully", read: false },
+    { id: "2", title: "Disk warning", description: "Storage reached 85%", read: false, tone: "warning" as const },
+    { id: "3", title: "Welcome to RUI", description: "Getting started guide", read: true },
+  ]
+
+  it("opens on trigger click, shows items and filters by unread tab", async () => {
+    const user = userEvent.setup()
+    render(
+      <ThemeProvider defaultTheme="light" storageKey={false}>
+        <NotificationCenter defaultItems={sampleNotifications} />
+      </ThemeProvider>,
+    )
+
+    // Trigger should reflect 2 unread
+    const trigger = screen.getByRole("button", { name: /Notifications \(2 unread\)/i })
+    expect(trigger).toBeInTheDocument()
+
+    // Open
+    await user.click(trigger)
+    expect(screen.getByRole("dialog", { name: "Notifications" })).toBeInTheDocument()
+    expect(screen.getByText("New release v1.4")).toBeInTheDocument()
+    expect(screen.getByText("Welcome to RUI")).toBeInTheDocument()
+
+    // Click Unread tab
+    const unreadTab = screen.getByRole("tab", { name: /Unread/i })
+    await user.click(unreadTab)
+    expect(screen.getByText("New release v1.4")).toBeInTheDocument()
+    expect(screen.queryByText("Welcome to RUI")).not.toBeInTheDocument()
+
+    // Close on Escape
+    await user.keyboard("{Escape}")
+    await waitFor(() => {
+      expect(screen.queryByRole("dialog", { name: "Notifications" })).not.toBeInTheDocument()
+    })
+  })
+
+  it("marks all as read and dismisses items", async () => {
+    const user = userEvent.setup()
+    const onItemsChange = vi.fn()
+    render(
+      <ThemeProvider defaultTheme="light" storageKey={false}>
+        <NotificationCenter defaultItems={sampleNotifications} onItemsChange={onItemsChange} defaultOpen />
+      </ThemeProvider>,
+    )
+
+    const markAllBtn = screen.getByRole("button", { name: "Mark all as read" })
+    await user.click(markAllBtn)
+
+    expect(onItemsChange).toHaveBeenCalledWith(
+      sampleNotifications.map((n) => ({ ...n, read: true })),
+    )
+  })
+})
+
+describe("Tour", () => {
+  const tourSteps = [
+    { target: "#step1", title: "First Step", content: "Learn about feature 1" },
+    { target: "#step2", title: "Second Step", content: "Learn about feature 2" },
+  ]
+
+  it("navigates through steps with Next, Back and Finish", async () => {
+    const user = userEvent.setup()
+    const onFinish = vi.fn()
+    const onStepChange = vi.fn()
+
+    render(
+      <ThemeProvider defaultTheme="light" storageKey={false}>
+        <div id="step1">Feature 1</div>
+        <div id="step2">Feature 2</div>
+        <Tour steps={tourSteps} defaultOpen onFinish={onFinish} onStepChange={onStepChange} />
+      </ThemeProvider>,
+    )
+
+    expect(screen.getByText("Step 1 of 2")).toBeInTheDocument()
+    expect(screen.getByText("First Step")).toBeInTheDocument()
+
+    // Next
+    await user.click(screen.getByRole("button", { name: "Next" }))
+    expect(onStepChange).toHaveBeenCalledWith(1)
+  })
+
+  it("closes and calls onSkip when Escape is pressed", async () => {
+    const user = userEvent.setup()
+    const onSkip = vi.fn()
+
+    render(
+      <ThemeProvider defaultTheme="light" storageKey={false}>
+        <Tour steps={tourSteps} defaultOpen onSkip={onSkip} />
+      </ThemeProvider>,
+    )
+
+    expect(screen.getByRole("dialog", { name: "First Step" })).toBeInTheDocument()
+    await user.keyboard("{Escape}")
+    expect(onSkip).toHaveBeenCalled()
   })
 })

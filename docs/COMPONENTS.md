@@ -97,6 +97,9 @@ import "@bzync/rui/styles.css" // once, near app root
 |---|---|
 | `Modal` | `open`, `onClose`, `title`, `description`, `size: sm\|md\|lg\|xl\|2xl\|7xl\|full`, `scrollable`, focus trap + Escape |
 | `Drawer` | `open`, `onClose`, `title`, `size`, focus trap |
+| `Sheet` | `open`, `onClose`, `snapPoints`, `defaultSnap`, draggable handle |
+| `Tour` | `steps: TourStep[]`, `open/onOpenChange`, `step/onStepChange`, `mask`, spotlight, keyboard navigation |
+| `NotificationCenter` | `items`, `unreadCount`, `onItemsChange`, `categories`, `onMarkAllAsRead`, `onClearAll` |
 | `ConfirmDialog` | `open`, `onConfirm`, `onCancel`, `title` |
 | `Popover` + `PopoverContent` | trigger, open/onOpenChange |
 | `DropdownMenu` | `trigger`, `items: [{label,onClick}]` |
@@ -131,6 +134,7 @@ import "@bzync/rui/styles.css" // once, near app root
 |---|---|
 | `Table` family | primitive — `Table/Head/Header/Body/Row/Cell` |
 | `DataTable<T>` | `columns: ColumnDef[]`, `data: T[]`, `searchable`, `searchPlaceholder`, `pageSizeOptions`, `defaultPageSize`, `loading`, `emptyMessage`, `onRowClick` — built-in sort/filter/pagination |
+| `SortableList` / `Kanban` | `items/columns`, `onReorder/onChange`, `getLabel`, `renderItem/renderCard`, keyboard & pointer drag-and-drop |
 
 ## Charts (`@bzync/rui/charts`)
 

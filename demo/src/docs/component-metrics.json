@@ -1,9 +1,9 @@
 {
   "version": "0.0.11",
   "stylesheet": {
-    "raw": 114404,
-    "gzip": 18730,
-    "brotli": 14912
+    "raw": 117279,
+    "gzip": 19042,
+    "brotli": 15189
   },
   "sharedRuntime": {
     "raw": 37806,
@@ -1816,6 +1816,22 @@
       "modules": 4,
       "peers": []
     },
+    "NotificationCenter": {
+      "entry": "components/notification-center.js",
+      "total": {
+        "raw": 62784,
+        "gzip": 16924,
+        "brotli": 14506
+      },
+      "specific": {
+        "raw": 24978,
+        "gzip": 7226,
+        "brotli": 6419
+      },
+      "lazy": null,
+      "modules": 10,
+      "peers": []
+    },
     "NumberInput": {
       "entry": "components/number-input.js",
       "total": {
@@ -2414,6 +2430,38 @@
         "framer-motion"
       ]
     },
+    "Kanban": {
+      "entry": "components/sortable.js",
+      "total": {
+        "raw": 51725,
+        "gzip": 13996,
+        "brotli": 12109
+      },
+      "specific": {
+        "raw": 13919,
+        "gzip": 4467,
+        "brotli": 3981
+      },
+      "lazy": null,
+      "modules": 4,
+      "peers": []
+    },
+    "SortableList": {
+      "entry": "components/sortable.js",
+      "total": {
+        "raw": 51725,
+        "gzip": 13996,
+        "brotli": 12109
+      },
+      "specific": {
+        "raw": 13919,
+        "gzip": 4467,
+        "brotli": 3981
+      },
+      "lazy": null,
+      "modules": 4,
+      "peers": []
+    },
     "Spinner": {
       "entry": "components/spinner.js",
       "total": {
@@ -2879,6 +2927,22 @@
       "peers": [
         "framer-motion"
       ]
+    },
+    "Tour": {
+      "entry": "components/tour.js",
+      "total": {
+        "raw": 55641,
+        "gzip": 15381,
+        "brotli": 13135
+      },
+      "specific": {
+        "raw": 17835,
+        "gzip": 5686,
+        "brotli": 5007
+      },
+      "lazy": null,
+      "modules": 6,
+      "peers": []
     },
     "Tree": {
       "entry": "components/tree.js",
