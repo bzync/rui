@@ -10,6 +10,7 @@ import {
   fieldRootStyles,
   focusRingStyles,
 } from "@/lib/component-styles"
+import { ThemePortal } from "./theme-provider"
 import { CSSProperties, HTMLAttributes, KeyboardEvent, forwardRef, useEffect, useId, useImperativeHandle, useLayoutEffect, useRef, useState } from "react"
 
 export type TimePickerSize = "sm" | "md" | "lg"
@@ -268,7 +269,9 @@ export const TimePicker = forwardRef<HTMLButtonElement, TimePickerProps>(({
   useEffect(() => {
     if (!open) return
     const onPointerDown = (event: MouseEvent) => {
-      if (!rootRef.current?.contains(event.target as Node)) closePicker()
+      const target = event.target as Node
+      if (rootRef.current?.contains(target) || panelRef.current?.contains(target)) return
+      closePicker()
     }
     document.addEventListener("mousedown", onPointerDown)
     return () => document.removeEventListener("mousedown", onPointerDown)
@@ -327,7 +330,7 @@ export const TimePicker = forwardRef<HTMLButtonElement, TimePickerProps>(({
   useEffect(() => {
     if (!open) return
     requestAnimationFrame(() => {
-      const selected = rootRef.current?.querySelector<HTMLButtonElement>('[data-time-column="hour"] [aria-selected="true"]')
+      const selected = panelRef.current?.querySelector<HTMLButtonElement>('[data-time-column="hour"] [aria-selected="true"]')
       const listbox = selected?.closest<HTMLElement>('[role="listbox"]')
       selected?.focus({ preventScroll: true })
       if (selected && listbox) {
@@ -342,7 +345,9 @@ export const TimePicker = forwardRef<HTMLButtonElement, TimePickerProps>(({
       className={cn("relative", fieldRootStyles, className)}
       onBlur={(event) => {
         onBlur?.(event)
-        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) closePicker()
+        // The panel is portalled, so focus inside it is outside this element's DOM.
+        const next = event.relatedTarget as Node | null
+        if (!event.currentTarget.contains(next) && !panelRef.current?.contains(next)) closePicker()
       }}
       onKeyDown={(event) => {
         onKeyDown?.(event)
@@ -393,6 +398,9 @@ export const TimePicker = forwardRef<HTMLButtonElement, TimePickerProps>(({
       </button>
       {name && <input type="hidden" name={name} value={value} disabled={disabled} />}
 
+      {/* Portalled so a transformed or clipping ancestor (table, modal, card)
+          can neither break the fixed positioning nor stack above the panel. */}
+      <ThemePortal>
       {open && (
         <>
         <div aria-hidden="true" className="fixed inset-0 z-(--z-popover) bg-overlay sm:hidden" onMouseDown={() => closePicker(true)} />
@@ -442,6 +450,7 @@ export const TimePicker = forwardRef<HTMLButtonElement, TimePickerProps>(({
         </div>
         </>
       )}
+      </ThemePortal>
 
       {error && <p id={messageId} aria-live="polite" className={cn(fieldErrorStyles, messageClassName)}>{error}</p>}
       {hint && !error && <p id={messageId} className={cn(fieldDescriptionStyles, messageClassName)}>{hint}</p>}

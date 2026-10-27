@@ -4,7 +4,9 @@ import { cn } from "@/lib/cn"
 import { AnimatePresence } from "framer-motion"
 import { motion } from "@/lib/motion-components"
 import { transitions } from "@/lib/motion"
-import { HTMLAttributes, MouseEvent as ReactMouseEvent, ReactElement, ReactNode, cloneElement, isValidElement, useEffect, useId, useRef, useState } from "react"
+import { useAnchoredPosition } from "@/hooks/use-anchored-position"
+import { ThemePortal } from "./theme-provider"
+import { FocusEvent as ReactFocusEvent, HTMLAttributes, MouseEvent as ReactMouseEvent, ReactElement, ReactNode, cloneElement, isValidElement, useEffect, useId, useRef, useState } from "react"
 
 type PopoverSide = "top" | "bottom" | "left" | "right"
 type PopoverAlign = "start" | "center" | "end"
@@ -21,19 +23,14 @@ export interface PopoverProps {
   ariaLabel?: string
 }
 
-const sideStyles: Record<PopoverSide, { container: string; initial: object }> = {
-  top:    { container: "bottom-full mb-2",   initial: { y: 4 } },
-  bottom: { container: "top-full mt-2",      initial: { y: -4 } },
-  left:   { container: "right-full mr-2",    initial: { x: 4 } },
-  right:  { container: "left-full ml-2",     initial: { x: -4 } },
+const enterFrom: Record<PopoverSide, object> = {
+  top: { y: 4 },
+  bottom: { y: -4 },
+  left: { x: 4 },
+  right: { x: -4 },
 }
 
-const alignStyles: Record<PopoverSide, Record<PopoverAlign, string>> = {
-  top:    { start: "left-0",                center: "left-1/2 -translate-x-1/2", end: "right-0" },
-  bottom: { start: "left-0",                center: "left-1/2 -translate-x-1/2", end: "right-0" },
-  left:   { start: "top-0",                 center: "top-1/2 -translate-y-1/2",  end: "bottom-0" },
-  right:  { start: "top-0",                 center: "top-1/2 -translate-y-1/2",  end: "bottom-0" },
-}
+const FOCUSABLE = 'button:not(:disabled), [href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])'
 
 export function Popover({
   trigger,
@@ -49,7 +46,11 @@ export function Popover({
   const [localOpen, setLocalOpen] = useState(false)
   const open = controlledOpen ?? localOpen
   const containerRef = useRef<HTMLDivElement>(null)
+  const panelRef = useRef<HTMLDivElement | null>(null)
   const contentId = useId()
+  // The panel is portalled with fixed coordinates so a table cell, scroll
+  // area or overflow-hidden card can never clip it or stack above it.
+  const { setFloating, style, placement } = useAnchoredPosition({ open, anchorRef: containerRef, side, align, gap: 8 })
 
   function toggle() {
     const next = !open
@@ -62,15 +63,20 @@ export function Popover({
     onOpenChange?.(false)
   }
 
+  const focusTrigger = () => containerRef.current?.querySelector<HTMLElement>('[aria-haspopup="dialog"]')?.focus()
+
   useEffect(() => {
+    if (!open) return
     function onOutside(e: MouseEvent) {
-      if (!containerRef.current?.contains(e.target as Node)) close()
+      const target = e.target as Node
+      if (containerRef.current?.contains(target) || panelRef.current?.contains(target)) return
+      close()
     }
     function onKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape" && open) {
+      if (e.key === "Escape") {
         e.preventDefault()
         close()
-        containerRef.current?.querySelector<HTMLElement>('[aria-haspopup="dialog"]')?.focus()
+        focusTrigger()
       }
     }
     document.addEventListener("mousedown", onOutside)
@@ -81,8 +87,20 @@ export function Popover({
     }
   }, [contentId, open])
 
-  const { container, initial } = sideStyles[side]
-  const alignCls = alignStyles[side][align]
+  // The portalled panel is outside the trigger's tab sequence, so move focus
+  // into it when it opens (if it has anything focusable).
+  useEffect(() => {
+    if (!open) return
+    const frame = requestAnimationFrame(() => panelRef.current?.querySelector<HTMLElement>(FOCUSABLE)?.focus({ preventScroll: true }))
+    return () => cancelAnimationFrame(frame)
+  }, [open])
+
+  function handlePanelBlur(event: ReactFocusEvent<HTMLDivElement>) {
+    const next = event.relatedTarget as Node | null
+    if (!next || panelRef.current?.contains(next) || containerRef.current?.contains(next)) return
+    close()
+  }
+
   type PopoverTriggerProps = HTMLAttributes<HTMLElement> & {
     "aria-haspopup"?: "dialog"
     "aria-expanded"?: boolean
@@ -101,27 +119,30 @@ export function Popover({
   return (
     <div ref={containerRef} className={cn("relative inline-flex", wrapperClassName)}>
       {triggerElement}
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            id={contentId}
-            role="dialog"
-            aria-label={ariaLabel}
-            initial={{ opacity: 0, ...initial }}
-            animate={{ opacity: 1, y: 0, x: 0 }}
-            exit={{ opacity: 0, ...initial }}
-            transition={transitions.fade}
-            className={cn(
-              "absolute z-(--z-popover) w-max min-w-[180px] max-w-[min(24rem,calc(100vw-2rem))] rounded-[var(--radius-lg)] border border-border bg-surface-raised shadow-floating",
-              container,
-              alignCls,
-              className,
-            )}
-          >
-            {children}
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <ThemePortal>
+        <AnimatePresence>
+          {open && (
+            <motion.div
+              ref={(element: HTMLDivElement | null) => { panelRef.current = element; setFloating(element) }}
+              id={contentId}
+              role="dialog"
+              aria-label={ariaLabel}
+              onBlur={handlePanelBlur}
+              initial={{ opacity: 0, ...enterFrom[placement] }}
+              animate={{ opacity: 1, y: 0, x: 0 }}
+              exit={{ opacity: 0, ...enterFrom[placement] }}
+              transition={transitions.fade}
+              style={style}
+              className={cn(
+                "z-(--z-popover) w-max min-w-[180px] max-w-[min(24rem,calc(100vw-2rem))] max-h-[calc(100dvh-1rem)] overflow-auto rounded-[var(--radius-lg)] border border-border bg-surface-raised shadow-floating",
+                className,
+              )}
+            >
+              {children}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </ThemePortal>
     </div>
   )
 }

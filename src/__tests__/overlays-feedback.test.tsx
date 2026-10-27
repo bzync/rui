@@ -3,9 +3,70 @@ import userEvent from "@testing-library/user-event"
 import { hydrateRoot } from "react-dom/client"
 import { renderToString } from "react-dom/server"
 import { describe, expect, it, vi } from "vitest"
-import { CommandPalette, CommandProvider, ConfirmDialog, CopyButton, Drawer, DropdownMenu, InfoButton, Modal, Select, SnackbarProvider, ThemeProvider, Tooltip, useSnackbar } from "@/index"
+import { CommandPalette, CommandProvider, ConfirmDialog, CopyButton, DatePicker, Drawer, DropdownMenu, InfoButton, Modal, Popover, PopoverContent, Select, SnackbarProvider, ThemeProvider, TimePicker, Tooltip, useSnackbar } from "@/index"
 
 describe("overlay and feedback components", () => {
+  it("renders every anchored overlay outside a clipping table container, inside the theme scope", async () => {
+    const user = userEvent.setup()
+    render(
+      <ThemeProvider defaultTheme="dark" storageKey={false}>
+        <div data-testid="clip" style={{ overflow: "hidden", transform: "translateZ(0)" }}>
+          <table><tbody><tr>
+            <td><Popover trigger={<button>Filters</button>}><PopoverContent>Popover body</PopoverContent></Popover></td>
+            <td><DropdownMenu trigger={<button>Row actions</button>} items={[{ label: "Archive" }]} /></td>
+            <td><Tooltip content="Tooltip body"><button>Help</button></Tooltip></td>
+            <td><DatePicker label="Due date" /></td>
+            <td><TimePicker label="Start time" /></td>
+          </tr></tbody></table>
+        </div>
+      </ThemeProvider>,
+    )
+    const clip = screen.getByTestId("clip")
+    const escapes = (element: HTMLElement) => {
+      expect(clip).not.toContainElement(element)
+      // Still inside a themed scope, so dark mode and palette overrides apply.
+      expect(element.closest(".rui-theme")).toHaveClass("dark")
+      expect(element.style.position).toBe("fixed")
+    }
+
+    await user.click(screen.getByRole("button", { name: "Filters" }))
+    escapes(await screen.findByRole("dialog", { name: "Popover" }))
+    await user.keyboard("{Escape}")
+
+    await user.click(screen.getByRole("button", { name: "Row actions" }))
+    escapes(await screen.findByRole("menu"))
+    await user.keyboard("{Escape}")
+
+    await user.hover(screen.getByRole("button", { name: "Help" }))
+    escapes(await screen.findByRole("tooltip"))
+    await user.unhover(screen.getByRole("button", { name: "Help" }))
+
+    await user.click(screen.getByRole("button", { name: "Due date" }))
+    const datePanel = await screen.findByRole("dialog", { name: "Choose due date" })
+    expect(clip).not.toContainElement(datePanel)
+    expect(datePanel.closest(".rui-theme")).toHaveClass("dark")
+    await user.keyboard("{Escape}")
+
+    await user.click(screen.getByRole("button", { name: "Start time" }))
+    const timePanel = await screen.findByRole("dialog", { name: "Choose start time" })
+    expect(clip).not.toContainElement(timePanel)
+    // Moving focus between columns inside the portalled panel keeps it open.
+    await user.tab()
+    expect(screen.getByRole("dialog", { name: "Choose start time" })).toBeInTheDocument()
+  })
+
+  it("keeps a portalled popover's form interactive and closes on outside click", async () => {
+    const user = userEvent.setup()
+    render(<><Popover trigger={<button>Invite</button>}><PopoverContent><input aria-label="Email" /></PopoverContent></Popover><p>Outside</p></>)
+    await user.click(screen.getByRole("button", { name: "Invite" }))
+    const email = await screen.findByRole("textbox", { name: "Email" })
+    await vi.waitFor(() => expect(email).toHaveFocus())
+    await user.type(email, "ops@acme.dev")
+    expect(email).toHaveValue("ops@acme.dev")
+    await user.click(screen.getByText("Outside"))
+    await vi.waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())
+  })
+
   it("opens dropdown menus and calls actions", async () => {
     const user = userEvent.setup(); const action = vi.fn()
     render(<DropdownMenu trigger={<button>Actions</button>} items={[{ label: "Deploy", onClick: action }]} />)

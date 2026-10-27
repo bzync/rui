@@ -1,6 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/cn"
+import { useAnchoredPosition } from "@/hooks/use-anchored-position"
 import { HTMLAttributes, MouseEvent as ReactMouseEvent, ReactElement, ReactNode, Suspense, cloneElement, isValidElement, lazy, useEffect, useRef, useState } from "react"
 
 // The animated menu surface pulls in framer-motion, so it lives in its own
@@ -58,7 +59,10 @@ export function DropdownMenu({
   // animations and instant re-opens.
   const [panelMounted, setPanelMounted] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
-  const menuRef = useRef<HTMLDivElement>(null)
+  const menuRef = useRef<HTMLDivElement | null>(null)
+  // Portalled + fixed: a menu opened from a table row or overflow-hidden card
+  // is never clipped and always stacks above it.
+  const { setFloating, style, placement } = useAnchoredPosition({ open, anchorRef: containerRef, side, align, gap: 6 })
 
   useEffect(() => {
     if (open) setPanelMounted(true)
@@ -66,7 +70,9 @@ export function DropdownMenu({
 
   useEffect(() => {
     function onOutside(e: MouseEvent) {
-      if (!containerRef.current?.contains(e.target as Node)) setOpen(false)
+      const target = e.target as Node
+      if (containerRef.current?.contains(target) || menuRef.current?.contains(target)) return
+      setOpen(false)
     }
     document.addEventListener("mousedown", onOutside)
     return () => document.removeEventListener("mousedown", onOutside)
@@ -85,7 +91,8 @@ export function DropdownMenu({
   function handleMenuKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
     const items = Array.from(menuRef.current?.querySelectorAll<HTMLButtonElement>('[role="menuitem"]:not(:disabled)') ?? [])
     const index = items.indexOf(document.activeElement as HTMLButtonElement)
-    if (event.key === "Escape") {
+    if (event.key === "Escape" || event.key === "Tab") {
+      // The portalled menu sits outside the page's tab order: Tab returns to the trigger.
       event.preventDefault()
       closeAndRestoreFocus()
     } else if (["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key) && items.length > 0) {
@@ -115,10 +122,10 @@ export function DropdownMenu({
         <Suspense fallback={null}>
           <DropdownMenuPanel
             open={open}
-            menuRef={menuRef}
+            menuRef={(element) => { menuRef.current = element; setFloating(element) }}
             items={items}
-            side={side}
-            align={align}
+            side={placement === "top" ? "top" : "bottom"}
+            style={style}
             className={className}
             itemClassName={itemClassName}
             groupLabelClassName={groupLabelClassName}

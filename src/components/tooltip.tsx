@@ -4,6 +4,8 @@ import { cn } from "@/lib/cn"
 import { AnimatePresence } from "framer-motion"
 import { motion } from "@/lib/motion-components"
 import { transitions } from "@/lib/motion"
+import { useAnchoredPosition } from "@/hooks/use-anchored-position"
+import { ThemePortal } from "./theme-provider"
 import { FocusEvent, HTMLAttributes, MouseEvent, ReactElement, ReactNode, cloneElement, isValidElement, useEffect, useId, useRef, useState } from "react"
 
 type Position = "top" | "bottom" | "left" | "right"
@@ -22,14 +24,11 @@ export interface TooltipProps {
   maxWidth?: number | string
 }
 
-const positions: Record<
-  Position,
-  { container: string; initial: { y?: number; x?: number } }
-> = {
-  top: { container: "bottom-full left-1/2 -translate-x-1/2 mb-2", initial: { y: 4 } },
-  bottom: { container: "top-full left-1/2 -translate-x-1/2 mt-2", initial: { y: -4 } },
-  left: { container: "right-full top-1/2 -translate-y-1/2 mr-2", initial: { x: 4 } },
-  right: { container: "left-full top-1/2 -translate-y-1/2 ml-2", initial: { x: -4 } },
+const enterFrom: Record<Position, { y?: number; x?: number }> = {
+  top: { y: 4 },
+  bottom: { y: -4 },
+  left: { x: 4 },
+  right: { x: -4 },
 }
 
 export function Tooltip({
@@ -44,7 +43,11 @@ export function Tooltip({
   const [visible, setVisible] = useState(false)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const tooltipId = useId()
-  const { container, initial } = positions[position]
+  const wrapperRef = useRef<HTMLDivElement>(null)
+  // Portalled with fixed coordinates: never clipped by a table, scroll area or
+  // overflow-hidden card, and always above modals (--z-tooltip is the top layer).
+  const { setFloating, style, placement } = useAnchoredPosition({ open: visible, anchorRef: wrapperRef, side: position, align: "center", gap: 8 })
+  const initial = enterFrom[placement]
 
   function handleMouseEnter() {
     if (delayMs > 0) {
@@ -85,11 +88,13 @@ export function Tooltip({
   }) : <span tabIndex={0} aria-describedby={visible ? tooltipId : undefined} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} onFocus={handleMouseEnter} onBlur={handleMouseLeave}>{children}</span>
 
   return (
-    <div className={cn("relative inline-flex", wrapperClassName)}>
+    <div ref={wrapperRef} className={cn("relative inline-flex", wrapperClassName)}>
       {triggerElement}
+      <ThemePortal>
       <AnimatePresence>
         {visible && (
           <motion.div
+            ref={setFloating}
             id={tooltipId}
             role="tooltip"
             initial={{ opacity: 0, ...initial }}
@@ -100,16 +105,16 @@ export function Tooltip({
             // absolutely positioned flex child gets from its inline-flex
             // wrapper, which collapsed long text into a narrow column. The
             // max-width cap is what makes it wrap.
-            style={maxWidth === undefined ? undefined : {
+            style={maxWidth === undefined ? style : {
+              ...style,
               maxWidth: maxWidth === "none"
                 ? "calc(100vw - 2rem)"
                 : `min(${typeof maxWidth === "number" ? `${maxWidth}px` : maxWidth}, calc(100vw - 2rem))`,
             }}
             className={cn(
-              "absolute z-(--z-tooltip) pointer-events-none",
+              "z-(--z-tooltip) pointer-events-none",
               "w-max max-w-[min(20rem,calc(100vw-2rem))] whitespace-normal break-words rounded-md px-2.5 py-1.5 text-xs font-medium leading-4",
               "border border-tooltip-border bg-tooltip text-tooltip-foreground shadow-floating",
-              container,
               className,
             )}
           >
@@ -117,6 +122,7 @@ export function Tooltip({
           </motion.div>
         )}
       </AnimatePresence>
+      </ThemePortal>
     </div>
   )
 }

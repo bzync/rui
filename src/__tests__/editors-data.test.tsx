@@ -57,6 +57,32 @@ describe("data, editor, and advanced field components", () => {
     await user.type(screen.getByRole("textbox"), ";"); expect(changed).toHaveBeenCalled()
   })
 
+  it("highlights JSX, TypeScript and multi-line tokens with mode-aware code tokens", () => {
+    const code = [
+      "const open = useState<boolean>(false)",
+      "/* spans",
+      "   lines */",
+      "<Button variant=\"primary\" onClick={() => setOpen(a < b)}>Save for later</Button>",
+    ].join("\n")
+    const { container } = render(<CodeBlock code={code} language="tsx" />)
+    const tokenClass = (text: string) => Array.from(container.querySelectorAll("td span")).find((span) => span.textContent === text)?.className
+
+    expect(tokenClass("const")).toBe("text-code-keyword")
+    expect(tokenClass("useState")).toBe("text-code-function")
+    expect(tokenClass("boolean")).toBe("text-code-number")
+    expect(tokenClass("Button")).toBe("text-code-type")
+    expect(tokenClass("variant")).toBe("text-code-attr")
+    expect(tokenClass("\"primary\"")).toBe("text-code-string")
+    expect(tokenClass("setOpen")).toBe("text-code-function")
+    // JSX text children stay plain even when they contain keywords ("for").
+    expect(tokenClass("Save for later")).toBe("text-code-plain")
+    // A block comment keeps its comment colour on every line it spans.
+    expect(tokenClass("/* spans")).toContain("text-code-comment")
+    expect(tokenClass("   lines */")).toContain("text-code-comment")
+    // No light/dark class pairs: one token class per role.
+    expect(container.innerHTML).not.toMatch(/dark:/)
+  })
+
   it("falls back when clipboard permission is unavailable", async () => {
     const user = userEvent.setup()
     const writeText = vi.fn().mockRejectedValue(new Error("permission denied"))

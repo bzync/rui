@@ -89,6 +89,20 @@
   --color-tooltip-foreground: var(--color-slate-50);
   --color-tooltip-border: var(--color-slate-700);
 
+  /* ── Code syntax — one mode-aware token per role (re-picked under .dark),
+     so CodeBlock never needs a light/dark class pair and consumers can retint
+     highlighting through ThemeProvider tokens. ── */
+  --color-code-plain: var(--color-foreground);
+  --color-code-comment: #6e7781;
+  --color-code-keyword: #cf222e;
+  --color-code-string: #0a3069;
+  --color-code-number: #0550ae;
+  --color-code-function: #8250df;
+  --color-code-tag: #116329;
+  --color-code-attr: #0550ae;
+  --color-code-type: #953800;
+  --color-code-punctuation: #57606a;
+
   /* ── Radius scale — consumer overridable via ThemeProvider tokens ── */
   --radius-sm: 4px;
   --radius-md: 6px;
@@ -207,6 +221,7 @@
    values instead. */
 :where(.rui-theme, .rtui-theme) {
   --color-accent-strong: var(--color-accent-700);
+  --color-code-plain: var(--color-foreground);
   --color-surface-sunken: var(--color-surface-muted);
   --color-success-strong: color-mix(in oklab, var(--color-success) 78%, black);
   --color-warning-strong: color-mix(in oklab, var(--color-warning) 78%, black);
@@ -240,6 +255,16 @@
   --color-tooltip-foreground: var(--color-foreground);
   --color-tooltip-border: var(--color-border-strong);
 
+  --color-code-comment: #8b949e;
+  --color-code-keyword: #ff7b72;
+  --color-code-string: #a5d6ff;
+  --color-code-number: #79c0ff;
+  --color-code-function: #d2a8ff;
+  --color-code-tag: #7ee787;
+  --color-code-attr: #79c0ff;
+  --color-code-type: #ffa657;
+  --color-code-punctuation: #8b949e;
+
   /* Chart series re-picked for the navy dark surface (validated separately). */
   --chart-1: #5f7bec;
   --chart-2: #0f9d94;
@@ -258,6 +283,10 @@
 
 /* ─── Base ────────────────────────────────────────────────────────────────── */
 
+/* Layered so component utilities (text-sm on Button, text-xs on Kbd …) and a
+   consumer's own CSS always win. Unlayered, these element resets outranked
+   every @layer utilities class and forced buttons and fields to 16px. */
+@layer base {
 :where(.rui-theme, .rtui-theme) {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
@@ -299,6 +328,7 @@
 :where(.rui-theme, .rtui-theme) :where(button, input, textarea, select) {
   font: inherit;
   letter-spacing: 0;
+}
 }
 
 @media (prefers-reduced-motion: reduce) {

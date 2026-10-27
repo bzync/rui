@@ -8,6 +8,7 @@ import { AnimatePresence } from "framer-motion"
 import { layoutMotion as motion } from "@/lib/motion-components"
 import { ReactNode } from "react"
 import type { SnackbarPosition, SnackbarVariant } from "./snackbar"
+import { ThemePortal } from "./theme-provider"
 
 interface SnackbarItem {
   id: string
@@ -105,7 +106,10 @@ export default function SnackbarViewport({
 }: SnackbarViewportProps) {
   const from = enterFrom[position]
 
+  // Portalled so toasts stay viewport-fixed and on top even when the provider
+  // sits inside a transformed or z-indexed container.
   return (
+    <ThemePortal>
     <div
       role="region"
       aria-label="Notifications"
@@ -166,5 +170,6 @@ export default function SnackbarViewport({
         })}
       </AnimatePresence>
     </div>
+    </ThemePortal>
   )
 }

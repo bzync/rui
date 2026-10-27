@@ -4,21 +4,11 @@ import { cn } from "@/lib/cn"
 import { AnimatePresence } from "framer-motion"
 import { motion } from "@/lib/motion-components"
 import { transitions } from "@/lib/motion"
+import type { CSSProperties } from "react"
+import { ThemePortal } from "./theme-provider"
 import type { DropdownMenuSection, DropdownMenuItem, DropdownMenuGroup } from "./dropdown-menu"
 
 type Side = "bottom" | "top"
-type Align = "start" | "end" | "center"
-
-const sideStyles: Record<Side, string> = {
-  bottom: "top-full mt-1.5",
-  top:    "bottom-full mb-1.5",
-}
-
-const alignStyles: Record<Align, string> = {
-  start:  "left-0",
-  end:    "right-0",
-  center: "left-1/2 -translate-x-1/2",
-}
 
 const enterFrom: Record<Side, object> = {
   bottom: { y: -4 },
@@ -31,10 +21,12 @@ function isGroup(s: DropdownMenuSection): s is DropdownMenuGroup {
 
 export interface DropdownMenuPanelProps {
   open: boolean
-  menuRef: React.RefObject<HTMLDivElement | null>
+  menuRef: (element: HTMLDivElement | null) => void
   items: DropdownMenuSection[]
+  /** Resolved side (after flipping), used for the enter animation. */
   side: Side
-  align: Align
+  /** Fixed viewport coordinates from useAnchoredPosition. */
+  style: CSSProperties
   className?: string
   itemClassName?: string
   groupLabelClassName?: string
@@ -54,7 +46,7 @@ export default function DropdownMenuPanel({
   menuRef,
   items,
   side,
-  align,
+  style,
   className,
   itemClassName,
   groupLabelClassName,
@@ -98,6 +90,7 @@ export default function DropdownMenuPanel({
   }
 
   return (
+    <ThemePortal>
     <AnimatePresence>
       {open && (
         <motion.div
@@ -109,12 +102,10 @@ export default function DropdownMenuPanel({
           animate={{ opacity: 1, scaleY: 1, y: 0 }}
           exit={{ opacity: 0, scaleY: 0.96, ...enterFrom[side] }}
           transition={transitions.fade}
-          style={{ originY: side === "bottom" ? 0 : 1 }}
+          style={{ ...style, originY: side === "bottom" ? 0 : 1 }}
           className={cn(
-            "absolute z-(--z-popover) w-max min-w-[180px] max-w-[min(20rem,calc(100vw-2rem))] rounded-[var(--radius-lg)] border border-border bg-surface-raised shadow-floating",
+            "z-(--z-popover) w-max min-w-[180px] max-w-[min(20rem,calc(100vw-2rem))] max-h-[calc(100dvh-1rem)] overflow-y-auto rounded-[var(--radius-lg)] border border-border bg-surface-raised shadow-floating",
             "p-1",
-            sideStyles[side],
-            alignStyles[align],
             className,
           )}
         >
@@ -137,5 +128,6 @@ export default function DropdownMenuPanel({
         </motion.div>
       )}
     </AnimatePresence>
+    </ThemePortal>
   )
 }

@@ -5,12 +5,14 @@ import { HTMLAttributes, KeyboardEvent, forwardRef, useRef, useState } from "rea
 
 // ─── Tokeniser ────────────────────────────────────────────────────────────────
 
-type TokenType = "keyword" | "string" | "comment" | "number" | "operator" | "builtin" | "plain"
+type TokenType =
+  | "keyword" | "string" | "comment" | "number" | "operator" | "builtin" | "plain"
+  | "function" | "tag" | "attr" | "type" | "punctuation"
 
 interface Token { type: TokenType; value: string }
 
 const KEYWORDS: Record<string, string[]> = {
-  js: ["const", "let", "var", "function", "return", "if", "else", "for", "while", "class", "import", "export", "default", "from", "async", "await", "new", "typeof", "instanceof", "true", "false", "null", "undefined", "throw", "try", "catch", "finally", "switch", "case", "break", "continue", "extends", "super", "this", "of", "in", "delete", "void"],
+  js: ["const", "let", "var", "function", "return", "if", "else", "for", "while", "do", "class", "import", "export", "default", "from", "as", "async", "await", "new", "typeof", "instanceof", "true", "false", "null", "undefined", "throw", "try", "catch", "finally", "switch", "case", "break", "continue", "extends", "implements", "super", "this", "of", "in", "delete", "void", "yield", "static", "type", "interface", "enum", "keyof", "readonly", "satisfies", "declare", "namespace", "public", "private", "protected"],
   python: ["def", "return", "if", "else", "elif", "for", "while", "class", "import", "from", "as", "with", "try", "except", "finally", "raise", "pass", "break", "continue", "and", "or", "not", "in", "is", "True", "False", "None", "lambda", "yield", "global", "nonlocal", "del", "print", "async", "await"],
   bash: ["if", "then", "else", "elif", "fi", "for", "do", "done", "while", "case", "esac", "in", "function", "return", "exit", "echo", "export", "source", "local", "readonly"],
   sql: ["SELECT", "FROM", "WHERE", "AND", "OR", "NOT", "INSERT", "INTO", "VALUES", "UPDATE", "SET", "DELETE", "CREATE", "TABLE", "DROP", "ALTER", "INDEX", "JOIN", "INNER", "LEFT", "RIGHT", "ON", "GROUP", "BY", "ORDER", "HAVING", "LIMIT", "OFFSET", "AS", "DISTINCT", "COUNT", "SUM", "AVG", "MAX", "MIN", "NULL", "IS", "IN", "LIKE", "BETWEEN", "EXISTS"],
@@ -19,89 +21,196 @@ const KEYWORDS: Record<string, string[]> = {
 KEYWORDS.ts = KEYWORDS.js
 KEYWORDS.tsx = KEYWORDS.js
 KEYWORDS.jsx = KEYWORDS.js
-KEYWORDS.json = []
+KEYWORDS.json = ["true", "false", "null"]
 
+const JS_BUILTINS = new Set(["console", "window", "document", "navigator", "Math", "JSON", "Object", "Array", "String", "Number", "Boolean", "Promise", "Date", "Map", "Set", "Error", "Intl", "React", "string", "number", "boolean", "unknown", "never", "any"])
+const JSX_LANGS = new Set(["js", "jsx", "ts", "tsx"])
+// A `<` after one of these opens JSX; after an identifier, `)` or `]` it is a
+// comparison or a generic (`useState<Date>()`).
+const JSX_PRECEDERS = new Set(["", "(", ",", "=", "?", ":", "{", "[", "&&", "||", "??", "=>", "return", "default", ">", "}"])
+
+const isIdentStart = (ch: string | undefined) => !!ch && /[A-Za-z_$]/.test(ch)
+const isIdentPart = (ch: string | undefined) => !!ch && /[A-Za-z0-9_$]/.test(ch)
+
+/**
+ * Tokenises the whole snippet in one pass so multi-line strings, comments and
+ * JSX keep their state across lines. JSX is tracked with a small context stack:
+ * `tag` (inside `<Foo …>`), `children` (text between tags) and `expr` (a `{…}`
+ * hole, which returns to whichever context opened it).
+ */
 function tokenize(code: string, lang: string): Token[] {
-  const keywords = new Set(KEYWORDS[lang.toLowerCase()] ?? KEYWORDS.js)
+  const language = lang.toLowerCase()
+  const keywords = new Set(KEYWORDS[language] ?? KEYWORDS.js)
+  const jsx = JSX_LANGS.has(language)
+  const lineComment = language === "bash" || language === "python" ? "#" : language === "sql" ? "--" : "//"
   const tokens: Token[] = []
+  const stack: ("tag" | "children" | "expr")[] = []
+  let lastSignificant = ""
   let i = 0
 
+  const push = (type: TokenType, value: string) => {
+    tokens.push({ type, value })
+    if (value.trim() && type !== "comment") lastSignificant = type === "string" || type === "number" ? "value" : value
+  }
+  const top = () => stack[stack.length - 1]
+
+  const readString = () => {
+    const quote = code[i]
+    let j = i + 1
+    while (j < code.length) {
+      if (code[j] === "\\" && j + 1 < code.length) { j += 2; continue }
+      if (code[j] === quote) { j++; break }
+      if (quote !== "`" && code[j] === "\n") break
+      j++
+    }
+    push("string", code.slice(i, j))
+    i = j
+  }
+
+  const readTagName = () => {
+    let j = i
+    while (j < code.length && /[A-Za-z0-9_$.:-]/.test(code[j])) j++
+    const name = code.slice(i, j)
+    push(/^[A-Z]|\./.test(name) ? "type" : "tag", name)
+    i = j
+  }
+
+  // At `<` in a JSX position: emit an opening or closing tag head.
+  const openTag = () => {
+    if (code[i + 1] === "/") {
+      push("punctuation", "</")
+      i += 2
+      readTagName()
+      while (i < code.length && /\s/.test(code[i])) tokens.push({ type: "plain", value: code[i++] })
+      if (code[i] === ">") { push("punctuation", ">"); i++ }
+      if (top() === "children") stack.pop()
+      return
+    }
+    push("punctuation", "<")
+    i++
+    if (code[i] === ">") { push("punctuation", ">"); i++; stack.push("children"); return }
+    readTagName()
+    stack.push("tag")
+  }
+
   while (i < code.length) {
-    // Single-line comment
-    if ((lang === "bash" && code[i] === "#") || (code.slice(i, i + 2) === "//" && lang !== "bash")) {
-      const end = code.indexOf("\n", i)
-      const val = end === -1 ? code.slice(i) : code.slice(i, end)
-      tokens.push({ type: "comment", value: val })
-      i += val.length
+    const ch = code[i]
+    const context = top()
+
+    if (context === "children") {
+      if (ch === "{") { push("punctuation", ch); i++; stack.push("expr"); continue }
+      if (ch === "<") { openTag(); continue }
+      let j = i
+      while (j < code.length && code[j] !== "<" && code[j] !== "{") j++
+      tokens.push({ type: "plain", value: code.slice(i, j) })
+      i = j
       continue
     }
-    // Multi-line comment /* ... */
-    if (code.slice(i, i + 2) === "/*") {
-      const end = code.indexOf("*/", i + 2)
-      const val = end === -1 ? code.slice(i) : code.slice(i, end + 2)
-      tokens.push({ type: "comment", value: val })
-      i += val.length
-      continue
-    }
-    // Python/SQL # comment
-    if (code[i] === "#" && (lang === "python" || lang === "sql")) {
-      const end = code.indexOf("\n", i)
-      const val = end === -1 ? code.slice(i) : code.slice(i, end)
-      tokens.push({ type: "comment", value: val })
-      i += val.length
-      continue
-    }
-    // String (single, double, backtick)
-    if (code[i] === '"' || code[i] === "'" || code[i] === "`") {
-      const quote = code[i]
-      let j = i + 1
-      while (j < code.length) {
-        if (code[j] === "\\" && j + 1 < code.length) { j += 2; continue }
-        if (code[j] === quote) { j++; break }
-        j++
+
+    if (context === "tag") {
+      if (ch === "/" && code[i + 1] === ">") { push("punctuation", "/>"); i += 2; stack.pop(); continue }
+      if (ch === ">") { push("punctuation", ">"); i++; stack.pop(); stack.push("children"); continue }
+      if (ch === "{") { push("punctuation", ch); i++; stack.push("expr"); continue }
+      if (ch === '"' || ch === "'") { readString(); continue }
+      if (isIdentStart(ch)) {
+        let j = i
+        while (j < code.length && /[A-Za-z0-9_$:-]/.test(code[j])) j++
+        push("attr", code.slice(i, j))
+        i = j
+        continue
       }
-      tokens.push({ type: "string", value: code.slice(i, j) })
-      i = j
-      continue
-    }
-    // Number
-    if (/[0-9]/.test(code[i]) || (code[i] === "." && /[0-9]/.test(code[i + 1] ?? ""))) {
-      let j = i
-      while (j < code.length && /[0-9._xXa-fA-F]/.test(code[j])) j++
-      tokens.push({ type: "number", value: code.slice(i, j) })
-      i = j
-      continue
-    }
-    // Identifier / keyword
-    if (/[a-zA-Z_$]/.test(code[i])) {
-      let j = i
-      while (j < code.length && /[a-zA-Z0-9_$]/.test(code[j])) j++
-      const word = code.slice(i, j)
-      tokens.push({ type: keywords.has(word) ? "keyword" : "plain", value: word })
-      i = j
-      continue
-    }
-    // Operator
-    if (/[=<>!&|+\-*/%^~?:,;.()[\]{}]/.test(code[i])) {
-      tokens.push({ type: "operator", value: code[i] })
+      if (/\s/.test(ch)) tokens.push({ type: "plain", value: ch })
+      else push("punctuation", ch)
       i++
       continue
     }
-    // Whitespace / other
-    tokens.push({ type: "plain", value: code[i] })
+
+    // JavaScript — top level, or inside a `{…}` expression hole.
+    if (code.startsWith(lineComment, i)) {
+      const end = code.indexOf("\n", i)
+      push("comment", end === -1 ? code.slice(i) : code.slice(i, end))
+      i = end === -1 ? code.length : end
+      continue
+    }
+    if (code.startsWith("/*", i)) {
+      const end = code.indexOf("*/", i + 2)
+      push("comment", end === -1 ? code.slice(i) : code.slice(i, end + 2))
+      i = end === -1 ? code.length : end + 2
+      continue
+    }
+    if (ch === '"' || ch === "'" || ch === "`") { readString(); continue }
+    if (/[0-9]/.test(ch) || (ch === "." && /[0-9]/.test(code[i + 1] ?? ""))) {
+      let j = i
+      while (j < code.length && /[0-9._xXa-fA-FnN]/.test(code[j])) j++
+      push("number", code.slice(i, j))
+      i = j
+      continue
+    }
+    if (isIdentStart(ch)) {
+      let j = i
+      while (isIdentPart(code[j])) j++
+      const word = code.slice(i, j)
+      let k = j
+      while (code[k] === " ") k++
+      const afterDot = lastSignificant === "."
+      const type: TokenType =
+        keywords.has(word) && !afterDot ? "keyword"
+        : code[k] === "(" || (jsx && code[k] === "<" && /^[a-z]/.test(word)) ? "function"
+        : JS_BUILTINS.has(word) && !afterDot ? "builtin"
+        : /^[A-Z]/.test(word) && language !== "sql" ? "type"
+        : "plain"
+      push(type, word)
+      i = j
+      continue
+    }
+    // Snippets often start a JSX block on its own line after a statement.
+    const atLineStart = /(^|\n)[ \t]*$/.test(code.slice(Math.max(0, i - 80), i))
+    if (jsx && ch === "<" && (isIdentStart(code[i + 1]) || code[i + 1] === ">") && (atLineStart || JSX_PRECEDERS.has(lastSignificant))) {
+      openTag()
+      continue
+    }
+    if (ch === "{" && context === "expr") { push("punctuation", ch); i++; stack.push("expr"); continue }
+    if (ch === "}" && context === "expr") { push("punctuation", ch); i++; stack.pop(); continue }
+    if (/[()[\]{},;.]/.test(ch)) { push("punctuation", ch); i++; continue }
+    if (/[=<>!&|+\-*/%^~?:]/.test(ch)) {
+      let j = i
+      while (j < code.length && j - i < 3 && /[=<>!&|+\-*/%^~?:]/.test(code[j])) j++
+      push("operator", code.slice(i, j))
+      i = j
+      continue
+    }
+    tokens.push({ type: "plain", value: ch })
     i++
   }
   return tokens
 }
 
+/** Splits a token stream into lines, breaking multi-line tokens at newlines. */
+function tokenizeLines(code: string, lang: string): Token[][] {
+  const lines: Token[][] = [[]]
+  for (const token of tokenize(code, lang)) {
+    token.value.split("\n").forEach((part, index) => {
+      if (index > 0) lines.push([])
+      if (part) lines[lines.length - 1].push({ type: token.type, value: part })
+    })
+  }
+  return lines
+}
+
+// Mode-aware --color-code-* tokens (globals.css), one class per role.
 const TOKEN_COLORS: Record<TokenType, string> = {
-  keyword:  "text-violet-500 dark:text-violet-400",
-  string:   "text-emerald-600 dark:text-emerald-400",
-  comment:  "text-slate-400 dark:text-slate-500 italic",
-  number:   "text-amber-600 dark:text-amber-400",
-  operator: "text-slate-500 dark:text-slate-400",
-  builtin:  "text-sky-500 dark:text-sky-400",
-  plain:    "text-slate-800 dark:text-slate-200",
+  keyword: "text-code-keyword",
+  string: "text-code-string",
+  comment: "text-code-comment italic",
+  number: "text-code-number",
+  operator: "text-code-keyword",
+  builtin: "text-code-number",
+  plain: "text-code-plain",
+  function: "text-code-function",
+  tag: "text-code-tag",
+  attr: "text-code-attr",
+  type: "text-code-type",
+  punctuation: "text-code-punctuation",
 }
 
 // ─── CodeBlock ────────────────────────────────────────────────────────────────
@@ -117,7 +226,7 @@ export interface CodeBlockProps {
 export function CodeBlock({ code, language = "js", filename, showLineNumbers = false, className }: CodeBlockProps) {
   const [copied, setCopied] = useState(false)
   const trimmed = code.replace(/^\n/, "").replace(/\n$/, "")
-  const lines = trimmed.split("\n")
+  const lines = tokenizeLines(trimmed, language)
 
   async function copy() {
     let didCopy = false
@@ -182,7 +291,7 @@ export function CodeBlock({ code, language = "js", filename, showLineNumbers = f
       <div className="overflow-x-auto">
         <table className="w-full border-collapse text-sm font-mono leading-6">
           <tbody>
-            {lines.map((line, idx) => (
+            {lines.map((tokens, idx) => (
               <tr key={idx} className="hover:bg-foreground/3">
                 {showLineNumbers && (
                   <td className="select-none w-10 pr-4 pl-4 text-right text-muted-foreground/50 border-r border-foreground/6">
@@ -190,9 +299,9 @@ export function CodeBlock({ code, language = "js", filename, showLineNumbers = f
                   </td>
                 )}
                 <td className="px-4 py-0 whitespace-pre">
-                  {tokenize(line, language).map((tok, ti) => (
+                  {tokens.length ? tokens.map((tok, ti) => (
                     <span key={ti} className={TOKEN_COLORS[tok.type]}>{tok.value}</span>
-                  ))}
+                  )) : "​"}
                 </td>
               </tr>
             ))}

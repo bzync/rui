@@ -6,6 +6,7 @@ import { getFocusable } from "@/utils/focus"
 import { AnimatePresence } from "framer-motion"
 import { motion } from "@/lib/motion-components"
 import { transitions } from "@/lib/motion"
+import { ThemePortal } from "./theme-provider"
 import {
   KeyboardEvent,
   ReactNode,
@@ -184,7 +185,10 @@ export function CommandPalette({
 
   let flatIdx = 0
 
+  // Portalled like Modal: rendered in place, a transformed or z-indexed
+  // ancestor would trap the fixed overlay in its own box and stacking context.
   return (
+    <ThemePortal>
     <AnimatePresence>
       {open && (
         <div className="fixed inset-0 z-(--z-modal) flex items-start justify-center pt-[15vh] p-4">
@@ -296,5 +300,6 @@ export function CommandPalette({
         </div>
       )}
     </AnimatePresence>
+    </ThemePortal>
   )
 }

@@ -4,6 +4,7 @@ import { cn } from "@/lib/cn"
 import { controlBaseStyles, controlInvalidStyles, fieldDescriptionStyles, fieldErrorStyles, fieldLabelStyles, fieldRootStyles, iconButtonStyles } from "@/lib/component-styles"
 import { AnimatePresence } from "framer-motion"
 import { motion } from "@/lib/motion-components"
+import { ThemePortal } from "./theme-provider"
 import { type CSSProperties, type HTMLAttributes, type KeyboardEvent as ReactKeyboardEvent, forwardRef, useEffect, useId, useImperativeHandle, useLayoutEffect, useRef, useState } from "react"
 
 const DAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]
@@ -151,7 +152,9 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(({
 
   useEffect(() => {
     function onOutside(e: MouseEvent) {
-      if (!containerRef.current?.contains(e.target as Node)) closeCalendar()
+      const target = e.target as Node
+      if (containerRef.current?.contains(target) || panelRef.current?.contains(target)) return
+      closeCalendar()
     }
     function onKeyDown(e: globalThis.KeyboardEvent) {
       if (e.key === "Escape" && open) {
@@ -254,6 +257,11 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(({
       {clearable && value && !disabled && <button type="button" aria-label={`Clear ${label?.toLowerCase() ?? "date"}`} onClick={clear} className={cn(iconButtonStyles, "mr-1 size-9 sm:size-7")}><svg aria-hidden="true" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12" /></svg></button>}
       </div>
 
+      {/* Portalled: `position: fixed` alone breaks under a transformed ancestor
+          (an animating modal, a motion card) and stays inside the ancestor's
+          stacking context, so a picker in a table cell could be clipped or
+          painted under neighbouring content. */}
+      <ThemePortal>
       <AnimatePresence>
         {open && (
           <>
@@ -346,6 +354,7 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(({
           </>
         )}
       </AnimatePresence>
+      </ThemePortal>
       {error && <p id={messageId} aria-live="polite" className={fieldErrorStyles}>{error}</p>}
       {hint && !error && <p id={messageId} className={fieldDescriptionStyles}>{hint}</p>}
     </div>
