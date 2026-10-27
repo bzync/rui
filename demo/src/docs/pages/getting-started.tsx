@@ -2,6 +2,7 @@ import { Badge, Button, Input, Switch } from "@bzync/rui"
 import { ChevronRight, FileCheck2, Plus } from "lucide-react"
 import { useState } from "react"
 import { componentGroups, hrefFor, type DocsPage } from "../catalog"
+import { HooksPage } from "./hooks"
 import {
   ComponentPreview,
   CopyCommand,
@@ -212,5 +213,6 @@ export function GettingStartedPage({ page }: { page: DocsPage }) {
   if (page.slug === "docs/installation") return <InstallationPage />
   if (page.slug === "docs/quick-start") return <QuickStartPage />
   if (page.slug === "docs/configuration") return <ConfigurationPage />
+  if (page.slug === "docs/hooks") return <HooksPage />
   return <IntroductionPage />
 }

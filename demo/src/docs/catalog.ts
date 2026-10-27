@@ -36,6 +36,7 @@ const gettingStarted: DocsPage[] = [
   { slug: "docs/installation", title: "Installation", description: "Install the package, peer dependencies, and stylesheet.", kind: "doc", group: "Getting Started", aliases: ["install", "setup", "npm"] },
   { slug: "docs/quick-start", title: "Quick Start", description: "Render your first component with the theme provider.", kind: "doc", group: "Getting Started", aliases: ["usage", "first component"] },
   { slug: "docs/configuration", title: "Configuration", description: "Configure themes, fonts, package imports, and app-level behavior.", kind: "doc", group: "Getting Started", aliases: ["config", "provider"] },
+  { slug: "docs/hooks", title: "Hooks", description: "useHotkeys, useClipboard, useBreakpoint, useLocalStorage and useDebounce.", kind: "doc", group: "Getting Started", aliases: ["hooks", "useHotkeys", "useClipboard", "useBreakpoint", "useLocalStorage", "useDebounce", "shortcuts"] },
 ]
 
 const foundations: DocsPage[] = [
