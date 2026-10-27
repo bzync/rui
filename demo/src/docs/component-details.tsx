@@ -528,7 +528,7 @@ export const supplementalDetails: Record<string, () => SupplementalDetail> = {
     `<Tree nodes={nodes} selected={selectedId} onSelect={setSelectedId} defaultExpanded={["src"]} />`,
     <TreePreview />,
     api(["nodes", "TreeNode[]", "Hierarchical node data."], ["selected / defaultSelected", "string", "Controlled or initial selected node ID."], ["onSelect", "(id: string) => void", "Node selection callback."], ["expanded / defaultExpanded", "string[]", "Controlled or initial expanded node IDs."], ["onExpandedChange", "(ids: string[]) => void", "Called with the next expanded node IDs."]),
-    "Expandable nodes expose buttons with expanded state; selectable rows remain keyboard reachable.",
+    "Follows the WAI-ARIA tree pattern: role=tree with treeitems that expose level, expanded and selected state. One roving tab stop; Arrow Up/Down move between visible items, Right/Left expand or collapse, Home/End jump, Enter/Space select. Disabled items are skipped.",
   ),
   "components/snackbar": () => detail(
     `<SnackbarProvider>\n  <App />\n</SnackbarProvider>\n\nconst { show } = useSnackbar()\nshow({ message: "Deployed", variant: "success" })`,

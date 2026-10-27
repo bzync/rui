@@ -221,3 +221,36 @@ describe("controlled and uncontrolled state", () => {
     expect(screen.getByRole("button", { name: "Filters" })).toHaveAttribute("aria-expanded", "true")
   })
 })
+
+describe("tree keyboard support", () => {
+  it("exposes tree semantics with one tab stop and arrow-key navigation", async () => {
+    const user = userEvent.setup(); const onSelect = vi.fn()
+    const nodes = [
+      { id: "src", label: "src", children: [{ id: "app", label: "app.ts" }] },
+      { id: "locked", label: "locked", disabled: true },
+      { id: "readme", label: "README.md" },
+    ]
+    render(<Tree nodes={nodes} onSelect={onSelect} />)
+    expect(screen.getByRole("tree")).toBeInTheDocument()
+    const src = screen.getByRole("treeitem", { name: "src" })
+    expect(src).toHaveAttribute("tabindex", "0")
+    expect(screen.getByRole("treeitem", { name: "README.md" })).toHaveAttribute("tabindex", "-1")
+
+    await user.tab()
+    expect(src).toHaveFocus()
+    await user.keyboard("{ArrowRight}")
+    expect(src).toHaveAttribute("aria-expanded", "true")
+    await user.keyboard("{ArrowDown}")
+    expect(screen.getByRole("treeitem", { name: "app.ts" })).toHaveFocus()
+    // Disabled nodes are skipped.
+    await user.keyboard("{ArrowDown}")
+    expect(screen.getByRole("treeitem", { name: "README.md" })).toHaveFocus()
+    await user.keyboard("{Enter}")
+    expect(onSelect).toHaveBeenCalledWith("readme")
+    expect(screen.getByRole("treeitem", { name: "README.md" })).toHaveAttribute("aria-selected", "true")
+    await user.keyboard("{Home}")
+    expect(src).toHaveFocus()
+    await user.keyboard("{ArrowLeft}")
+    expect(src).toHaveAttribute("aria-expanded", "false")
+  })
+})

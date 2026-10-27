@@ -1,6 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/cn"
+import { focusRingStyles } from "@/lib/component-styles"
 import { AnimatePresence } from "framer-motion"
 import { motion } from "@/lib/motion-components"
 import { useControllableState } from "@/hooks/use-controllable-state"
@@ -50,17 +51,36 @@ export function Tree({
     setExpandedIds(expanded.has(id) ? expandedIds.filter((expandedId) => expandedId !== id) : [...expandedIds, id])
   }
 
+  // Roving tabindex: one tab stop — the selected node when it is visible
+  // (not inside a collapsed parent), else the first enabled node.
+  const visible: string[] = []
+  const walk = (list: TreeNode[]) => list.forEach((node) => {
+    if (!node.disabled) visible.push(node.id)
+    if (node.children && expanded.has(node.id)) walk(node.children)
+  })
+  walk(nodes)
+  const tabStop = selected && visible.includes(selected) ? selected : visible[0]
+
   return (
-    <div className={cn("select-none", className)}>
-      <TreeNodes nodes={nodes} expanded={expanded} selected={selected} onToggle={toggle} onSelect={setSelected} depth={0} />
+    <div role="tree" className={cn("select-none", className)}>
+      <TreeNodes nodes={nodes} expanded={expanded} selected={selected} tabStop={tabStop} onToggle={toggle} onSelect={setSelected} depth={0} />
     </div>
   )
+}
+
+/** Moves focus between the visible tree items (WAI-ARIA tree pattern). */
+function focusSibling(from: HTMLElement, key: "next" | "prev" | "first" | "last") {
+  const items = Array.from(from.closest('[role="tree"]')?.querySelectorAll<HTMLElement>('[role="treeitem"]:not([aria-disabled="true"])') ?? [])
+  const index = items.indexOf(from)
+  const target = key === "first" ? items[0] : key === "last" ? items[items.length - 1] : items[index + (key === "next" ? 1 : -1)]
+  target?.focus()
 }
 
 function TreeNodes({
   nodes,
   expanded,
   selected,
+  tabStop,
   onToggle,
   onSelect,
   depth,
@@ -68,30 +88,58 @@ function TreeNodes({
   nodes: TreeNode[]
   expanded: Set<string>
   selected?: string
+  tabStop?: string
   onToggle: (id: string) => void
   onSelect?: (id: string) => void
   depth: number
 }) {
   return (
-    <ul>
+    <ul role={depth === 0 ? "none" : "group"}>
       {nodes.map((node) => {
         const isExpanded = expanded.has(node.id)
         const isSelected = selected === node.id
         const hasChildren = !!node.children?.length
+        const activate = () => {
+          if (node.disabled) return
+          if (hasChildren) onToggle(node.id)
+          onSelect?.(node.id)
+        }
 
         return (
-          <li key={node.id}>
+          <li key={node.id} role="none">
             <div
+              role="treeitem"
+              aria-level={depth + 1}
+              aria-selected={isSelected}
+              aria-expanded={hasChildren ? isExpanded : undefined}
+              aria-disabled={node.disabled || undefined}
+              tabIndex={node.id === tabStop ? 0 : -1}
               style={{ paddingLeft: depth * 16 + 4 }}
-              onClick={() => {
-                if (node.disabled) return
-                if (hasChildren) onToggle(node.id)
-                onSelect?.(node.id)
+              onClick={activate}
+              onKeyDown={(event) => {
+                const keys: Record<string, () => void> = {
+                  Enter: activate,
+                  " ": activate,
+                  ArrowDown: () => focusSibling(event.currentTarget, "next"),
+                  ArrowUp: () => focusSibling(event.currentTarget, "prev"),
+                  Home: () => focusSibling(event.currentTarget, "first"),
+                  End: () => focusSibling(event.currentTarget, "last"),
+                  ArrowRight: () => {
+                    if (hasChildren && !isExpanded) onToggle(node.id)
+                    else if (hasChildren) focusSibling(event.currentTarget, "next")
+                  },
+                  ArrowLeft: () => { if (hasChildren && isExpanded) onToggle(node.id) },
+                }
+                const action = keys[event.key]
+                if (!action) return
+                event.preventDefault()
+                action()
               }}
               className={cn(
                 "flex items-center gap-1.5 h-8 pr-2 rounded-lg cursor-pointer transition-colors group",
+                focusRingStyles,
                 isSelected
-                  ? "bg-accent-500/10 text-accent-400"
+                  ? "bg-accent-500/10 text-accent-strong"
                   : "text-foreground/80 hover:bg-foreground/6",
                 node.disabled && "opacity-40 cursor-not-allowed",
               )}
@@ -110,7 +158,7 @@ function TreeNodes({
                 <span className="w-4 shrink-0" />
               )}
               {node.icon && (
-                <span className={cn("shrink-0 w-4 h-4 flex items-center justify-center", isSelected ? "text-accent-400" : "text-muted-foreground")}>
+                <span className={cn("shrink-0 w-4 h-4 flex items-center justify-center", isSelected ? "text-accent-strong" : "text-muted-foreground")}>
                   {node.icon}
                 </span>
               )}
@@ -129,6 +177,7 @@ function TreeNodes({
                     nodes={node.children!}
                     expanded={expanded}
                     selected={selected}
+                    tabStop={tabStop}
                     onToggle={onToggle}
                     onSelect={onSelect}
                     depth={depth + 1}
