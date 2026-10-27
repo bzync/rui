@@ -2,7 +2,7 @@ import { act, cleanup, render, screen, waitFor, within } from "@testing-library/
 import userEvent from "@testing-library/user-event"
 import { createRef, type ReactElement, type RefObject } from "react"
 import * as R from "@/index"
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 import {
   AspectRatio, AuthBackdrop, DevMode, resolveBreakpoint, Avatar, AvatarGroup, AvatarGroupOverflow, Badge, Blockquote, Breadcrumb, Callout, Card, CardBody, CardDescription, CardFooter,
   CardHeader, CardTitle, EmptyState, ErrorState, FormField, Input, Kbd, Label,
@@ -465,5 +465,40 @@ describe("responsive layout guards", () => {
     render(<R.ScatterChart yLabel="Latency" xLabel="Requests" series={[{ label: "API", data: [{ x: 1, y: 2 }] }]} />)
     expect(screen.getByText("Latency")).toBeInTheDocument()
     expect(screen.getByText("Requests")).toBeInTheDocument()
+  })
+})
+
+describe("Resizable", () => {
+  it("resizes with the keyboard within limits, persists and resets on double-click", async () => {
+    window.localStorage.clear()
+    const user = userEvent.setup(); const onResize = vi.fn()
+    const { unmount } = render(
+      <R.Resizable defaultSizes={[30, 70]} minSizes={[20, 40]} storageKey="split-test" panelLabels={["Files", "Editor"]} onResize={onResize}>
+        <R.ResizablePanel>Files</R.ResizablePanel>
+        <R.ResizablePanel>Editor</R.ResizablePanel>
+      </R.Resizable>,
+    )
+    const handle = screen.getByRole("separator", { name: "Resize Files and Editor" })
+    expect(handle).toHaveAttribute("aria-valuenow", "30")
+    handle.focus()
+    await user.keyboard("{ArrowRight}")
+    expect(onResize).toHaveBeenLastCalledWith([32, 68])
+    await user.keyboard("{Shift>}{ArrowRight}{ArrowRight}{ArrowRight}{/Shift}")
+    // Capped by the right panel's 40% minimum.
+    expect(onResize).toHaveBeenLastCalledWith([60, 40])
+    await user.keyboard("{Home}")
+    expect(onResize).toHaveBeenLastCalledWith([20, 80])
+    expect(JSON.parse(window.localStorage.getItem("split-test")!)).toEqual([20, 80])
+    unmount()
+    render(
+      <R.Resizable defaultSizes={[30, 70]} storageKey="split-test" panelLabels={["Files", "Editor"]}>
+        <R.ResizablePanel>Files</R.ResizablePanel>
+        <R.ResizablePanel>Editor</R.ResizablePanel>
+      </R.Resizable>,
+    )
+    const restored = screen.getByRole("separator")
+    expect(restored).toHaveAttribute("aria-valuenow", "20")
+    await user.dblClick(restored)
+    expect(restored).toHaveAttribute("aria-valuenow", "30")
   })
 })

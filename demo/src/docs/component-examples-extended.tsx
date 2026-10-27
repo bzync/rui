@@ -1768,6 +1768,21 @@ export default function App() {
       <ContextMenuTableExample />),
   ],
 
+  "components/resizable": () => [
+    ex("persisted", "Persisted with a grip", "storageKey remembers the layout across reloads; withHandle shows a grip. Resize, then reload the page.",
+      `<div className="h-56 w-full overflow-hidden rounded-xl border border-border bg-surface">
+  <Resizable storageKey="docs-mail-layout" withHandle defaultSizes={[35, 65]} minSizes={[25, 35]} panelLabels={["Inbox", "Message"]}>
+    <ResizablePanel className="divide-y divide-border text-sm">
+      <p className="px-3 py-2 font-medium">Deploy succeeded</p>
+      <p className="px-3 py-2">Weekly report</p>
+      <p className="px-3 py-2">New comment</p>
+    </ResizablePanel>
+    <ResizablePanel className="p-4 text-sm text-muted-foreground">api-gateway v2.4.1 is live in all regions.</ResizablePanel>
+  </Resizable>
+</div>`,
+      <div className="h-56 w-full overflow-hidden rounded-xl border border-border bg-surface"><R.Resizable storageKey="docs-mail-layout" withHandle defaultSizes={[35, 65]} minSizes={[25, 35]} panelLabels={["Inbox", "Message"]}><R.ResizablePanel className="divide-y divide-border text-sm"><p className="px-3 py-2 font-medium">Deploy succeeded</p><p className="px-3 py-2">Weekly report</p><p className="px-3 py-2">New comment</p></R.ResizablePanel><R.ResizablePanel className="p-4 text-sm text-muted-foreground">api-gateway v2.4.1 is live in all regions.</R.ResizablePanel></R.Resizable></div>),
+  ],
+
   "components/heading": () => [
     ex("scale", "Size scale", "Visual size is independent of the semantic level.",
       `<Heading as="h2" size="2xl">2xl heading</Heading>

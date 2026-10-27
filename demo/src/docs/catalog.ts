@@ -98,6 +98,7 @@ const display = [
   component("List", "Renders structured lists with consistent density.", "Display"),
   component("Timeline", "Displays chronological events.", "Display", ["activity"]),
   component("Tree", "Displays expandable hierarchical data.", "Display", ["filesystem"]),
+  component("Resizable", "Split views with draggable, keyboard-resizable panels.", "Display", ["split", "panels", "splitter", "pane"], "Resizable"),
   component("Scroll Area", "Provides a bounded, keyboard-scrollable content region.", "Display", ["overflow"], "ScrollArea"),
 ]
 

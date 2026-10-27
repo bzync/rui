@@ -1,9 +1,9 @@
 {
   "version": "0.0.11",
   "stylesheet": {
-    "raw": 106315,
-    "gzip": 17548,
-    "brotli": 14126
+    "raw": 107651,
+    "gzip": 17833,
+    "brotli": 14300
   },
   "sharedRuntime": {
     "raw": 37806,
@@ -1799,6 +1799,38 @@
         "raw": 4317,
         "gzip": 1843,
         "brotli": 1606
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
+    },
+    "Resizable": {
+      "entry": "components/resizable.js",
+      "total": {
+        "raw": 42840,
+        "gzip": 11561,
+        "brotli": 9983
+      },
+      "specific": {
+        "raw": 5034,
+        "gzip": 2090,
+        "brotli": 1861
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
+    },
+    "ResizablePanel": {
+      "entry": "components/resizable.js",
+      "total": {
+        "raw": 42840,
+        "gzip": 11561,
+        "brotli": 9983
+      },
+      "specific": {
+        "raw": 5034,
+        "gzip": 2090,
+        "brotli": 1861
       },
       "lazy": null,
       "modules": 3,

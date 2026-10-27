@@ -171,6 +171,23 @@ function MenubarUsagePreview() {
   )
 }
 
+function ResizableUsagePreview() {
+  return (
+    <div className="h-80 w-full overflow-hidden rounded-xl border border-border bg-surface">
+      <R.Resizable defaultSizes={[22, 56, 22]} minSizes={[15, 30, 15]} panelLabels={["Explorer", "Editor", "Inspector"]}>
+        <R.ResizablePanel className="p-3 text-sm"><p className="mb-2 text-xs font-semibold text-muted-foreground">EXPLORER</p><p>src/</p><p className="pl-3">app.tsx</p><p className="pl-3">theme.ts</p></R.ResizablePanel>
+        <R.ResizablePanel>
+          <R.Resizable direction="vertical" defaultSizes={[65, 35]} minSizes={[25, 20]} panelLabels={["Code", "Terminal"]}>
+            <R.ResizablePanel className="p-3 font-mono text-xs">export default function App() {"{"}…{"}"}</R.ResizablePanel>
+            <R.ResizablePanel className="bg-bg p-3 font-mono text-xs text-muted-foreground">$ npm run dev</R.ResizablePanel>
+          </R.Resizable>
+        </R.ResizablePanel>
+        <R.ResizablePanel className="p-3 text-sm"><p className="mb-2 text-xs font-semibold text-muted-foreground">INSPECTOR</p><p>Props: 4</p></R.ResizablePanel>
+      </R.Resizable>
+    </div>
+  )
+}
+
 function TimePickerPreview() {
   const [value, setValue] = useState("09:30")
   const [confirmedValue, setConfirmedValue] = useState("09:30")
@@ -941,6 +958,31 @@ const columns: ColumnDef<(typeof services)[number]>[] = [
     <MenubarUsagePreview />,
     api(["menus", "{ label; items; disabled? }[]", "Top-level menus with DropdownMenu-style items."], ["ariaLabel", "string", "Name of the bar.", '"Menu bar"'], ["triggerClassName / menuClassName", "string", "Style the top-level buttons and the menus."]),
     "Implements the WAI-ARIA menubar pattern: a single tab stop; Left/Right move between menus; Down, Enter or Space open one; while a menu is open Left/Right switch to the neighbouring menu and hovering another trigger switches too; Escape returns focus to the bar. Disabled menus are skipped.",
+  ),
+  "components/resizable": () => detail(
+    `<div className="h-80 w-full overflow-hidden rounded-xl border border-border bg-surface">
+  <Resizable defaultSizes={[22, 56, 22]} minSizes={[15, 30, 15]} panelLabels={["Explorer", "Editor", "Inspector"]}>
+    <ResizablePanel className="p-3 text-sm">
+      <p className="mb-2 text-xs font-semibold text-muted-foreground">EXPLORER</p>
+      <p>src/</p>
+      <p className="pl-3">app.tsx</p>
+      <p className="pl-3">theme.ts</p>
+    </ResizablePanel>
+    <ResizablePanel>
+      <Resizable direction="vertical" defaultSizes={[65, 35]} minSizes={[25, 20]} panelLabels={["Code", "Terminal"]}>
+        <ResizablePanel className="p-3 font-mono text-xs">export default function App() {"{"}…{"}"}</ResizablePanel>
+        <ResizablePanel className="bg-bg p-3 font-mono text-xs text-muted-foreground">$ npm run dev</ResizablePanel>
+      </Resizable>
+    </ResizablePanel>
+    <ResizablePanel className="p-3 text-sm">
+      <p className="mb-2 text-xs font-semibold text-muted-foreground">INSPECTOR</p>
+      <p>Props: 4</p>
+    </ResizablePanel>
+  </Resizable>
+</div>`,
+    <ResizableUsagePreview />,
+    api(["direction", '"horizontal" | "vertical"', "Split axis.", '"horizontal"'], ["defaultSizes / sizes", "number[]", "Initial or controlled sizes in percent."], ["onResize", "(sizes) => void", "Called while resizing."], ["minSizes / maxSizes", "number[]", "Per-panel limits in percent.", "10 / 90"], ["storageKey", "string", "Persists the layout in localStorage."], ["withHandle", "boolean", "Shows a grip on each handle.", "false"], ["panelLabels", "string[]", "Names used to label each handle for assistive technology."], ["ResizablePanel", "component", "A panel; scrolls its own overflow."]),
+    "Each handle is a focusable separator with orientation, value and limits. Arrow keys resize by 2% (Shift: 10%), Home/End jump to the limits, and double-click restores the default layout. Name panels with panelLabels so handles read as “Resize Explorer and Editor”.",
   ),
   "components/code-block": () => detail(
     `<CodeBlock className="w-full" language="ts" filename="status.ts" showLineNumbers code={'export const status = "ready"\\n\\nconsole.log(status)'} />`,
