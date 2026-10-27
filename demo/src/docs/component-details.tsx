@@ -851,7 +851,7 @@ function App() {
   )
 }`,
     <NavigationPreview />,
-    api(["items", "NavigationItem[]", "Links with IDs, labels, hrefs, icons, and badges."], ["activeId", "string", "Current navigation item ID."], ["onSelect", "(id: string) => void", "Selection callback."], ["header / footer", "ReactNode", "Sidebar composition slots."]),
+    api(["items", "NavigationItem[]", "Links with IDs, labels, hrefs, icons, and badges."], ["activeId", "string", "Current navigation item ID."], ["onSelect", "(id: string) => void", "Selection callback."], ["header / footer", "ReactNode", "Sidebar composition slots."], ["BottomBar variant", '"bar" | "floating"', "Full-width bar or detached floating pill.", '"bar"'], ["BottomBar indicator", '"pill" | "line" | "dot" | "none"', "Active tab marker.", '"pill"'], ["BottomBar labels", '"always" | "active" | "hidden"', "Label visibility; hidden labels remain accessible names.", '"always"'], ["BottomBar centerAction / fixed", "ReactNode / boolean", "Raised middle action; pin to the viewport bottom with safe-area padding."]),
     "Navigation primitives use native landmarks and anchors, with aria-current on the active destination.",
   ),
   "components/table": () => detail(

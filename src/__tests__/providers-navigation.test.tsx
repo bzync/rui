@@ -88,3 +88,31 @@ describe("BottomBar", () => {
     expect(container.querySelector("nav")).toHaveClass("fixed", "bottom-0", "pb-safe-bottom")
   })
 })
+
+describe("BottomBar layout options", () => {
+  const items = [
+    { id: "home", label: "Home", icon: <svg /> },
+    { id: "search", label: "Search", icon: <svg /> },
+    { id: "inbox", label: "Inbox", icon: <svg /> },
+    { id: "me", label: "Me", icon: <svg /> },
+  ]
+
+  it("floats, inserts a center action in the middle and keeps hidden labels as names", () => {
+    const { container } = render(<BottomBar variant="floating" labels="hidden" indicator="line" activeId="home" items={items} centerAction={<button>New</button>} />)
+    const nav = container.querySelector("nav")!
+    expect(nav).toHaveClass("rounded-full", "shadow-floating")
+    expect(nav.style.gridTemplateColumns).toBe("repeat(5, minmax(0, 1fr))")
+    // Center slot sits between the 2nd and 3rd tab.
+    const order = [...nav.children].map((child) => child.textContent)
+    expect(order).toEqual(["Home", "Search", "New", "Inbox", "Me"])
+    // Icon-only, but every tab still has its label as the accessible name.
+    expect(screen.getByRole("button", { name: "Search" })).toBeInTheDocument()
+    expect(screen.getByText("Search")).toHaveClass("sr-only")
+  })
+
+  it("shows only the active label in labels=\"active\" mode", () => {
+    render(<BottomBar labels="active" activeId="inbox" items={items} />)
+    expect(screen.getByText("Inbox")).not.toHaveClass("sr-only")
+    expect(screen.getByText("Home")).toHaveClass("sr-only")
+  })
+})

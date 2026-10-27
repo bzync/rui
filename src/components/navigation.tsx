@@ -194,12 +194,21 @@ Sidebar.displayName = "Sidebar"
 export interface BottomBarProps extends NavigationListProps {
   /** Pins the bar to the bottom of the viewport (with safe-area padding). */
   fixed?: boolean
+  /** "bar" spans the width with a hairline top border; "floating" is a detached rounded pill. */
+  variant?: "bar" | "floating"
+  /** How the active tab is marked. */
+  indicator?: "pill" | "line" | "dot" | "none"
+  /** "active" shows only the selected tab's label; "hidden" is icon-only (labels stay as accessible names). */
+  labels?: "always" | "active" | "hidden"
+  /** A raised primary action rendered in the middle slot (e.g. a "New" button). */
+  centerAction?: ReactNode
 }
 
 /**
  * Mobile tab bar in the native idiom (iOS / Material 3): icon over a short
- * label, a pill indicator behind the active icon, badges as a count on the
- * icon corner, full-height touch targets and a hairline top border.
+ * label, an active indicator, badges as a count on the icon corner, full-height
+ * touch targets. Combine variant, indicator, labels and centerAction for the
+ * common layouts.
  */
 export const BottomBar = forwardRef<HTMLElement, BottomBarProps>(function BottomBar({
   items,
@@ -207,64 +216,98 @@ export const BottomBar = forwardRef<HTMLElement, BottomBarProps>(function Bottom
   onSelect,
   ariaLabel = "Mobile navigation",
   fixed = false,
+  variant = "bar",
+  indicator = "pill",
+  labels = "always",
+  centerAction,
   className,
   ...props
 }, ref) {
+  const floating = variant === "floating"
+  const middle = Math.ceil(items.length / 2)
+  const columns = items.length + (centerAction ? 1 : 0)
+
+  const renderTab = (item: NavigationItem) => {
+    const active = activeId === item.id
+    const badgeText = typeof item.badge === "string" || typeof item.badge === "number" ? String(item.badge) : undefined
+    const showLabel = labels === "always" || (labels === "active" && active)
+    const content = (
+      <>
+        {indicator === "line" && <span aria-hidden="true" className={cn("absolute inset-x-1/4 top-0 h-0.5 rounded-full transition-colors", active ? "bg-primary" : "bg-transparent")} />}
+        <span
+          className={cn(
+            "relative grid h-7 w-14 place-items-center rounded-full transition-colors [&_svg]:size-5",
+            active ? "text-accent-strong" : "text-muted-foreground group-hover/tab:text-foreground",
+            active && indicator === "pill" && "bg-accent-500/12",
+          )}
+          aria-hidden="true"
+        >
+          {item.icon}
+          {/* Numbers/strings get the count bubble; custom nodes are placed as given. */}
+          {badgeText !== undefined ? (
+            <span className="absolute -top-1 left-1/2 ml-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-danger px-1 text-[10px] font-semibold leading-none text-white ring-2 ring-surface">
+              {badgeText}
+            </span>
+          ) : item.badge ? (
+            <span className="absolute -top-1.5 left-1/2 ml-1.5">{item.badge}</span>
+          ) : null}
+        </span>
+        <span
+          className={cn(
+            "max-w-full truncate px-1 text-[11px] leading-4 transition-opacity",
+            active ? "font-semibold text-foreground" : "font-medium text-muted-foreground group-hover/tab:text-foreground",
+            !showLabel && "sr-only",
+          )}
+        >
+          {item.label}
+        </span>
+        {indicator === "dot" && <span aria-hidden="true" className={cn("size-1 rounded-full transition-colors", active ? "bg-primary" : "bg-transparent")} />}
+      </>
+    )
+    const tabClass = cn(
+      "group/tab relative flex min-w-0 flex-col items-center justify-center outline-none",
+      floating ? "h-14 rounded-full" : "h-16",
+      indicator === "dot" ? "gap-0.5" : "gap-1",
+      focusRingStyles,
+      item.disabled && "pointer-events-none opacity-40",
+    )
+    const label = badgeText ? `${item.label}, ${badgeText}` : undefined
+    return item.href ? (
+      <a key={item.id} href={item.href} aria-label={label} aria-current={active ? "page" : undefined} aria-disabled={item.disabled || undefined} className={tabClass}
+        onClick={(event) => { if (onSelect) { event.preventDefault(); onSelect(item.id) } }}>
+        {content}
+      </a>
+    ) : (
+      <button key={item.id} type="button" aria-label={label} aria-current={active ? "page" : undefined} disabled={item.disabled} className={tabClass} onClick={() => onSelect?.(item.id)}>
+        {content}
+      </button>
+    )
+  }
+
+  const tabs = items.map(renderTab)
+  if (centerAction) {
+    tabs.splice(middle, 0, (
+      <div key="__center" className="flex items-center justify-center">
+        <div className={cn(!floating && "-mt-6")}>{centerAction}</div>
+      </div>
+    ))
+  }
+
   return (
     <nav ref={ref}
       aria-label={ariaLabel}
       className={cn(
-        "grid border-t border-border bg-surface/95 pb-safe-bottom backdrop-blur-sm",
-        fixed && "fixed inset-x-0 bottom-0 z-(--z-sticky)",
+        "grid",
+        floating
+          ? "mx-3 mb-3 rounded-full border border-border bg-surface/95 px-1 shadow-floating backdrop-blur-sm"
+          : "border-t border-border bg-surface/95 pb-safe-bottom backdrop-blur-sm",
+        fixed && (floating ? "fixed inset-x-0 bottom-[max(0px,env(safe-area-inset-bottom))] z-(--z-sticky)" : "fixed inset-x-0 bottom-0 z-(--z-sticky)"),
         className,
       )}
-      style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))` }}
+      style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
       {...props}
     >
-      {items.map((item) => {
-        const active = activeId === item.id
-        const badgeText = typeof item.badge === "string" || typeof item.badge === "number" ? String(item.badge) : undefined
-        const content = (
-          <>
-            <span
-              className={cn(
-                "relative grid h-7 w-14 place-items-center rounded-full transition-colors [&_svg]:size-5",
-                active ? "bg-accent-500/12 text-accent-strong" : "text-muted-foreground group-hover/tab:text-foreground",
-              )}
-              aria-hidden="true"
-            >
-              {item.icon}
-              {/* Numbers/strings get the count bubble; custom nodes are placed as given. */}
-              {badgeText !== undefined ? (
-                <span className="absolute -top-1 left-1/2 ml-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-danger px-1 text-[10px] font-semibold leading-none text-white ring-2 ring-surface">
-                  {badgeText}
-                </span>
-              ) : item.badge ? (
-                <span className="absolute -top-1.5 left-1/2 ml-1.5">{item.badge}</span>
-              ) : null}
-            </span>
-            <span className={cn("max-w-full truncate px-1 text-[11px] leading-4", active ? "font-semibold text-foreground" : "font-medium text-muted-foreground group-hover/tab:text-foreground")}>
-              {item.label}
-            </span>
-          </>
-        )
-        const tabClass = cn(
-          "group/tab flex h-16 min-w-0 flex-col items-center justify-center gap-1 rounded-none outline-none",
-          focusRingStyles,
-          item.disabled && "pointer-events-none opacity-40",
-        )
-        const label = badgeText ? `${item.label}, ${badgeText}` : undefined
-        return item.href ? (
-          <a key={item.id} href={item.href} aria-label={label} aria-current={active ? "page" : undefined} aria-disabled={item.disabled || undefined} className={tabClass}
-            onClick={(event) => { if (onSelect) { event.preventDefault(); onSelect(item.id) } }}>
-            {content}
-          </a>
-        ) : (
-          <button key={item.id} type="button" aria-label={label} aria-current={active ? "page" : undefined} disabled={item.disabled} className={tabClass} onClick={() => onSelect?.(item.id)}>
-            {content}
-          </button>
-        )
-      })}
+      {tabs}
     </nav>
   )
 })

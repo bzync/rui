@@ -326,6 +326,40 @@ const mobileTabs = [
   { id: "account", label: "Account", icon: <User size={20} />, content: ["Profile", "Billing", "Sign out"] },
 ]
 
+function BottomBarPlayground() {
+  const [active, setActive] = useState("home")
+  const [variant, setVariant] = useState<"bar" | "floating">("floating")
+  const [indicator, setIndicator] = useState<"pill" | "line" | "dot" | "none">("pill")
+  const [labels, setLabels] = useState<"always" | "active" | "hidden">("always")
+  const [withAction, setWithAction] = useState(true)
+  const tab = mobileTabs.find((item) => item.id === active)!
+  return (
+    <div className="grid w-full grid-cols-1 justify-items-center gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
+      <div className="grid w-full max-w-sm gap-3">
+        <R.FormField label="Variant"><R.ToggleGroup type="single" size="sm" variant="outline" aria-label="Variant" value={variant} onValueChange={(v) => v && setVariant(v as typeof variant)}><R.ToggleGroupItem value="bar">Bar</R.ToggleGroupItem><R.ToggleGroupItem value="floating">Floating</R.ToggleGroupItem></R.ToggleGroup></R.FormField>
+        <R.FormField label="Indicator"><R.ToggleGroup type="single" size="sm" variant="outline" aria-label="Indicator" value={indicator} onValueChange={(v) => v && setIndicator(v as typeof indicator)}><R.ToggleGroupItem value="pill">Pill</R.ToggleGroupItem><R.ToggleGroupItem value="line">Line</R.ToggleGroupItem><R.ToggleGroupItem value="dot">Dot</R.ToggleGroupItem><R.ToggleGroupItem value="none">None</R.ToggleGroupItem></R.ToggleGroup></R.FormField>
+        <R.FormField label="Labels"><R.ToggleGroup type="single" size="sm" variant="outline" aria-label="Labels" value={labels} onValueChange={(v) => v && setLabels(v as typeof labels)}><R.ToggleGroupItem value="always">Always</R.ToggleGroupItem><R.ToggleGroupItem value="active">Active</R.ToggleGroupItem><R.ToggleGroupItem value="hidden">Hidden</R.ToggleGroupItem></R.ToggleGroup></R.FormField>
+        <R.Switch label="Center action" checked={withAction} onCheckedChange={setWithAction} />
+      </div>
+      <div className="flex h-[480px] w-[360px] max-w-full flex-col overflow-hidden rounded-[28px] border border-border bg-bg shadow-floating">
+        <header className="border-b border-border bg-surface px-4 py-3 text-sm font-semibold">{tab.label}</header>
+        <ul className="flex-1 divide-y divide-border overflow-y-auto">
+          {tab.content.map((line) => <li key={line} className="px-4 py-3 text-sm">{line}</li>)}
+        </ul>
+        <R.BottomBar
+          items={mobileTabs}
+          activeId={active}
+          onSelect={setActive}
+          variant={variant}
+          indicator={indicator}
+          labels={labels}
+          centerAction={withAction ? <R.Button size="icon" className="size-12 rounded-full shadow-floating" aria-label="New project"><Plus size={22} /></R.Button> : undefined}
+        />
+      </div>
+    </div>
+  )
+}
+
 function BottomBarExample() {
   const [active, setActive] = useState("home")
   const tab = mobileTabs.find((item) => item.id === active)!
@@ -1199,6 +1233,59 @@ function App() {
   )
 }`,
       <SidebarExample />),
+    ex("bottom-bar-layouts", "Bottom bar layouts", "Mix variant (bar / floating), indicator (pill / line / dot / none), labels (always / active / hidden) and a raised centerAction. Try the combinations — the phone updates live.",
+      `function BottomBarPlayground() {
+  const [active, setActive] = useState("home")
+  const [variant, setVariant] = useState<"bar" | "floating">("floating")
+  const [indicator, setIndicator] = useState<"pill" | "line" | "dot" | "none">("pill")
+  const [labels, setLabels] = useState<"always" | "active" | "hidden">("always")
+  const [withAction, setWithAction] = useState(true)
+  const tab = mobileTabs.find((item) => item.id === active)!
+  return (
+    <div className="grid w-full grid-cols-1 justify-items-center gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
+      <div className="grid w-full max-w-sm gap-3">
+        <FormField label="Variant">
+          <ToggleGroup type="single" size="sm" variant="outline" aria-label="Variant" value={variant} onValueChange={(v) => v && setVariant(v as typeof variant)}>
+            <ToggleGroupItem value="bar">Bar</ToggleGroupItem>
+            <ToggleGroupItem value="floating">Floating</ToggleGroupItem>
+          </ToggleGroup>
+        </FormField>
+        <FormField label="Indicator">
+          <ToggleGroup type="single" size="sm" variant="outline" aria-label="Indicator" value={indicator} onValueChange={(v) => v && setIndicator(v as typeof indicator)}>
+            <ToggleGroupItem value="pill">Pill</ToggleGroupItem>
+            <ToggleGroupItem value="line">Line</ToggleGroupItem>
+            <ToggleGroupItem value="dot">Dot</ToggleGroupItem>
+            <ToggleGroupItem value="none">None</ToggleGroupItem>
+          </ToggleGroup>
+        </FormField>
+        <FormField label="Labels">
+          <ToggleGroup type="single" size="sm" variant="outline" aria-label="Labels" value={labels} onValueChange={(v) => v && setLabels(v as typeof labels)}>
+            <ToggleGroupItem value="always">Always</ToggleGroupItem>
+            <ToggleGroupItem value="active">Active</ToggleGroupItem>
+            <ToggleGroupItem value="hidden">Hidden</ToggleGroupItem>
+          </ToggleGroup>
+        </FormField>
+        <Switch label="Center action" checked={withAction} onCheckedChange={setWithAction} />
+      </div>
+      <div className="flex h-[480px] w-[360px] max-w-full flex-col overflow-hidden rounded-[28px] border border-border bg-bg shadow-floating">
+        <header className="border-b border-border bg-surface px-4 py-3 text-sm font-semibold">{tab.label}</header>
+        <ul className="flex-1 divide-y divide-border overflow-y-auto">
+          {tab.content.map((line) => <li key={line} className="px-4 py-3 text-sm">{line}</li>)}
+        </ul>
+        <BottomBar
+          items={mobileTabs}
+          activeId={active}
+          onSelect={setActive}
+          variant={variant}
+          indicator={indicator}
+          labels={labels}
+          centerAction={withAction ? <Button size="icon" className="size-12 rounded-full shadow-floating" aria-label="New project"><Plus size={22} /></Button> : undefined}
+        />
+      </div>
+    </div>
+  )
+}`,
+      <BottomBarPlayground />),
     ex("bottom-bar", "Mobile bottom bar", "A native-style tab bar: icon over label, a pill behind the active icon, count badges on the icon corner (announced in the tab name) and 64px touch targets. Pass fixed to pin it to the viewport bottom with safe-area padding.",
       `const mobileTabs = [
   { id: "home", label: "Home", icon: <Home size={20} />, content: ["Deploys today: 14", "Uptime: 99.98%", "Open incidents: 0"] },
