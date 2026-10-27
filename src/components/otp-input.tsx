@@ -1,7 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/cn"
-import { ClipboardEvent, KeyboardEvent, useId, useRef, useState } from "react"
+import { ClipboardEvent, KeyboardEvent, useId, useRef, useState, forwardRef } from "react"
 
 export interface OtpInputProps {
   length?: number
@@ -19,7 +19,7 @@ export interface OtpInputProps {
   masked?: boolean
 }
 
-export function OtpInput({
+export const OtpInput = forwardRef<HTMLDivElement, OtpInputProps>(function OtpInput({
   length = 6,
   value: controlledValue,
   defaultValue = "",
@@ -31,7 +31,7 @@ export function OtpInput({
   disabled,
   className,
   masked = false,
-}: OtpInputProps) {
+}, ref) {
   const uid = useId()
   const [localValue, setLocalValue] = useState(defaultValue)
   const value = controlledValue ?? localValue
@@ -77,7 +77,7 @@ export function OtpInput({
   }
 
   return (
-    <div className={cn("flex flex-col gap-1.5", className)}>
+    <div ref={ref} className={cn("flex flex-col gap-1.5", className)}>
       {label && (
         <label htmlFor={`${uid}-0`} className="text-sm font-medium text-foreground">{label}</label>
       )}
@@ -115,4 +115,5 @@ export function OtpInput({
       {hint && !error && <p className="text-xs text-muted-foreground">{hint}</p>}
     </div>
   )
-}
+})
+OtpInput.displayName = "OtpInput"

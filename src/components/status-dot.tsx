@@ -1,3 +1,4 @@
+import { forwardRef } from "react"
 import { cn } from "@/lib/cn"
 import { statusSolidStyles, type Tone } from "@/lib/status-styles"
 
@@ -42,7 +43,7 @@ const sizes = {
   lg: "w-2.5 h-2.5",
 }
 
-export function StatusDot({
+export const StatusDot = forwardRef<HTMLSpanElement, StatusDotProps>(function StatusDot({
   status,
   label,
   pulse = false,
@@ -51,10 +52,10 @@ export function StatusDot({
   dotClassName,
   labelClassName,
   variants,
-}: StatusDotProps) {
+}, ref) {
   const dotCls = variants?.[status] ?? statusDotVariants[status]
   return (
-    <span className={cn("inline-flex items-center gap-1.5", className)}>
+    <span ref={ref} className={cn("inline-flex items-center gap-1.5", className)}>
       <span className="relative flex items-center justify-center">
         {pulse && pulsing.has(status) && (
           <span
@@ -73,4 +74,5 @@ export function StatusDot({
       )}
     </span>
   )
-}
+})
+StatusDot.displayName = "StatusDot"

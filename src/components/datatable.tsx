@@ -1,7 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/cn"
-import { useState, useMemo, useCallback } from "react"
+import { type ReactElement, type Ref, forwardRef, useState, useMemo, useCallback } from "react"
 import { PaginationFooter } from "./datatable/pagination-footer"
 import { RowsDropdown } from "./datatable/rows-dropdown"
 import { SkeletonRow } from "./datatable/skeleton-row"
@@ -12,7 +12,7 @@ export type { SortDir, ColumnDef, DataTableProps } from "./datatable/types"
 
 const alignClass = { left: "text-left", center: "text-center", right: "text-right" } as const
 
-export function DataTable<T extends { id: string | number }>({
+function DataTableInner<T extends { id: string | number }>({
   columns,
   data,
   loading = false,
@@ -29,7 +29,7 @@ export function DataTable<T extends { id: string | number }>({
   ariaLabel = "Data table",
   getRowLabel,
   unstyled = false,
-}: DataTableProps<T>) {
+}: DataTableProps<T>, ref: Ref<HTMLDivElement>) {
   const [sortKey, setSortKey] = useState<string | null>(null)
   const [sortDir, setSortDir] = useState<SortDir>(null)
   const [query, setQuery] = useState("")
@@ -90,7 +90,7 @@ export function DataTable<T extends { id: string | number }>({
 
   if (unstyled) {
     return (
-      <div className={cn("w-full", className)}>
+      <div ref={ref} className={cn("w-full", className)}>
         {searchable && <input aria-label={searchPlaceholder} value={query} onChange={handleQueryChange} placeholder={searchPlaceholder} />}
         <table aria-label={ariaLabel} className={tableClassName}><tbody>{paginated.map(r => <tr key={r.id} onClick={onRowClick ? () => onRowClick(r) : undefined}>{columns.map(c => <td key={c.key}>{c.cell(r)}</td>)}</tr>)}</tbody></table>
       </div>
@@ -98,7 +98,7 @@ export function DataTable<T extends { id: string | number }>({
   }
 
   return (
-    <div className={cn("w-full min-w-0 max-w-full flex flex-col gap-3", className)}>
+    <div ref={ref} className={cn("w-full min-w-0 max-w-full flex flex-col gap-3", className)}>
       {hasToolbar && (
         <div className={cn("flex flex-col sm:flex-row sm:items-center justify-between gap-3", toolbarClassName)}>
           {searchable ? (
@@ -142,3 +142,8 @@ export function DataTable<T extends { id: string | number }>({
     </div>
   )
 }
+
+// forwardRef erases generics; the cast keeps DataTable<T> typed by its rows.
+export const DataTable = forwardRef(DataTableInner) as <T extends { id: string | number }>(
+  props: DataTableProps<T> & { ref?: Ref<HTMLDivElement> },
+) => ReactElement

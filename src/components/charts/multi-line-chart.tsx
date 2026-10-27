@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/cn"
 import { motion } from "@/lib/motion-components"
-import { useState, useId } from "react"
+import { useState, useId, forwardRef } from "react"
 import { type TooltipState, ChartTooltip, visibleLabelAt, CHART_SERIES } from "./shared"
 
 export interface MultiLineSeries {
@@ -26,7 +26,7 @@ export interface MultiLineChartProps {
 
 const DEFAULT_COLORS = CHART_SERIES
 
-export function MultiLineChart({
+export const MultiLineChart = forwardRef<HTMLDivElement, MultiLineChartProps>(function MultiLineChart({
   labels,
   series,
   height = 220,
@@ -36,7 +36,7 @@ export function MultiLineChart({
   className,
   formatValue = String,
   maxLabels = 8,
-}: MultiLineChartProps) {
+}, ref) {
   const [tooltip, setTooltip] = useState<TooltipState | null>(null)
   const uid = useId().replace(/:/g, "")
   const allValues = series.flatMap((s) => s.data)
@@ -66,7 +66,7 @@ export function MultiLineChart({
   }
 
   return (
-    <div className={cn("relative w-full select-none", className)} style={{ height }}>
+    <div ref={ref} className={cn("relative w-full select-none", className)} style={{ height }}>
       <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full overflow-visible text-foreground">
         <defs>
           {series.map((s, i) => {
@@ -165,5 +165,6 @@ export function MultiLineChart({
       <ChartTooltip tooltip={tooltip} />
     </div>
   )
-}
+})
+MultiLineChart.displayName = "MultiLineChart"
 

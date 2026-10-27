@@ -1,5 +1,5 @@
 import { cn } from "@/lib/cn"
-import { HTMLAttributes, TdHTMLAttributes, ThHTMLAttributes } from "react"
+import { HTMLAttributes, TdHTMLAttributes, ThHTMLAttributes, forwardRef } from "react"
 
 export interface TableProps extends HTMLAttributes<HTMLTableElement> {
   containerClassName?: string
@@ -7,16 +7,16 @@ export interface TableProps extends HTMLAttributes<HTMLTableElement> {
   density?: "compact" | "comfortable"
 }
 
-export function Table({
+export const Table = forwardRef<HTMLDivElement, TableProps>(function Table({
   className,
   containerClassName,
   scrollAreaClassName,
   density = "comfortable",
   children,
   ...props
-}: TableProps) {
+}, ref) {
   return (
-    <div className={cn("w-full overflow-hidden rounded-[var(--radius-lg)] border border-border bg-surface", containerClassName)}>
+    <div ref={ref} className={cn("w-full overflow-hidden rounded-[var(--radius-lg)] border border-border bg-surface", containerClassName)}>
       <div className={cn("w-full overflow-x-auto overscroll-x-contain scrollbar-thin", scrollAreaClassName)}>
         <table data-density={density} className={cn("group/table w-full border-collapse text-sm", className)} {...props}>
           {children}
@@ -24,42 +24,45 @@ export function Table({
       </div>
     </div>
   )
-}
+})
+Table.displayName = "Table"
 
-export function TableHeader({
+export const TableHeader = forwardRef<HTMLTableSectionElement, HTMLAttributes<HTMLTableSectionElement>>(function TableHeader({
   className,
   children,
   ...props
-}: HTMLAttributes<HTMLTableSectionElement>) {
+}, ref) {
   return (
-    <thead
+    <thead ref={ref}
       className={cn("border-b border-border bg-surface-muted", className)}
       {...props}
     >
       {children}
     </thead>
   )
-}
+})
+TableHeader.displayName = "TableHeader"
 
-export function TableBody({
+export const TableBody = forwardRef<HTMLTableSectionElement, HTMLAttributes<HTMLTableSectionElement>>(function TableBody({
   className,
   children,
   ...props
-}: HTMLAttributes<HTMLTableSectionElement>) {
+}, ref) {
   return (
-    <tbody className={cn("divide-y divide-border", className)} {...props}>
+    <tbody ref={ref} className={cn("divide-y divide-border", className)} {...props}>
       {children}
     </tbody>
   )
-}
+})
+TableBody.displayName = "TableBody"
 
-export function TableRow({
+export const TableRow = forwardRef<HTMLTableRowElement, HTMLAttributes<HTMLTableRowElement>>(function TableRow({
   className,
   children,
   ...props
-}: HTMLAttributes<HTMLTableRowElement>) {
+}, ref) {
   return (
-    <tr
+    <tr ref={ref}
       className={cn(
         "transition-colors duration-100 hover:bg-surface-muted aria-selected:bg-accent-500/8",
         className,
@@ -69,15 +72,16 @@ export function TableRow({
       {children}
     </tr>
   )
-}
+})
+TableRow.displayName = "TableRow"
 
-export function TableHead({
+export const TableHead = forwardRef<HTMLTableCellElement, ThHTMLAttributes<HTMLTableCellElement>>(function TableHead({
   className,
   children,
   ...props
-}: ThHTMLAttributes<HTMLTableCellElement>) {
+}, ref) {
   return (
-    <th
+    <th ref={ref}
       className={cn(
         "px-4 py-2.5 text-left text-[11px] font-semibold text-muted-foreground whitespace-nowrap group-data-[density=compact]/table:px-3 group-data-[density=compact]/table:py-2",
         className,
@@ -87,16 +91,18 @@ export function TableHead({
       {children}
     </th>
   )
-}
+})
+TableHead.displayName = "TableHead"
 
-export function TableCell({
+export const TableCell = forwardRef<HTMLTableCellElement, TdHTMLAttributes<HTMLTableCellElement>>(function TableCell({
   className,
   children,
   ...props
-}: TdHTMLAttributes<HTMLTableCellElement>) {
+}, ref) {
   return (
-    <td className={cn("px-4 py-3 text-sm tabular-nums text-foreground whitespace-nowrap group-data-[density=compact]/table:px-3 group-data-[density=compact]/table:py-2", className)} {...props}>
+    <td ref={ref} className={cn("px-4 py-3 text-sm tabular-nums text-foreground whitespace-nowrap group-data-[density=compact]/table:px-3 group-data-[density=compact]/table:py-2", className)} {...props}>
       {children}
     </td>
   )
-}
+})
+TableCell.displayName = "TableCell"

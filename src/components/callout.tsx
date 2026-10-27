@@ -1,6 +1,6 @@
 import { cn } from "@/lib/cn"
 import { resolveTone, statusSurfaceStyles, statusTextStyles } from "@/lib/status-styles"
-import { HTMLAttributes, ReactNode } from "react"
+import { HTMLAttributes, ReactNode, forwardRef } from "react"
 
 /** `error` is a deprecated alias of `danger`; `muted` renders like `default`. */
 export type CalloutVariant = "default" | "success" | "warning" | "danger" | "info" | "muted" | "error"
@@ -63,12 +63,12 @@ const styles: Record<Exclude<CalloutVariant, "error" | "muted">, { wrap: string;
   },
 }
 
-export function Callout({ variant = "info", icon, title, className, children, iconClassName, titleClassName, bodyClassName, ...props }: CalloutProps) {
+export const Callout = forwardRef<HTMLDivElement, CalloutProps>(function Callout({ variant = "info", icon, title, className, children, iconClassName, titleClassName, bodyClassName, ...props }, ref) {
   const tone = resolveTone(variant)
   const { wrap, icon: iconCls, defaultIcon } = styles[tone === "muted" ? "default" : tone]
 
   return (
-    <div
+    <div ref={ref}
       className={cn("flex gap-3 rounded-[var(--radius-lg)] border px-4 py-3.5", wrap, className)}
       role="note"
       {...props}
@@ -82,4 +82,5 @@ export function Callout({ variant = "info", icon, title, className, children, ic
       </div>
     </div>
   )
-}
+})
+Callout.displayName = "Callout"

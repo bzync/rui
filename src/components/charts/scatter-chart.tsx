@@ -1,7 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/cn"
-import { useState } from "react"
+import { useState, forwardRef } from "react"
 import { type TooltipState, ChartTooltip, CHART_SERIES } from "./shared"
 
 export interface ScatterPoint {
@@ -32,7 +32,7 @@ export interface ScatterChartProps {
 
 const SCATTER_COLORS = CHART_SERIES
 
-export function ScatterChart({
+export const ScatterChart = forwardRef<HTMLDivElement, ScatterChartProps>(function ScatterChart({
   series,
   height = 260,
   xLabel,
@@ -40,7 +40,7 @@ export function ScatterChart({
   className,
   formatX = String,
   formatY = String,
-}: ScatterChartProps) {
+}, ref) {
   const [tooltip, setTooltip] = useState<TooltipState | null>(null)
   const [hovered, setHovered] = useState<string | null>(null)
 
@@ -65,7 +65,7 @@ export function ScatterChart({
   })
 
   return (
-    <div className={cn("relative w-full select-none", className)} style={{ height }}>
+    <div ref={ref} className={cn("relative w-full select-none", className)} style={{ height }}>
       {/* Background: gridlines + axes only (no circles — preserveAspectRatio=none distorts SVG circles into ellipses) */}
       <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full text-foreground">
         {Array.from({ length: gridLines + 1 }).map((_, i) => {
@@ -153,5 +153,6 @@ export function ScatterChart({
       <ChartTooltip tooltip={tooltip} />
     </div>
   )
-}
+})
+ScatterChart.displayName = "ScatterChart"
 

@@ -1,7 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/cn"
-import { useRef, useEffect, useCallback } from "react"
+import { useRef, useEffect, useCallback, forwardRef } from "react"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -105,7 +105,7 @@ function sanitizeHtml(html: string, sanitize?: boolean | ((html: string) => stri
 
 // ─── RichTextEditor ───────────────────────────────────────────────────────────
 
-export function RichTextEditor({
+export const RichTextEditor = forwardRef<HTMLDivElement, RichTextEditorProps>(function RichTextEditor({
   value,
   defaultValue = "",
   onChange,
@@ -113,7 +113,7 @@ export function RichTextEditor({
   className,
   minHeight = 160,
   sanitize = false,
-}: RichTextEditorProps) {
+}, ref) {
   const editorRef = useRef<HTMLDivElement>(null)
   const lastHtml = useRef(value ?? defaultValue)
   const seeded = useRef(false)
@@ -155,7 +155,7 @@ export function RichTextEditor({
   }
 
   return (
-    <div className={cn("rounded-xl overflow-hidden border border-border bg-surface transition-[border-color,box-shadow] hover:border-border-strong focus-within:border-accent-500 focus-within:ring-[3px] focus-within:ring-focus-ring/25", className)}>
+    <div ref={ref} className={cn("rounded-xl overflow-hidden border border-border bg-surface transition-[border-color,box-shadow] hover:border-border-strong focus-within:border-accent-500 focus-within:ring-[3px] focus-within:ring-focus-ring/25", className)}>
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-0.5 px-2 py-2 border-b border-border bg-surface-muted">
         <ToolBtn title="Bold (⌘B)" onClick={() => exec("bold")} active={queryActive("bold")}>
@@ -262,4 +262,5 @@ export function RichTextEditor({
       </div>
     </div>
   )
-}
+})
+RichTextEditor.displayName = "RichTextEditor"

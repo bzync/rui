@@ -1,3 +1,4 @@
+import { forwardRef } from "react"
 import { cn } from "@/lib/cn"
 
 export interface StepperStep {
@@ -12,9 +13,9 @@ export interface StepperProps {
   className?: string
 }
 
-export function Stepper({ steps, current, orientation = "horizontal", className }: StepperProps) {
+export const Stepper = forwardRef<HTMLDivElement, StepperProps>(function Stepper({ steps, current, orientation = "horizontal", className }, ref) {
   return (
-    <div
+    <div ref={ref}
       className={cn(
         orientation === "vertical"
           ? "flex flex-col gap-0"
@@ -100,4 +101,5 @@ export function Stepper({ steps, current, orientation = "horizontal", className 
       })}
     </div>
   )
-}
+})
+Stepper.displayName = "Stepper"

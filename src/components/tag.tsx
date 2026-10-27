@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/cn"
 import { statusSoftStyles, statusTextStyles } from "@/lib/status-styles"
-import { HTMLAttributes, ReactNode } from "react"
+import { HTMLAttributes, ReactNode, forwardRef } from "react"
 
 /** `error` is a deprecated alias of `danger`. */
 export type TagVariant = "default" | "success" | "warning" | "danger" | "info" | "muted" | "error"
@@ -41,7 +41,7 @@ const sizes: Record<TagSize, string> = {
   md: "px-2.5 py-1 text-xs gap-1.5 rounded-lg",
 }
 
-export function Tag({
+export const Tag = forwardRef<HTMLSpanElement, TagProps>(function Tag({
   variant = "default",
   size = "md",
   onRemove,
@@ -50,9 +50,9 @@ export function Tag({
   className,
   children,
   ...props
-}: TagProps) {
+}, ref) {
   return (
-    <span
+    <span ref={ref}
       className={cn(
         "inline-flex items-center font-medium border transition-colors",
         variants[variant],
@@ -79,4 +79,5 @@ export function Tag({
       )}
     </span>
   )
-}
+})
+Tag.displayName = "Tag"

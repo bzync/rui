@@ -1,7 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/cn"
-import { useState } from "react"
+import { useState, forwardRef } from "react"
 import { type TooltipState, ChartTooltip } from "./shared"
 
 export interface HeatmapChartProps {
@@ -14,7 +14,7 @@ export interface HeatmapChartProps {
   formatValue?: (v: number) => string
 }
 
-export function HeatmapChart({
+export const HeatmapChart = forwardRef<HTMLDivElement, HeatmapChartProps>(function HeatmapChart({
   data,
   rowLabels,
   colLabels,
@@ -22,7 +22,7 @@ export function HeatmapChart({
   cellSize = 34,
   className,
   formatValue = String,
-}: HeatmapChartProps) {
+}, ref) {
   const [tooltip, setTooltip] = useState<TooltipState | null>(null)
 
   const flat = data.flat()
@@ -35,7 +35,7 @@ export function HeatmapChart({
   const LABEL_W = rowLabels ? 56 : 0
 
   return (
-    <div className={cn("select-none overflow-x-auto", className)}>
+    <div ref={ref} className={cn("select-none overflow-x-auto", className)}>
       <div style={{ display: "inline-flex", flexDirection: "column", gap: 3 }}>
         {colLabels && (
           <div style={{ display: "flex", gap: 3, paddingLeft: LABEL_W + 3 }}>
@@ -87,4 +87,5 @@ export function HeatmapChart({
       <ChartTooltip tooltip={tooltip} />
     </div>
   )
-}
+})
+HeatmapChart.displayName = "HeatmapChart"

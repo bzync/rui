@@ -1,5 +1,5 @@
 import { cn } from "@/lib/cn"
-import { HTMLAttributes, ReactNode } from "react"
+import { HTMLAttributes, ReactNode, forwardRef } from "react"
 
 // ─── Loading region ─────────────────────────────────────────────────────────────
 
@@ -17,14 +17,15 @@ export interface SkeletonRegionProps extends HTMLAttributes<HTMLDivElement> {
  * page's skeletons in one region and pass `label={false}` to the composite
  * skeletons inside it so they don't each announce.
  */
-export function SkeletonRegion({ label = "Loading…", className, children, ...props }: SkeletonRegionProps) {
+export const SkeletonRegion = forwardRef<HTMLDivElement, SkeletonRegionProps>(function SkeletonRegion({ label = "Loading…", className, children, ...props }, ref) {
   return (
-    <div role="status" aria-busy="true" aria-live="polite" className={className} {...props}>
+    <div ref={ref} role="status" aria-busy="true" aria-live="polite" className={className} {...props}>
       <span className="sr-only">{label}</span>
       {children}
     </div>
   )
-}
+})
+SkeletonRegion.displayName = "SkeletonRegion"
 
 /** Root props for a composite skeleton: a status region when labelled, hidden otherwise. */
 function loadingRoot(label: SkeletonLabel | undefined): { props: HTMLAttributes<HTMLDivElement>; announce: ReactNode } {
@@ -50,16 +51,16 @@ const roundedMap = {
   full: "rounded-full",
 }
 
-export function Skeleton({
+export const Skeleton = forwardRef<HTMLDivElement, SkeletonProps>(function Skeleton({
   className,
   width,
   height,
   rounded = "md",
   style,
   ...props
-}: SkeletonProps) {
+}, ref) {
   return (
-    <div
+    <div ref={ref}
       className={cn(
         "animate-pulse bg-muted",
         roundedMap[rounded],
@@ -70,7 +71,8 @@ export function Skeleton({
       {...props}
     />
   )
-}
+})
+Skeleton.displayName = "Skeleton"
 // ─── Text lines ─────────────────────────────────────────────────────────────────
 
 export interface SkeletonTextProps {
@@ -81,15 +83,15 @@ export interface SkeletonTextProps {
   label?: SkeletonLabel
 }
 
-export function SkeletonText({
+export const SkeletonText = forwardRef<HTMLDivElement, SkeletonTextProps>(function SkeletonText({
   lines = 3,
   className,
   lastLineWidth = "60%",
   label,
-}: SkeletonTextProps) {
+}, ref) {
   const root = loadingRoot(label)
   return (
-    <div className={cn("space-y-2", className)} {...root.props}>
+    <div ref={ref} className={cn("space-y-2", className)} {...root.props}>
       {root.announce}
       {Array.from({ length: lines }).map((_, i) => (
         <Skeleton
@@ -100,7 +102,8 @@ export function SkeletonText({
       ))}
     </div>
   )
-}
+})
+SkeletonText.displayName = "SkeletonText"
 
 // ─── Avatar skeleton ────────────────────────────────────────────────────────────
 
@@ -111,10 +114,11 @@ export interface SkeletonAvatarProps {
 
 const avatarSizes = { sm: 32, md: 36, lg: 44 }
 
-export function SkeletonAvatar({ size = "md", className }: SkeletonAvatarProps) {
+export const SkeletonAvatar = forwardRef<HTMLDivElement, SkeletonAvatarProps>(function SkeletonAvatar({ size = "md", className }, ref) {
   const s = avatarSizes[size]
-  return <Skeleton width={s} height={s} rounded="full" className={className} />
-}
+  return <Skeleton ref={ref} width={s} height={s} rounded="full" className={className} />
+})
+SkeletonAvatar.displayName = "SkeletonAvatar"
 
 // ─── Card skeleton ──────────────────────────────────────────────────────────────
 
@@ -127,16 +131,16 @@ export interface SkeletonCardProps {
   label?: SkeletonLabel
 }
 
-export function SkeletonCard({
+export const SkeletonCard = forwardRef<HTMLDivElement, SkeletonCardProps>(function SkeletonCard({
   lines = 3,
   hasAvatar = false,
   hasFooter = false,
   className,
   label = "Loading…",
-}: SkeletonCardProps) {
+}, ref) {
   const root = loadingRoot(label)
   return (
-    <div
+    <div ref={ref}
       className={cn("rounded-[var(--radius-lg)] border border-border bg-surface", className)}
       {...root.props}
     >
@@ -165,7 +169,8 @@ export function SkeletonCard({
       )}
     </div>
   )
-}
+})
+SkeletonCard.displayName = "SkeletonCard"
 
 // ─── Topbar skeleton ────────────────────────────────────────────────────────────
 
@@ -177,15 +182,15 @@ export interface SkeletonTopbarProps {
   label?: SkeletonLabel
 }
 
-export function SkeletonTopbar({
+export const SkeletonTopbar = forwardRef<HTMLDivElement, SkeletonTopbarProps>(function SkeletonTopbar({
   hasBreadcrumb = true,
   hasAction = true,
   className,
   label,
-}: SkeletonTopbarProps) {
+}, ref) {
   const root = loadingRoot(label)
   return (
-    <div
+    <div ref={ref}
       className={cn(
         "w-full px-4 py-3 sm:px-6 sm:py-4",
         "bg-surface/90",
@@ -212,7 +217,8 @@ export function SkeletonTopbar({
       </div>
     </div>
   )
-}
+})
+SkeletonTopbar.displayName = "SkeletonTopbar"
 
 // ─── Table skeleton ─────────────────────────────────────────────────────────────
 
@@ -225,16 +231,16 @@ export interface SkeletonTableProps {
   label?: SkeletonLabel
 }
 
-export function SkeletonTable({
+export const SkeletonTable = forwardRef<HTMLDivElement, SkeletonTableProps>(function SkeletonTable({
   rows = 5,
   cols = 4,
   density = "comfortable",
   className,
   label = "Loading…",
-}: SkeletonTableProps) {
+}, ref) {
   const root = loadingRoot(label)
   return (
-    <div
+    <div ref={ref}
       data-density={density}
       className={cn("overflow-hidden rounded-[var(--radius-lg)] border border-border", className)}
       {...root.props}
@@ -257,7 +263,8 @@ export function SkeletonTable({
       ))}
     </div>
   )
-}
+})
+SkeletonTable.displayName = "SkeletonTable"
 // ─── List skeleton ────────────────────────────────────────────────────────────
 
 export interface SkeletonListProps {
@@ -269,17 +276,17 @@ export interface SkeletonListProps {
   label?: SkeletonLabel
 }
 
-export function SkeletonList({
+export const SkeletonList = forwardRef<HTMLDivElement, SkeletonListProps>(function SkeletonList({
   items = 4,
   hasAvatar = false,
   density = "comfortable",
   className,
   label = "Loading…",
-}: SkeletonListProps) {
+}, ref) {
   const py = density === "compact" ? "py-2" : "py-3"
   const root = loadingRoot(label)
   return (
-    <div className={cn("divide-y divide-border rounded-[var(--radius-lg)] border border-border bg-surface", className)} {...root.props}>
+    <div ref={ref} className={cn("divide-y divide-border rounded-[var(--radius-lg)] border border-border bg-surface", className)} {...root.props}>
       {root.announce}
       {Array.from({ length: items }).map((_, i) => (
         <div key={i} className={cn("flex items-center gap-3 px-4", py)}>
@@ -293,7 +300,8 @@ export function SkeletonList({
       ))}
     </div>
   )
-}
+})
+SkeletonList.displayName = "SkeletonList"
 
 // ─── Stat skeleton ────────────────────────────────────────────────────────────
 
@@ -304,10 +312,10 @@ export interface SkeletonStatProps {
   label?: SkeletonLabel
 }
 
-export function SkeletonStat({ count = 3, className, label = "Loading…" }: SkeletonStatProps) {
+export const SkeletonStat = forwardRef<HTMLDivElement, SkeletonStatProps>(function SkeletonStat({ count = 3, className, label = "Loading…" }, ref) {
   const root = loadingRoot(label)
   return (
-    <div className={cn("grid gap-4", count === 2 ? "grid-cols-2" : count === 4 ? "grid-cols-4" : "grid-cols-3", className)} {...root.props}>
+    <div ref={ref} className={cn("grid gap-4", count === 2 ? "grid-cols-2" : count === 4 ? "grid-cols-4" : "grid-cols-3", className)} {...root.props}>
       {root.announce}
       {Array.from({ length: count }).map((_, i) => (
         <div key={i} className="rounded-[var(--radius-lg)] border border-border bg-surface p-4 space-y-3">
@@ -318,4 +326,5 @@ export function SkeletonStat({ count = 3, className, label = "Loading…" }: Ske
       ))}
     </div>
   )
-}
+})
+SkeletonStat.displayName = "SkeletonStat"

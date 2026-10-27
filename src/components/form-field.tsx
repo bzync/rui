@@ -1,6 +1,6 @@
 import { cn } from "@/lib/cn"
 import { fieldDescriptionStyles, fieldErrorStyles, fieldLabelStyles, fieldRootStyles } from "@/lib/component-styles"
-import { HTMLAttributes, ReactNode } from "react"
+import { HTMLAttributes, ReactNode, forwardRef } from "react"
 
 export interface FormFieldProps extends HTMLAttributes<HTMLDivElement> {
   label?: ReactNode
@@ -11,7 +11,7 @@ export interface FormFieldProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode
 }
 
-export function FormField({
+export const FormField = forwardRef<HTMLDivElement, FormFieldProps>(function FormField({
   label,
   hint,
   error,
@@ -20,9 +20,9 @@ export function FormField({
   className,
   children,
   ...props
-}: FormFieldProps) {
+}, ref) {
   return (
-    <div className={cn(fieldRootStyles, className)} {...props}>
+    <div ref={ref} className={cn(fieldRootStyles, className)} {...props}>
       {label && (
         <label
           htmlFor={htmlFor}
@@ -37,7 +37,8 @@ export function FormField({
       {hint && !error && <p className={fieldDescriptionStyles}>{hint}</p>}
     </div>
   )
-}
+})
+FormField.displayName = "FormField"
 // ─── Spec-aligned aliases (§18) ───────────────────────────────────────────
 // The canonical name per spec is <Field> / <FieldLabel> / <FieldDescription> / <FieldError>.
 // FormField is kept as the primary export for backwards compat.
@@ -45,29 +46,33 @@ export function FormField({
 export const Field = FormField
 export type FieldProps = FormFieldProps
 
-export function FieldLabel({
+export const FieldLabel = forwardRef<HTMLLabelElement, HTMLAttributes<HTMLLabelElement> & { required?: boolean; htmlFor?: string }>(function FieldLabel({
   className,
   children,
   required,
   htmlFor,
   ...props
-}: HTMLAttributes<HTMLLabelElement> & { required?: boolean; htmlFor?: string }) {
+}, ref) {
   return (
-    <label htmlFor={htmlFor} className={cn("flex items-center gap-1", fieldLabelStyles, className)} {...props}>
+    <label ref={ref} htmlFor={htmlFor} className={cn("flex items-center gap-1", fieldLabelStyles, className)} {...props}>
       {children}
       {required && <><span aria-hidden="true" className="text-destructive"> *</span><span className="sr-only"> (required)</span></>}
     </label>
   )
-}
+})
+FieldLabel.displayName = "FieldLabel"
 
-export function FieldDescription({ className, ...props }: HTMLAttributes<HTMLParagraphElement>) {
-  return <p className={cn(fieldDescriptionStyles, className)} {...props} />
-}
+export const FieldDescription = forwardRef<HTMLParagraphElement, HTMLAttributes<HTMLParagraphElement>>(function FieldDescription({ className, ...props }, ref) {
+  return <p ref={ref} className={cn(fieldDescriptionStyles, className)} {...props} />
+})
+FieldDescription.displayName = "FieldDescription"
 
-export function FieldError({ className, ...props }: HTMLAttributes<HTMLParagraphElement>) {
-  return <p aria-live="polite" className={cn(fieldErrorStyles, className)} {...props} />
-}
+export const FieldError = forwardRef<HTMLParagraphElement, HTMLAttributes<HTMLParagraphElement>>(function FieldError({ className, ...props }, ref) {
+  return <p ref={ref} aria-live="polite" className={cn(fieldErrorStyles, className)} {...props} />
+})
+FieldError.displayName = "FieldError"
 
-export function FieldContent({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("flex flex-col gap-1.5", className)} {...props} />
-}
+export const FieldContent = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(function FieldContent({ className, ...props }, ref) {
+  return <div ref={ref} className={cn("flex flex-col gap-1.5", className)} {...props} />
+})
+FieldContent.displayName = "FieldContent"

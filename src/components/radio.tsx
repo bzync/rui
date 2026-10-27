@@ -4,7 +4,7 @@ import { cn } from "@/lib/cn"
 import { fieldDescriptionStyles, fieldErrorStyles, fieldLabelStyles, fieldRootStyles } from "@/lib/component-styles"
 import { motion } from "@/lib/motion-components"
 import { useControllableState } from "@/hooks/use-controllable-state"
-import { createContext, useContext, useId, ReactNode } from "react"
+import { createContext, useContext, useId, ReactNode, forwardRef } from "react"
 
 interface RadioContextValue {
   name: string
@@ -49,7 +49,7 @@ export interface RadioGroupProps {
   children: ReactNode
 }
 
-export function RadioGroup({
+export const RadioGroup = forwardRef<HTMLDivElement, RadioGroupProps>(function RadioGroup({
   name: externalName,
   value: controlledValue,
   defaultValue = "",
@@ -62,7 +62,7 @@ export function RadioGroup({
   size = "md",
   className,
   children,
-}: RadioGroupProps) {
+}, ref) {
   const [value, onChange] = useControllableState({ value: controlledValue, defaultValue, onChange: onValueChange })
   const uid = useId()
   const name = externalName ?? uid
@@ -70,7 +70,7 @@ export function RadioGroup({
   const messageId = `${name}-message`
 
   return (
-    <div className={cn(fieldRootStyles, className)}>
+    <div ref={ref} className={cn(fieldRootStyles, className)}>
       {label && (
         <p id={labelId} className={fieldLabelStyles}>{label}</p>
       )}
@@ -92,7 +92,8 @@ export function RadioGroup({
       {hint && !error && <p id={messageId} className={fieldDescriptionStyles}>{hint}</p>}
     </div>
   )
-}
+})
+RadioGroup.displayName = "RadioGroup"
 
 export interface RadioProps {
   value: string
@@ -102,7 +103,7 @@ export interface RadioProps {
   className?: string
 }
 
-export function Radio({ value, label, description, disabled: localDisabled, className }: RadioProps) {
+export const Radio = forwardRef<HTMLLabelElement, RadioProps>(function Radio({ value, label, description, disabled: localDisabled, className }, ref) {
   const { name, value: groupValue, onChange, disabled: groupDisabled, size } = useRadioCtx()
   const s = radioSizes[size]
   const id = useId()
@@ -110,7 +111,7 @@ export function Radio({ value, label, description, disabled: localDisabled, clas
   const isDisabled = localDisabled ?? groupDisabled
 
   return (
-    <label
+    <label ref={ref}
       htmlFor={id}
       className={cn(
         "flex items-start gap-2.5 cursor-pointer",
@@ -159,4 +160,5 @@ export function Radio({ value, label, description, disabled: localDisabled, clas
       )}
     </label>
   )
-}
+})
+Radio.displayName = "Radio"

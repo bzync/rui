@@ -1,5 +1,5 @@
 import { cn } from "@/lib/cn"
-import { HTMLAttributes } from "react"
+import { HTMLAttributes, forwardRef, type Ref } from "react"
 
 export type CardVariant = "default" | "elevated" | "bordered" | "glass" | "flush"
 
@@ -18,17 +18,17 @@ export const cardVariants: Record<CardVariant, string> = {
   flush: "rounded-[var(--radius-lg)] bg-surface",
 }
 
-export function Card({
+export const Card = forwardRef<HTMLDivElement, CardProps>(function Card({
   variant = "default",
   variantClassName,
   unstyled = false,
   className,
   children,
   ...props
-}: CardProps) {
+}, ref) {
   if (unstyled) return <div className={cn(className, variantClassName)} {...props}>{children}</div>
   return (
-    <div
+    <div ref={ref}
       data-variant={variant}
       className={cn(
         cardVariants[variant],
@@ -40,15 +40,16 @@ export function Card({
       {children}
     </div>
   )
-}
+})
+Card.displayName = "Card"
 
-export function CardHeader({
+export const CardHeader = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(function CardHeader({
   className,
   children,
   ...props
-}: HTMLAttributes<HTMLDivElement>) {
+}, ref) {
   return (
-    <div
+    <div ref={ref}
       className={cn(
         "px-4 py-3 sm:px-5 sm:py-3.5",
         "border-b border-border",
@@ -59,16 +60,18 @@ export function CardHeader({
       {children}
     </div>
   )
-}
+})
+CardHeader.displayName = "CardHeader"
 
-export function CardTitle({
+export const CardTitle = forwardRef<HTMLElement, HTMLAttributes<HTMLHeadingElement> & { as?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "div" | "p" }>(function CardTitle({
   as: Tag = "h3",
   className,
   children,
   ...props
-}: HTMLAttributes<HTMLHeadingElement> & { as?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "div" | "p" }) {
+}, ref) {
   return (
     <Tag
+      ref={ref as Ref<HTMLHeadingElement>}
       className={cn(
         "text-sm font-semibold leading-5 text-foreground",
         className,
@@ -78,42 +81,45 @@ export function CardTitle({
       {children}
     </Tag>
   )
-}
+})
+CardTitle.displayName = "CardTitle"
 
-export function CardDescription({
+export const CardDescription = forwardRef<HTMLParagraphElement, HTMLAttributes<HTMLParagraphElement>>(function CardDescription({
   className,
   children,
   ...props
-}: HTMLAttributes<HTMLParagraphElement>) {
+}, ref) {
   return (
-    <p
+    <p ref={ref}
       className={cn("mt-1 text-sm leading-5 text-muted-foreground", className)}
       {...props}
     >
       {children}
     </p>
   )
-}
+})
+CardDescription.displayName = "CardDescription"
 
-export function CardBody({
+export const CardBody = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(function CardBody({
   className,
   children,
   ...props
-}: HTMLAttributes<HTMLDivElement>) {
+}, ref) {
   return (
-    <div className={cn("px-4 py-3.5 sm:px-5 sm:py-4", className)} {...props}>
+    <div ref={ref} className={cn("px-4 py-3.5 sm:px-5 sm:py-4", className)} {...props}>
       {children}
     </div>
   )
-}
+})
+CardBody.displayName = "CardBody"
 
-export function CardFooter({
+export const CardFooter = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(function CardFooter({
   className,
   children,
   ...props
-}: HTMLAttributes<HTMLDivElement>) {
+}, ref) {
   return (
-    <div
+    <div ref={ref}
       className={cn(
         "px-4 py-3 sm:px-5 sm:py-3",
         "border-t border-border",
@@ -125,4 +131,5 @@ export function CardFooter({
       {children}
     </div>
   )
-}
+})
+CardFooter.displayName = "CardFooter"

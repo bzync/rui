@@ -1,6 +1,6 @@
 import { cn } from "@/lib/cn"
 import { focusRingStyles } from "@/lib/component-styles"
-import { HTMLAttributes, ReactNode } from "react"
+import { HTMLAttributes, ReactNode, forwardRef } from "react"
 
 export interface BreadcrumbItem {
   label: string
@@ -19,9 +19,9 @@ const DefaultSeparator = () => (
   </svg>
 )
 
-export function Breadcrumb({ items, separator, className, ...props }: BreadcrumbProps) {
+export const Breadcrumb = forwardRef<HTMLElement, BreadcrumbProps>(function Breadcrumb({ items, separator, className, ...props }, ref) {
   return (
-    <nav aria-label="Breadcrumb" className={cn("flex min-w-0", className)} {...props}>
+    <nav ref={ref} aria-label="Breadcrumb" className={cn("flex min-w-0", className)} {...props}>
       <ol className="flex min-w-0 items-center gap-1.5 overflow-x-auto">
         {items.map((item, i) => {
           const isLast = i === items.length - 1
@@ -56,4 +56,5 @@ export function Breadcrumb({ items, separator, className, ...props }: Breadcrumb
       </ol>
     </nav>
   )
-}
+})
+Breadcrumb.displayName = "Breadcrumb"

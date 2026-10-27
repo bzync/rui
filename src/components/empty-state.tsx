@@ -1,5 +1,5 @@
 import { cn } from "@/lib/cn";
-import { ReactNode } from "react";
+import { ReactNode, forwardRef } from "react";
 
 export interface EmptyStateProps {
   icon?: ReactNode;
@@ -53,7 +53,7 @@ const DefaultIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-export function EmptyState({
+export const EmptyState = forwardRef<HTMLDivElement, EmptyStateProps>(function EmptyState({
   icon,
   title,
   description,
@@ -62,12 +62,12 @@ export function EmptyState({
   size = "md",
   density,
   variant,
-}: EmptyStateProps) {
+}, ref) {
   const resolvedDensity = density ?? (variant === "compact" ? "compact" : "comfortable")
   const s = sizes[size];
   const densityWrap = resolvedDensity === "compact" ? "py-4" : s.wrap
   return (
-    <div
+    <div ref={ref}
       className={cn(
         "flex flex-col items-center justify-center text-center px-4",
         densityWrap,
@@ -97,4 +97,5 @@ export function EmptyState({
       {action && <div className="mt-4">{action}</div>}
     </div>
   );
-}
+})
+EmptyState.displayName = "EmptyState"

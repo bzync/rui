@@ -7,6 +7,8 @@ import {
   ButtonHTMLAttributes,
   HTMLAttributes,
   ReactNode,
+  forwardRef,
+  type Ref,
 } from "react"
 
 export interface NavigationItem {
@@ -25,7 +27,7 @@ interface NavigationItemProps extends NavigationItem {
   className?: string
 }
 
-export function NavigationLink({
+export const NavigationLink = forwardRef<HTMLButtonElement, NavigationItemProps>(function NavigationLink({
   id,
   label,
   href,
@@ -36,7 +38,7 @@ export function NavigationLink({
   compact,
   onSelect,
   className,
-}: NavigationItemProps) {
+}, ref) {
   const content = (
     <>
       {icon && <span className="shrink-0" aria-hidden="true">{icon}</span>}
@@ -75,7 +77,7 @@ export function NavigationLink({
   }
 
   return (
-    <button
+    <button ref={ref}
       type="button"
       className={styles}
       aria-current={active ? "page" : undefined}
@@ -85,7 +87,8 @@ export function NavigationLink({
       {content}
     </button>
   )
-}
+})
+NavigationLink.displayName = "NavigationLink"
 
 export interface NavigationListProps extends Omit<HTMLAttributes<HTMLElement>, "onSelect"> {
   items: NavigationItem[]
@@ -94,7 +97,7 @@ export interface NavigationListProps extends Omit<HTMLAttributes<HTMLElement>, "
   ariaLabel?: string
 }
 
-export function Navbar({
+export const Navbar = forwardRef<HTMLElement, NavigationListProps>(function Navbar({
   items,
   activeId,
   onSelect,
@@ -102,9 +105,9 @@ export function Navbar({
   className,
   children,
   ...props
-}: NavigationListProps) {
+}, ref) {
   return (
-    <nav
+    <nav ref={ref}
       aria-label={ariaLabel}
       className={cn(
         "flex min-h-14 items-center gap-1 border border-border bg-surface px-3",
@@ -120,11 +123,12 @@ export function Navbar({
       </div>
     </nav>
   )
-}
+})
+Navbar.displayName = "Navbar"
 
-export function Topbar({ className, children, ...props }: HTMLAttributes<HTMLElement>) {
+export const Topbar = forwardRef<HTMLElement, HTMLAttributes<HTMLElement>>(function Topbar({ className, children, ...props }, ref) {
   return (
-    <header
+    <header ref={ref}
       className={cn(
         "flex min-h-14 items-center gap-3 border-b border-border bg-bg/95 px-4 backdrop-blur-sm",
         className,
@@ -134,22 +138,24 @@ export function Topbar({ className, children, ...props }: HTMLAttributes<HTMLEle
       {children}
     </header>
   )
-}
+})
+Topbar.displayName = "Topbar"
 
-export function TopbarTitle({ as: Tag = "h2", className, children, ...props }: HTMLAttributes<HTMLHeadingElement> & { as?: "h1" | "h2" | "h3" | "div" | "p" }) {
+export const TopbarTitle = forwardRef<HTMLElement, HTMLAttributes<HTMLHeadingElement> & { as?: "h1" | "h2" | "h3" | "div" | "p" }>(function TopbarTitle({ as: Tag = "h2", className, children, ...props }, ref) {
   return (
-    <Tag className={cn("min-w-0 flex-1 truncate text-sm font-semibold text-foreground", className)} {...props}>
+    <Tag ref={ref as Ref<HTMLHeadingElement>} className={cn("min-w-0 flex-1 truncate text-sm font-semibold text-foreground", className)} {...props}>
       {children}
     </Tag>
   )
-}
+})
+TopbarTitle.displayName = "TopbarTitle"
 
 export interface SidebarProps extends NavigationListProps {
   header?: ReactNode
   footer?: ReactNode
 }
 
-export function Sidebar({
+export const Sidebar = forwardRef<HTMLElement, SidebarProps>(function Sidebar({
   items,
   activeId,
   onSelect,
@@ -158,9 +164,9 @@ export function Sidebar({
   footer,
   className,
   ...props
-}: SidebarProps) {
+}, ref) {
   return (
-    <aside
+    <aside ref={ref}
       className={cn(
         "flex w-60 flex-col border border-border bg-surface",
         className,
@@ -182,18 +188,19 @@ export function Sidebar({
       {footer && <div className="border-t border-border p-3">{footer}</div>}
     </aside>
   )
-}
+})
+Sidebar.displayName = "Sidebar"
 
-export function BottomBar({
+export const BottomBar = forwardRef<HTMLElement, NavigationListProps>(function BottomBar({
   items,
   activeId,
   onSelect,
   ariaLabel = "Mobile navigation",
   className,
   ...props
-}: NavigationListProps) {
+}, ref) {
   return (
-    <nav
+    <nav ref={ref}
       aria-label={ariaLabel}
       className={cn(
         "grid min-h-16 border border-border bg-surface/95 px-1 pb-safe-bottom shadow-floating backdrop-blur-sm",
@@ -214,15 +221,16 @@ export function BottomBar({
       ))}
     </nav>
   )
-}
+})
+BottomBar.displayName = "BottomBar"
 
 export interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   label: string
 }
 
-export function IconButton({ label, className, children, type = "button", ...props }: IconButtonProps) {
+export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(function IconButton({ label, className, children, type = "button", ...props }, ref) {
   return (
-    <button
+    <button ref={ref}
       type={type}
       aria-label={label}
       className={cn(
@@ -235,17 +243,19 @@ export function IconButton({ label, className, children, type = "button", ...pro
       {children}
     </button>
   )
-}
+})
+IconButton.displayName = "IconButton"
 
 export interface BrandLinkProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
   mark?: ReactNode
 }
 
-export function BrandLink({ mark, className, children, ...props }: BrandLinkProps) {
+export const BrandLink = forwardRef<HTMLAnchorElement, BrandLinkProps>(function BrandLink({ mark, className, children, ...props }, ref) {
   return (
-    <a className={cn("inline-flex shrink-0 items-center gap-2 text-sm font-semibold text-foreground", focusRingStyles, className)} {...props}>
+    <a ref={ref} className={cn("inline-flex shrink-0 items-center gap-2 text-sm font-semibold text-foreground", focusRingStyles, className)} {...props}>
       {mark}
       {children}
     </a>
   )
-}
+})
+BrandLink.displayName = "BrandLink"

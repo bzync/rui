@@ -1,7 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/cn"
-import { useEffect, useState } from "react"
+import { useEffect, useState, forwardRef } from "react"
 import { type TooltipState, ChartTooltip, CHART_SERIES } from "./shared"
 
 export interface GanttTask {
@@ -22,13 +22,13 @@ export interface GanttChartProps {
 
 const GANTT_COLORS = CHART_SERIES
 
-export function GanttChart({
+export const GanttChart = forwardRef<HTMLDivElement, GanttChartProps>(function GanttChart({
   tasks,
   total: totalProp,
   xLabels,
   rowHeight = 42,
   className,
-}: GanttChartProps) {
+}, ref) {
   const [tooltip, setTooltip] = useState<TooltipState | null>(null)
   const [hovered, setHovered] = useState<string | null>(null)
   const [ready, setReady] = useState(false)
@@ -42,7 +42,7 @@ export function GanttChart({
   const totalHeight = tasks.length * rowHeight + 28
 
   return (
-    <div className={cn("relative w-full select-none overflow-x-auto", className)}>
+    <div ref={ref} className={cn("relative w-full select-none overflow-x-auto", className)}>
       <div style={{ height: totalHeight, minWidth: 360 }} className="relative">
         <div className="absolute inset-0 flex pointer-events-none" style={{ bottom: 28 }}>
           {Array.from({ length: total + 1 }).map((_, i) => (
@@ -107,5 +107,6 @@ export function GanttChart({
       <ChartTooltip tooltip={tooltip} />
     </div>
   )
-}
+})
+GanttChart.displayName = "GanttChart"
 

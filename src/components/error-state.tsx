@@ -1,5 +1,5 @@
 import { cn } from "@/lib/cn"
-import { ReactNode } from "react"
+import { ReactNode, forwardRef } from "react"
 import { Button } from "./button"
 
 export interface ErrorStateProps {
@@ -11,18 +11,18 @@ export interface ErrorStateProps {
   className?: string
 }
 
-export function ErrorState({
+export const ErrorState = forwardRef<HTMLDivElement, ErrorStateProps>(function ErrorState({
   title = "This didn't load",
   description = "The request didn't finish. Try again — if it keeps failing, the problem is on our end, not yours.",
   error,
   onRetry,
   action,
   className,
-}: ErrorStateProps) {
+}, ref) {
   const message = error instanceof Error ? error.message : error
 
   return (
-    <div role="alert" className={cn("flex flex-col items-center justify-center text-center px-4 py-10", className)}>
+    <div ref={ref} role="alert" className={cn("flex flex-col items-center justify-center text-center px-4 py-10", className)}>
       <div className="mb-3 flex size-9 items-center justify-center text-destructive">
         <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
@@ -56,4 +56,5 @@ export function ErrorState({
       )}
     </div>
   )
-}
+})
+ErrorState.displayName = "ErrorState"

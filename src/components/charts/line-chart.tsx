@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/cn"
 import { motion } from "@/lib/motion-components"
-import { useState, useId } from "react"
+import { useState, useId, forwardRef } from "react"
 import { type ChartDataPoint, type TooltipState, ChartTooltip, visibleLabelAt } from "./shared"
 
 export interface LineChartProps {
@@ -20,7 +20,7 @@ export interface LineChartProps {
   maxLabels?: number
 }
 
-export function LineChart({
+export const LineChart = forwardRef<HTMLDivElement, LineChartProps>(function LineChart({
   data,
   height = 220,
   color = "var(--chart-1)",
@@ -32,7 +32,7 @@ export function LineChart({
   smooth = true,
   showXLabels = true,
   maxLabels = 8,
-}: LineChartProps) {
+}, ref) {
   const [tooltip, setTooltip] = useState<TooltipState | null>(null)
   const uid = useId().replace(/:/g, "")
   const max = Math.max(...data.map((d) => d.value), 1)
@@ -70,7 +70,7 @@ export function LineChart({
   const isVisibleLabel = visibleLabelAt(n, maxLabels)
 
   return (
-    <div className={cn("relative w-full select-none", className)} style={{ height }}>
+    <div ref={ref} className={cn("relative w-full select-none", className)} style={{ height }}>
       <svg
         viewBox="0 0 100 100"
         preserveAspectRatio="none"
@@ -168,5 +168,6 @@ export function LineChart({
       <ChartTooltip tooltip={tooltip} />
     </div>
   )
-}
+})
+LineChart.displayName = "LineChart"
 

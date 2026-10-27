@@ -1,15 +1,15 @@
 import { cn } from "@/lib/cn"
 import { fieldLabelStyles } from "@/lib/component-styles"
-import { LabelHTMLAttributes } from "react"
+import { LabelHTMLAttributes, forwardRef } from "react"
 
 export interface LabelProps extends LabelHTMLAttributes<HTMLLabelElement> {
   required?: boolean
   hint?: string
 }
 
-export function Label({ className, children, required, hint, ...props }: LabelProps) {
+export const Label = forwardRef<HTMLLabelElement, LabelProps>(function Label({ className, children, required, hint, ...props }, ref) {
   return (
-    <label
+    <label ref={ref}
       className={cn("flex items-center gap-1.5 select-none", fieldLabelStyles, className)}
       {...props}
     >
@@ -18,4 +18,5 @@ export function Label({ className, children, required, hint, ...props }: LabelPr
       {hint && <span className="font-normal text-muted-foreground">({hint})</span>}
     </label>
   )
-}
+})
+Label.displayName = "Label"

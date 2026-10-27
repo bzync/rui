@@ -1,13 +1,13 @@
 import { cn } from "@/lib/cn"
-import { HTMLAttributes, ReactNode } from "react"
+import { HTMLAttributes, ReactNode, forwardRef } from "react"
 
 export interface ListProps extends HTMLAttributes<HTMLUListElement> {
   divided?: boolean
 }
 
-export function List({ divided = true, className, children, ...props }: ListProps) {
+export const List = forwardRef<HTMLUListElement, ListProps>(function List({ divided = true, className, children, ...props }, ref) {
   return (
-    <ul
+    <ul ref={ref}
       className={cn(
         divided && "divide-y divide-border",
         className,
@@ -17,7 +17,8 @@ export function List({ divided = true, className, children, ...props }: ListProp
       {children}
     </ul>
   )
-}
+})
+List.displayName = "List"
 
 export interface ListItemProps extends HTMLAttributes<HTMLLIElement> {
   icon?: ReactNode
@@ -27,7 +28,7 @@ export interface ListItemProps extends HTMLAttributes<HTMLLIElement> {
   active?: boolean
 }
 
-export function ListItem({ icon, trailing, description, href, active, className, children, onClick, ...props }: ListItemProps) {
+export const ListItem = forwardRef<HTMLLIElement, ListItemProps>(function ListItem({ icon, trailing, description, href, active, className, children, onClick, ...props }, ref) {
   const isInteractive = !!href || !!onClick
 
   const inner = (
@@ -52,8 +53,9 @@ export function ListItem({ icon, trailing, description, href, active, className,
   )
 
   return (
-    <li className={cn(className)} onClick={onClick} {...props}>
+    <li ref={ref} className={cn(className)} onClick={onClick} {...props}>
       {href ? <a href={href}>{inner}</a> : inner}
     </li>
   )
-}
+})
+ListItem.displayName = "ListItem"

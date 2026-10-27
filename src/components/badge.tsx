@@ -1,6 +1,6 @@
 import { cn } from "@/lib/cn"
 import { statusSoftStyles, statusSolidStyles } from "@/lib/status-styles"
-import { HTMLAttributes } from "react"
+import { HTMLAttributes, forwardRef } from "react"
 
 /** `error` is a deprecated alias of `danger`. */
 export type BadgeVariant = "default" | "success" | "warning" | "danger" | "info" | "muted" | "error"
@@ -40,7 +40,7 @@ const badgeDots: Record<BadgeVariant, string> = {
   muted: "bg-muted-foreground",
 }
 
-export function Badge({
+export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(function Badge({
   variant = "default",
   dot = false,
   size = "md",
@@ -48,10 +48,10 @@ export function Badge({
   className,
   children,
   ...props
-}: BadgeProps) {
+}, ref) {
   const variantCls = variants?.[variant] ?? badgeVariants[variant]
   return (
-    <span
+    <span ref={ref}
       className={cn(
         "inline-flex items-center rounded-[var(--radius-sm)] font-medium border leading-none whitespace-nowrap",
         variantCls,
@@ -68,4 +68,5 @@ export function Badge({
       {children}
     </span>
   )
-}
+})
+Badge.displayName = "Badge"

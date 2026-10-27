@@ -1,5 +1,5 @@
 import { cn } from "@/lib/cn"
-import { HTMLAttributes, ReactNode } from "react"
+import { HTMLAttributes, ReactNode, forwardRef } from "react"
 
 export interface AppShellProps extends HTMLAttributes<HTMLDivElement> {
   /** Prevent the shell itself from scrolling and let AppShellMain own overflow. */
@@ -7,9 +7,9 @@ export interface AppShellProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 /** Root frame for application layouts. Compose it with Sidebar and AppShellBody. */
-export function AppShell({ fixed = false, className, children, ...props }: AppShellProps) {
+export const AppShell = forwardRef<HTMLDivElement, AppShellProps>(function AppShell({ fixed = false, className, children, ...props }, ref) {
   return (
-    <div
+    <div ref={ref}
       className={cn(
         "portal-shell flex min-h-dvh w-full bg-bg text-foreground",
         fixed && "h-dvh min-h-0 overflow-hidden",
@@ -20,49 +20,53 @@ export function AppShell({ fixed = false, className, children, ...props }: AppSh
       {children}
     </div>
   )
-}
+})
+AppShell.displayName = "AppShell"
 
 /** Vertical region beside a sidebar. Usually contains a topbar, main, and footer. */
-export function AppShellBody({ className, children, ...props }: HTMLAttributes<HTMLDivElement>) {
+export const AppShellBody = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(function AppShellBody({ className, children, ...props }, ref) {
   return (
-    <div className={cn("flex min-w-0 flex-1 flex-col", className)} {...props}>
+    <div ref={ref} className={cn("flex min-w-0 flex-1 flex-col", className)} {...props}>
       {children}
     </div>
   )
-}
+})
+AppShellBody.displayName = "AppShellBody"
 
 export interface AppShellMainProps extends HTMLAttributes<HTMLElement> {
   scrollable?: boolean
 }
 
-export function AppShellMain({ scrollable = false, className, children, ...props }: AppShellMainProps) {
+export const AppShellMain = forwardRef<HTMLElement, AppShellMainProps>(function AppShellMain({ scrollable = false, className, children, ...props }, ref) {
   return (
-    <main className={cn("min-w-0 flex-1", scrollable && "overflow-y-auto", className)} {...props}>
+    <main ref={ref} className={cn("min-w-0 flex-1", scrollable && "overflow-y-auto", className)} {...props}>
       {children}
     </main>
   )
-}
+})
+AppShellMain.displayName = "AppShellMain"
 
 export interface LayoutBarProps extends HTMLAttributes<HTMLElement> {
   sticky?: boolean
 }
 
 /** General-purpose application header; Topbar can be used inside it for navigation controls. */
-export function AppShellHeader({ sticky = false, className, children, ...props }: LayoutBarProps) {
+export const AppShellHeader = forwardRef<HTMLElement, LayoutBarProps>(function AppShellHeader({ sticky = false, className, children, ...props }, ref) {
   return (
-    <header
+    <header ref={ref}
       className={cn("z-(--z-sticky) shrink-0", sticky && "sticky top-0", className)}
       {...props}
     >
       {children}
     </header>
   )
-}
+})
+AppShellHeader.displayName = "AppShellHeader"
 
 /** Page or application footer with safe-area padding. */
-export function Footer({ sticky = false, className, children, ...props }: LayoutBarProps) {
+export const Footer = forwardRef<HTMLElement, LayoutBarProps>(function Footer({ sticky = false, className, children, ...props }, ref) {
   return (
-    <footer
+    <footer ref={ref}
       className={cn(
         "shrink-0 border-t border-border bg-bg/95 px-4 py-4 text-sm text-muted-foreground",
         sticky && "sticky bottom-0 z-(--z-sticky)",
@@ -73,7 +77,8 @@ export function Footer({ sticky = false, className, children, ...props }: Layout
       {children}
     </footer>
   )
-}
+})
+Footer.displayName = "Footer"
 
 type ContainerSize = "sm" | "md" | "lg" | "xl" | "full"
 
@@ -91,13 +96,14 @@ const containerSizes: Record<ContainerSize, string> = {
 }
 
 /** Centers content and provides consistent responsive page gutters. */
-export function Container({ size = "lg", gutter = true, className, children, ...props }: ContainerProps) {
+export const Container = forwardRef<HTMLDivElement, ContainerProps>(function Container({ size = "lg", gutter = true, className, children, ...props }, ref) {
   return (
-    <div className={cn("mx-auto w-full", containerSizes[size], gutter && "px-4 sm:px-6 lg:px-8", className)} {...props}>
+    <div ref={ref} className={cn("mx-auto w-full", containerSizes[size], gutter && "px-4 sm:px-6 lg:px-8", className)} {...props}>
       {children}
     </div>
   )
-}
+})
+Container.displayName = "Container"
 
 export interface PageHeaderProps extends Omit<HTMLAttributes<HTMLDivElement>, "title"> {
   title: ReactNode
@@ -110,9 +116,9 @@ export interface PageHeaderProps extends Omit<HTMLAttributes<HTMLDivElement>, "t
 }
 
 /** Standard page heading with optional breadcrumbs, supporting copy, and actions. */
-export function PageHeader({ title, description, eyebrow, breadcrumbs, actions, as: Tag = "h1", className, ...props }: PageHeaderProps) {
+export const PageHeader = forwardRef<HTMLDivElement, PageHeaderProps>(function PageHeader({ title, description, eyebrow, breadcrumbs, actions, as: Tag = "h1", className, ...props }, ref) {
   return (
-    <div className={cn("flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between", className)} {...props}>
+    <div ref={ref} className={cn("flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between", className)} {...props}>
       <div className="min-w-0">
         {breadcrumbs && <div className="mb-3">{breadcrumbs}</div>}
         {eyebrow && <div className="mb-1 text-xs font-semibold uppercase tracking-wider text-accent-strong">{eyebrow}</div>}
@@ -122,7 +128,8 @@ export function PageHeader({ title, description, eyebrow, breadcrumbs, actions, 
       {actions && <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>}
     </div>
   )
-}
+})
+PageHeader.displayName = "PageHeader"
 
 export interface StackProps extends HTMLAttributes<HTMLDivElement> {
   gap?: "none" | "xs" | "sm" | "md" | "lg" | "xl"
@@ -131,9 +138,10 @@ export interface StackProps extends HTMLAttributes<HTMLDivElement> {
 const gaps = { none: "gap-0", xs: "gap-1", sm: "gap-2", md: "gap-4", lg: "gap-6", xl: "gap-8" }
 
 /** Vertical spacing primitive for page sections and forms. */
-export function Stack({ gap = "md", className, children, ...props }: StackProps) {
-  return <div className={cn("flex flex-col", gaps[gap], className)} {...props}>{children}</div>
-}
+export const Stack = forwardRef<HTMLDivElement, StackProps>(function Stack({ gap = "md", className, children, ...props }, ref) {
+  return <div ref={ref} className={cn("flex flex-col", gaps[gap], className)} {...props}>{children}</div>
+})
+Stack.displayName = "Stack"
 
 export interface InlineProps extends StackProps {
   wrap?: boolean
@@ -145,10 +153,11 @@ const alignments = { start: "items-start", center: "items-center", end: "items-e
 const justifications = { start: "justify-start", center: "justify-center", end: "justify-end", between: "justify-between" }
 
 /** Horizontal spacing primitive for toolbars, actions, and metadata. */
-export function Inline({ gap = "md", wrap = true, align = "center", justify = "start", className, children, ...props }: InlineProps) {
+export const Inline = forwardRef<HTMLDivElement, InlineProps>(function Inline({ gap = "md", wrap = true, align = "center", justify = "start", className, children, ...props }, ref) {
   return (
-    <div className={cn("flex", gaps[gap], wrap && "flex-wrap", alignments[align], justifications[justify], className)} {...props}>
+    <div ref={ref} className={cn("flex", gaps[gap], wrap && "flex-wrap", alignments[align], justifications[justify], className)} {...props}>
       {children}
     </div>
   )
-}
+})
+Inline.displayName = "Inline"

@@ -1,17 +1,17 @@
 import { cn } from "@/lib/cn"
-import { HTMLAttributes } from "react"
+import { HTMLAttributes, forwardRef } from "react"
 
 export interface SeparatorProps extends HTMLAttributes<HTMLDivElement> {
   orientation?: "horizontal" | "vertical"
   label?: string
 }
 
-export function Separator({
+export const Separator = forwardRef<HTMLDivElement, SeparatorProps>(function Separator({
   orientation = "horizontal",
   label,
   className,
   ...props
-}: SeparatorProps) {
+}, ref) {
   if (orientation === "vertical") {
     return (
       <div
@@ -37,9 +37,10 @@ export function Separator({
   }
 
   return (
-    <div
+    <div ref={ref}
       className={cn("h-px w-full bg-foreground/8", className)}
       {...props}
     />
   )
-}
+})
+Separator.displayName = "Separator"

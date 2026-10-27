@@ -1,13 +1,14 @@
 "use client"
 
 import { cn } from "@/lib/cn"
+import { mergeRefs } from "@/lib/merge-refs"
 import { AnimatePresence } from "framer-motion"
 import { motion } from "@/lib/motion-components"
 import { transitions } from "@/lib/motion"
 import { useAnchoredPosition } from "@/hooks/use-anchored-position"
 import { ThemePortal } from "./theme-provider"
 import { useControllableState } from "@/hooks/use-controllable-state"
-import { FocusEvent as ReactFocusEvent, HTMLAttributes, MouseEvent as ReactMouseEvent, ReactElement, ReactNode, cloneElement, isValidElement, useEffect, useId, useRef } from "react"
+import { FocusEvent as ReactFocusEvent, HTMLAttributes, MouseEvent as ReactMouseEvent, ReactElement, ReactNode, cloneElement, isValidElement, useEffect, useId, useRef, forwardRef } from "react"
 
 type PopoverSide = "top" | "bottom" | "left" | "right"
 type PopoverAlign = "start" | "center" | "end"
@@ -36,7 +37,7 @@ const enterFrom: Record<PopoverSide, object> = {
 
 const FOCUSABLE = 'button:not(:disabled), [href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])'
 
-export function Popover({
+export const Popover = forwardRef<HTMLDivElement, PopoverProps>(function Popover({
   trigger,
   children,
   side = "bottom",
@@ -47,7 +48,7 @@ export function Popover({
   defaultOpen = false,
   onOpenChange,
   ariaLabel = "Popover",
-}: PopoverProps) {
+}, ref) {
   const [open, setOpen] = useControllableState({ value: controlledOpen, defaultValue: defaultOpen, onChange: onOpenChange })
   const containerRef = useRef<HTMLDivElement>(null)
   const panelRef = useRef<HTMLDivElement | null>(null)
@@ -113,7 +114,7 @@ export function Popover({
   }) : <button type="button" aria-haspopup="dialog" aria-expanded={open} aria-controls={contentId} onClick={toggle}>{trigger}</button>
 
   return (
-    <div ref={containerRef} className={cn("relative inline-flex", wrapperClassName)}>
+    <div ref={mergeRefs(containerRef, ref)} className={cn("relative inline-flex", wrapperClassName)}>
       {triggerElement}
       <ThemePortal>
         <AnimatePresence>
@@ -141,12 +142,14 @@ export function Popover({
       </ThemePortal>
     </div>
   )
-}
+})
+Popover.displayName = "Popover"
 
-export function PopoverContent({ className, children, ...props }: HTMLAttributes<HTMLDivElement>) {
+export const PopoverContent = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(function PopoverContent({ className, children, ...props }, ref) {
   return (
-    <div className={cn("p-3", className)} {...props}>
+    <div ref={ref} className={cn("p-3", className)} {...props}>
       {children}
     </div>
   )
-}
+})
+PopoverContent.displayName = "PopoverContent"

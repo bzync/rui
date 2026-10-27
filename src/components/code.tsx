@@ -223,7 +223,7 @@ export interface CodeBlockProps {
   className?: string
 }
 
-export function CodeBlock({ code, language = "js", filename, showLineNumbers = false, className }: CodeBlockProps) {
+export const CodeBlock = forwardRef<HTMLDivElement, CodeBlockProps>(function CodeBlock({ code, language = "js", filename, showLineNumbers = false, className }, ref) {
   const [copied, setCopied] = useState(false)
   const trimmed = code.replace(/^\n/, "").replace(/\n$/, "")
   const lines = tokenizeLines(trimmed, language)
@@ -252,7 +252,7 @@ export function CodeBlock({ code, language = "js", filename, showLineNumbers = f
   }
 
   return (
-    <div className={cn("group relative rounded-[var(--radius-xl)] overflow-hidden border border-border bg-surface-sunken", className)}>
+    <div ref={ref} className={cn("group relative rounded-[var(--radius-xl)] overflow-hidden border border-border bg-surface-sunken", className)}>
       {/* Header bar */}
       <div className="flex items-center justify-between px-4 py-2.5 border-b border-foreground/[0.07] bg-foreground/3">
         <div className="flex items-center gap-2">
@@ -310,7 +310,8 @@ export function CodeBlock({ code, language = "js", filename, showLineNumbers = f
       </div>
     </div>
   )
-}
+})
+CodeBlock.displayName = "CodeBlock"
 
 // ─── InlineCode ───────────────────────────────────────────────────────────────
 
@@ -338,7 +339,7 @@ export interface CodeEditorProps {
   className?: string
 }
 
-export function CodeEditor({
+export const CodeEditor = forwardRef<HTMLDivElement, CodeEditorProps>(function CodeEditor({
   value,
   onChange,
   language = "js",
@@ -347,7 +348,7 @@ export function CodeEditor({
   maxRows = 24,
   readOnly = false,
   className,
-}: CodeEditorProps) {
+}, ref) {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const lineCount = Math.min(maxRows, Math.max(minRows, value.split("\n").length))
 
@@ -390,7 +391,7 @@ export function CodeEditor({
   }
 
   return (
-    <div className={cn("relative rounded-[var(--radius-xl)] overflow-hidden border border-border bg-surface-sunken", className)}>
+    <div ref={ref} className={cn("relative rounded-[var(--radius-xl)] overflow-hidden border border-border bg-surface-sunken", className)}>
       {/* Header */}
       <div className="flex items-center gap-1.5 px-4 py-2.5 border-b border-foreground/[0.07] bg-foreground/3">
         <span className="text-xs font-mono text-muted-foreground/70 uppercase">{language}</span>
@@ -419,4 +420,5 @@ export function CodeEditor({
       </div>
     </div>
   )
-}
+})
+CodeEditor.displayName = "CodeEditor"

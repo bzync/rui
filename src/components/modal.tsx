@@ -5,7 +5,7 @@ import { iconButtonStyles } from "@/lib/component-styles"
 import { AnimatePresence } from "framer-motion"
 import { motion } from "@/lib/motion-components"
 import { transitions } from "@/lib/motion"
-import { HTMLAttributes, ReactNode, useId, useRef } from "react"
+import { HTMLAttributes, ReactNode, useId, useRef, forwardRef, type Ref } from "react"
 import { useEventCallback } from "@/hooks/use-event-callback"
 import { useFocusTrap, useRestoreFocus } from "@/hooks/use-focus-trap"
 import { useHydrated } from "@/hooks/use-hydrated"
@@ -178,19 +178,24 @@ export function Modal({
   )
 }
 
-export function ModalHeader({ className, children, ...props }: HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("px-5 pt-4 pb-3 sm:px-6 border-b border-border shrink-0", className)} {...props}>{children}</div>
-}
-export function ModalTitle({ as: Tag = "h2", className, children, ...props }: HTMLAttributes<HTMLHeadingElement> & { as?: "h1" | "h2" | "h3" | "div" }) {
-  return <Tag className={cn("text-base font-semibold leading-6 text-foreground", className)} {...props}>{children}</Tag>
-}
-export function ModalDescription({ className, children, ...props }: HTMLAttributes<HTMLParagraphElement>) {
-  return <p className={cn("mt-1 text-sm leading-5 text-muted-foreground", className)} {...props}>{children}</p>
-}
+export const ModalHeader = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(function ModalHeader({ className, children, ...props }, ref) {
+  return <div ref={ref} className={cn("px-5 pt-4 pb-3 sm:px-6 border-b border-border shrink-0", className)} {...props}>{children}</div>
+})
+ModalHeader.displayName = "ModalHeader"
+export const ModalTitle = forwardRef<HTMLElement, HTMLAttributes<HTMLHeadingElement> & { as?: "h1" | "h2" | "h3" | "div" }>(function ModalTitle({ as: Tag = "h2", className, children, ...props }, ref) {
+  return <Tag ref={ref as Ref<HTMLHeadingElement>} className={cn("text-base font-semibold leading-6 text-foreground", className)} {...props}>{children}</Tag>
+})
+ModalTitle.displayName = "ModalTitle"
+export const ModalDescription = forwardRef<HTMLParagraphElement, HTMLAttributes<HTMLParagraphElement>>(function ModalDescription({ className, children, ...props }, ref) {
+  return <p ref={ref} className={cn("mt-1 text-sm leading-5 text-muted-foreground", className)} {...props}>{children}</p>
+})
+ModalDescription.displayName = "ModalDescription"
 export interface ModalBodyProps extends HTMLAttributes<HTMLDivElement> { scrollable?: boolean }
-export function ModalBody({ className, scrollable = false, children, ...props }: ModalBodyProps) {
-  return <div data-modal-content className={cn("px-5 py-4 sm:px-6", scrollable && "overflow-y-auto flex-1 overscroll-contain", className)} {...props}>{children}</div>
-}
-export function ModalFooter({ className, children, ...props }: HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("flex flex-wrap items-center justify-end gap-2 border-t border-border px-5 pb-4 pt-3 sm:px-6 max-sm:flex-col-reverse max-sm:items-stretch", className)} {...props}>{children}</div>
-}
+export const ModalBody = forwardRef<HTMLDivElement, ModalBodyProps>(function ModalBody({ className, scrollable = false, children, ...props }, ref) {
+  return <div ref={ref} data-modal-content className={cn("px-5 py-4 sm:px-6", scrollable && "overflow-y-auto flex-1 overscroll-contain", className)} {...props}>{children}</div>
+})
+ModalBody.displayName = "ModalBody"
+export const ModalFooter = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(function ModalFooter({ className, children, ...props }, ref) {
+  return <div ref={ref} className={cn("flex flex-wrap items-center justify-end gap-2 border-t border-border px-5 pb-4 pt-3 sm:px-6 max-sm:flex-col-reverse max-sm:items-stretch", className)} {...props}>{children}</div>
+})
+ModalFooter.displayName = "ModalFooter"

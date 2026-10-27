@@ -1,15 +1,15 @@
 import { cn } from "@/lib/cn"
-import { HTMLAttributes } from "react"
+import { HTMLAttributes, forwardRef } from "react"
 
 export interface KbdProps extends HTMLAttributes<HTMLElement> {
   keys: string | string[]
   size?: "sm" | "md"
 }
 
-export function Kbd({ keys, size = "sm", className, ...props }: KbdProps) {
+export const Kbd = forwardRef<HTMLSpanElement, KbdProps>(function Kbd({ keys, size = "sm", className, ...props }, ref) {
   const parts = Array.isArray(keys) ? keys : [keys]
   return (
-    <span className={cn("inline-flex items-center gap-0.5", className)} {...props}>
+    <span ref={ref} className={cn("inline-flex items-center gap-0.5", className)} {...props}>
       {parts.map((k, i) => (
         <kbd
           key={i}
@@ -25,4 +25,5 @@ export function Kbd({ keys, size = "sm", className, ...props }: KbdProps) {
       ))}
     </span>
   )
-}
+})
+Kbd.displayName = "Kbd"

@@ -1,4 +1,5 @@
 "use client"
+import { forwardRef } from "react"
 
 import { cn } from "@/lib/cn"
 import { focusRingStyles } from "@/lib/component-styles"
@@ -57,7 +58,7 @@ const chevronRight = (
   </svg>
 )
 
-export function Pagination({
+export const Pagination = forwardRef<HTMLElement, PaginationProps>(function Pagination({
   page: controlledPage,
   defaultPage = 1,
   totalPages,
@@ -65,7 +66,7 @@ export function Pagination({
   siblingCount = 1,
   size = "md",
   className,
-}: PaginationProps) {
+}, ref) {
   const [page, onPageChange] = useControllableState({ value: controlledPage, defaultValue: defaultPage, onChange: onPageChangeProp })
   if (totalPages <= 1) return null
 
@@ -96,7 +97,7 @@ export function Pagination({
   }
 
   return (
-    <nav className={cn("flex items-center gap-1", className)} aria-label="Pagination">
+    <nav ref={ref} className={cn("flex items-center gap-1", className)} aria-label="Pagination">
       {btn(chevronLeft, page - 1, page <= 1)}
       {pages.map((p, i) =>
         p === "…" ? (
@@ -110,4 +111,5 @@ export function Pagination({
       {btn(chevronRight, page + 1, page >= totalPages)}
     </nav>
   )
-}
+})
+Pagination.displayName = "Pagination"

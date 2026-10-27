@@ -1,9 +1,10 @@
 "use client"
 
 import { cn } from "@/lib/cn"
+import { mergeRefs } from "@/lib/merge-refs"
 import { useAnchoredPosition } from "@/hooks/use-anchored-position"
 import { useControllableState } from "@/hooks/use-controllable-state"
-import { HTMLAttributes, MouseEvent as ReactMouseEvent, ReactElement, ReactNode, Suspense, cloneElement, isValidElement, lazy, useEffect, useRef, useState } from "react"
+import { HTMLAttributes, MouseEvent as ReactMouseEvent, ReactElement, ReactNode, Suspense, cloneElement, isValidElement, lazy, useEffect, useRef, useState, forwardRef } from "react"
 
 // The animated menu surface pulls in framer-motion, so it lives in its own
 // async chunk. It's fetched on the first open of any dropdown on the page and
@@ -49,7 +50,7 @@ export interface DropdownMenuProps {
   onOpenChange?: (open: boolean) => void
 }
 
-export function DropdownMenu({
+export const DropdownMenu = forwardRef<HTMLDivElement, DropdownMenuProps>(function DropdownMenu({
   trigger,
   items,
   side = "bottom",
@@ -63,7 +64,7 @@ export function DropdownMenu({
   open: controlledOpen,
   defaultOpen = false,
   onOpenChange,
-}: DropdownMenuProps) {
+}, ref) {
   const [open, setOpen] = useControllableState({ value: controlledOpen, defaultValue: defaultOpen, onChange: onOpenChange })
   // Latches true on the first open so the lazy panel stays mounted for exit
   // animations and instant re-opens.
@@ -127,7 +128,7 @@ export function DropdownMenu({
   }) : <button type="button" aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen(!open)}>{trigger}</button>
 
   return (
-    <div ref={containerRef} className={cn("relative inline-flex", wrapperClassName)}>
+    <div ref={mergeRefs(containerRef, ref)} className={cn("relative inline-flex", wrapperClassName)}>
       {triggerElement}
       {panelMounted && (
         <Suspense fallback={null}>
@@ -149,4 +150,5 @@ export function DropdownMenu({
       )}
     </div>
   )
-}
+})
+DropdownMenu.displayName = "DropdownMenu"

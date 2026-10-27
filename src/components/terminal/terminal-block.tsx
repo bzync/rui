@@ -1,7 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/cn"
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, forwardRef } from "react"
 
 export type TerminalLineType = "command" | "output" | "error" | "success" | "info" | "muted"
 export interface TerminalLine { type?: TerminalLineType; text: string; prompt?: string }
@@ -17,13 +17,13 @@ const BLOCK_COLORS: Record<TerminalLineType, string> = {
 
 export interface TerminalBlockProps { lines: TerminalLine[]; title?: string; prompt?: string; className?: string }
 
-export function TerminalBlock({ lines, title = "Terminal", prompt = "$", className }: TerminalBlockProps) {
+export const TerminalBlock = forwardRef<HTMLDivElement, TerminalBlockProps>(function TerminalBlock({ lines, title = "Terminal", prompt = "$", className }, ref) {
   const scrollRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight
   }, [lines])
   return (
-    <div className={cn("rounded-[var(--radius-xl)] overflow-hidden border border-border bg-surface-sunken", className)}>
+    <div ref={ref} className={cn("rounded-[var(--radius-xl)] overflow-hidden border border-border bg-surface-sunken", className)}>
       <div className="flex items-center px-4 py-2.5 border-b border-foreground/[0.07] bg-foreground/3">
         <span className="flex-1 text-center text-xs text-muted-foreground font-medium">{title}</span>
       </div>
@@ -40,4 +40,5 @@ export function TerminalBlock({ lines, title = "Terminal", prompt = "$", classNa
       </div>
     </div>
   )
-}
+})
+TerminalBlock.displayName = "TerminalBlock"

@@ -113,6 +113,7 @@ function IntroductionPage() {
       <dl className="docs-principles-list">
         <div><dt>Accessible interactions</dt><dd>Focus management, keyboard behavior, labels, and native semantics are part of the component contract.</dd></div>
         <div><dt>Scoped theming</dt><dd>Accent, neutral, semantic, and mode-specific values are expressed as CSS variables inside ThemeProvider.</dd></div>
+        <div><dt>Refs and state everywhere</dt><dd>Every component forwards a ref to its root element, and every stateful component works controlled (value / open) or uncontrolled (defaultValue / defaultOpen).</dd></div>
         <div><dt>Predictable distribution</dt><dd>Typed ESM and CommonJS entries are available from the root package and explicit component subpaths.</dd></div>
       </dl>
       <nav className="docs-link-grid docs-related-grid" aria-label="Related documentation">

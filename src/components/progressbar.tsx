@@ -3,7 +3,7 @@
 import { cn } from "@/lib/cn"
 import { statusSolidStyles, statusTextStyles, statusTrackStyles } from "@/lib/status-styles"
 import { motion } from "@/lib/motion-components"
-import { HTMLAttributes } from "react"
+import { HTMLAttributes, forwardRef } from "react"
 
 /** `error` is a deprecated alias of `danger`. */
 export type ProgressVariant = "default" | "success" | "warning" | "danger" | "info" | "error"
@@ -61,7 +61,7 @@ const heights: Record<ProgressSize, string> = {
   lg: "h-3",
 }
 
-export function Progressbar({
+export const Progressbar = forwardRef<HTMLDivElement, ProgressbarProps>(function Progressbar({
   value = 0,
   variant = "default",
   size = "md",
@@ -76,7 +76,7 @@ export function Progressbar({
   labelClassName,
   valueClassName,
   ...props
-}: ProgressbarProps) {
+}, ref) {
   const pct = Math.min(100, Math.max(0, value))
   const hasHeader = label !== undefined || showValue
 
@@ -114,7 +114,7 @@ export function Progressbar({
   }
 
   return (
-    <div className={cn("flex flex-col gap-1.5", className)} {...props}>
+    <div ref={ref} className={cn("flex flex-col gap-1.5", className)} {...props}>
       {hasHeader && (
         <div className="flex items-center justify-between gap-2">
           {label && <span className={cn("text-xs text-muted-foreground", labelClassName)}>{label}</span>}
@@ -154,4 +154,5 @@ export function Progressbar({
       </div>
     </div>
   )
-}
+})
+Progressbar.displayName = "Progressbar"

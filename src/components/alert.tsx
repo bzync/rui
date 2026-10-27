@@ -5,7 +5,7 @@ import { focusRingStyles } from "@/lib/component-styles"
 import { resolveTone, statusSolidStyles, statusSurfaceStyles, statusTextStyles } from "@/lib/status-styles"
 import { HTMLMotionProps } from "framer-motion"
 import { motion } from "@/lib/motion-components"
-import { ReactNode } from "react"
+import { ReactNode, forwardRef } from "react"
 
 /** `error` is a deprecated alias of `danger`; `muted` renders like `default`. */
 export type AlertVariant = "default" | "success" | "warning" | "danger" | "info" | "muted" | "error"
@@ -136,7 +136,7 @@ const defaultIcons: Record<Variant, ReactNode> = {
   ),
 }
 
-export function Alert({
+export const Alert = forwardRef<HTMLDivElement, AlertProps>(function Alert({
   variant = "info",
   title,
   icon,
@@ -149,7 +149,7 @@ export function Alert({
   titleClassName,
   bodyClassName,
   ...props
-}: AlertProps) {
+}, ref) {
   const resolved = resolveTone(variant)
   const tone: Variant = resolved === "muted" ? "default" : resolved
   const s = styles[tone]
@@ -158,6 +158,7 @@ export function Alert({
 
   return (
     <motion.div
+      ref={ref}
       initial={{ opacity: 0, y: -5 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
@@ -187,4 +188,5 @@ export function Alert({
       )}
     </motion.div>
   )
-}
+})
+Alert.displayName = "Alert"

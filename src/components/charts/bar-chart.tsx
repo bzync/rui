@@ -1,7 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/cn"
-import { useState, useId, useEffect } from "react"
+import { useState, useId, useEffect, forwardRef } from "react"
 import { type ChartDataPoint, type TooltipState, ChartTooltip } from "./shared"
 
 // ─── BarChart ─────────────────────────────────────────────────────────────────
@@ -21,7 +21,7 @@ export interface BarChartProps {
   formatValue?: (v: number) => string
 }
 
-export function BarChart({
+export const BarChart = forwardRef<HTMLDivElement, BarChartProps>(function BarChart({
   data,
   height = 220,
   color = "var(--chart-1)",
@@ -30,7 +30,7 @@ export function BarChart({
   orientation = "vertical",
   className,
   formatValue = String,
-}: BarChartProps) {
+}, ref) {
   const [tooltip, setTooltip] = useState<TooltipState | null>(null)
   const [hovered, setHovered] = useState<number | null>(null)
   const [ready, setReady] = useState(false)
@@ -69,7 +69,7 @@ export function BarChart({
   const svgYtoPx = (svgY: number) => (svgY / 100) * height
 
   return (
-    <div className={cn("relative w-full select-none", className)} style={{ height }}>
+    <div ref={ref} className={cn("relative w-full select-none", className)} style={{ height }}>
       <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full text-foreground">
         <defs>
           {data.map((d, i) => {
@@ -176,7 +176,8 @@ export function BarChart({
       <ChartTooltip tooltip={tooltip} />
     </div>
   )
-}
+})
+BarChart.displayName = "BarChart"
 
 
 // ─── HorizontalBarChart (internal — used via BarChart orientation="horizontal") ─

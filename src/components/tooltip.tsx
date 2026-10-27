@@ -1,13 +1,14 @@
 "use client"
 
 import { cn } from "@/lib/cn"
+import { mergeRefs } from "@/lib/merge-refs"
 import { AnimatePresence } from "framer-motion"
 import { motion } from "@/lib/motion-components"
 import { transitions } from "@/lib/motion"
 import { useAnchoredPosition } from "@/hooks/use-anchored-position"
 import { ThemePortal } from "./theme-provider"
 import { useControllableState } from "@/hooks/use-controllable-state"
-import { FocusEvent, HTMLAttributes, MouseEvent, ReactElement, ReactNode, cloneElement, isValidElement, useEffect, useId, useRef } from "react"
+import { FocusEvent, HTMLAttributes, MouseEvent, ReactElement, ReactNode, cloneElement, isValidElement, useEffect, useId, useRef, forwardRef } from "react"
 
 type Position = "top" | "bottom" | "left" | "right"
 
@@ -38,7 +39,7 @@ const enterFrom: Record<Position, { y?: number; x?: number }> = {
   right: { x: -4 },
 }
 
-export function Tooltip({
+export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(function Tooltip({
   content,
   children,
   position = "top",
@@ -49,7 +50,7 @@ export function Tooltip({
   open,
   defaultOpen = false,
   onOpenChange,
-}: TooltipProps) {
+}, ref) {
   const [visible, setVisible] = useControllableState({ value: open, defaultValue: defaultOpen, onChange: onOpenChange })
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const tooltipId = useId()
@@ -98,7 +99,7 @@ export function Tooltip({
   }) : <span tabIndex={0} aria-describedby={visible ? tooltipId : undefined} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} onFocus={handleMouseEnter} onBlur={handleMouseLeave}>{children}</span>
 
   return (
-    <div ref={wrapperRef} className={cn("relative inline-flex", wrapperClassName)}>
+    <div ref={mergeRefs(wrapperRef, ref)} className={cn("relative inline-flex", wrapperClassName)}>
       {triggerElement}
       <ThemePortal>
       <AnimatePresence>
@@ -135,4 +136,5 @@ export function Tooltip({
       </ThemePortal>
     </div>
   )
-}
+})
+Tooltip.displayName = "Tooltip"

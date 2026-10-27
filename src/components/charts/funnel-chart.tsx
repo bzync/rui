@@ -1,7 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/cn"
-import { useEffect, useState } from "react"
+import { useEffect, useState, forwardRef } from "react"
 import { type ChartDataPoint, type TooltipState, ChartTooltip, CHART_SEQUENTIAL } from "./shared"
 
 export interface FunnelChartProps {
@@ -13,11 +13,11 @@ export interface FunnelChartProps {
 
 const FUNNEL_COLORS = CHART_SEQUENTIAL
 
-export function FunnelChart({
+export const FunnelChart = forwardRef<HTMLDivElement, FunnelChartProps>(function FunnelChart({
   data,
   className,
   formatValue = String,
-}: FunnelChartProps) {
+}, ref) {
   const [tooltip, setTooltip] = useState<TooltipState | null>(null)
   const [hovered, setHovered] = useState<number | null>(null)
   const [ready, setReady] = useState(false)
@@ -31,7 +31,7 @@ export function FunnelChart({
   const MIN_W_PCT = 18  // narrowest bar as % of container
 
   return (
-    <div className={cn("w-full select-none flex flex-col gap-2", className)}>
+    <div ref={ref} className={cn("w-full select-none flex flex-col gap-2", className)}>
       {data.map((d, i) => {
         const pct = d.value / max
         const barW = MIN_W_PCT + pct * (100 - MIN_W_PCT)  // % of container
@@ -94,5 +94,6 @@ export function FunnelChart({
       <ChartTooltip tooltip={tooltip} />
     </div>
   )
-}
+})
+FunnelChart.displayName = "FunnelChart"
 

@@ -1,5 +1,5 @@
 import { cn } from "@/lib/cn"
-import { AnchorHTMLAttributes, ReactNode } from "react"
+import { AnchorHTMLAttributes, ReactNode, forwardRef } from "react"
 
 export interface LinkProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
   external?: boolean
@@ -15,7 +15,7 @@ const variants = {
   underline: "text-foreground underline underline-offset-2 decoration-foreground/25 hover:decoration-foreground/50",
 }
 
-export function Link({
+export const Link = forwardRef<HTMLAnchorElement, LinkProps>(function Link({
   children,
   className,
   external,
@@ -23,9 +23,9 @@ export function Link({
   variant = "default",
   externalRel,
   ...props
-}: LinkProps) {
+}, ref) {
   return (
-    <a
+    <a ref={ref}
       target={external ? "_blank" : undefined}
       rel={external ? (externalRel ?? "noopener noreferrer") : undefined}
       referrerPolicy={external ? "strict-origin-when-cross-origin" : undefined}
@@ -46,4 +46,5 @@ export function Link({
       )}
     </a>
   )
-}
+})
+Link.displayName = "Link"

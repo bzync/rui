@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/cn"
 import { motion } from "@/lib/motion-components"
-import { type ReactNode, useState } from "react"
+import { type ReactNode, useState, forwardRef } from "react"
 import { type ChartDataPoint, type TooltipState, ChartTooltip, CHART_SERIES } from "./shared"
 
 export interface DonutChartProps {
@@ -15,13 +15,13 @@ export interface DonutChartProps {
 
 const DONUT_COLORS = CHART_SERIES
 
-export function DonutChart({
+export const DonutChart = forwardRef<HTMLDivElement, DonutChartProps>(function DonutChart({
   data,
   size = 190,
   thickness = 28,
   centerLabel,
   className,
-}: DonutChartProps) {
+}, ref) {
   const [tooltip, setTooltip] = useState<TooltipState | null>(null)
   const [hovered, setHovered] = useState<number | null>(null)
 
@@ -45,7 +45,7 @@ export function DonutChart({
   })
 
   return (
-    <div className={cn("inline-flex flex-col items-center gap-5", className)}>
+    <div ref={ref} className={cn("inline-flex flex-col items-center gap-5", className)}>
       <div className="relative" style={{ width: size, height: size }}>
         <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90 text-foreground">
           {/* Track */}
@@ -120,5 +120,6 @@ export function DonutChart({
       <ChartTooltip tooltip={tooltip} />
     </div>
   )
-}
+})
+DonutChart.displayName = "DonutChart"
 

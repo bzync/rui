@@ -1,7 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/cn"
-import { useEffect, useId, useState } from "react"
+import { useEffect, useId, useState, forwardRef } from "react"
 import { type TooltipState, ChartTooltip, CHART_POSITIVE, CHART_NEGATIVE } from "./shared"
 
 export interface WaterfallItem {
@@ -19,12 +19,12 @@ export interface WaterfallChartProps {
   formatValue?: (v: number) => string
 }
 
-export function WaterfallChart({
+export const WaterfallChart = forwardRef<HTMLDivElement, WaterfallChartProps>(function WaterfallChart({
   data,
   height = 240,
   className,
   formatValue = String,
-}: WaterfallChartProps) {
+}, ref) {
   const [tooltip, setTooltip] = useState<TooltipState | null>(null)
   const [hovered, setHovered] = useState<number | null>(null)
   const [ready, setReady] = useState(false)
@@ -58,7 +58,7 @@ export function WaterfallChart({
   const barPct = barW - barPad * 2
 
   return (
-    <div className={cn("relative w-full select-none", className)} style={{ height }}>
+    <div ref={ref} className={cn("relative w-full select-none", className)} style={{ height }}>
       <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full text-foreground">
         <defs>
           {bars.map((b, i) => (
@@ -143,4 +143,5 @@ export function WaterfallChart({
       <ChartTooltip tooltip={tooltip} />
     </div>
   )
-}
+})
+WaterfallChart.displayName = "WaterfallChart"

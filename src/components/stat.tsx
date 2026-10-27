@@ -1,6 +1,6 @@
 import { cn } from "@/lib/cn"
 import { statusTextStyles } from "@/lib/status-styles"
-import { HTMLAttributes, ReactNode } from "react"
+import { HTMLAttributes, ReactNode, forwardRef } from "react"
 
 type Trend = "up" | "down" | "neutral"
 
@@ -48,9 +48,9 @@ const trendStyles: Record<Trend, { color: string; icon: ReactNode }> = {
   },
 }
 
-export function Stat({ label, value, unit, valueClassName, trend, trendValue, icon, description, action, trendClassName, className, ...props }: StatProps) {
+export const Stat = forwardRef<HTMLDivElement, StatProps>(function Stat({ label, value, unit, valueClassName, trend, trendValue, icon, description, action, trendClassName, className, ...props }, ref) {
   return (
-    <div
+    <div ref={ref}
       className={cn(
         "flex flex-col gap-1 rounded-[var(--radius-xl)] border border-border bg-surface p-4 shadow-xs",
         className,
@@ -87,4 +87,5 @@ export function Stat({ label, value, unit, valueClassName, trend, trendValue, ic
       )}
     </div>
   )
-}
+})
+Stat.displayName = "Stat"

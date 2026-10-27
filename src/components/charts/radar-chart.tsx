@@ -1,7 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/cn"
-import { useState } from "react"
+import { useState, forwardRef } from "react"
 import { type TooltipState, ChartTooltip, CHART_SERIES } from "./shared"
 
 export interface RadarSeries {
@@ -20,13 +20,13 @@ export interface RadarChartProps {
 
 const RADAR_COLORS = CHART_SERIES
 
-export function RadarChart({
+export const RadarChart = forwardRef<HTMLDivElement, RadarChartProps>(function RadarChart({
   axes,
   series,
   size = 240,
   gridLines = 4,
   className,
-}: RadarChartProps) {
+}, ref) {
   const [tooltip, setTooltip] = useState<TooltipState | null>(null)
 
   const n = axes.length
@@ -50,7 +50,7 @@ export function RadarChart({
     }).join(" ") + "Z"
 
   return (
-    <div className={cn("inline-flex flex-col items-center gap-4", className)}>
+    <div ref={ref} className={cn("inline-flex flex-col items-center gap-4", className)}>
       <svg viewBox="0 0 100 100" style={{ width: size, height: size }} className="text-foreground">
         {Array.from({ length: gridLines }).map((_, gi) => {
           const r = R * ((gi + 1) / gridLines)
@@ -119,5 +119,6 @@ export function RadarChart({
       <ChartTooltip tooltip={tooltip} />
     </div>
   )
-}
+})
+RadarChart.displayName = "RadarChart"
 

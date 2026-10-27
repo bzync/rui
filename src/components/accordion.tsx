@@ -5,7 +5,7 @@ import { focusRingStyles } from "@/lib/component-styles"
 import { AnimatePresence } from "framer-motion"
 import { motion } from "@/lib/motion-components"
 import { useControllableState } from "@/hooks/use-controllable-state"
-import { HTMLAttributes, ReactNode, useId } from "react"
+import { HTMLAttributes, ReactNode, useId, forwardRef } from "react"
 
 export interface AccordionItem {
   id: string
@@ -35,7 +35,7 @@ const accordionSizes = {
 
 const EMPTY: string[] = []
 
-export function Accordion({ items, multiple = false, defaultOpen = EMPTY, value, onValueChange, size = "md", className, ...props }: AccordionProps) {
+export const Accordion = forwardRef<HTMLDivElement, AccordionProps>(function Accordion({ items, multiple = false, defaultOpen = EMPTY, value, onValueChange, size = "md", className, ...props }, ref) {
   const [openIds, setOpenIds] = useControllableState({ value, defaultValue: defaultOpen, onChange: onValueChange })
   const open = new Set(openIds)
   const accordionId = useId()
@@ -46,7 +46,7 @@ export function Accordion({ items, multiple = false, defaultOpen = EMPTY, value,
   }
 
   return (
-    <div className={cn("flex flex-col divide-y divide-border", className)} {...props}>
+    <div ref={ref} className={cn("flex flex-col divide-y divide-border", className)} {...props}>
       {items.map((item) => {
         const isOpen = open.has(item.id)
         const safeId = encodeURIComponent(item.id)
@@ -103,7 +103,8 @@ export function Accordion({ items, multiple = false, defaultOpen = EMPTY, value,
       })}
     </div>
   )
-}
+})
+Accordion.displayName = "Accordion"
 
 export interface CollapsibleProps {
   open?: boolean
@@ -114,20 +115,20 @@ export interface CollapsibleProps {
   className?: string
 }
 
-export function Collapsible({
+export const Collapsible = forwardRef<HTMLDivElement, CollapsibleProps>(function Collapsible({
   open: controlledOpen,
   onOpenChange,
   defaultOpen = false,
   trigger,
   children,
   className,
-}: CollapsibleProps) {
+}, ref) {
   const [open, setOpen] = useControllableState({ value: controlledOpen, defaultValue: defaultOpen, onChange: onOpenChange })
   const contentId = useId()
   const toggle = () => setOpen(!open)
 
   return (
-    <div className={className}>
+    <div ref={ref} className={className}>
       <button
         type="button"
         onClick={toggle}
@@ -153,4 +154,5 @@ export function Collapsible({
       </AnimatePresence>
     </div>
   )
-}
+})
+Collapsible.displayName = "Collapsible"

@@ -1,5 +1,5 @@
 import { cn } from "@/lib/cn"
-import { HTMLAttributes } from "react"
+import { HTMLAttributes, forwardRef } from "react"
 
 type Size = "xs" | "sm" | "md" | "lg" | "xl"
 type Status = "online" | "offline" | "away" | "busy"
@@ -66,7 +66,7 @@ function colorFor(name: string) {
   return palette[hash % palette.length]
 }
 
-export function Avatar({
+export const Avatar = forwardRef<HTMLDivElement, AvatarProps>(function Avatar({
   src,
   name,
   alt,
@@ -78,12 +78,12 @@ export function Avatar({
   className,
   statusClassName,
   ...props
-}: AvatarProps) {
+}, ref) {
   const bg = name ? colorFor(name) : "bg-slate-600"
   const label = name ? initials(name) : "?"
 
   return (
-    <div className={cn("relative inline-flex shrink-0 rounded-full", className)} {...props}>
+    <div ref={ref} className={cn("relative inline-flex shrink-0 rounded-full", className)} {...props}>
       <div
         className={cn(
           "rounded-full overflow-hidden flex items-center justify-center font-semibold text-white",
@@ -113,4 +113,5 @@ export function Avatar({
       )}
     </div>
   )
-}
+})
+Avatar.displayName = "Avatar"

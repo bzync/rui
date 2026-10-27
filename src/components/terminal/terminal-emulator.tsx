@@ -1,7 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/cn"
-import { useEffect, useRef, useState, KeyboardEvent } from "react"
+import { useEffect, useRef, useState, KeyboardEvent, forwardRef } from "react"
 import type { ShellState, Span } from "./types"
 import { buildFS } from "./fs"
 import { run, tabComplete, promptSpans } from "./shell-run"
@@ -18,7 +18,7 @@ export interface TerminalEmulatorProps {
 
 interface RenderedLine { id: number; spans: Span[] }
 
-export function TerminalEmulator({ title = "Terminal", user = "user", hostname = "ubuntu", className }: TerminalEmulatorProps) {
+export const TerminalEmulator = forwardRef<HTMLDivElement, TerminalEmulatorProps>(function TerminalEmulator({ title = "Terminal", user = "user", hostname = "ubuntu", className }, ref) {
   const initState = (): ShellState => ({
     root: buildFS(),
     cwd: ["home", user],
@@ -127,7 +127,7 @@ export function TerminalEmulator({ title = "Terminal", user = "user", hostname =
   )
 
   return (
-    <div
+    <div ref={ref}
       className={cn("rounded-[var(--radius-xl)] overflow-hidden border border-border bg-surface-sunken shadow-raised cursor-text flex flex-col", className)}
       onClick={() => inputRef.current?.focus()}
     >
@@ -187,4 +187,5 @@ export function TerminalEmulator({ title = "Terminal", user = "user", hostname =
       </div>
     </div>
   )
-}
+})
+TerminalEmulator.displayName = "TerminalEmulator"

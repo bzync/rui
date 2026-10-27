@@ -1,4 +1,5 @@
 "use client"
+import { forwardRef } from "react"
 
 import { cn } from "@/lib/cn"
 import { focusRingStyles } from "@/lib/component-styles"
@@ -14,7 +15,7 @@ export interface ThemeToggleProps extends ButtonHTMLAttributes<HTMLButtonElement
   darkLabel?: string
 }
 
-export function ThemeToggle({
+export const ThemeToggle = forwardRef<HTMLButtonElement, ThemeToggleProps>(function ThemeToggle({
   lightIcon = <SunIcon aria-hidden="true" />,
   darkIcon = <MoonIcon aria-hidden="true" />,
   showLabel = false,
@@ -24,13 +25,13 @@ export function ThemeToggle({
   onClick,
   type = "button",
   ...props
-}: ThemeToggleProps) {
+}, ref) {
   const { resolvedTheme, toggleTheme } = useTheme()
   const isDark = resolvedTheme === "dark"
   const label = isDark ? lightLabel : darkLabel
 
   return (
-    <button
+    <button ref={ref}
       type={type}
       aria-label={label}
       title={label}
@@ -54,4 +55,5 @@ export function ThemeToggle({
       {showLabel && <span>{label}</span>}
     </button>
   )
-}
+})
+ThemeToggle.displayName = "ThemeToggle"

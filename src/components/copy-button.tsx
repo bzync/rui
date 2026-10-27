@@ -3,7 +3,7 @@
 import { cn } from "@/lib/cn"
 import { AnimatePresence } from "framer-motion"
 import { motion } from "@/lib/motion-components"
-import { ButtonHTMLAttributes, useState } from "react"
+import { ButtonHTMLAttributes, useState, forwardRef } from "react"
 
 export interface CopyButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> {
   value: string
@@ -25,7 +25,7 @@ const CheckIcon = () => (
   </svg>
 )
 
-export function CopyButton({ value, timeout = 2000, label, size = "sm", className, ...props }: CopyButtonProps) {
+export const CopyButton = forwardRef<HTMLButtonElement, CopyButtonProps>(function CopyButton({ value, timeout = 2000, label, size = "sm", className, ...props }, ref) {
   const [copied, setCopied] = useState(false)
 
   async function copy() {
@@ -43,7 +43,7 @@ export function CopyButton({ value, timeout = 2000, label, size = "sm", classNam
     : "h-8 px-3 text-sm gap-1.5 rounded-[var(--radius-lg)]"
 
   return (
-    <button
+    <button ref={ref}
       type="button"
       onClick={copy}
       aria-label={label ? undefined : copied ? "Copied to clipboard" : "Copy to clipboard"}
@@ -73,4 +73,5 @@ export function CopyButton({ value, timeout = 2000, label, size = "sm", classNam
       </AnimatePresence>
     </button>
   )
-}
+})
+CopyButton.displayName = "CopyButton"

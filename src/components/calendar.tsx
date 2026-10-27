@@ -4,7 +4,7 @@ import { cn } from "@/lib/cn"
 import { focusRingStyles, iconButtonStyles } from "@/lib/component-styles"
 import { AnimatePresence } from "framer-motion"
 import { motion } from "@/lib/motion-components"
-import { useEffect, useState } from "react"
+import { useEffect, useState, forwardRef } from "react"
 import { MonthView } from "./calendar/month-view"
 import { WeekView } from "./calendar/week-view"
 import { addDays, CalendarEvent, CalendarProps, CalendarView, MONTHS, variants, weekStart } from "./calendar/types"
@@ -16,7 +16,7 @@ function isSameDayNullable(a: Date | null, b: Date | null) {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate()
 }
 
-export function Calendar({
+export const Calendar = forwardRef<HTMLDivElement, CalendarProps>(function Calendar({
   value: controlledValue,
   defaultValue = null,
   onChange,
@@ -38,7 +38,7 @@ export function Calendar({
   maxDate,
   disabledDates,
   className,
-}: CalendarProps) {
+}, ref) {
   // today is client-only to avoid hydration mismatch
   const [today, setToday] = useState<Date | null>(null)
 
@@ -214,7 +214,7 @@ export function Calendar({
   const viewKey = viewDate ? `${view}-${viewDate.toISOString()}` : null
 
   return (
-    <div className={cn("flex flex-col overflow-hidden rounded-[var(--radius-lg)] border border-border bg-surface", className)}>
+    <div ref={ref} className={cn("flex flex-col overflow-hidden rounded-[var(--radius-lg)] border border-border bg-surface", className)}>
       {/* Toolbar */}
       <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-border px-3 py-3 sm:px-4">
         <div className="flex items-center gap-0.5">
@@ -305,4 +305,5 @@ export function Calendar({
       </div>
     </div>
   )
-}
+})
+Calendar.displayName = "Calendar"

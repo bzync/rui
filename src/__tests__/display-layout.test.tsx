@@ -1,5 +1,7 @@
 import { act, cleanup, render, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
+import { createRef, type ReactElement, type RefObject } from "react"
+import * as R from "@/index"
 import { describe, expect, it } from "vitest"
 import {
   AspectRatio, AuthBackdrop, DevMode, resolveBreakpoint, Avatar, AvatarGroup, AvatarGroupOverflow, Badge, Blockquote, Breadcrumb, Callout, Card, CardBody, CardDescription, CardFooter,
@@ -390,5 +392,58 @@ describe("DevMode viewport inspector", () => {
     await user.keyboard("{Escape}")
     expect(screen.queryByTestId("devmode-margin")).not.toBeInTheDocument()
     document.elementFromPoint = originalElementFromPoint
+  })
+})
+
+describe("ref forwarding", () => {
+  it("forwards refs to the root DOM element of every public component", () => {
+    const cases: [string, (ref: RefObject<never>) => ReactElement, typeof Element][] = [
+      ["Alert", (ref) => <R.Alert ref={ref} title="Hi" />, HTMLDivElement],
+      ["Avatar", (ref) => <R.Avatar ref={ref} name="Maya" />, HTMLDivElement],
+      ["Badge", (ref) => <R.Badge ref={ref}>New</R.Badge>, HTMLSpanElement],
+      ["Breadcrumb", (ref) => <R.Breadcrumb ref={ref} items={[{ label: "Home" }]} />, HTMLElement],
+      ["Callout", (ref) => <R.Callout ref={ref}>Note</R.Callout>, HTMLDivElement],
+      ["Card", (ref) => <R.Card ref={ref} />, HTMLDivElement],
+      ["CardTitle", (ref) => <R.CardTitle ref={ref}>Title</R.CardTitle>, HTMLHeadingElement],
+      ["CodeBlock", (ref) => <R.CodeBlock ref={ref} code="x" />, HTMLDivElement],
+      ["CopyButton", (ref) => <R.CopyButton ref={ref} value="x" />, HTMLButtonElement],
+      ["DataTable", (ref) => <R.DataTable ref={ref} columns={[]} data={[]} />, HTMLDivElement],
+      ["EmptyState", (ref) => <R.EmptyState ref={ref} title="Empty" />, HTMLDivElement],
+      ["ErrorState", (ref) => <R.ErrorState ref={ref} />, HTMLDivElement],
+      ["FormField", (ref) => <R.FormField ref={ref}><input /></R.FormField>, HTMLDivElement],
+      ["Kbd", (ref) => <R.Kbd ref={ref} keys="K" />, HTMLSpanElement],
+      ["Label", (ref) => <R.Label ref={ref}>Name</R.Label>, HTMLLabelElement],
+      ["Link", (ref) => <R.Link ref={ref} href="/">Docs</R.Link>, HTMLAnchorElement],
+      ["List", (ref) => <R.List ref={ref}><R.ListItem>One</R.ListItem></R.List>, HTMLUListElement],
+      ["ModalBody", (ref) => <R.ModalBody ref={ref} />, HTMLDivElement],
+      ["Navbar", (ref) => <R.Navbar ref={ref} items={[]} />, HTMLElement],
+      ["OtpInput", (ref) => <R.OtpInput ref={ref} length={4} />, HTMLDivElement],
+      ["Pagination", (ref) => <R.Pagination ref={ref} totalPages={3} />, HTMLElement],
+      ["Progressbar", (ref) => <R.Progressbar ref={ref} value={40} />, HTMLDivElement],
+      ["RadioGroup", (ref) => <R.RadioGroup ref={ref}><R.Radio value="a" label="A" /></R.RadioGroup>, HTMLDivElement],
+      ["RichTextEditor", (ref) => <R.RichTextEditor ref={ref} />, HTMLDivElement],
+      ["Skeleton", (ref) => <R.Skeleton ref={ref} />, HTMLDivElement],
+      ["SkeletonAvatar", (ref) => <R.SkeletonAvatar ref={ref} />, HTMLDivElement],
+      ["Spinner", (ref) => <R.Spinner ref={ref} />, SVGSVGElement],
+      ["Stat", (ref) => <R.Stat ref={ref} label="Users" value={3} />, HTMLDivElement],
+      ["StatusDot", (ref) => <R.StatusDot ref={ref} status="online" />, HTMLSpanElement],
+      ["Stepper", (ref) => <R.Stepper ref={ref} steps={[{ label: "One" }]} current={0} />, HTMLDivElement],
+      ["Table", (ref) => <R.Table ref={ref}><R.TableBody><R.TableRow><R.TableCell>x</R.TableCell></R.TableRow></R.TableBody></R.Table>, HTMLDivElement],
+      ["Tabs", (ref) => <R.Tabs ref={ref} defaultValue="a"><R.TabsList><R.TabsTrigger value="a">A</R.TabsTrigger></R.TabsList></R.Tabs>, HTMLDivElement],
+      ["Tag", (ref) => <R.Tag ref={ref}>tag</R.Tag>, HTMLSpanElement],
+      ["Tooltip", (ref) => <R.Tooltip ref={ref} content="tip"><button>t</button></R.Tooltip>, HTMLDivElement],
+      ["Popover", (ref) => <R.Popover ref={ref} trigger={<button>p</button>}>body</R.Popover>, HTMLDivElement],
+      ["DropdownMenu", (ref) => <R.DropdownMenu ref={ref} trigger={<button>m</button>} items={[]} />, HTMLDivElement],
+      ["Accordion", (ref) => <R.Accordion ref={ref} items={[]} />, HTMLDivElement],
+      ["Collapsible", (ref) => <R.Collapsible ref={ref} trigger="More">Body</R.Collapsible>, HTMLDivElement],
+      ["BarChart", (ref) => <R.BarChart ref={ref} data={[{ label: "a", value: 1 }]} />, HTMLDivElement],
+      ["ThemeToggle", (ref) => <R.ThemeProvider storageKey={false}><R.ThemeToggle ref={ref} /></R.ThemeProvider>, HTMLButtonElement],
+    ]
+    for (const [name, element, type] of cases) {
+      const ref = createRef<never>()
+      const { unmount } = render(element(ref as RefObject<never>))
+      expect(ref.current, name).toBeInstanceOf(type)
+      unmount()
+    }
   })
 })

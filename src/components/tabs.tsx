@@ -10,6 +10,7 @@ import {
   useContext,
   useId,
   useState,
+  forwardRef,
 } from "react"
 
 interface TabsContextValue {
@@ -53,7 +54,7 @@ export interface TabsProps {
   onChange?: (value: string) => void
 }
 
-export function Tabs({
+export const Tabs = forwardRef<HTMLDivElement, TabsProps>(function Tabs({
   defaultValue,
   value,
   children,
@@ -62,7 +63,7 @@ export function Tabs({
   size = "md",
   onValueChange,
   onChange,
-}: TabsProps) {
+}, ref) {
   const [localActive, setLocalActive] = useState(defaultValue ?? "")
   const active = value ?? localActive
   const tabsId = useId()
@@ -76,6 +77,7 @@ export function Tabs({
   return (
     <TabsContext.Provider value={{ active, setActive: handleSet, orientation, tabsId, size }}>
       <div
+        ref={ref}
         className={cn(
           orientation === "vertical"
             ? "flex flex-col gap-4 sm:flex-row"
@@ -87,17 +89,18 @@ export function Tabs({
       </div>
     </TabsContext.Provider>
   )
-}
+})
+Tabs.displayName = "Tabs"
 
-export function TabsList({
+export const TabsList = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(function TabsList({
   className,
   children,
   ...props
-}: HTMLAttributes<HTMLDivElement>) {
+}, ref) {
   const { orientation } = useTabsCtx()
 
   return (
-    <div
+    <div ref={ref}
       className={cn(
         "rounded-[var(--radius-md)] border border-border bg-surface-muted p-1",
         orientation === "vertical"
@@ -111,7 +114,8 @@ export function TabsList({
       {children}
     </div>
   )
-}
+})
+TabsList.displayName = "TabsList"
 
 export type TabsIconPosition = "left" | "right" | "top"
 
@@ -137,7 +141,7 @@ const triggerLayout: Record<"horizontal" | "vertical", Record<TabsIconPosition, 
   },
 }
 
-export function TabsTrigger({
+export const TabsTrigger = forwardRef<HTMLButtonElement, TabsTriggerProps>(function TabsTrigger({
   value,
   className,
   children,
@@ -145,7 +149,7 @@ export function TabsTrigger({
   iconPosition = "left",
   onKeyDown,
   ...props
-}: TabsTriggerProps) {
+}, ref) {
   const { active, setActive, orientation, tabsId, size } = useTabsCtx()
   const isActive = active === value
   const safeValue = encodeURIComponent(value)
@@ -168,7 +172,7 @@ export function TabsTrigger({
   }
 
   return (
-    <button
+    <button ref={ref}
       role="tab"
       type="button"
       id={triggerId}
@@ -208,26 +212,27 @@ export function TabsTrigger({
       )}
     </button>
   )
-}
+})
+TabsTrigger.displayName = "TabsTrigger"
 
 export interface TabsContentProps extends HTMLAttributes<HTMLDivElement> {
   value: string
   children?: ReactNode
 }
 
-export function TabsContent({
+export const TabsContent = forwardRef<HTMLDivElement, TabsContentProps>(function TabsContent({
   value,
   className,
   children,
   ...props
-}: TabsContentProps) {
+}, ref) {
   const { active, orientation, tabsId } = useTabsCtx()
   const safeValue = encodeURIComponent(value)
 
   if (active !== value) return null
 
   return (
-    <div
+    <div ref={ref}
       // `key` re-triggers the CSS enter animation on every tab change.
       key={value}
       role="tabpanel"
@@ -245,4 +250,5 @@ export function TabsContent({
       {children}
     </div>
   )
-}
+})
+TabsContent.displayName = "TabsContent"
