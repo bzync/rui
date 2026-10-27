@@ -32,6 +32,8 @@ import { ChevronRight, CircleHelp, Layers3, MoreHorizontal, Search } from "lucid
 import { type ReactNode, useMemo, useRef, useState } from "react"
 import { componentGroups, hrefFor, type DocsPage } from "../catalog"
 import { supplementalDetails } from "../component-details"
+import { componentExamples } from "../component-examples"
+import { extendedExamples } from "../component-examples-extended"
 import { ComponentPreview, CopyCommand, DocsSection, PageIntro, PropsTable, type ApiProp } from "../primitives"
 
 const subpathCode = `import "@bzync/rui/styles.css"
@@ -269,12 +271,24 @@ function ComponentReferencePage({ page }: { page: DocsPage }) {
   const detail = getDetail()
   const importName = page.importName ?? page.title.replace(/\s+/g, "")
   const importCode = `import { ${importName} } from "@bzync/rui"`
+  const examples = (componentExamples[page.slug] ?? extendedExamples[page.slug])?.() ?? []
   return <>
-    <PageIntro eyebrow={`Components / ${page.group}`} title={page.title} description={page.description} />
+    <PageIntro eyebrow={page.group} title={page.title} description={page.description} />
     <DocsSection id="usage" title="Usage">
       <CopyCommand>{importCode}</CopyCommand>
       <ComponentPreview key={page.slug} title={`${page.title} preview`} code={detail.code}>{detail.preview}</ComponentPreview>
     </DocsSection>
+    {examples.length > 0 && (
+      <DocsSection id="examples" title="Examples" description="Every preview is live and its code is exactly what renders — copy it into your project as-is.">
+        {examples.map((example) => (
+          <div key={`${page.slug}-${example.id}`} className="docs-example" id={`example-${example.id}`}>
+            <h3>{example.title}</h3>
+            <p>{example.description}</p>
+            <ComponentPreview title={example.title} code={example.code} align={example.align}>{example.preview}</ComponentPreview>
+          </div>
+        ))}
+      </DocsSection>
+    )}
     <DocsSection id="accessibility" title="Accessibility">
       <p>{detail.accessibility}</p>
     </DocsSection>

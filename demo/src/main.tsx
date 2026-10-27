@@ -1,5 +1,10 @@
 import { StrictMode } from "react";
 import { createRoot, hydrateRoot } from "react-dom/client";
+// Self-hosted variable fonts matching the library's default --font-sans /
+// --font-mono stacks ("Inter Variable", "JetBrains Mono Variable"). The library
+// never bundles webfonts; the docs load them the way a consumer app would.
+import "@fontsource-variable/inter/wght.css";
+import "@fontsource-variable/jetbrains-mono/wght.css";
 import "./App.css";
 import "@bzync/rui/styles.css";
 import App from "./App.tsx";

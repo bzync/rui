@@ -57,7 +57,14 @@ const pageSectionMap: Record<string, string[]> = {
 }
 
 function getPageSections(page: DocsPage) {
-  return pageSectionMap[page.slug] ?? (page.kind === "component" ? ["usage", "accessibility", "api-reference"] : ["overview"])
+  return pageSectionMap[page.slug] ?? (page.kind === "component" ? ["usage", "examples", "accessibility", "api-reference"] : ["overview"])
+}
+
+const sectionLabelOverrides: Record<string, string> = { "api-reference": "API reference", "peer-dependencies": "Peer dependencies" }
+
+function sectionLabel(id: string) {
+  const text = id.replace(/-/g, " ")
+  return sectionLabelOverrides[id] ?? text.charAt(0).toUpperCase() + text.slice(1)
 }
 
 const repoUrl = "https://github.com/bzync/rui"
@@ -129,7 +136,7 @@ function OnThisPage({ sections, activeSection }: { sections: string[]; activeSec
               className={activeSection === id ? "active" : undefined}
               onClick={() => scrollToSection(id)}
             >
-              {id.replace(/-/g, " ")}
+              {sectionLabel(id)}
             </button>
           </li>
         ))}
@@ -150,7 +157,7 @@ function MobileOnThisPage({ sections, activeSection }: { sections: string[]; act
             aria-current={activeSection === id ? "location" : undefined}
             onClick={() => scrollToSection(id)}
           >
-            {id.replace(/-/g, " ")}
+            {sectionLabel(id)}
           </button>
         ))}
       </div>
@@ -193,12 +200,16 @@ function DocsShell() {
   const [drawerEverOpened, setDrawerEverOpened] = useState(false)
   const [searchEverOpened, setSearchEverOpened] = useState(false)
   const [activeSection, setActiveSection] = useState("")
-  const [scrollProgress, setScrollProgress] = useState(0)
   const [showBackToTop, setShowBackToTop] = useState(false)
   const openMobileNav = () => { setDrawerEverOpened(true); setMobileOpen(true) }
   const openSearch = () => { setSearchEverOpened(true); setSearchOpen(true) }
   const page = getPage(activeSlug)
-  const sections = getPageSections(page)
+  const plannedSections = getPageSections(page)
+  // Most pages are lazy chunks, and some sections (Examples) are optional, so
+  // the table of contents follows the sections that actually rendered. The
+  // first render uses the planned list so the prerendered HTML hydrates as-is.
+  const [renderedSections, setRenderedSections] = useState<{ slug: string; ids: string[] } | null>(null)
+  const sections = renderedSections?.slug === activeSlug && renderedSections.ids.length ? renderedSections.ids : plannedSections
   const primaryArea = page.kind === "example" ? "examples" : page.kind === "component" || page.slug === "components" ? "components" : "docs"
 
   useEffect(() => {
@@ -236,23 +247,42 @@ function DocsShell() {
   }, [])
 
   useEffect(() => {
-    const elements = sections.map(id => document.getElementById(id)).filter((element): element is HTMLElement => Boolean(element))
-    if (!elements.length) return
-    const observer = new IntersectionObserver((entries) => {
-      const visible = entries.filter(entry => entry.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)
-      if (visible[0]?.target.id) setActiveSection(visible[0].target.id)
-    }, { rootMargin: "-80px 0px -68%", threshold: [0, 1] })
-    elements.forEach(element => observer.observe(element))
-    return () => observer.disconnect()
-  }, [activeSlug, sections])
+    const main = document.getElementById("main-content")
+    if (!main) return
+    const planned = getPageSections(getPage(activeSlug))
+    let observed = ""
+    let intersection: IntersectionObserver | undefined
+
+    const sync = () => {
+      const elements = planned.map(id => document.getElementById(id)).filter((element): element is HTMLElement => Boolean(element))
+      const ids = elements.map(element => element.id)
+      const key = ids.join("|")
+      if (key === observed) return
+      observed = key
+      setRenderedSections({ slug: activeSlug, ids })
+      intersection?.disconnect()
+      if (!elements.length) return
+      intersection = new IntersectionObserver((entries) => {
+        const visible = entries.filter(entry => entry.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)
+        if (visible[0]?.target.id) setActiveSection(visible[0].target.id)
+      }, { rootMargin: "-80px 0px -68%", threshold: [0, 1] })
+      elements.forEach(element => intersection!.observe(element))
+    }
+
+    sync()
+    const mutations = new MutationObserver(sync)
+    mutations.observe(main, { childList: true, subtree: true })
+    return () => {
+      mutations.disconnect()
+      intersection?.disconnect()
+    }
+  }, [activeSlug])
 
   useEffect(() => {
     let frame = 0
     const updateScrollPosition = () => {
       cancelAnimationFrame(frame)
       frame = requestAnimationFrame(() => {
-        const scrollable = document.documentElement.scrollHeight - window.innerHeight
-        setScrollProgress(scrollable > 0 ? Math.min(100, (window.scrollY / scrollable) * 100) : 0)
         setShowBackToTop(window.scrollY > 560)
       })
     }
@@ -271,7 +301,6 @@ function DocsShell() {
       <div className="docs-app">
         <a className="docs-skip-link" href="#main-content">Skip to content</a>
         <header className="docs-header">
-          <span className="docs-reading-progress" style={{ transform: `scaleX(${scrollProgress / 100})` }} aria-hidden="true" />
           <div className="docs-header-inner">
             <div className="docs-header-left">
               <Button variant="ghost" size="icon" className="docs-mobile-menu" onClick={openMobileNav} aria-label="Open documentation navigation"><Menu size={18} /></Button>

@@ -63,8 +63,9 @@ test("every component page includes a live preview, copyable code, and API refer
 
   for (const [index, target] of componentTargets.entries()) {
     await page.evaluate((href) => { window.location.hash = href.slice(1) }, target)
-    await expect(page.locator(".component-preview-canvas")).toHaveCount(1)
-    await expect(page.locator(".component-preview-canvas > *").first()).toBeAttached()
+    const usage = page.locator("#usage")
+    await expect(usage.locator(".component-preview-canvas")).toHaveCount(1)
+    await expect(usage.locator(".component-preview-canvas > *").first()).toBeAttached()
     if (target.endsWith("/heatmap-chart")) {
       const cell = page.locator("[data-heatmap-cell]").first()
       await expect(cell).toBeVisible()
@@ -72,13 +73,20 @@ test("every component page includes a live preview, copyable code, and API refer
       expect(backgroundColor).not.toBe("rgba(0, 0, 0, 0)")
       expect(backgroundColor).not.toContain("NaN")
     }
-    await page.getByRole("tab", { name: "Code" }).click()
+    await usage.getByRole("tab", { name: "Code" }).click()
     await expect(page.getByText("This example could not be formatted.")).toHaveCount(0)
-    await expect(page.locator(".component-preview-code")).not.toContainText("__ruiPreview")
-    await expect(page.locator(".component-preview-code button")).toHaveCount(1)
+    await expect(usage.locator(".component-preview-code")).not.toContainText("__ruiPreview")
+    await expect(usage.locator(".component-preview-code button")).toHaveCount(1)
     if (index === 0) {
-      await page.locator(".component-preview-code button").click()
-      await expect(page.locator(".component-preview-code button")).toContainText("Copied")
+      await usage.locator(".component-preview-code button").click()
+      await expect(usage.locator(".component-preview-code button")).toContainText("Copied")
+    }
+    // Every component page ships extra examples, each with live content and formatted code.
+    await expect(page.locator("#examples .docs-example").first(), `${target} has examples`).toBeAttached()
+    for (const example of await page.locator("#examples .docs-example").all()) {
+      await expect(example.locator(".component-preview-canvas > *").first()).toBeAttached()
+      await example.getByRole("tab", { name: "Code" }).click()
+      await expect(example.locator(".component-preview-code")).not.toContainText("__ruiPreview")
     }
     await expect(page.locator("#api-reference .docs-props-table")).toHaveCount(1)
   }
@@ -88,16 +96,17 @@ test("demo formats displayed and copied component code", async ({ page }, testIn
   test.skip(testInfo.project.name !== "desktop-1280", "Code formatting only needs one desktop project")
 
   await page.goto("/#/components/billing-interval-toggle")
-  await page.getByRole("tab", { name: "Code" }).click()
+  const usage = page.locator("#usage")
+  await usage.getByRole("tab", { name: "Code" }).click()
 
-  const code = page.locator(".component-preview-code table")
+  const code = usage.locator(".component-preview-code table")
   await expect(code).toContainText("<BillingIntervalToggle")
   const displayedCode = await code.innerText()
   expect(displayedCode).toContain("\n  value={interval}\n")
   expect(displayedCode).toContain("\n  size=\"lg\"\n/>")
 
   await page.context().grantPermissions(["clipboard-read", "clipboard-write"])
-  await page.getByRole("button", { name: "Copy code" }).click()
+  await usage.getByRole("button", { name: "Copy code" }).click()
   const copiedCode = await page.evaluate(() => navigator.clipboard.readText())
   expect(copiedCode).toContain("\n  value={interval}\n")
   expect(copiedCode).toContain("\n  size=\"lg\"\n/>")
@@ -106,8 +115,9 @@ test("demo formats displayed and copied component code", async ({ page }, testIn
 test("billing interval toggles stay inside the preview at every viewport", async ({ page }) => {
   await page.goto("/#/components/billing-interval-toggle")
 
-  const canvasBox = await page.locator(".component-preview-canvas").boundingBox()
-  const toggleBoxes = await page.getByRole("group", { name: "Billing interval" }).evaluateAll((elements) =>
+  const usage = page.locator("#usage")
+  const canvasBox = await usage.locator(".component-preview-canvas").boundingBox()
+  const toggleBoxes = await usage.getByRole("group", { name: "Billing interval" }).evaluateAll((elements) =>
     elements.map((element) => {
       const box = element.getBoundingClientRect()
       return { left: box.left, right: box.right }
@@ -121,7 +131,7 @@ test("billing interval toggles stay inside the preview at every viewport", async
     expect(box.right).toBeLessThanOrEqual(canvasBox!.x + canvasBox!.width)
   }
 
-  for (const selected of await page.getByRole("button", { name: /Annually/ }).all()) {
+  for (const selected of await usage.getByRole("button", { name: /Annually/ }).all()) {
     await expect(selected).toHaveAttribute("aria-pressed", "true")
   }
 })
@@ -135,7 +145,6 @@ test("homepage gets developers from installation to a working preview", async ({
   await expect(page.getByRole("button", { name: "Review orders" })).toBeVisible()
   await expect(page.getByText("React 18.2–19 · TypeScript · ESM + CJS")).toBeVisible()
   await expect(page.locator(".docs-version")).toHaveText(/^v\d+\.\d+\.\d+$/)
-  await expect(page.getByRole("link", { name: /Support If @bzync\/rui is useful to you/ })).toHaveAttribute("href", "https://buymeacoffee.com/adminjw")
   await expect(page.getByRole("link", { name: "Support development" })).toHaveAttribute("href", "https://buymeacoffee.com/adminjw")
 
   await page.getByRole("button", { name: "Save changes" }).click()
@@ -168,7 +177,7 @@ test("demo publishes installable PWA metadata and branded icons", async ({ page 
   await expect(page.locator('.docs-footer-brand img[src="/favicon-32.png"]')).toBeVisible()
 
   await page.goto("/#/components/navigation")
-  await expect(page.locator('.component-preview-canvas img[src="/favicon-32.png"]')).toBeVisible()
+  await expect(page.locator('#usage .component-preview-canvas img[src="/favicon-32.png"]')).toBeVisible()
 
   await page.goto("/#/examples/authentication")
   await expect(page.locator('.auth-brand img[src="/favicon-32.png"]')).toBeVisible()
@@ -285,7 +294,7 @@ test("interactive component references exercise real overlay behavior", async ({
 
 test("select and tabs retain keyboard interaction inside the docs", async ({ page }) => {
   await page.goto("/#/components/select")
-  const select = page.getByRole("combobox", { name: "Region" })
+  const select = page.locator("#usage").getByRole("combobox", { name: "Region" })
   await select.click()
   await page.getByRole("option", { name: "EU Central — Frankfurt" }).click()
   await expect(select).toContainText("EU Central — Frankfurt")
@@ -330,7 +339,7 @@ test("custom time picker and formatted text remain usable at every viewport", as
   await expect(trigger).toBeFocused()
 
   await page.goto("/#/components/text")
-  await expect(page.locator(".component-preview-canvas time")).toHaveCount(2)
+  await expect(page.locator("#usage .component-preview-canvas time")).toHaveCount(2)
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
   expect(overflow, "formatted text does not cause horizontal viewport overflow").toBeLessThanOrEqual(1)
 })
@@ -410,7 +419,7 @@ test("wide component previews remain horizontally scrollable on mobile", async (
   for (const route of ["calendar", "tabs", "navigation", "table", "gantt-chart", "code-block"]) {
     await page.goto(`/#/components/${route}`)
 
-    const canvas = page.locator(".component-preview-canvas")
+    const canvas = page.locator("#usage .component-preview-canvas")
     const rootBounds = await canvas.evaluate((element) => {
       const canvasRect = element.getBoundingClientRect()
       const rootRect = element.firstElementChild?.getBoundingClientRect()

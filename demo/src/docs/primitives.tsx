@@ -101,15 +101,17 @@ export function ComponentPreview({
 }
 
 function FormattedCodeBlock({ code, filename }: { code: string; filename: string }) {
-  const [formattedCode, setFormattedCode] = useState(code.trim())
+  // Formatted output is keyed by its source, so a new snippet shows its raw
+  // text until Prettier finishes, with no state reset inside the effect.
+  const [formatted, setFormatted] = useState<{ source: string; code: string } | null>(null)
+  const formattedCode = formatted?.source === code ? formatted.code : code.trim()
 
   useEffect(() => {
     let current = true
-    setFormattedCode(code.trim())
 
     void formatCode(code)
-      .then((formatted) => {
-        if (current) setFormattedCode(formatted)
+      .then((result) => {
+        if (current) setFormatted({ source: code, code: result })
       })
       .catch(() => {
         // Formatting is an enhancement. Keep the supplied example visible if
@@ -183,7 +185,8 @@ export function CopyCommand({ children }: { children: string }) {
 
   return (
     <div className="copy-command">
-      <code>{children}</code>
+      {/* The shell prompt is CSS-only so the command's text stays exact for find, copy and assistive tech. */}
+      <code data-shell={/^(npm|pnpm|yarn|bun|npx) /.test(children) || undefined}>{children}</code>
       <Button
         variant="ghost"
         size="sm"

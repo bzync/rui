@@ -1,5 +1,5 @@
 import { Badge, Button, Input, Switch } from "@bzync/rui"
-import { ChevronRight, Coffee, FileCheck2, Plus, ShieldCheck } from "lucide-react"
+import { ChevronRight, FileCheck2, Plus } from "lucide-react"
 import { useState } from "react"
 import { componentGroups, hrefFor, type DocsPage } from "../catalog"
 import {
@@ -29,63 +29,71 @@ import { Select } from "@bzync/rui/select"`
 
 const componentCount = componentGroups.reduce((count, group) => count + group.pages.length, 0)
 
+const projectSettingsCode = `import { Button, Input, Switch } from "@bzync/rui"
+import { useState } from "react"
+
+export function ProjectSettings() {
+  const [requiresApproval, setRequiresApproval] = useState(true)
+  const [saved, setSaved] = useState(false)
+
+  return (
+    <form onSubmit={(event) => { event.preventDefault(); setSaved(true) }}>
+      <Input label="Project name" defaultValue="api-gateway" onChange={() => setSaved(false)} />
+      <Switch
+        checked={requiresApproval}
+        onCheckedChange={(checked) => { setRequiresApproval(checked); setSaved(false) }}
+        label="Require deployment approval"
+        description="A reviewer must approve production changes."
+      />
+      <span role="status" aria-live="polite">{saved ? "Changes saved." : "Ready to configure."}</span>
+      <Button type="submit" size="sm">Save changes</Button>
+    </form>
+  )
+}`
+
 function IntroductionExample() {
   const [requiresApproval, setRequiresApproval] = useState(true)
   const [saved, setSaved] = useState(false)
 
   return (
-    <div className="docs-home-example" aria-label="Interactive project settings example built with rui">
-      <div className="docs-home-example-header">
-        <div><strong>Project access</strong><span>Real rui components</span></div>
-        <a href={hrefFor("components/input")}>View component</a>
+    <form className="home-example" aria-label="Interactive project settings example built with rui" onSubmit={(event) => { event.preventDefault(); setSaved(true) }}>
+      <Input label="Project name" defaultValue="api-gateway" onChange={() => setSaved(false)} />
+      <Switch
+        checked={requiresApproval}
+        onCheckedChange={(checked) => { setRequiresApproval(checked); setSaved(false) }}
+        label="Require deployment approval"
+        description="A reviewer must approve production changes."
+      />
+      <div className="home-example-actions">
+        <span role="status" aria-live="polite">{saved ? "Changes saved." : "Ready to configure."}</span>
+        <Button type="submit" size="sm">Save changes</Button>
       </div>
-      <form onSubmit={(event) => { event.preventDefault(); setSaved(true) }}>
-        <Input label="Project name" defaultValue="api-gateway" onChange={() => setSaved(false)} />
-        <Switch
-          checked={requiresApproval}
-          onCheckedChange={(checked) => { setRequiresApproval(checked); setSaved(false) }}
-          label="Require deployment approval"
-          description="A reviewer must approve production changes."
-        />
-        <div className="docs-home-example-actions">
-          <span role="status" aria-live="polite">{saved ? "Changes saved." : "Ready to configure."}</span>
-          <Button type="submit" size="sm">Save changes</Button>
-        </div>
-      </form>
-    </div>
+    </form>
   )
 }
 
 function IntroductionPage() {
   return <>
-    <div className="docs-home-intro">
-      <PageIntro
-        eyebrow="React + Tailwind CSS"
-        title="@bzync/rui"
-        description="Production-ready React components built with Tailwind CSS. Typed APIs, scoped theming, accessible interaction patterns, and explicit package entry points."
-      >
-        <Button asChild><a href={hrefFor("docs/installation")}>Get started</a></Button>
-        <Button asChild variant="secondary"><a href={hrefFor("components")}>Browse components</a></Button>
-        <span className="docs-hero-note"><ShieldCheck size={14} aria-hidden="true" /> React 18.2 and 19</span>
-        <a className="docs-hero-support" href="https://buymeacoffee.com/adminjw" target="_blank" rel="noreferrer">
-          <Coffee size={17} aria-hidden="true" />
-          <span><strong>Support</strong><small>If @bzync/rui is useful to you, you can support its continued development on Buy Me a Coffee.</small></span>
-        </a>
-      </PageIntro>
-      <IntroductionExample />
-    </div>
+    <PageIntro
+      title="@bzync/rui"
+      badge="React 18.2 – 19"
+      description="Production-ready React components built with Tailwind CSS. Typed APIs, scoped theming, accessible interaction patterns, and explicit package entry points."
+    >
+      <Button asChild><a href={hrefFor("docs/installation")}>Get started</a></Button>
+      <Button asChild variant="secondary"><a href={hrefFor("components")}>Browse components</a></Button>
+    </PageIntro>
 
     <DocsSection id="install" title="Install and import">
       <CopyCommand>npm install @bzync/rui framer-motion</CopyCommand>
       <p>React 18.2 or React 19 and React DOM are peer dependencies. Import <code>@bzync/rui/styles.css</code> once at your application root, then import from the root package or a component subpath.</p>
+      <ComponentPreview title="App entry" code={quickStartCode}>
+        <Button icon={<FileCheck2 size={15} aria-hidden="true" />}>Review orders</Button>
+      </ComponentPreview>
     </DocsSection>
 
-    <DocsSection id="first-component" title="Your first workflow" description="The provider scopes theme tokens to its children. Use applyToRoot when overlays and the whole document should share the theme.">
-      <ComponentPreview title="Approval queue" code={quickStartCode}>
-        <div className="intro-preview-copy">
-          <div><span className="intro-preview-kicker">Procurement / Approvals</span><strong>2 purchase orders need review</strong></div>
-          <Button icon={<FileCheck2 size={15} aria-hidden="true" />}>Review orders</Button>
-        </div>
+    <DocsSection id="first-component" title="Your first workflow" description="Fields, switches and buttons share one field contract, so a settings form is plain composition. Edit the name, flip the switch and save.">
+      <ComponentPreview title="Project settings" code={projectSettingsCode}>
+        <IntroductionExample />
       </ComponentPreview>
     </DocsSection>
 
@@ -107,11 +115,11 @@ function IntroductionPage() {
         <div><dt>Scoped theming</dt><dd>Accent, neutral, semantic, and mode-specific values are expressed as CSS variables inside ThemeProvider.</dd></div>
         <div><dt>Predictable distribution</dt><dd>Typed ESM and CommonJS entries are available from the root package and explicit component subpaths.</dd></div>
       </dl>
-      <nav className="docs-related-links" aria-label="Related documentation">
-        <a href={hrefFor("foundations/accessibility")}><span>Accessibility</span><small>Focus, keyboard behavior, semantics, and verification.</small></a>
-        <a href={hrefFor("docs/configuration")}><span>Theme configuration</span><small>Accent, neutral, semantic, and mode-specific tokens.</small></a>
-        <a href={hrefFor("examples/settings")}><span>Application examples</span><small>Components composed in realistic product interfaces.</small></a>
-        <a href={hrefFor("resources/component-api")}><span>Component API</span><small>Public inventory and source-verified contracts.</small></a>
+      <nav className="docs-link-grid docs-related-grid" aria-label="Related documentation">
+        <PageLink slug="foundations/accessibility" title="Accessibility" description="Focus, keyboard behavior, semantics, and verification." />
+        <PageLink slug="docs/configuration" title="Theme configuration" description="Accent, neutral, semantic, and mode-specific tokens." />
+        <PageLink slug="examples/settings" title="Application examples" description="Components composed in realistic product interfaces." />
+        <PageLink slug="resources/component-api" title="Component API" description="Public inventory and source-verified contracts." />
       </nav>
     </DocsSection>
   </>
