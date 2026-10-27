@@ -125,6 +125,24 @@ describe("interactive component contracts", () => {
     expect(bold).toHaveFocus()
   })
 
+  it("lays tab icons out inline by default, with right and top positions", () => {
+    const icon = <svg data-testid="icon" />
+    render(<Tabs defaultValue="left"><TabsList>
+      <TabsTrigger value="left" icon={icon}>Left</TabsTrigger>
+      <TabsTrigger value="right" icon={icon} iconPosition="right">Right</TabsTrigger>
+      <TabsTrigger value="top" icon={icon} iconPosition="top">Top</TabsTrigger>
+    </TabsList></Tabs>)
+    const left = screen.getByRole("tab", { name: "Left" })
+    const right = screen.getByRole("tab", { name: "Right" })
+    const top = screen.getByRole("tab", { name: "Top" })
+    // Flex row keeps the (block-level) svg beside the label instead of above it.
+    expect(left).toHaveClass("inline-flex", "items-center")
+    expect(left).not.toHaveClass("flex-col")
+    expect(left.lastElementChild).toHaveTextContent("Left")
+    expect(right.lastElementChild).toContainElement(screen.getAllByTestId("icon")[1])
+    expect(top).toHaveClass("flex-col")
+  })
+
   it("moves through tabs with arrow, Home, and End keys", async () => {
     const user = userEvent.setup()
     render(<Tabs defaultValue="one"><TabsList><TabsTrigger value="one">One</TabsTrigger><TabsTrigger value="two">Two</TabsTrigger><TabsTrigger value="three">Three</TabsTrigger></TabsList><TabsContent value="one">First</TabsContent><TabsContent value="two">Second</TabsContent><TabsContent value="three">Third</TabsContent></Tabs>)

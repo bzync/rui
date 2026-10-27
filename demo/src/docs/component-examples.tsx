@@ -1315,6 +1315,21 @@ export const componentExamples: Record<string, () => ComponentExample[]> = {
   )
 }`,
       <TabsControlledExample />),
+    ex("icon-position", "Icon position", "iconPosition places the icon left (default), right, or top — top suits icon tab bars.",
+      `<Tabs defaultValue="inbox">
+  <TabsList>
+    <TabsTrigger value="inbox" icon={<Inbox size={14} />}>Inbox</TabsTrigger>
+    <TabsTrigger value="export" icon={<Download size={14} />} iconPosition="right">Export</TabsTrigger>
+  </TabsList>
+</Tabs>
+<Tabs defaultValue="account">
+  <TabsList>
+    <TabsTrigger value="account" icon={<User size={16} />} iconPosition="top">Account</TabsTrigger>
+    <TabsTrigger value="billing" icon={<CreditCard size={16} />} iconPosition="top">Billing</TabsTrigger>
+    <TabsTrigger value="settings" icon={<Settings size={16} />} iconPosition="top">Settings</TabsTrigger>
+  </TabsList>
+</Tabs>`,
+      <div className="demo-stack items-center"><R.Tabs defaultValue="inbox"><R.TabsList><R.TabsTrigger value="inbox" icon={<Inbox size={14} />}>Inbox</R.TabsTrigger><R.TabsTrigger value="export" icon={<Download size={14} />} iconPosition="right">Export</R.TabsTrigger></R.TabsList></R.Tabs><R.Tabs defaultValue="account"><R.TabsList><R.TabsTrigger value="account" icon={<User size={16} />} iconPosition="top">Account</R.TabsTrigger><R.TabsTrigger value="billing" icon={<CreditCard size={16} />} iconPosition="top">Billing</R.TabsTrigger><R.TabsTrigger value="settings" icon={<Settings size={16} />} iconPosition="top">Settings</R.TabsTrigger></R.TabsList></R.Tabs></div>),
     ex("vertical", "Vertical", "orientation=\"vertical\" switches layout and the arrow-key axis.",
       `<Tabs defaultValue="general" orientation="vertical">
   <TabsList>

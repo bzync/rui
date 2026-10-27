@@ -98,9 +98,28 @@ export function TabsList({
   )
 }
 
+export type TabsIconPosition = "left" | "right" | "top"
+
 export interface TabsTriggerProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   value: string
   icon?: ReactNode
+  /** Where `icon` sits relative to the label. `top` stacks it above (icon tab bars). */
+  iconPosition?: TabsIconPosition
+}
+
+// Both orientations lay the icon and label out with flex: preflight makes
+// <svg> display:block, so without it the icon broke onto its own line.
+const triggerLayout: Record<"horizontal" | "vertical", Record<TabsIconPosition, string>> = {
+  horizontal: {
+    left: "inline-flex items-center justify-center gap-2 whitespace-nowrap px-3 py-1.5",
+    right: "inline-flex items-center justify-center gap-2 whitespace-nowrap px-3 py-1.5",
+    top: "inline-flex flex-col items-center justify-center gap-1 whitespace-nowrap px-3 py-2",
+  },
+  vertical: {
+    left: "flex w-full items-center gap-2 px-3 py-2 text-left",
+    right: "flex w-full items-center justify-between gap-2 px-3 py-2 text-left",
+    top: "flex w-full flex-col items-center gap-1 px-3 py-2 text-center",
+  },
 }
 
 export function TabsTrigger({
@@ -108,6 +127,7 @@ export function TabsTrigger({
   className,
   children,
   icon,
+  iconPosition = "left",
   onKeyDown,
   ...props
 }: TabsTriggerProps) {
@@ -143,10 +163,8 @@ export function TabsTrigger({
       onClick={() => setActive(value)}
       onKeyDown={handleKeyDown}
       className={cn(
-        "relative text-sm font-medium cursor-pointer transition-colors",
-        orientation === "vertical"
-          ? "flex items-center gap-2 w-full px-3 py-2 rounded-md text-left"
-          : "px-3 py-1.5 rounded-md",
+        "relative rounded-md text-sm font-medium cursor-pointer transition-colors",
+        triggerLayout[orientation === "vertical" ? "vertical" : "horizontal"][iconPosition],
         focusRingStyles,
         isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground",
         className,
@@ -165,10 +183,13 @@ export function TabsTrigger({
             : "border-transparent opacity-0",
         )}
       />
-      {icon && (
-        <span className="relative z-10 shrink-0 opacity-70">{icon}</span>
+      {icon && iconPosition !== "right" && (
+        <span className="relative z-10 inline-flex shrink-0 opacity-70">{icon}</span>
       )}
       <span className="relative z-10">{children}</span>
+      {icon && iconPosition === "right" && (
+        <span className="relative z-10 inline-flex shrink-0 opacity-70">{icon}</span>
+      )}
     </button>
   )
 }
