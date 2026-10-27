@@ -5,9 +5,12 @@ import { controlBaseStyles, fieldDescriptionStyles, fieldErrorStyles, fieldLabel
 import { useAnchoredPosition } from "@/hooks/use-anchored-position"
 import { useControllableState } from "@/hooks/use-controllable-state"
 import { mergeRefs } from "@/lib/merge-refs"
+import { AnimatePresence } from "framer-motion"
+import { motion } from "@/lib/motion-components"
 import { ThemePortal } from "./theme-provider"
 import {
   type HTMLAttributes,
+  type KeyboardEvent as ReactKeyboardEvent,
   type PointerEvent as ReactPointerEvent,
   forwardRef,
   useCallback,
@@ -139,12 +142,14 @@ export const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(function
     if (color) setHsv(hexToHsv(color))
   }, [color])
 
-  const { setFloating, style } = useAnchoredPosition({
+  const [isDraggingCanvas, setIsDraggingCanvas] = useState(false)
+
+  const { setFloating, style, placement } = useAnchoredPosition({
     open,
     anchorRef: triggerRef,
     side: "bottom",
     align: "start",
-    gap: 4,
+    gap: 6,
     padding: 8,
   })
 
@@ -176,27 +181,56 @@ export const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(function
     setColor(hex)
   }, [setColor])
 
-  const handleCanvasPointer = (e: ReactPointerEvent) => {
+  const updateCanvasAtClientCoord = (clientX: number, clientY: number) => {
     if (!canvasRef.current) return
-    const update = (clientX: number, clientY: number) => {
-      if (!canvasRef.current) return
-      const rect = canvasRef.current.getBoundingClientRect()
-      const x = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width))
-      const y = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height))
-      const s = Math.round(x * 100)
-      const v = Math.round((1 - y) * 100)
-      updateColorFromHsv(hue, s, v)
-    }
+    const rect = canvasRef.current.getBoundingClientRect()
+    const x = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width))
+    const y = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height))
+    const s = Math.round(x * 100)
+    const v = Math.round((1 - y) * 100)
+    updateColorFromHsv(hue, s, v)
+  }
 
-    update(e.clientX, e.clientY)
+  const handleCanvasPointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (!canvasRef.current || disabled) return
+    e.preventDefault()
+    e.currentTarget.setPointerCapture(e.pointerId)
+    setIsDraggingCanvas(true)
+    updateCanvasAtClientCoord(e.clientX, e.clientY)
+  }
 
-    const handlePointerMove = (ev: PointerEvent) => update(ev.clientX, ev.clientY)
-    const handlePointerUp = () => {
-      window.removeEventListener("pointermove", handlePointerMove)
-      window.removeEventListener("pointerup", handlePointerUp)
+  const handleCanvasPointerMove = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (!isDraggingCanvas) return
+    updateCanvasAtClientCoord(e.clientX, e.clientY)
+  }
+
+  const handleCanvasPointerUp = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (isDraggingCanvas) {
+      setIsDraggingCanvas(false)
+      try {
+        e.currentTarget.releasePointerCapture(e.pointerId)
+      } catch {
+        // Pointer capture might have been automatically released
+      }
     }
-    window.addEventListener("pointermove", handlePointerMove)
-    window.addEventListener("pointerup", handlePointerUp)
+  }
+
+  const handleCanvasKeyDown = (e: ReactKeyboardEvent<HTMLDivElement>) => {
+    if (disabled) return
+    let nextSat = sat
+    let nextVal = val
+    let handled = true
+
+    if (e.key === "ArrowLeft") nextSat = Math.max(0, sat - 2)
+    else if (e.key === "ArrowRight") nextSat = Math.min(100, sat + 2)
+    else if (e.key === "ArrowUp") nextVal = Math.min(100, val + 2)
+    else if (e.key === "ArrowDown") nextVal = Math.max(0, val - 2)
+    else handled = false
+
+    if (handled) {
+      e.preventDefault()
+      updateColorFromHsv(hue, nextSat, nextVal)
+    }
   }
 
   const handleEyeDropper = async () => {
@@ -237,129 +271,224 @@ export const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(function
           className={cn(
             controlBaseStyles,
             triggerSizes[size],
-            "w-full justify-between font-mono text-left",
+            "w-full justify-between font-mono text-left transition-all duration-150",
+            open && "ring-2 ring-accent border-accent",
             disabled && "cursor-not-allowed opacity-50",
             focusRingStyles,
           )}
         >
-          <span className="flex items-center gap-2">
+          <span className="flex items-center gap-2.5 min-w-0">
             <span
-              className="h-4 w-4 rounded-full border border-border shrink-0 shadow-xs"
+              className="h-4.5 w-4.5 rounded-full border border-border shrink-0 shadow-2xs transition-transform duration-150"
               style={{ backgroundColor: color }}
             />
-            <span className="text-xs uppercase">{color}</span>
+            <span className="truncate text-xs font-semibold uppercase tracking-wider">{color}</span>
           </span>
-          <span className="text-muted-foreground text-xs">▼</span>
+          <svg
+            aria-hidden="true"
+            className={cn(
+              "h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform duration-200 ease-out",
+              open && "rotate-180 text-foreground",
+            )}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="m6 9 6 6 6-6" />
+          </svg>
         </button>
 
-        {open && (
-          <ThemePortal>
-            <div
-              ref={mergeRefs(panelRef, setFloating)}
-              style={style}
-              role="dialog"
-              aria-label="Color picker"
-              className="z-(--z-popover) flex w-64 flex-col gap-3 rounded-[var(--radius-lg)] border border-border bg-surface p-3 shadow-floating ring-1 ring-foreground/5 animate-in fade-in zoom-in-95 duration-100"
-            >
-              {/* Saturation / Value Gradient Canvas */}
-              <div
-                ref={canvasRef}
-                onPointerDown={handleCanvasPointer}
-                className="relative h-36 w-full cursor-crosshair rounded-[var(--radius-md)] select-none touch-none overflow-hidden"
-                style={{
-                  backgroundColor: `hsl(${hue}, 100%, 50%)`,
-                  backgroundImage:
-                    "linear-gradient(to right, #fff, transparent), linear-gradient(to top, #000, transparent)",
-                }}
-              >
-                {/* Thumb pointer */}
-                <div
-                  className="absolute h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow-md ring-1 ring-black/40"
-                  style={{
-                    left: `${sat}%`,
-                    top: `${100 - val}%`,
-                    backgroundColor: color,
-                  }}
+        <ThemePortal>
+          <AnimatePresence>
+            {open && (
+              <>
+                {/* Mobile backdrop */}
+                <motion.div
+                  aria-hidden="true"
+                  className="fixed inset-0 z-(--z-popover) bg-overlay/40 sm:hidden"
+                  onClick={() => setOpen(false)}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15 }}
                 />
-              </div>
 
-              {/* Hue Rainbow Slider */}
-              <div className="flex items-center gap-2">
-                <input
-                  type="range"
-                  min="0"
-                  max="360"
-                  value={hue}
-                  aria-label="Hue"
-                  onChange={(e) => updateColorFromHsv(Number(e.target.value), sat, val)}
-                  className="h-3 w-full cursor-pointer appearance-none rounded-full outline-none"
-                  style={{
-                    background:
-                      "linear-gradient(to right, #ff0000 0%, #ffff00 17%, #00ff00 33%, #00ffff 50%, #0000ff 67%, #ff00ff 83%, #ff0000 100%)",
+                <motion.div
+                  ref={mergeRefs(panelRef, setFloating)}
+                  id={`${inputId}-dialog`}
+                  role="dialog"
+                  aria-label={label ? `${label} color picker` : "Color picker"}
+                  initial={{
+                    opacity: 0,
+                    scale: 0.96,
+                    y: placement === "top" ? 6 : -6,
                   }}
-                />
-                {showEyeDropper && hasEyeDropper && (
-                  <button
-                    type="button"
-                    aria-label="Pick color from screen"
-                    title="Pick color from screen"
-                    onClick={handleEyeDropper}
-                    className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] border border-border bg-surface-muted text-muted-foreground hover:bg-foreground/5 hover:text-foreground transition-colors"
+                  animate={{
+                    opacity: 1,
+                    scale: 1,
+                    y: 0,
+                  }}
+                  exit={{
+                    opacity: 0,
+                    scale: 0.96,
+                    y: placement === "top" ? 4 : -4,
+                  }}
+                  transition={{
+                    duration: 0.16,
+                    ease: [0.16, 1, 0.3, 1],
+                  }}
+                  style={{
+                    ...style,
+                    transformOrigin: placement === "top" ? "bottom left" : "top left",
+                  }}
+                  className="z-(--z-popover) flex w-68 flex-col gap-3 rounded-[var(--radius-lg)] border border-border bg-surface p-3.5 shadow-floating ring-1 ring-foreground/5 select-none"
+                >
+                  {/* Saturation / Value Gradient Canvas */}
+                  <div
+                    ref={canvasRef}
+                    role="slider"
+                    tabIndex={disabled ? -1 : 0}
+                    aria-label="Color saturation and brightness"
+                    aria-valuetext={`Saturation ${sat}%, Brightness ${val}%`}
+                    onPointerDown={handleCanvasPointerDown}
+                    onPointerMove={handleCanvasPointerMove}
+                    onPointerUp={handleCanvasPointerUp}
+                    onPointerCancel={handleCanvasPointerUp}
+                    onKeyDown={handleCanvasKeyDown}
+                    className={cn(
+                      "relative h-36 w-full rounded-[var(--radius-md)] select-none touch-none overflow-hidden transition-shadow",
+                      isDraggingCanvas ? "cursor-grabbing" : "cursor-crosshair",
+                      focusRingStyles,
+                    )}
+                    style={{
+                      backgroundColor: `hsl(${hue}, 100%, 50%)`,
+                      backgroundImage:
+                        "linear-gradient(to right, #fff, transparent), linear-gradient(to top, #000, transparent)",
+                    }}
                   >
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="m2 22 1-1h3l9-9" />
-                      <path d="M3 21v-3l9-9" />
-                      <path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z" />
-                    </svg>
-                  </button>
-                )}
-              </div>
+                    {/* Thumb pointer */}
+                    <div
+                      className={cn(
+                        "absolute h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow-md pointer-events-none",
+                        isDraggingCanvas
+                          ? "scale-125 shadow-lg ring-2 ring-white/90"
+                          : "transition-transform duration-100 ease-out hover:scale-115 ring-1 ring-black/40",
+                      )}
+                      style={{
+                        left: `${sat}%`,
+                        top: `${100 - val}%`,
+                        backgroundColor: color,
+                      }}
+                    />
+                  </div>
 
-              {/* Hex Input & Swatch Preview */}
-              <div className="flex items-center gap-2">
-                <div
-                  className="h-7 w-7 rounded-[var(--radius-sm)] border border-border shadow-xs shrink-0"
-                  style={{ backgroundColor: color }}
-                />
-                <input
-                  type="text"
-                  aria-label="Hex color code"
-                  value={color}
-                  onChange={(e) => {
-                    const val = e.target.value
-                    setColor(val)
-                    if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
-                      setHsv(hexToHsv(val))
-                    }
-                  }}
-                  className="w-full rounded-[var(--radius-sm)] border border-border bg-surface px-2 py-1 font-mono text-xs uppercase text-foreground outline-none focus:border-accent"
-                />
-              </div>
+                  {/* Hue Rainbow Slider */}
+                  <div className="flex items-center gap-2">
+                    <div className="relative flex-1 flex items-center">
+                      <input
+                        type="range"
+                        min="0"
+                        max="360"
+                        value={hue}
+                        aria-label="Hue"
+                        onChange={(e) => updateColorFromHsv(Number(e.target.value), sat, val)}
+                        className={cn(
+                          "h-3.5 w-full cursor-pointer appearance-none rounded-full outline-none transition-shadow",
+                          "focus-visible:ring-2 focus-visible:ring-focus-ring",
+                          "[&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-border-strong [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:transition-transform hover:[&::-webkit-slider-thumb]:scale-120 active:[&::-webkit-slider-thumb]:scale-130",
+                          "[&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-border-strong [&::-moz-range-thumb]:shadow-md [&::-moz-range-thumb]:transition-transform hover:[&::-moz-range-thumb]:scale-120 active:[&::-moz-range-thumb]:scale-130",
+                        )}
+                        style={{
+                          background:
+                            "linear-gradient(to right, #ff0000 0%, #ffff00 17%, #00ff00 33%, #00ffff 50%, #0000ff 67%, #ff00ff 83%, #ff0000 100%)",
+                        }}
+                      />
+                    </div>
+                    {showEyeDropper && hasEyeDropper && (
+                      <button
+                        type="button"
+                        aria-label="Pick color from screen"
+                        title="Pick color from screen"
+                        onClick={handleEyeDropper}
+                        className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] border border-border bg-surface text-muted-foreground transition-all duration-150 hover:bg-surface-muted hover:text-foreground hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
+                      >
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="m2 22 1-1h3l9-9" />
+                          <path d="M3 21v-3l9-9" />
+                          <path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z" />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
 
-              {/* Presets Grid */}
-              {presets.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 pt-1 border-t border-border">
-                  {presets.map((preset) => (
-                    <button
-                      key={preset}
-                      type="button"
-                      aria-label={`Select color ${preset}`}
-                      onClick={() => {
-                        setColor(preset)
-                        setHsv(hexToHsv(preset))
+                  {/* Hex Input & Swatch Preview */}
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="h-7 w-7 rounded-[var(--radius-sm)] border border-border shadow-2xs shrink-0 transition-colors duration-150"
+                      style={{ backgroundColor: color }}
+                    />
+                    <input
+                      type="text"
+                      aria-label="Hex color code"
+                      value={color}
+                      onChange={(e) => {
+                        const val = e.target.value
+                        setColor(val)
+                        if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
+                          setHsv(hexToHsv(val))
+                        }
                       }}
                       className={cn(
-                        "h-5 w-5 rounded-[var(--radius-sm)] border border-border shadow-xs transition-transform hover:scale-110",
-                        color.toLowerCase() === preset.toLowerCase() && "ring-2 ring-accent ring-offset-1",
+                        "w-full rounded-[var(--radius-sm)] border border-border bg-surface px-2 py-1 font-mono text-xs uppercase text-foreground outline-none transition-colors",
+                        "focus:border-accent focus:ring-1 focus:ring-accent",
                       )}
-                      style={{ backgroundColor: preset }}
                     />
-                  ))}
-                </div>
-              )}
-            </div>
-          </ThemePortal>
-        )}
+                  </div>
+
+                  {/* Presets Grid */}
+                  {presets.length > 0 && (
+                    <div className="flex flex-col gap-1.5 pt-2 border-t border-border">
+                      <span className="text-[11px] font-medium text-muted-foreground">Presets</span>
+                      <div className="flex flex-wrap gap-1.5" role="group" aria-label="Color presets">
+                        {presets.map((preset) => {
+                          const isSelected = color.toLowerCase() === preset.toLowerCase()
+                          return (
+                            <button
+                              key={preset}
+                              type="button"
+                              aria-label={`Select color ${preset}`}
+                              aria-pressed={isSelected}
+                              onClick={() => {
+                                setColor(preset)
+                                setHsv(hexToHsv(preset))
+                              }}
+                              className={cn(
+                                "group relative h-5 w-5 rounded-[var(--radius-sm)] border border-border shadow-2xs transition-all duration-150 ease-out hover:scale-115 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring",
+                                isSelected && "ring-2 ring-accent ring-offset-2 ring-offset-surface scale-105",
+                              )}
+                              style={{ backgroundColor: preset }}
+                            >
+                              {isSelected && (
+                                <span className="absolute inset-0 flex items-center justify-center text-white drop-shadow-xs">
+                                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                    <polyline points="20 6 9 17 4 12" />
+                                  </svg>
+                                </span>
+                              )}
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </motion.div>
+              </>
+            )}
+          </AnimatePresence>
+        </ThemePortal>
       </div>
 
       {error ? (

@@ -5,6 +5,8 @@ import { focusRingStyles, iconButtonStyles } from "@/lib/component-styles"
 import { useAnchoredPosition } from "@/hooks/use-anchored-position"
 import { useControllableState } from "@/hooks/use-controllable-state"
 import { mergeRefs } from "@/lib/merge-refs"
+import { AnimatePresence } from "framer-motion"
+import { motion } from "@/lib/motion-components"
 import { ThemePortal } from "./theme-provider"
 import {
   AnchorHTMLAttributes,
@@ -206,7 +208,7 @@ function SidebarItem({
   const panelRef = useRef<HTMLDivElement | null>(null)
   const subMenuId = useId()
 
-  const { setFloating, style } = useAnchoredPosition({
+  const { setFloating, style, placement } = useAnchoredPosition({
     open: Boolean(rail && flyoutOpen),
     anchorRef: triggerRef,
     side: "right",
@@ -262,35 +264,59 @@ function SidebarItem({
           {item.badge && <span aria-hidden="true" className="absolute right-1.5 top-1.5 size-2 rounded-full bg-accent-500 ring-2 ring-surface" />}
         </button>
 
-        {flyoutOpen && (
-          <ThemePortal>
-            <div
-              ref={mergeRefs(panelRef, setFloating)}
-              style={style}
-              role="menu"
-              aria-label={item.label}
-              onMouseEnter={() => setFlyoutOpen(true)}
-              onMouseLeave={() => setFlyoutOpen(false)}
-              className="z-(--z-popover) min-w-[170px] flex flex-col gap-1 rounded-[var(--radius-md)] border border-border bg-surface p-1.5 shadow-floating ring-1 ring-foreground/5 animate-in fade-in zoom-in-95 duration-100"
-            >
-              <div className="px-2.5 py-1 text-xs font-semibold text-foreground border-b border-border/60 mb-0.5">
-                {item.label}
-              </div>
-              {item.children!.map((child) => (
-                <NavigationLink
-                  key={child.id}
-                  {...child}
-                  active={activeId === child.id}
-                  onSelect={(id) => {
-                    onSelect?.(id)
-                    setFlyoutOpen(false)
-                  }}
-                  className="w-full justify-start text-xs h-8 px-2"
-                />
-              ))}
-            </div>
-          </ThemePortal>
-        )}
+        <ThemePortal>
+          <AnimatePresence>
+            {flyoutOpen && (
+              <motion.div
+                ref={mergeRefs(panelRef, setFloating)}
+                style={{
+                  ...style,
+                  transformOrigin: placement === "left" ? "top right" : "top left",
+                }}
+                role="menu"
+                aria-label={item.label}
+                onMouseEnter={() => setFlyoutOpen(true)}
+                onMouseLeave={() => setFlyoutOpen(false)}
+                initial={{
+                  opacity: 0,
+                  scale: 0.96,
+                  x: placement === "left" ? 6 : -6,
+                }}
+                animate={{
+                  opacity: 1,
+                  scale: 1,
+                  x: 0,
+                }}
+                exit={{
+                  opacity: 0,
+                  scale: 0.96,
+                  x: placement === "left" ? 4 : -4,
+                }}
+                transition={{
+                  duration: 0.16,
+                  ease: [0.16, 1, 0.3, 1],
+                }}
+                className="z-(--z-popover) min-w-[170px] flex flex-col gap-1 rounded-[var(--radius-md)] border border-border bg-surface p-1.5 shadow-floating ring-1 ring-foreground/5 select-none"
+              >
+                <div className="px-2.5 py-1 text-xs font-semibold text-foreground border-b border-border/60 mb-0.5">
+                  {item.label}
+                </div>
+                {item.children!.map((child) => (
+                  <NavigationLink
+                    key={child.id}
+                    {...child}
+                    active={activeId === child.id}
+                    onSelect={(id) => {
+                      onSelect?.(id)
+                      setFlyoutOpen(false)
+                    }}
+                    className="w-full justify-start text-xs h-8 px-2"
+                  />
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </ThemePortal>
       </div>
     )
   }

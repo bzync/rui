@@ -5,6 +5,8 @@ import { focusRingStyles } from "@/lib/component-styles"
 import { useAnchoredPosition } from "@/hooks/use-anchored-position"
 import { CheckIcon, ChevronDownIcon, MonitorIcon, MoonIcon, SunIcon } from "@/lib/icons"
 import { mergeRefs } from "@/lib/merge-refs"
+import { AnimatePresence } from "framer-motion"
+import { motion } from "@/lib/motion-components"
 import { ThemePortal, type Theme, type ResolvedTheme, ThemeContext } from "./theme-provider"
 import {
   type ButtonHTMLAttributes,
@@ -402,12 +404,12 @@ const DropdownThemeSwitcher = forwardRef<HTMLDivElement, DropdownThemeSwitcherPr
   const menuId = useId()
   const cfg = sizeConfig[size]
 
-  const { setFloating, style } = useAnchoredPosition({
+  const { setFloating, style, placement } = useAnchoredPosition({
     open,
     anchorRef: triggerRef,
     side: "bottom",
     align: "start",
-    gap: 4,
+    gap: 6,
     padding: 8,
   })
 
@@ -461,50 +463,74 @@ const DropdownThemeSwitcher = forwardRef<HTMLDivElement, DropdownThemeSwitcherPr
         </span>
       </button>
 
-      {open && (
-        <ThemePortal>
-          <div
-            ref={mergeRefs(panelRef, setFloating)}
-            style={style}
-            role="menu"
-            id={menuId}
-            aria-label={ariaLabel}
-            className="z-(--z-popover) min-w-[130px] rounded-[var(--radius-md)] border border-border bg-surface p-1 shadow-floating ring-1 ring-foreground/5 animate-in fade-in zoom-in-95 duration-100"
-          >
-            {options.map((opt) => {
-              const isSelected = currentTheme === opt.value
-              return (
-                <button
-                  key={opt.value}
-                  type="button"
-                  role="menuitemradio"
-                  aria-checked={isSelected}
-                  onClick={() => {
-                    onSelectOption(opt.value)
-                    setOpen(false)
-                    triggerRef.current?.focus()
-                  }}
-                  className={cn(
-                    "flex w-full items-center justify-between rounded-sm px-2.5 py-1.5 text-xs font-medium transition-colors text-foreground",
-                    focusRingStyles,
-                    isSelected ? "bg-accent/10 text-accent-strong font-semibold" : "hover:bg-foreground/6",
-                  )}
-                >
-                  <span className="flex items-center gap-2">
-                    {opt.icon}
-                    <span>{opt.label}</span>
-                  </span>
-                  {isSelected && (
-                    <span className="text-accent-strong">
-                      <CheckIcon size={12} strokeWidth={2.5} />
+      <ThemePortal>
+        <AnimatePresence>
+          {open && (
+            <motion.div
+              ref={mergeRefs(panelRef, setFloating)}
+              style={{
+                ...style,
+                transformOrigin: placement === "top" ? "bottom left" : "top left",
+              }}
+              role="menu"
+              id={menuId}
+              aria-label={ariaLabel}
+              initial={{
+                opacity: 0,
+                scale: 0.96,
+                y: placement === "top" ? 6 : -6,
+              }}
+              animate={{
+                opacity: 1,
+                scale: 1,
+                y: 0,
+              }}
+              exit={{
+                opacity: 0,
+                scale: 0.96,
+                y: placement === "top" ? 4 : -4,
+              }}
+              transition={{
+                duration: 0.16,
+                ease: [0.16, 1, 0.3, 1],
+              }}
+              className="z-(--z-popover) min-w-[130px] rounded-[var(--radius-md)] border border-border bg-surface p-1 shadow-floating ring-1 ring-foreground/5 select-none"
+            >
+              {options.map((opt) => {
+                const isSelected = currentTheme === opt.value
+                return (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    role="menuitemradio"
+                    aria-checked={isSelected}
+                    onClick={() => {
+                      onSelectOption(opt.value)
+                      setOpen(false)
+                      triggerRef.current?.focus()
+                    }}
+                    className={cn(
+                      "flex w-full items-center justify-between rounded-sm px-2.5 py-1.5 text-xs font-medium transition-colors text-foreground",
+                      focusRingStyles,
+                      isSelected ? "bg-accent/10 text-accent-strong font-semibold" : "hover:bg-foreground/6",
+                    )}
+                  >
+                    <span className="flex items-center gap-2">
+                      {opt.icon}
+                      <span>{opt.label}</span>
                     </span>
-                  )}
-                </button>
-              )
-            })}
-          </div>
-        </ThemePortal>
-      )}
+                    {isSelected && (
+                      <span className="text-accent-strong">
+                        <CheckIcon size={12} strokeWidth={2.5} />
+                      </span>
+                    )}
+                  </button>
+                )
+              })}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </ThemePortal>
     </div>
   )
 })

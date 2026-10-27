@@ -4,7 +4,8 @@ import { describe, expect, it, vi } from "vitest"
 import {
   Accordion, Alert, BillingIntervalToggle, Breadcrumb, Stepper, Button, ButtonGroup,
   Collapsible, CollapsibleTrigger, CollapsibleContent, ColorPicker, ConfirmDialog,
-  DateTimePreset, DateTimePicker, DndContext, Droppable, Draggable, DragHandle,
+  DateTimePreset, DateTimePicker, DndContext, Droppable, Draggable, DragHandle, DragOverlay,
+  useDraggable, useDroppable,
   IconButton, InlineEdit, Kanban, NumberInput, Pagination, Popover, PopoverContent,
   RangeSlider, SortableList, Tabs, TabsContent, TabsList, TabsTrigger, Tag, Toggle,
   ToggleGroup, ToggleGroupItem, Tree,
@@ -539,5 +540,92 @@ describe("SortableList and Kanban", () => {
     const bluePreset = screen.getByRole("button", { name: "Select color #3b82f6" })
     await user.click(bluePreset)
     expect(onChange).toHaveBeenCalledWith("#3b82f6")
+  })
+
+  it("updates DateTimePicker using time columns and Done button", async () => {
+    const user = userEvent.setup()
+    const onChange = vi.fn()
+    const date = new Date(2026, 9, 27, 10, 0)
+
+    render(<DateTimePicker defaultValue={date} onChange={onChange} />)
+
+    const trigger = screen.getByRole("button", { name: /Oct 27, 2026/ })
+    await user.click(trigger)
+
+    expect(screen.getByRole("dialog", { name: "Choose date and time" })).toBeInTheDocument()
+
+    // Select hour 11
+    const hour11 = screen.getByRole("option", { name: "11" })
+    await user.click(hour11)
+
+    // Select minute 15
+    const min15 = screen.getByRole("option", { name: "15" })
+    await user.click(min15)
+
+    // Click Done
+    const doneBtn = screen.getByRole("button", { name: "Done" })
+    await user.click(doneBtn)
+
+    expect(onChange).toHaveBeenCalled()
+    const resultDate = onChange.mock.calls[0][0] as Date
+    expect(resultDate.getHours()).toBe(11)
+    expect(resultDate.getMinutes()).toBe(15)
+  })
+
+  it("supports DndContext with DragOverlay and DragHandle", async () => {
+    const user = userEvent.setup()
+    const onDragEnd = vi.fn()
+
+    render(
+      <DndContext onDragEnd={onDragEnd}>
+        <Droppable id="source-col">
+          <Draggable id="task-1" dragFromItem={false}>
+            <span>Task 1</span>
+            <DragHandle draggableId="task-1" label="Reorder task 1" />
+          </Draggable>
+        </Droppable>
+        <Droppable id="target-col">
+          <span>Target zone</span>
+        </Droppable>
+        <DragOverlay>
+          {({ activeId }) => <div>Dragging: {activeId}</div>}
+        </DragOverlay>
+      </DndContext>,
+    )
+
+    const handle = screen.getByRole("button", { name: "Reorder task 1" })
+    expect(handle).toBeInTheDocument()
+
+    handle.focus()
+    // Pick up with Enter
+    await user.keyboard("{Enter}")
+    // Move to next container
+    await user.keyboard("{ArrowRight}")
+    // Drop with Enter
+    await user.keyboard("{Enter}")
+
+    expect(onDragEnd).toHaveBeenCalledWith(
+      expect.objectContaining({
+        activeId: "task-1",
+        targetDroppableId: "target-col",
+      }),
+    )
+  })
+
+  it("navigates ColorPicker canvas with arrow keys", async () => {
+    const user = userEvent.setup()
+    const onChange = vi.fn()
+
+    render(<ColorPicker value="#808080" onChange={onChange} />)
+
+    const trigger = screen.getByRole("button", { name: /#808080/i })
+    await user.click(trigger)
+
+    const canvas = screen.getByRole("slider", { name: /saturation and brightness/i })
+    expect(canvas).toBeInTheDocument()
+
+    canvas.focus()
+    await user.keyboard("{ArrowRight}")
+    expect(onChange).toHaveBeenCalled()
   })
 })
