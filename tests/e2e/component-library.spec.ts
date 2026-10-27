@@ -89,6 +89,9 @@ test("every component page includes a live preview, copyable code, and API refer
       await expect(example.locator(".component-preview-code")).not.toContainText("__ruiPreview")
     }
     await expect(page.locator("#api-reference .docs-props-table")).toHaveCount(1)
+    // Real size data from the build and a live render measurement.
+    await expect(page.locator(".docs-metrics"), `${target} has size metrics`).toContainText("kB gzip")
+    await expect(page.locator(".docs-metrics")).toContainText(/Rendered in \d+(\.\d)? ms/)
   }
 })
 

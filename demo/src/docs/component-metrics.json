@@ -1,0 +1,2588 @@
+{
+  "version": "0.0.11",
+  "stylesheet": {
+    "raw": 101620,
+    "gzip": 16833,
+    "brotli": 13589
+  },
+  "sharedRuntime": {
+    "raw": 37806,
+    "gzip": 9613,
+    "brotli": 8330,
+    "modules": [
+      "cn-BJyZJP-y.js"
+    ]
+  },
+  "components": {
+    "Accordion": {
+      "entry": "components/accordion.js",
+      "total": {
+        "raw": 44201,
+        "gzip": 11941,
+        "brotli": 10201
+      },
+      "specific": {
+        "raw": 6395,
+        "gzip": 2305,
+        "brotli": 2016
+      },
+      "lazy": null,
+      "modules": 5,
+      "peers": [
+        "framer-motion"
+      ]
+    },
+    "Collapsible": {
+      "entry": "components/accordion.js",
+      "total": {
+        "raw": 44201,
+        "gzip": 11941,
+        "brotli": 10201
+      },
+      "specific": {
+        "raw": 6395,
+        "gzip": 2305,
+        "brotli": 2016
+      },
+      "lazy": null,
+      "modules": 5,
+      "peers": [
+        "framer-motion"
+      ]
+    },
+    "Alert": {
+      "entry": "components/alert.js",
+      "total": {
+        "raw": 45460,
+        "gzip": 12012,
+        "brotli": 10290
+      },
+      "specific": {
+        "raw": 7654,
+        "gzip": 2372,
+        "brotli": 2088
+      },
+      "lazy": null,
+      "modules": 5,
+      "peers": [
+        "framer-motion"
+      ]
+    },
+    "AspectRatio": {
+      "entry": "components/aspect-ratio.js",
+      "total": {
+        "raw": 38356,
+        "gzip": 9890,
+        "brotli": 8535
+      },
+      "specific": {
+        "raw": 550,
+        "gzip": 368,
+        "brotli": 325
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "AuthBackdrop": {
+      "entry": "components/auth-backdrop.js",
+      "total": {
+        "raw": 38264,
+        "gzip": 9864,
+        "brotli": 8515
+      },
+      "specific": {
+        "raw": 458,
+        "gzip": 327,
+        "brotli": 287
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "Autocomplete": {
+      "entry": "components/autocomplete.js",
+      "total": {
+        "raw": 67308,
+        "gzip": 18516,
+        "brotli": 15662
+      },
+      "specific": {
+        "raw": 29502,
+        "gzip": 8600,
+        "brotli": 7634
+      },
+      "lazy": null,
+      "modules": 8,
+      "peers": [
+        "framer-motion"
+      ]
+    },
+    "AvatarGroup": {
+      "entry": "components/avatar-group.js",
+      "total": {
+        "raw": 39094,
+        "gzip": 10244,
+        "brotli": 8819
+      },
+      "specific": {
+        "raw": 1288,
+        "gzip": 724,
+        "brotli": 625
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "AvatarGroupOverflow": {
+      "entry": "components/avatar-group.js",
+      "total": {
+        "raw": 39094,
+        "gzip": 10244,
+        "brotli": 8819
+      },
+      "specific": {
+        "raw": 1288,
+        "gzip": 724,
+        "brotli": 625
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "Avatar": {
+      "entry": "components/avatar.js",
+      "total": {
+        "raw": 39669,
+        "gzip": 10466,
+        "brotli": 9000
+      },
+      "specific": {
+        "raw": 1863,
+        "gzip": 953,
+        "brotli": 827
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "Badge": {
+      "entry": "components/badge.js",
+      "total": {
+        "raw": 40132,
+        "gzip": 10464,
+        "brotli": 9011
+      },
+      "specific": {
+        "raw": 2326,
+        "gzip": 926,
+        "brotli": 812
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
+    },
+    "BillingIntervalToggle": {
+      "entry": "components/billing-interval-toggle.js",
+      "total": {
+        "raw": 40038,
+        "gzip": 10579,
+        "brotli": 9136
+      },
+      "specific": {
+        "raw": 2232,
+        "gzip": 1059,
+        "brotli": 930
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "Blockquote": {
+      "entry": "components/blockquote.js",
+      "total": {
+        "raw": 40495,
+        "gzip": 10693,
+        "brotli": 9195
+      },
+      "specific": {
+        "raw": 2689,
+        "gzip": 1149,
+        "brotli": 1002
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
+    },
+    "Breadcrumb": {
+      "entry": "components/breadcrumb.js",
+      "total": {
+        "raw": 41640,
+        "gzip": 10943,
+        "brotli": 9443
+      },
+      "specific": {
+        "raw": 3834,
+        "gzip": 1434,
+        "brotli": 1263
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
+    },
+    "ButtonGroup": {
+      "entry": "components/button-group.js",
+      "total": {
+        "raw": 38774,
+        "gzip": 10039,
+        "brotli": 8669
+      },
+      "specific": {
+        "raw": 968,
+        "gzip": 522,
+        "brotli": 450
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "Button": {
+      "entry": "components/button.js",
+      "total": {
+        "raw": 44181,
+        "gzip": 11653,
+        "brotli": 9975
+      },
+      "specific": {
+        "raw": 6375,
+        "gzip": 1997,
+        "brotli": 1756
+      },
+      "lazy": null,
+      "modules": 4,
+      "peers": []
+    },
+    "Calendar": {
+      "entry": "components/calendar.js",
+      "total": {
+        "raw": 61728,
+        "gzip": 15580,
+        "brotli": 13405
+      },
+      "specific": {
+        "raw": 23922,
+        "gzip": 5958,
+        "brotli": 5279
+      },
+      "lazy": null,
+      "modules": 5,
+      "peers": [
+        "framer-motion"
+      ]
+    },
+    "Callout": {
+      "entry": "components/callout.js",
+      "total": {
+        "raw": 42314,
+        "gzip": 10763,
+        "brotli": 9288
+      },
+      "specific": {
+        "raw": 4508,
+        "gzip": 1222,
+        "brotli": 1084
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
+    },
+    "Card": {
+      "entry": "components/card.js",
+      "total": {
+        "raw": 40064,
+        "gzip": 10274,
+        "brotli": 8835
+      },
+      "specific": {
+        "raw": 2258,
+        "gzip": 756,
+        "brotli": 641
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "CardBody": {
+      "entry": "components/card.js",
+      "total": {
+        "raw": 40064,
+        "gzip": 10274,
+        "brotli": 8835
+      },
+      "specific": {
+        "raw": 2258,
+        "gzip": 756,
+        "brotli": 641
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "CardDescription": {
+      "entry": "components/card.js",
+      "total": {
+        "raw": 40064,
+        "gzip": 10274,
+        "brotli": 8835
+      },
+      "specific": {
+        "raw": 2258,
+        "gzip": 756,
+        "brotli": 641
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "CardFooter": {
+      "entry": "components/card.js",
+      "total": {
+        "raw": 40064,
+        "gzip": 10274,
+        "brotli": 8835
+      },
+      "specific": {
+        "raw": 2258,
+        "gzip": 756,
+        "brotli": 641
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "CardHeader": {
+      "entry": "components/card.js",
+      "total": {
+        "raw": 40064,
+        "gzip": 10274,
+        "brotli": 8835
+      },
+      "specific": {
+        "raw": 2258,
+        "gzip": 756,
+        "brotli": 641
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "CardTitle": {
+      "entry": "components/card.js",
+      "total": {
+        "raw": 40064,
+        "gzip": 10274,
+        "brotli": 8835
+      },
+      "specific": {
+        "raw": 2258,
+        "gzip": 756,
+        "brotli": 641
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "BarChart": {
+      "entry": "components/charts.js",
+      "total": {
+        "raw": 85485,
+        "gzip": 20102,
+        "brotli": 17131
+      },
+      "specific": {
+        "raw": 47679,
+        "gzip": 10573,
+        "brotli": 8962
+      },
+      "lazy": null,
+      "modules": 5,
+      "peers": [
+        "framer-motion"
+      ]
+    },
+    "DonutChart": {
+      "entry": "components/charts.js",
+      "total": {
+        "raw": 85485,
+        "gzip": 20102,
+        "brotli": 17131
+      },
+      "specific": {
+        "raw": 47679,
+        "gzip": 10573,
+        "brotli": 8962
+      },
+      "lazy": null,
+      "modules": 5,
+      "peers": [
+        "framer-motion"
+      ]
+    },
+    "FunnelChart": {
+      "entry": "components/charts.js",
+      "total": {
+        "raw": 85485,
+        "gzip": 20102,
+        "brotli": 17131
+      },
+      "specific": {
+        "raw": 47679,
+        "gzip": 10573,
+        "brotli": 8962
+      },
+      "lazy": null,
+      "modules": 5,
+      "peers": [
+        "framer-motion"
+      ]
+    },
+    "GanttChart": {
+      "entry": "components/charts.js",
+      "total": {
+        "raw": 85485,
+        "gzip": 20102,
+        "brotli": 17131
+      },
+      "specific": {
+        "raw": 47679,
+        "gzip": 10573,
+        "brotli": 8962
+      },
+      "lazy": null,
+      "modules": 5,
+      "peers": [
+        "framer-motion"
+      ]
+    },
+    "HeatmapChart": {
+      "entry": "components/charts.js",
+      "total": {
+        "raw": 85485,
+        "gzip": 20102,
+        "brotli": 17131
+      },
+      "specific": {
+        "raw": 47679,
+        "gzip": 10573,
+        "brotli": 8962
+      },
+      "lazy": null,
+      "modules": 5,
+      "peers": [
+        "framer-motion"
+      ]
+    },
+    "LineChart": {
+      "entry": "components/charts.js",
+      "total": {
+        "raw": 85485,
+        "gzip": 20102,
+        "brotli": 17131
+      },
+      "specific": {
+        "raw": 47679,
+        "gzip": 10573,
+        "brotli": 8962
+      },
+      "lazy": null,
+      "modules": 5,
+      "peers": [
+        "framer-motion"
+      ]
+    },
+    "MultiLineChart": {
+      "entry": "components/charts.js",
+      "total": {
+        "raw": 85485,
+        "gzip": 20102,
+        "brotli": 17131
+      },
+      "specific": {
+        "raw": 47679,
+        "gzip": 10573,
+        "brotli": 8962
+      },
+      "lazy": null,
+      "modules": 5,
+      "peers": [
+        "framer-motion"
+      ]
+    },
+    "RadarChart": {
+      "entry": "components/charts.js",
+      "total": {
+        "raw": 85485,
+        "gzip": 20102,
+        "brotli": 17131
+      },
+      "specific": {
+        "raw": 47679,
+        "gzip": 10573,
+        "brotli": 8962
+      },
+      "lazy": null,
+      "modules": 5,
+      "peers": [
+        "framer-motion"
+      ]
+    },
+    "ScatterChart": {
+      "entry": "components/charts.js",
+      "total": {
+        "raw": 85485,
+        "gzip": 20102,
+        "brotli": 17131
+      },
+      "specific": {
+        "raw": 47679,
+        "gzip": 10573,
+        "brotli": 8962
+      },
+      "lazy": null,
+      "modules": 5,
+      "peers": [
+        "framer-motion"
+      ]
+    },
+    "WaterfallChart": {
+      "entry": "components/charts.js",
+      "total": {
+        "raw": 85485,
+        "gzip": 20102,
+        "brotli": 17131
+      },
+      "specific": {
+        "raw": 47679,
+        "gzip": 10573,
+        "brotli": 8962
+      },
+      "lazy": null,
+      "modules": 5,
+      "peers": [
+        "framer-motion"
+      ]
+    },
+    "Checkbox": {
+      "entry": "components/checkbox.js",
+      "total": {
+        "raw": 44223,
+        "gzip": 11878,
+        "brotli": 10167
+      },
+      "specific": {
+        "raw": 6417,
+        "gzip": 2224,
+        "brotli": 1974
+      },
+      "lazy": null,
+      "modules": 4,
+      "peers": [
+        "framer-motion"
+      ]
+    },
+    "CodeBlock": {
+      "entry": "components/code.js",
+      "total": {
+        "raw": 50428,
+        "gzip": 13759,
+        "brotli": 11850
+      },
+      "specific": {
+        "raw": 12622,
+        "gzip": 4332,
+        "brotli": 3766
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "CodeEditor": {
+      "entry": "components/code.js",
+      "total": {
+        "raw": 50428,
+        "gzip": 13759,
+        "brotli": 11850
+      },
+      "specific": {
+        "raw": 12622,
+        "gzip": 4332,
+        "brotli": 3766
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "InlineCode": {
+      "entry": "components/code.js",
+      "total": {
+        "raw": 50428,
+        "gzip": 13759,
+        "brotli": 11850
+      },
+      "specific": {
+        "raw": 12622,
+        "gzip": 4332,
+        "brotli": 3766
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "CommandPalette": {
+      "entry": "components/command.js",
+      "total": {
+        "raw": 58045,
+        "gzip": 16303,
+        "brotli": 13790
+      },
+      "specific": {
+        "raw": 20239,
+        "gzip": 6487,
+        "brotli": 5708
+      },
+      "lazy": null,
+      "modules": 8,
+      "peers": [
+        "framer-motion"
+      ]
+    },
+    "CommandProvider": {
+      "entry": "components/command.js",
+      "total": {
+        "raw": 58045,
+        "gzip": 16303,
+        "brotli": 13790
+      },
+      "specific": {
+        "raw": 20239,
+        "gzip": 6487,
+        "brotli": 5708
+      },
+      "lazy": null,
+      "modules": 8,
+      "peers": [
+        "framer-motion"
+      ]
+    },
+    "ConfirmDialog": {
+      "entry": "components/confirm-dialog.js",
+      "total": {
+        "raw": 66586,
+        "gzip": 17901,
+        "brotli": 15450
+      },
+      "specific": {
+        "raw": 28780,
+        "gzip": 8243,
+        "brotli": 7291
+      },
+      "lazy": null,
+      "modules": 12,
+      "peers": [
+        "framer-motion"
+      ]
+    },
+    "CopyButton": {
+      "entry": "components/copy-button.js",
+      "total": {
+        "raw": 41272,
+        "gzip": 10951,
+        "brotli": 9399
+      },
+      "specific": {
+        "raw": 3466,
+        "gzip": 1342,
+        "brotli": 1155
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": [
+        "framer-motion"
+      ]
+    },
+    "Currency": {
+      "entry": "components/currency.js",
+      "total": {
+        "raw": 39436,
+        "gzip": 10321,
+        "brotli": 8938
+      },
+      "specific": {
+        "raw": 1630,
+        "gzip": 827,
+        "brotli": 716
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "DataTable": {
+      "entry": "components/datatable.js",
+      "total": {
+        "raw": 51478,
+        "gzip": 13493,
+        "brotli": 11647
+      },
+      "specific": {
+        "raw": 13672,
+        "gzip": 3939,
+        "brotli": 3487
+      },
+      "lazy": null,
+      "modules": 4,
+      "peers": []
+    },
+    "DatePicker": {
+      "entry": "components/datepicker.js",
+      "total": {
+        "raw": 62469,
+        "gzip": 16851,
+        "brotli": 14377
+      },
+      "specific": {
+        "raw": 24663,
+        "gzip": 7053,
+        "brotli": 6244
+      },
+      "lazy": null,
+      "modules": 5,
+      "peers": [
+        "framer-motion"
+      ]
+    },
+    "DescriptionDetails": {
+      "entry": "components/description-list.js",
+      "total": {
+        "raw": 39200,
+        "gzip": 10121,
+        "brotli": 8734
+      },
+      "specific": {
+        "raw": 1394,
+        "gzip": 614,
+        "brotli": 522
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "DescriptionItem": {
+      "entry": "components/description-list.js",
+      "total": {
+        "raw": 39200,
+        "gzip": 10121,
+        "brotli": 8734
+      },
+      "specific": {
+        "raw": 1394,
+        "gzip": 614,
+        "brotli": 522
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "DescriptionList": {
+      "entry": "components/description-list.js",
+      "total": {
+        "raw": 39200,
+        "gzip": 10121,
+        "brotli": 8734
+      },
+      "specific": {
+        "raw": 1394,
+        "gzip": 614,
+        "brotli": 522
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "DescriptionTerm": {
+      "entry": "components/description-list.js",
+      "total": {
+        "raw": 39200,
+        "gzip": 10121,
+        "brotli": 8734
+      },
+      "specific": {
+        "raw": 1394,
+        "gzip": 614,
+        "brotli": 522
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "DevMode": {
+      "entry": "components/dev-mode.js",
+      "total": {
+        "raw": 61302,
+        "gzip": 16923,
+        "brotli": 14424
+      },
+      "specific": {
+        "raw": 23496,
+        "gzip": 7210,
+        "brotli": 6347
+      },
+      "lazy": null,
+      "modules": 4,
+      "peers": []
+    },
+    "Divider": {
+      "entry": "components/divider.js",
+      "total": {
+        "raw": 39157,
+        "gzip": 10195,
+        "brotli": 8826
+      },
+      "specific": {
+        "raw": 1351,
+        "gzip": 684,
+        "brotli": 598
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "Drawer": {
+      "entry": "components/drawer.js",
+      "total": {
+        "raw": 59054,
+        "gzip": 16088,
+        "brotli": 13804
+      },
+      "specific": {
+        "raw": 21248,
+        "gzip": 6450,
+        "brotli": 5705
+      },
+      "lazy": null,
+      "modules": 10,
+      "peers": [
+        "framer-motion"
+      ]
+    },
+    "DropdownMenu": {
+      "entry": "components/dropdown-menu.js",
+      "total": {
+        "raw": 43102,
+        "gzip": 11755,
+        "brotli": 10090
+      },
+      "specific": {
+        "raw": 5296,
+        "gzip": 2214,
+        "brotli": 1936
+      },
+      "lazy": {
+        "raw": 12114,
+        "gzip": 4082,
+        "brotli": 3601
+      },
+      "modules": 4,
+      "peers": [
+        "framer-motion"
+      ]
+    },
+    "EmptyState": {
+      "entry": "components/empty-state.js",
+      "total": {
+        "raw": 39820,
+        "gzip": 10379,
+        "brotli": 8960
+      },
+      "specific": {
+        "raw": 2014,
+        "gzip": 855,
+        "brotli": 746
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "ErrorState": {
+      "entry": "components/error-state.js",
+      "total": {
+        "raw": 46727,
+        "gzip": 12366,
+        "brotli": 10549
+      },
+      "specific": {
+        "raw": 8921,
+        "gzip": 2668,
+        "brotli": 2330
+      },
+      "lazy": null,
+      "modules": 5,
+      "peers": []
+    },
+    "FileUpload": {
+      "entry": "components/file-upload.js",
+      "total": {
+        "raw": 45707,
+        "gzip": 12434,
+        "brotli": 10589
+      },
+      "specific": {
+        "raw": 7901,
+        "gzip": 2715,
+        "brotli": 2385
+      },
+      "lazy": null,
+      "modules": 4,
+      "peers": [
+        "framer-motion"
+      ]
+    },
+    "Field": {
+      "entry": "components/form-field.js",
+      "total": {
+        "raw": 41591,
+        "gzip": 10821,
+        "brotli": 9294
+      },
+      "specific": {
+        "raw": 3785,
+        "gzip": 1283,
+        "brotli": 1117
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
+    },
+    "FieldContent": {
+      "entry": "components/form-field.js",
+      "total": {
+        "raw": 41591,
+        "gzip": 10821,
+        "brotli": 9294
+      },
+      "specific": {
+        "raw": 3785,
+        "gzip": 1283,
+        "brotli": 1117
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
+    },
+    "FieldDescription": {
+      "entry": "components/form-field.js",
+      "total": {
+        "raw": 41591,
+        "gzip": 10821,
+        "brotli": 9294
+      },
+      "specific": {
+        "raw": 3785,
+        "gzip": 1283,
+        "brotli": 1117
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
+    },
+    "FieldError": {
+      "entry": "components/form-field.js",
+      "total": {
+        "raw": 41591,
+        "gzip": 10821,
+        "brotli": 9294
+      },
+      "specific": {
+        "raw": 3785,
+        "gzip": 1283,
+        "brotli": 1117
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
+    },
+    "FieldLabel": {
+      "entry": "components/form-field.js",
+      "total": {
+        "raw": 41591,
+        "gzip": 10821,
+        "brotli": 9294
+      },
+      "specific": {
+        "raw": 3785,
+        "gzip": 1283,
+        "brotli": 1117
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
+    },
+    "FormField": {
+      "entry": "components/form-field.js",
+      "total": {
+        "raw": 41591,
+        "gzip": 10821,
+        "brotli": 9294
+      },
+      "specific": {
+        "raw": 3785,
+        "gzip": 1283,
+        "brotli": 1117
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
+    },
+    "InfoButton": {
+      "entry": "components/info-button.js",
+      "total": {
+        "raw": 40139,
+        "gzip": 10536,
+        "brotli": 9099
+      },
+      "specific": {
+        "raw": 2333,
+        "gzip": 1031,
+        "brotli": 899
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
+    },
+    "Input": {
+      "entry": "components/input.js",
+      "total": {
+        "raw": 42804,
+        "gzip": 11121,
+        "brotli": 9540
+      },
+      "specific": {
+        "raw": 4998,
+        "gzip": 1497,
+        "brotli": 1323
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
+    },
+    "Kbd": {
+      "entry": "components/kbd.js",
+      "total": {
+        "raw": 38604,
+        "gzip": 9990,
+        "brotli": 8648
+      },
+      "specific": {
+        "raw": 798,
+        "gzip": 482,
+        "brotli": 416
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "Label": {
+      "entry": "components/label.js",
+      "total": {
+        "raw": 40200,
+        "gzip": 10520,
+        "brotli": 9057
+      },
+      "specific": {
+        "raw": 2394,
+        "gzip": 999,
+        "brotli": 882
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
+    },
+    "AppShell": {
+      "entry": "components/layout.js",
+      "total": {
+        "raw": 41714,
+        "gzip": 10767,
+        "brotli": 9295
+      },
+      "specific": {
+        "raw": 3908,
+        "gzip": 1259,
+        "brotli": 1087
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "AppShellBody": {
+      "entry": "components/layout.js",
+      "total": {
+        "raw": 41714,
+        "gzip": 10767,
+        "brotli": 9295
+      },
+      "specific": {
+        "raw": 3908,
+        "gzip": 1259,
+        "brotli": 1087
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "AppShellHeader": {
+      "entry": "components/layout.js",
+      "total": {
+        "raw": 41714,
+        "gzip": 10767,
+        "brotli": 9295
+      },
+      "specific": {
+        "raw": 3908,
+        "gzip": 1259,
+        "brotli": 1087
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "AppShellMain": {
+      "entry": "components/layout.js",
+      "total": {
+        "raw": 41714,
+        "gzip": 10767,
+        "brotli": 9295
+      },
+      "specific": {
+        "raw": 3908,
+        "gzip": 1259,
+        "brotli": 1087
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "Container": {
+      "entry": "components/layout.js",
+      "total": {
+        "raw": 41714,
+        "gzip": 10767,
+        "brotli": 9295
+      },
+      "specific": {
+        "raw": 3908,
+        "gzip": 1259,
+        "brotli": 1087
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "Footer": {
+      "entry": "components/layout.js",
+      "total": {
+        "raw": 41714,
+        "gzip": 10767,
+        "brotli": 9295
+      },
+      "specific": {
+        "raw": 3908,
+        "gzip": 1259,
+        "brotli": 1087
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "Inline": {
+      "entry": "components/layout.js",
+      "total": {
+        "raw": 41714,
+        "gzip": 10767,
+        "brotli": 9295
+      },
+      "specific": {
+        "raw": 3908,
+        "gzip": 1259,
+        "brotli": 1087
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "PageHeader": {
+      "entry": "components/layout.js",
+      "total": {
+        "raw": 41714,
+        "gzip": 10767,
+        "brotli": 9295
+      },
+      "specific": {
+        "raw": 3908,
+        "gzip": 1259,
+        "brotli": 1087
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "Stack": {
+      "entry": "components/layout.js",
+      "total": {
+        "raw": 41714,
+        "gzip": 10767,
+        "brotli": 9295
+      },
+      "specific": {
+        "raw": 3908,
+        "gzip": 1259,
+        "brotli": 1087
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "Link": {
+      "entry": "components/link.js",
+      "total": {
+        "raw": 39380,
+        "gzip": 10312,
+        "brotli": 8870
+      },
+      "specific": {
+        "raw": 1574,
+        "gzip": 783,
+        "brotli": 673
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "List": {
+      "entry": "components/list.js",
+      "total": {
+        "raw": 39392,
+        "gzip": 10205,
+        "brotli": 8800
+      },
+      "specific": {
+        "raw": 1586,
+        "gzip": 692,
+        "brotli": 607
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "ListItem": {
+      "entry": "components/list.js",
+      "total": {
+        "raw": 39392,
+        "gzip": 10205,
+        "brotli": 8800
+      },
+      "specific": {
+        "raw": 1586,
+        "gzip": 692,
+        "brotli": 607
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "Modal": {
+      "entry": "components/modal.js",
+      "total": {
+        "raw": 59248,
+        "gzip": 16291,
+        "brotli": 13957
+      },
+      "specific": {
+        "raw": 21442,
+        "gzip": 6588,
+        "brotli": 5837
+      },
+      "lazy": null,
+      "modules": 9,
+      "peers": [
+        "framer-motion"
+      ]
+    },
+    "ModalBody": {
+      "entry": "components/modal.js",
+      "total": {
+        "raw": 59248,
+        "gzip": 16291,
+        "brotli": 13957
+      },
+      "specific": {
+        "raw": 21442,
+        "gzip": 6588,
+        "brotli": 5837
+      },
+      "lazy": null,
+      "modules": 9,
+      "peers": [
+        "framer-motion"
+      ]
+    },
+    "ModalDescription": {
+      "entry": "components/modal.js",
+      "total": {
+        "raw": 59248,
+        "gzip": 16291,
+        "brotli": 13957
+      },
+      "specific": {
+        "raw": 21442,
+        "gzip": 6588,
+        "brotli": 5837
+      },
+      "lazy": null,
+      "modules": 9,
+      "peers": [
+        "framer-motion"
+      ]
+    },
+    "ModalFooter": {
+      "entry": "components/modal.js",
+      "total": {
+        "raw": 59248,
+        "gzip": 16291,
+        "brotli": 13957
+      },
+      "specific": {
+        "raw": 21442,
+        "gzip": 6588,
+        "brotli": 5837
+      },
+      "lazy": null,
+      "modules": 9,
+      "peers": [
+        "framer-motion"
+      ]
+    },
+    "ModalHeader": {
+      "entry": "components/modal.js",
+      "total": {
+        "raw": 59248,
+        "gzip": 16291,
+        "brotli": 13957
+      },
+      "specific": {
+        "raw": 21442,
+        "gzip": 6588,
+        "brotli": 5837
+      },
+      "lazy": null,
+      "modules": 9,
+      "peers": [
+        "framer-motion"
+      ]
+    },
+    "ModalTitle": {
+      "entry": "components/modal.js",
+      "total": {
+        "raw": 59248,
+        "gzip": 16291,
+        "brotli": 13957
+      },
+      "specific": {
+        "raw": 21442,
+        "gzip": 6588,
+        "brotli": 5837
+      },
+      "lazy": null,
+      "modules": 9,
+      "peers": [
+        "framer-motion"
+      ]
+    },
+    "BottomBar": {
+      "entry": "components/navigation.js",
+      "total": {
+        "raw": 43897,
+        "gzip": 11603,
+        "brotli": 9942
+      },
+      "specific": {
+        "raw": 6091,
+        "gzip": 2047,
+        "brotli": 1765
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
+    },
+    "BrandLink": {
+      "entry": "components/navigation.js",
+      "total": {
+        "raw": 43897,
+        "gzip": 11603,
+        "brotli": 9942
+      },
+      "specific": {
+        "raw": 6091,
+        "gzip": 2047,
+        "brotli": 1765
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
+    },
+    "IconButton": {
+      "entry": "components/navigation.js",
+      "total": {
+        "raw": 43897,
+        "gzip": 11603,
+        "brotli": 9942
+      },
+      "specific": {
+        "raw": 6091,
+        "gzip": 2047,
+        "brotli": 1765
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
+    },
+    "Navbar": {
+      "entry": "components/navigation.js",
+      "total": {
+        "raw": 43897,
+        "gzip": 11603,
+        "brotli": 9942
+      },
+      "specific": {
+        "raw": 6091,
+        "gzip": 2047,
+        "brotli": 1765
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
+    },
+    "NavigationLink": {
+      "entry": "components/navigation.js",
+      "total": {
+        "raw": 43897,
+        "gzip": 11603,
+        "brotli": 9942
+      },
+      "specific": {
+        "raw": 6091,
+        "gzip": 2047,
+        "brotli": 1765
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
+    },
+    "Sidebar": {
+      "entry": "components/navigation.js",
+      "total": {
+        "raw": 43897,
+        "gzip": 11603,
+        "brotli": 9942
+      },
+      "specific": {
+        "raw": 6091,
+        "gzip": 2047,
+        "brotli": 1765
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
+    },
+    "Topbar": {
+      "entry": "components/navigation.js",
+      "total": {
+        "raw": 43897,
+        "gzip": 11603,
+        "brotli": 9942
+      },
+      "specific": {
+        "raw": 6091,
+        "gzip": 2047,
+        "brotli": 1765
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
+    },
+    "TopbarTitle": {
+      "entry": "components/navigation.js",
+      "total": {
+        "raw": 43897,
+        "gzip": 11603,
+        "brotli": 9942
+      },
+      "specific": {
+        "raw": 6091,
+        "gzip": 2047,
+        "brotli": 1765
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
+    },
+    "NumberInput": {
+      "entry": "components/number-input.js",
+      "total": {
+        "raw": 44220,
+        "gzip": 11906,
+        "brotli": 10168
+      },
+      "specific": {
+        "raw": 6414,
+        "gzip": 2284,
+        "brotli": 2003
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
+    },
+    "OtpInput": {
+      "entry": "components/otp-input.js",
+      "total": {
+        "raw": 40514,
+        "gzip": 10758,
+        "brotli": 9273
+      },
+      "specific": {
+        "raw": 2708,
+        "gzip": 1270,
+        "brotli": 1104
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "Overlay": {
+      "entry": "components/overlay.js",
+      "total": {
+        "raw": 54325,
+        "gzip": 14912,
+        "brotli": 12736
+      },
+      "specific": {
+        "raw": 16519,
+        "gzip": 5223,
+        "brotli": 4630
+      },
+      "lazy": null,
+      "modules": 8,
+      "peers": [
+        "framer-motion"
+      ]
+    },
+    "OverlayBackdrop": {
+      "entry": "components/overlay.js",
+      "total": {
+        "raw": 54325,
+        "gzip": 14912,
+        "brotli": 12736
+      },
+      "specific": {
+        "raw": 16519,
+        "gzip": 5223,
+        "brotli": 4630
+      },
+      "lazy": null,
+      "modules": 8,
+      "peers": [
+        "framer-motion"
+      ]
+    },
+    "Pagination": {
+      "entry": "components/pagination.js",
+      "total": {
+        "raw": 42353,
+        "gzip": 11467,
+        "brotli": 9840
+      },
+      "specific": {
+        "raw": 4547,
+        "gzip": 1885,
+        "brotli": 1653
+      },
+      "lazy": null,
+      "modules": 4,
+      "peers": []
+    },
+    "Popover": {
+      "entry": "components/popover.js",
+      "total": {
+        "raw": 53108,
+        "gzip": 14839,
+        "brotli": 12690
+      },
+      "specific": {
+        "raw": 15302,
+        "gzip": 5181,
+        "brotli": 4577
+      },
+      "lazy": null,
+      "modules": 7,
+      "peers": [
+        "framer-motion"
+      ]
+    },
+    "PopoverContent": {
+      "entry": "components/popover.js",
+      "total": {
+        "raw": 53108,
+        "gzip": 14839,
+        "brotli": 12690
+      },
+      "specific": {
+        "raw": 15302,
+        "gzip": 5181,
+        "brotli": 4577
+      },
+      "lazy": null,
+      "modules": 7,
+      "peers": [
+        "framer-motion"
+      ]
+    },
+    "Progressbar": {
+      "entry": "components/progressbar.js",
+      "total": {
+        "raw": 42773,
+        "gzip": 11239,
+        "brotli": 9696
+      },
+      "specific": {
+        "raw": 4967,
+        "gzip": 1666,
+        "brotli": 1468
+      },
+      "lazy": null,
+      "modules": 4,
+      "peers": [
+        "framer-motion"
+      ]
+    },
+    "Radio": {
+      "entry": "components/radio.js",
+      "total": {
+        "raw": 44074,
+        "gzip": 11937,
+        "brotli": 10206
+      },
+      "specific": {
+        "raw": 6268,
+        "gzip": 2281,
+        "brotli": 2018
+      },
+      "lazy": null,
+      "modules": 5,
+      "peers": [
+        "framer-motion"
+      ]
+    },
+    "RadioGroup": {
+      "entry": "components/radio.js",
+      "total": {
+        "raw": 44074,
+        "gzip": 11937,
+        "brotli": 10206
+      },
+      "specific": {
+        "raw": 6268,
+        "gzip": 2281,
+        "brotli": 2018
+      },
+      "lazy": null,
+      "modules": 5,
+      "peers": [
+        "framer-motion"
+      ]
+    },
+    "Rating": {
+      "entry": "components/rating.js",
+      "total": {
+        "raw": 42049,
+        "gzip": 11369,
+        "brotli": 9809
+      },
+      "specific": {
+        "raw": 4243,
+        "gzip": 1818,
+        "brotli": 1580
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
+    },
+    "RichTextEditor": {
+      "entry": "components/richtext.js",
+      "total": {
+        "raw": 49537,
+        "gzip": 12392,
+        "brotli": 10626
+      },
+      "specific": {
+        "raw": 11731,
+        "gzip": 2867,
+        "brotli": 2457
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "ScrollArea": {
+      "entry": "components/scroll-area.js",
+      "total": {
+        "raw": 39985,
+        "gzip": 10498,
+        "brotli": 9069
+      },
+      "specific": {
+        "raw": 2179,
+        "gzip": 1005,
+        "brotli": 873
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
+    },
+    "Select": {
+      "entry": "components/select.js",
+      "total": {
+        "raw": 68298,
+        "gzip": 18260,
+        "brotli": 15361
+      },
+      "specific": {
+        "raw": 30492,
+        "gzip": 8331,
+        "brotli": 7270
+      },
+      "lazy": null,
+      "modules": 8,
+      "peers": [
+        "framer-motion"
+      ]
+    },
+    "ArticleJsonLd": {
+      "entry": "components/seo.js",
+      "total": {
+        "raw": 39714,
+        "gzip": 10471,
+        "brotli": 9004
+      },
+      "specific": {
+        "raw": 1908,
+        "gzip": 960,
+        "brotli": 818
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "BreadcrumbJsonLd": {
+      "entry": "components/seo.js",
+      "total": {
+        "raw": 39714,
+        "gzip": 10471,
+        "brotli": 9004
+      },
+      "specific": {
+        "raw": 1908,
+        "gzip": 960,
+        "brotli": 818
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "SeoImage": {
+      "entry": "components/seo.js",
+      "total": {
+        "raw": 39714,
+        "gzip": 10471,
+        "brotli": 9004
+      },
+      "specific": {
+        "raw": 1908,
+        "gzip": 960,
+        "brotli": 818
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "StructuredData": {
+      "entry": "components/seo.js",
+      "total": {
+        "raw": 39714,
+        "gzip": 10471,
+        "brotli": 9004
+      },
+      "specific": {
+        "raw": 1908,
+        "gzip": 960,
+        "brotli": 818
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "Separator": {
+      "entry": "components/separator.js",
+      "total": {
+        "raw": 38752,
+        "gzip": 9978,
+        "brotli": 8622
+      },
+      "specific": {
+        "raw": 946,
+        "gzip": 464,
+        "brotli": 422
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "Skeleton": {
+      "entry": "components/skeleton.js",
+      "total": {
+        "raw": 44859,
+        "gzip": 11347,
+        "brotli": 9804
+      },
+      "specific": {
+        "raw": 7053,
+        "gzip": 1826,
+        "brotli": 1573
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "SkeletonAvatar": {
+      "entry": "components/skeleton.js",
+      "total": {
+        "raw": 44859,
+        "gzip": 11347,
+        "brotli": 9804
+      },
+      "specific": {
+        "raw": 7053,
+        "gzip": 1826,
+        "brotli": 1573
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "SkeletonCard": {
+      "entry": "components/skeleton.js",
+      "total": {
+        "raw": 44859,
+        "gzip": 11347,
+        "brotli": 9804
+      },
+      "specific": {
+        "raw": 7053,
+        "gzip": 1826,
+        "brotli": 1573
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "SkeletonList": {
+      "entry": "components/skeleton.js",
+      "total": {
+        "raw": 44859,
+        "gzip": 11347,
+        "brotli": 9804
+      },
+      "specific": {
+        "raw": 7053,
+        "gzip": 1826,
+        "brotli": 1573
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "SkeletonRegion": {
+      "entry": "components/skeleton.js",
+      "total": {
+        "raw": 44859,
+        "gzip": 11347,
+        "brotli": 9804
+      },
+      "specific": {
+        "raw": 7053,
+        "gzip": 1826,
+        "brotli": 1573
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "SkeletonStat": {
+      "entry": "components/skeleton.js",
+      "total": {
+        "raw": 44859,
+        "gzip": 11347,
+        "brotli": 9804
+      },
+      "specific": {
+        "raw": 7053,
+        "gzip": 1826,
+        "brotli": 1573
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "SkeletonTable": {
+      "entry": "components/skeleton.js",
+      "total": {
+        "raw": 44859,
+        "gzip": 11347,
+        "brotli": 9804
+      },
+      "specific": {
+        "raw": 7053,
+        "gzip": 1826,
+        "brotli": 1573
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "SkeletonText": {
+      "entry": "components/skeleton.js",
+      "total": {
+        "raw": 44859,
+        "gzip": 11347,
+        "brotli": 9804
+      },
+      "specific": {
+        "raw": 7053,
+        "gzip": 1826,
+        "brotli": 1573
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "SkeletonTopbar": {
+      "entry": "components/skeleton.js",
+      "total": {
+        "raw": 44859,
+        "gzip": 11347,
+        "brotli": 9804
+      },
+      "specific": {
+        "raw": 7053,
+        "gzip": 1826,
+        "brotli": 1573
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "Slider": {
+      "entry": "components/slider.js",
+      "total": {
+        "raw": 42628,
+        "gzip": 11326,
+        "brotli": 9710
+      },
+      "specific": {
+        "raw": 4822,
+        "gzip": 1752,
+        "brotli": 1535
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
+    },
+    "Slot": {
+      "entry": "components/slot.js",
+      "total": {
+        "raw": 38246,
+        "gzip": 9843,
+        "brotli": 8472
+      },
+      "specific": {
+        "raw": 440,
+        "gzip": 306,
+        "brotli": 268
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "SnackbarProvider": {
+      "entry": "components/snackbar.js",
+      "total": {
+        "raw": 1724,
+        "gzip": 860,
+        "brotli": 748
+      },
+      "specific": {
+        "raw": 1724,
+        "gzip": 860,
+        "brotli": 748
+      },
+      "lazy": {
+        "raw": 54840,
+        "gzip": 14816,
+        "brotli": 12753
+      },
+      "modules": 1,
+      "peers": [
+        "framer-motion"
+      ]
+    },
+    "Spinner": {
+      "entry": "components/spinner.js",
+      "total": {
+        "raw": 38659,
+        "gzip": 10050,
+        "brotli": 8687
+      },
+      "specific": {
+        "raw": 853,
+        "gzip": 511,
+        "brotli": 439
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "Stat": {
+      "entry": "components/stat.js",
+      "total": {
+        "raw": 41588,
+        "gzip": 10679,
+        "brotli": 9211
+      },
+      "specific": {
+        "raw": 3782,
+        "gzip": 1155,
+        "brotli": 1013
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
+    },
+    "StatusDot": {
+      "entry": "components/status-dot.js",
+      "total": {
+        "raw": 40217,
+        "gzip": 10446,
+        "brotli": 9020
+      },
+      "specific": {
+        "raw": 2411,
+        "gzip": 930,
+        "brotli": 831
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
+    },
+    "Stepper": {
+      "entry": "components/stepper.js",
+      "total": {
+        "raw": 42555,
+        "gzip": 11291,
+        "brotli": 9709
+      },
+      "specific": {
+        "raw": 4749,
+        "gzip": 1745,
+        "brotli": 1535
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
+    },
+    "Switch": {
+      "entry": "components/switch.js",
+      "total": {
+        "raw": 40246,
+        "gzip": 10652,
+        "brotli": 9194
+      },
+      "specific": {
+        "raw": 2440,
+        "gzip": 1141,
+        "brotli": 1006
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "Table": {
+      "entry": "components/table.js",
+      "total": {
+        "raw": 40100,
+        "gzip": 10263,
+        "brotli": 8871
+      },
+      "specific": {
+        "raw": 2294,
+        "gzip": 753,
+        "brotli": 641
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "TableBody": {
+      "entry": "components/table.js",
+      "total": {
+        "raw": 40100,
+        "gzip": 10263,
+        "brotli": 8871
+      },
+      "specific": {
+        "raw": 2294,
+        "gzip": 753,
+        "brotli": 641
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "TableCell": {
+      "entry": "components/table.js",
+      "total": {
+        "raw": 40100,
+        "gzip": 10263,
+        "brotli": 8871
+      },
+      "specific": {
+        "raw": 2294,
+        "gzip": 753,
+        "brotli": 641
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "TableHead": {
+      "entry": "components/table.js",
+      "total": {
+        "raw": 40100,
+        "gzip": 10263,
+        "brotli": 8871
+      },
+      "specific": {
+        "raw": 2294,
+        "gzip": 753,
+        "brotli": 641
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "TableHeader": {
+      "entry": "components/table.js",
+      "total": {
+        "raw": 40100,
+        "gzip": 10263,
+        "brotli": 8871
+      },
+      "specific": {
+        "raw": 2294,
+        "gzip": 753,
+        "brotli": 641
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "TableRow": {
+      "entry": "components/table.js",
+      "total": {
+        "raw": 40100,
+        "gzip": 10263,
+        "brotli": 8871
+      },
+      "specific": {
+        "raw": 2294,
+        "gzip": 753,
+        "brotli": 641
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    },
+    "Tabs": {
+      "entry": "components/tabs.js",
+      "total": {
+        "raw": 43984,
+        "gzip": 11877,
+        "brotli": 10219
+      },
+      "specific": {
+        "raw": 6178,
+        "gzip": 2330,
+        "brotli": 2051
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
+    },
+    "TabsContent": {
+      "entry": "components/tabs.js",
+      "total": {
+        "raw": 43984,
+        "gzip": 11877,
+        "brotli": 10219
+      },
+      "specific": {
+        "raw": 6178,
+        "gzip": 2330,
+        "brotli": 2051
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
+    },
+    "TabsList": {
+      "entry": "components/tabs.js",
+      "total": {
+        "raw": 43984,
+        "gzip": 11877,
+        "brotli": 10219
+      },
+      "specific": {
+        "raw": 6178,
+        "gzip": 2330,
+        "brotli": 2051
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
+    },
+    "TabsTrigger": {
+      "entry": "components/tabs.js",
+      "total": {
+        "raw": 43984,
+        "gzip": 11877,
+        "brotli": 10219
+      },
+      "specific": {
+        "raw": 6178,
+        "gzip": 2330,
+        "brotli": 2051
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
+    },
+    "Tag": {
+      "entry": "components/tag.js",
+      "total": {
+        "raw": 40888,
+        "gzip": 10692,
+        "brotli": 9216
+      },
+      "specific": {
+        "raw": 3082,
+        "gzip": 1171,
+        "brotli": 1012
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
+    },
+    "TerminalBlock": {
+      "entry": "components/terminal.js",
+      "total": {
+        "raw": 70981,
+        "gzip": 19616,
+        "brotli": 17150
+      },
+      "specific": {
+        "raw": 33175,
+        "gzip": 10181,
+        "brotli": 9034
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
+    },
+    "TerminalEmulator": {
+      "entry": "components/terminal.js",
+      "total": {
+        "raw": 70981,
+        "gzip": 19616,
+        "brotli": 17150
+      },
+      "specific": {
+        "raw": 33175,
+        "gzip": 10181,
+        "brotli": 9034
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
+    },
+    "Textarea": {
+      "entry": "components/textarea.js",
+      "total": {
+        "raw": 41289,
+        "gzip": 10953,
+        "brotli": 9403
+      },
+      "specific": {
+        "raw": 3483,
+        "gzip": 1354,
+        "brotli": 1187
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
+    },
+    "ThemePortal": {
+      "entry": "components/theme-provider.js",
+      "total": {
+        "raw": 45869,
+        "gzip": 12092,
+        "brotli": 10501
+      },
+      "specific": {
+        "raw": 8063,
+        "gzip": 2644,
+        "brotli": 2372
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
+    },
+    "ThemeProvider": {
+      "entry": "components/theme-provider.js",
+      "total": {
+        "raw": 45869,
+        "gzip": 12092,
+        "brotli": 10501
+      },
+      "specific": {
+        "raw": 8063,
+        "gzip": 2644,
+        "brotli": 2372
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
+    },
+    "ThemeToggle": {
+      "entry": "components/theme-toggle.js",
+      "total": {
+        "raw": 49968,
+        "gzip": 13590,
+        "brotli": 11650
+      },
+      "specific": {
+        "raw": 12162,
+        "gzip": 3985,
+        "brotli": 3514
+      },
+      "lazy": null,
+      "modules": 5,
+      "peers": []
+    },
+    "TimePicker": {
+      "entry": "components/time-picker.js",
+      "total": {
+        "raw": 61105,
+        "gzip": 17073,
+        "brotli": 14554
+      },
+      "specific": {
+        "raw": 23299,
+        "gzip": 7328,
+        "brotli": 6482
+      },
+      "lazy": null,
+      "modules": 4,
+      "peers": []
+    },
+    "Timeline": {
+      "entry": "components/timeline.js",
+      "total": {
+        "raw": 41009,
+        "gzip": 10574,
+        "brotli": 9125
+      },
+      "specific": {
+        "raw": 3203,
+        "gzip": 1056,
+        "brotli": 922
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
+    },
+    "Toggle": {
+      "entry": "components/toggle.js",
+      "total": {
+        "raw": 43753,
+        "gzip": 11825,
+        "brotli": 10089
+      },
+      "specific": {
+        "raw": 5947,
+        "gzip": 2239,
+        "brotli": 1974
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
+    },
+    "ToggleGroup": {
+      "entry": "components/toggle.js",
+      "total": {
+        "raw": 43753,
+        "gzip": 11825,
+        "brotli": 10089
+      },
+      "specific": {
+        "raw": 5947,
+        "gzip": 2239,
+        "brotli": 1974
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
+    },
+    "ToggleGroupItem": {
+      "entry": "components/toggle.js",
+      "total": {
+        "raw": 43753,
+        "gzip": 11825,
+        "brotli": 10089
+      },
+      "specific": {
+        "raw": 5947,
+        "gzip": 2239,
+        "brotli": 1974
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
+    },
+    "Tooltip": {
+      "entry": "components/tooltip.js",
+      "total": {
+        "raw": 52450,
+        "gzip": 14613,
+        "brotli": 12513
+      },
+      "specific": {
+        "raw": 14644,
+        "gzip": 4981,
+        "brotli": 4409
+      },
+      "lazy": null,
+      "modules": 7,
+      "peers": [
+        "framer-motion"
+      ]
+    },
+    "Tree": {
+      "entry": "components/tree.js",
+      "total": {
+        "raw": 44871,
+        "gzip": 12216,
+        "brotli": 10480
+      },
+      "specific": {
+        "raw": 7065,
+        "gzip": 2624,
+        "brotli": 2353
+      },
+      "lazy": null,
+      "modules": 5,
+      "peers": [
+        "framer-motion"
+      ]
+    },
+    "Heading": {
+      "entry": "components/typography.js",
+      "total": {
+        "raw": 47702,
+        "gzip": 12977,
+        "brotli": 10975
+      },
+      "specific": {
+        "raw": 9896,
+        "gzip": 3262,
+        "brotli": 2843
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
+    },
+    "Prose": {
+      "entry": "components/typography.js",
+      "total": {
+        "raw": 47702,
+        "gzip": 12977,
+        "brotli": 10975
+      },
+      "specific": {
+        "raw": 9896,
+        "gzip": 3262,
+        "brotli": 2843
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
+    },
+    "Text": {
+      "entry": "components/typography.js",
+      "total": {
+        "raw": 47702,
+        "gzip": 12977,
+        "brotli": 10975
+      },
+      "specific": {
+        "raw": 9896,
+        "gzip": 3262,
+        "brotli": 2843
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
+    },
+    "VisuallyHidden": {
+      "entry": "components/visually-hidden.js",
+      "total": {
+        "raw": 38438,
+        "gzip": 9912,
+        "brotli": 8595
+      },
+      "specific": {
+        "raw": 632,
+        "gzip": 392,
+        "brotli": 363
+      },
+      "lazy": null,
+      "modules": 2,
+      "peers": []
+    }
+  }
+}

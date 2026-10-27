@@ -214,7 +214,11 @@ function DocsShell() {
   const primaryArea = page.kind === "example" ? "examples" : page.kind === "component" || page.slug === "components" ? "components" : "docs"
 
   useEffect(() => {
-    const onHashChange = () => setActiveSlug(readHash())
+    const onHashChange = () => {
+      // Navigation start for the "ready in" metric on component pages.
+      ;(window as { __ruiNavStart?: number }).__ruiNavStart = performance.now()
+      setActiveSlug(readHash())
+    }
     window.addEventListener("hashchange", onHashChange)
     if (!window.location.hash) window.history.replaceState(null, "", hrefFor("docs/introduction"))
     return () => window.removeEventListener("hashchange", onHashChange)

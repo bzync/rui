@@ -46,7 +46,8 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node scripts/component-metrics.mjs",
+    "metrics": "node scripts/component-metrics.mjs",
     "typecheck": "tsc --noEmit",
     "test": "npm run test:unit",
     "test:unit": "vitest run",

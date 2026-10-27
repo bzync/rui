@@ -252,6 +252,13 @@ code, pre, kbd { font-feature-settings: "calt" 0; }
 .docs-intro-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 24px; }
 .docs-intro-actions .copy-command { flex-basis: 100%; max-width: 460px; margin: 8px 0 0; }
 
+/* Component size + live timing strip under a component page's intro. */
+.docs-metrics { display: flex; flex-basis: 100%; flex-wrap: wrap; gap: 8px; margin: 0; }
+.docs-metrics > div { display: grid; min-width: 150px; flex: 1 1 0; gap: 2px; padding: 10px 12px; border: 1px solid var(--color-border); border-radius: var(--docs-radius); background: var(--color-bg); }
+.docs-metrics dt { color: var(--color-muted-foreground); font-size: var(--docs-fs-xs); font-weight: 500; }
+.docs-metrics dd { display: grid; gap: 1px; margin: 0; color: var(--color-foreground); font-size: var(--docs-fs-sm); font-weight: 600; font-variant-numeric: tabular-nums; }
+.docs-metrics small { color: var(--color-muted-foreground); font-size: var(--docs-fs-xs); font-weight: 400; }
+
 /* ── Sections & prose ───────────────────────────────────── */
 
 .docs-section { scroll-margin-top: calc(var(--docs-header-h) + 24px); padding-top: 48px; }

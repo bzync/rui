@@ -29,7 +29,8 @@ import {
   Tooltip,
 } from "@bzync/rui"
 import { ChevronRight, CircleHelp, Layers3, MoreHorizontal, Search } from "lucide-react"
-import { type ReactNode, useMemo, useRef, useState } from "react"
+import { type ReactNode, useCallback, useLayoutEffect, useMemo, useRef, useState } from "react"
+import componentMetrics from "../component-metrics.json"
 import { componentGroups, hrefFor, type DocsPage } from "../catalog"
 import { supplementalDetails } from "../component-details"
 import { componentExamples } from "../component-examples"
@@ -265,7 +266,73 @@ const details: Record<string, () => Detail> = {
   }),
 }
 
+// Pages whose title differs from the export that carries the measured entry.
+const metricsAlias: Record<string, string> = { Snackbar: "SnackbarProvider", Command: "CommandPalette", Navigation: "Navbar" }
+
+const kb = (bytes: number) => `${(bytes / 1024).toFixed(1)} kB`
+
+/**
+ * Times the preview subtree's render on this device, in production too
+ * (React's <Profiler> is a no-op in production builds). React renders
+ * depth-first, so a marker placed after the preview renders right after the
+ * preview's own subtree finishes; the rest of the page (examples, tables) is
+ * rendered later and not counted. Values are captured in lazy state
+ * initialisers, which run exactly once per mount.
+ */
+function RenderEndMarker({ onEnd }: { onEnd: (time: number) => void }) {
+  const [end] = useState(() => performance.now())
+  // Child layout effects run before the parent's, so TimedPreview has this value in time.
+  useLayoutEffect(() => onEnd(end), [end, onEnd])
+  return null
+}
+
+function TimedPreview({ children, onMeasured }: { children: ReactNode; onMeasured: (timing: { render: number; ready: number }) => void }) {
+  const [start] = useState(() => performance.now())
+  const endRef = useRef(start)
+  const recordEnd = useCallback((time: number) => { endRef.current = time }, [])
+  useLayoutEffect(() => {
+    const render = endRef.current - start
+    const frame = requestAnimationFrame(() => {
+      const navStart = (window as { __ruiNavStart?: number }).__ruiNavStart ?? 0
+      onMeasured({ render, ready: performance.now() - navStart })
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [start, onMeasured])
+  return <>{children}<RenderEndMarker onEnd={recordEnd} /></>
+}
+
+function ComponentMetrics({ importName, timing }: { importName: string; timing: { render: number; ready: number } | null }) {
+  const metrics = (componentMetrics.components as Record<string, ComponentMetric | undefined>)[metricsAlias[importName] ?? importName]
+  if (!metrics) return null
+  const peers = metrics.peers.length ? metrics.peers.join(", ") : "none"
+  return (
+    <dl className="docs-metrics" aria-label="Component size and performance">
+      <div title={`${kb(metrics.total.raw)} minified · ${kb(metrics.total.brotli)} brotli with the shared runtime`}>
+        <dt>Size</dt>
+        <dd>{`${kb(metrics.specific.gzip)} gzip`}<small>{`${kb(metrics.total.gzip)} incl. shared runtime`}</small></dd>
+      </div>
+      <div>
+        <dt>Peers</dt>
+        <dd>{peers}{metrics.lazy && <small>{`+${kb(metrics.lazy.gzip)} loaded on first use`}</small>}</dd>
+      </div>
+      <div>
+        <dt>On this device</dt>
+        <dd role="status">{timing ? `Rendered in ${timing.render.toFixed(1)} ms` : "Measuring…"}{timing && <small>{`Ready ${Math.round(timing.ready)} ms after navigation`}</small>}</dd>
+      </div>
+    </dl>
+  )
+}
+
+interface ComponentMetric {
+  total: { raw: number; gzip: number; brotli: number }
+  specific: { raw: number; gzip: number; brotli: number }
+  lazy: { raw: number; gzip: number; brotli: number } | null
+  peers: string[]
+}
+
 function ComponentReferencePage({ page }: { page: DocsPage }) {
+  const [timing, setTiming] = useState<{ render: number; ready: number } | null>(null)
+  const recordTiming = useCallback((next: { render: number; ready: number }) => setTiming((current) => current ?? next), [])
   const getDetail = details[page.slug] ?? supplementalDetails[page.slug]
   if (!getDetail) throw new Error(`Missing interactive demo details for ${page.slug}`)
   const detail = getDetail()
@@ -273,10 +340,12 @@ function ComponentReferencePage({ page }: { page: DocsPage }) {
   const importCode = `import { ${importName} } from "@bzync/rui"`
   const examples = (componentExamples[page.slug] ?? extendedExamples[page.slug])?.() ?? []
   return <>
-    <PageIntro eyebrow={page.group} title={page.title} description={page.description} />
+    <PageIntro eyebrow={page.group} title={page.title} description={page.description}>
+      <ComponentMetrics importName={importName} timing={timing} />
+    </PageIntro>
     <DocsSection id="usage" title="Usage">
       <CopyCommand>{importCode}</CopyCommand>
-      <ComponentPreview key={page.slug} title={`${page.title} preview`} code={detail.code}>{detail.preview}</ComponentPreview>
+      <ComponentPreview key={page.slug} title={`${page.title} preview`} code={detail.code}><TimedPreview key={page.slug} onMeasured={recordTiming}>{detail.preview}</TimedPreview></ComponentPreview>
     </DocsSection>
     {examples.length > 0 && (
       <DocsSection id="examples" title="Examples" description="Every preview is live and its code is exactly what renders — copy it into your project as-is.">
@@ -300,5 +369,6 @@ function ComponentReferencePage({ page }: { page: DocsPage }) {
 
 export function ComponentsPage({ page }: { page: DocsPage }) {
   if (page.slug === "components") return <ComponentsOverviewPage />
-  return <ComponentReferencePage page={page} />
+  // Keyed so each component page measures its own preview.
+  return <ComponentReferencePage key={page.slug} page={page} />
 }
