@@ -109,7 +109,7 @@ export const Pagination = forwardRef<HTMLElement, PaginationProps>(function Pagi
   }
 
   return (
-    <nav ref={ref} className={cn("flex items-center gap-1", className)} aria-label="Pagination" aria-disabled={allDisabled || undefined}>
+    <nav ref={ref} className={cn("flex flex-wrap items-center gap-1", className)} aria-label="Pagination" aria-disabled={allDisabled || undefined}>
       {btn(chevronLeft, page - 1, page <= 1)}
       {pages.map((p, i) =>
         p === "…" ? (

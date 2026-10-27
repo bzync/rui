@@ -1,6 +1,7 @@
 /** Shared visual anatomy for high-frequency controls. Keep these as static
  * Tailwind strings so the library stylesheet can discover every utility. */
-export const fieldRootStyles = "flex w-full flex-col gap-1.5"
+// min-w-0: fields shrink inside flex rows and grids (e.g. an input beside a button on phones).
+export const fieldRootStyles = "flex w-full min-w-0 flex-col gap-1.5"
 
 export const fieldLabelStyles =
   "text-xs font-semibold leading-5 text-foreground"

@@ -1065,7 +1065,7 @@ function Invoices({ invoices }: { invoices: Invoice[] }) {
   ],
 
   "components/scatter-chart": () => [
-    ex("bubbles", "Bubbles with axis labels", "r sizes points; label both axes and format values.",
+    ex("bubbles", "Bubbles with axis labels", "r scales a dot (0.5–2, default 1 = 10px); label both axes and format values.",
       `<ScatterChart
   height={220}
   xLabel="Requests / s"
@@ -1075,14 +1075,14 @@ function Invoices({ invoices }: { invoices: Invoice[] }) {
     label: "Services",
     color: "var(--chart-2)",
     data: [
-      { x: 120, y: 40, r: 6, label: "auth" },
-      { x: 480, y: 95, r: 12, label: "api" },
-      { x: 260, y: 160, r: 9, label: "search" },
-      { x: 60, y: 22, r: 4, label: "health" },
+      { x: 120, y: 40, r: 1, label: "auth" },
+      { x: 480, y: 95, r: 2, label: "api" },
+      { x: 260, y: 160, r: 1.5, label: "search" },
+      { x: 60, y: 22, r: 0.6, label: "health" },
     ],
   }]}
 />`,
-      <R.ScatterChart className="w-full" height={220} xLabel="Requests / s" yLabel="Latency" formatY={(value) => `${value} ms`} series={[{ label: "Services", color: "var(--chart-2)", data: [{ x: 120, y: 40, r: 6, label: "auth" }, { x: 480, y: 95, r: 12, label: "api" }, { x: 260, y: 160, r: 9, label: "search" }, { x: 60, y: 22, r: 4, label: "health" }] }]} />),
+      <R.ScatterChart className="w-full" height={220} xLabel="Requests / s" yLabel="Latency" formatY={(value) => `${value} ms`} series={[{ label: "Services", color: "var(--chart-2)", data: [{ x: 120, y: 40, r: 1, label: "auth" }, { x: 480, y: 95, r: 2, label: "api" }, { x: 260, y: 160, r: 1.5, label: "search" }, { x: 60, y: 22, r: 0.6, label: "health" }] }]} />),
   ],
 
   "components/gantt-chart": () => [

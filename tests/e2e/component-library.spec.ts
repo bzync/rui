@@ -463,3 +463,35 @@ test("route metadata follows the current documentation page", async ({ page }) =
   await expect(page).toHaveTitle("Button – @bzync/rui")
   await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", /Button documentation for @bzync\/rui/)
 })
+
+test("component previews never overflow the viewport on phones and tablets", async ({ page }, testInfo) => {
+  test.skip(!["mobile-360", "tablet-768"].includes(testInfo.project.name), "Narrow layouts are where overflow happens")
+  test.setTimeout(120_000)
+  const slugs = await page.locator('.docs-sidebar a[href^="#/components/"], .docs-mobile-drawer a[href^="#/components/"]').evaluateAll((links) =>
+    [...new Set(links.map((link) => link.getAttribute("href")!))])
+  const targets = slugs.length ? slugs : (await page.evaluate(() => [...document.querySelectorAll('a[href^="#/components/"]')].map((a) => a.getAttribute("href")!)))
+  expect(targets.length).toBeGreaterThan(60)
+  for (const href of targets) {
+    await page.evaluate((hash) => { window.location.hash = hash.slice(1) }, href)
+    await expect(page.locator("#usage .component-preview-canvas")).toBeAttached()
+    const problems = await page.evaluate(() => {
+      const issues: string[] = []
+      const doc = document.documentElement
+      if (doc.scrollWidth > doc.clientWidth + 1) issues.push(`page overflows by ${doc.scrollWidth - doc.clientWidth}px`)
+      document.querySelectorAll(".component-preview-canvas").forEach((canvas) => {
+        const box = canvas.getBoundingClientRect()
+        for (const el of canvas.querySelectorAll<HTMLElement>("*")) {
+          const r = el.getBoundingClientRect()
+          if (!r.width || (r.right <= box.right + 1 && r.left >= box.left - 1)) continue
+          let clipped = false
+          for (let p = el.parentElement; p && p !== canvas; p = p.parentElement) {
+            if (getComputedStyle(p).overflowX !== "visible") { clipped = true; break }
+          }
+          if (!clipped && getComputedStyle(el).position !== "fixed") { issues.push(`<${el.tagName.toLowerCase()}> spills out of a preview`); break }
+        }
+      })
+      return issues
+    })
+    expect(problems, `${href} at ${testInfo.project.name}`).toEqual([])
+  }
+})

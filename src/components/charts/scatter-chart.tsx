@@ -36,6 +36,7 @@ export const ScatterChart = forwardRef<HTMLDivElement, ScatterChartProps>(functi
   series,
   height = 260,
   xLabel,
+  yLabel,
   gridLines = 4,
   className,
   formatX = String,
@@ -135,6 +136,13 @@ export const ScatterChart = forwardRef<HTMLDivElement, ScatterChartProps>(functi
       {xLabel && (
         <div className="absolute bottom-0 left-0 right-0 text-center pointer-events-none">
           <span className="text-xs text-muted-foreground">{xLabel}</span>
+        </div>
+      )}
+
+      {/* yLabel was accepted but never rendered; it sits in the left plot margin. */}
+      {yLabel && (
+        <div className="pointer-events-none absolute bottom-[12%] left-0 top-[6%] flex w-[8%] items-center justify-center">
+          <span className="-rotate-90 whitespace-nowrap text-xs text-muted-foreground">{yLabel}</span>
         </div>
       )}
 

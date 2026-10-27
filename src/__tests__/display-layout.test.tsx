@@ -447,3 +447,23 @@ describe("ref forwarding", () => {
     }
   })
 })
+
+describe("responsive layout guards", () => {
+  it("keeps table scrollers as containing blocks and lets fields and pagination shrink", () => {
+    render(<>
+      <R.Table aria-label="Wide"><R.TableBody><R.TableRow><R.TableCell>Cell</R.TableCell></R.TableRow></R.TableBody></R.Table>
+      <R.Input aria-label="Field" />
+      <R.Pagination totalPages={20} />
+    </>)
+    // Absolutely positioned cell content (sr-only labels) must be clipped by the scroller.
+    expect(screen.getByRole("table", { name: "Wide" }).parentElement).toHaveClass("relative", "overflow-x-auto", "min-w-0")
+    expect(screen.getByRole("textbox", { name: "Field" }).closest(".flex-col")).toHaveClass("min-w-0")
+    expect(screen.getByRole("navigation", { name: "Pagination" })).toHaveClass("flex-wrap")
+  })
+
+  it("renders the ScatterChart y-axis label", () => {
+    render(<R.ScatterChart yLabel="Latency" xLabel="Requests" series={[{ label: "API", data: [{ x: 1, y: 2 }] }]} />)
+    expect(screen.getByText("Latency")).toBeInTheDocument()
+    expect(screen.getByText("Requests")).toBeInTheDocument()
+  })
+})

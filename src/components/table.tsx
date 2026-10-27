@@ -16,8 +16,11 @@ export const Table = forwardRef<HTMLDivElement, TableProps>(function Table({
   ...props
 }, ref) {
   return (
-    <div ref={ref} className={cn("w-full overflow-hidden rounded-[var(--radius-lg)] border border-border bg-surface", containerClassName)}>
-      <div className={cn("w-full overflow-x-auto overscroll-x-contain scrollbar-thin", scrollAreaClassName)}>
+    <div ref={ref} className={cn("w-full min-w-0 max-w-full overflow-hidden rounded-[var(--radius-lg)] border border-border bg-surface", containerClassName)}>
+      {/* relative: the scroller must be the containing block of absolutely
+          positioned cell content (sr-only labels, badges); otherwise that
+          content escapes the overflow clip and widens the page on phones. */}
+      <div className={cn("relative w-full min-w-0 max-w-full overflow-x-auto overscroll-x-contain scrollbar-thin", scrollAreaClassName)}>
         <table data-density={density} className={cn("group/table w-full border-collapse text-sm", className)} {...props}>
           {children}
         </table>

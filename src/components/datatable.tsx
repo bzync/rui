@@ -116,7 +116,7 @@ function DataTableInner<T extends { id: string | number }>({
         </div>
       )}
       <div style={{ contain: "inline-size paint" }} className={cn("w-full min-w-0 max-w-full overflow-hidden rounded-[var(--radius-lg)] border border-border bg-surface", tableClassName)}>
-        <div className="w-full min-w-0 max-w-full overflow-x-auto overscroll-x-contain scrollbar-thin">
+        <div className="relative w-full min-w-0 max-w-full overflow-x-auto overscroll-x-contain scrollbar-thin">
         <table aria-label={ariaLabel} data-density={density} className="group/table w-full text-sm border-collapse">
           <thead className={cn("border-b border-border bg-surface-muted", headerClassName)}>
             <tr>
