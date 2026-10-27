@@ -4,7 +4,7 @@
 /* eslint-disable react-refresh/only-export-components */
 
 import * as R from "@bzync/rui"
-import { Activity, Box, FileText, ChevronRight, Database, Home, Settings, Trash2, Wrench } from "lucide-react"
+import { Activity, BarChart3, Box, FileText, ChevronRight, Database, Home, Rocket, Settings, Trash2, Wrench } from "lucide-react"
 import { Fragment, type ReactNode, useState } from "react"
 import { RuiBrandMark } from "../_shared/brand"
 import type { ApiProp } from "./primitives"
@@ -1074,6 +1074,60 @@ const columns: ColumnDef<(typeof services)[number]>[] = [
 </div>,
     api(["tone", "\"default\" | \"info\" | \"success\" | \"warning\" | \"danger\"", "Color and live-region role (warning and danger are alerts).", "\"default\""], ["variant", "\"subtle\" | \"solid\"", "Tinted strip or filled high-priority strip.", "\"subtle\""], ["title / children", "ReactNode", "Bold lead-in and message."], ["icon / action", "ReactNode", "Leading icon and trailing call to action."], ["dismissible / onDismiss", "boolean / () => void", "Shows a dismiss button."], ["storageKey", "string", "Remembers the dismissal in localStorage."], ["sticky", "boolean", "Sticks to the top of the scroll container.", "false"], ["centered", "boolean", "Centers the content.", "false"], ["dismissAriaLabel / contentClassName", "string", "Dismiss label and inner row styling."]),
     "Warning and danger banners render with role=\"alert\"; other tones use role=\"status\" so they are announced politely. The dismiss button has an accessible label, and storageKey keeps a dismissed banner hidden on later visits (read after mount, so server rendering stays consistent).",
+  ),
+  "components/navigation-menu": () => detail(
+    `<div className="w-full rounded-xl border border-border bg-surface px-3 py-2">
+  <NavigationMenu
+    items={[
+      {
+        label: "Products",
+        links: [
+          { label: "Analytics", href: "#/components/charts", description: "Dashboards and reports for every team.", icon: <BarChart3 /> },
+          { label: "Database", href: "#/components/datatable", description: "Managed Postgres with branching.", icon: <Database /> },
+          { label: "Automation", href: "#/components/command", description: "Workflows triggered by events.", icon: <Rocket /> },
+          { label: "Security", href: "#/docs/accessibility", description: "SSO, audit logs and roles.", icon: <Settings /> },
+        ],
+      },
+      {
+        label: "Resources",
+        columns: 1,
+        links: [
+          { label: "Documentation", href: "#/docs/introduction" },
+          { label: "Examples", href: "#/examples" },
+        ],
+        content: <p className="m-1 mt-2 rounded-md bg-surface-muted p-3 text-sm text-muted-foreground">New: theming guide for multi-brand apps.</p>,
+      },
+      { label: "Pricing", href: "#/components/navigation-menu", active: true },
+    ]}
+  />
+</div>`,
+    <div className="w-full rounded-xl border border-border bg-surface px-3 py-2">
+  <R.NavigationMenu
+    items={[
+      {
+        label: "Products",
+        links: [
+          { label: "Analytics", href: "#/components/charts", description: "Dashboards and reports for every team.", icon: <BarChart3 /> },
+          { label: "Database", href: "#/components/datatable", description: "Managed Postgres with branching.", icon: <Database /> },
+          { label: "Automation", href: "#/components/command", description: "Workflows triggered by events.", icon: <Rocket /> },
+          { label: "Security", href: "#/docs/accessibility", description: "SSO, audit logs and roles.", icon: <Settings /> },
+        ],
+      },
+      {
+        label: "Resources",
+        columns: 1,
+        links: [
+          { label: "Documentation", href: "#/docs/introduction" },
+          { label: "Examples", href: "#/examples" },
+        ],
+        content: <p className="m-1 mt-2 rounded-md bg-surface-muted p-3 text-sm text-muted-foreground">New: theming guide for multi-brand apps.</p>,
+      },
+      { label: "Pricing", href: "#/components/navigation-menu", active: true },
+    ]}
+  />
+</div>,
+    api(["items", "NavigationMenuItem[]", "Top-level entries: a plain href, or a panel with links and/or content."], ["items[].links", "{ label; href; description?; icon? }[]", "Panel links in a responsive grid."], ["items[].content / columns", "ReactNode / 1 | 2 | 3", "Custom panel content and grid columns.", "— / 2"], ["items[].active", "boolean", "Marks the current section (aria-current on links)."], ["openDelay / closeDelay", "number", "Hover delays in ms.", "120 / 200"], ["ariaLabel / triggerClassName / panelClassName", "string", "Landmark name and part styling.", "\"Main\""]),
+    "Follows the disclosure navigation pattern: each trigger is a button with aria-expanded and aria-controls, and its panel comes next in the tab order. Click, Enter or Space toggles a panel; Arrow Down opens it and focuses the first link; Up/Down move between links; Left/Right move between top-level items (opening the neighbour if a panel is open); Escape closes and returns focus. Clicking outside or tabbing out closes it.",
   ),
   "components/resizable": () => detail(
     `<div className="h-80 w-full overflow-hidden rounded-xl border border-border bg-surface">

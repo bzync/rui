@@ -133,6 +133,7 @@ const navigation = [
   component("Accordion", "Expands and collapses sections of content.", "Navigation", ["disclosure"]),
   component("Pagination", "Moves through paged data.", "Navigation", ["pages"]),
   component("Stepper", "Shows progress through a sequence.", "Navigation", ["steps"]),
+  component("Navigation Menu", "Site navigation with dropdown mega-menu panels.", "Navigation", ["mega menu", "header nav", "dropdown nav"], "NavigationMenu"),
   component("Navigation", "Provides navbar, sidebar, topbar, and bottom bar primitives.", "Navigation", ["navbar", "sidebar", "bottom bar"]),
 ]
 

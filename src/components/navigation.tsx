@@ -9,7 +9,9 @@ import {
   ReactNode,
   forwardRef,
   type Ref,
+  useEffect,
 } from "react"
+import { useControllableState } from "@/hooks/use-controllable-state"
 
 export interface NavigationItem {
   id: string
@@ -23,6 +25,8 @@ export interface NavigationItem {
 interface NavigationItemProps extends NavigationItem {
   active?: boolean
   compact?: boolean
+  /** Icon-only rail: the label becomes a tooltip-style bubble (still the accessible name). */
+  rail?: boolean
   onSelect?: (id: string) => void
   className?: string
 }
@@ -36,10 +40,17 @@ export const NavigationLink = forwardRef<HTMLButtonElement, NavigationItemProps>
   disabled,
   active,
   compact,
+  rail,
   onSelect,
   className,
 }, ref) {
-  const content = (
+  const content = rail ? (
+    <>
+      {icon ? <span className="shrink-0" aria-hidden="true">{icon}</span> : <span aria-hidden="true" className="text-xs font-semibold">{label.slice(0, 2)}</span>}
+      <span className="pointer-events-none absolute left-full top-1/2 z-(--z-tooltip) ml-3 -translate-y-1/2 whitespace-nowrap rounded-md border border-tooltip-border bg-tooltip px-2 py-1 text-xs font-medium text-tooltip-foreground opacity-0 shadow-floating transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">{label}</span>
+      {badge && <span aria-hidden="true" className="absolute right-1.5 top-1.5 size-2 rounded-full bg-accent-500 ring-2 ring-surface" />}
+    </>
+  ) : (
     <>
       {icon && <span className="shrink-0" aria-hidden="true">{icon}</span>}
       <span className={cn("truncate", compact && "text-[11px]")}>{label}</span>
@@ -49,7 +60,7 @@ export const NavigationLink = forwardRef<HTMLButtonElement, NavigationItemProps>
   const styles = cn(
     "group relative inline-flex items-center justify-center gap-2 rounded-[var(--radius-md)] font-medium transition-colors",
     focusRingStyles,
-    compact ? "min-h-11 flex-col px-2 py-1.5" : "h-9 px-3 text-sm",
+    compact ? "min-h-11 flex-col px-2 py-1.5" : rail ? "size-10 shrink-0" : "h-9 px-3 text-sm",
     active
       ? "bg-accent-500/10 text-accent-strong"
       : "text-muted-foreground hover:bg-muted hover:text-foreground",
@@ -151,8 +162,18 @@ export const TopbarTitle = forwardRef<HTMLElement, HTMLAttributes<HTMLHeadingEle
 TopbarTitle.displayName = "TopbarTitle"
 
 export interface SidebarProps extends NavigationListProps {
-  header?: ReactNode
-  footer?: ReactNode
+  /** Header content; pass a function to render differently when collapsed. */
+  header?: ReactNode | ((collapsed: boolean) => ReactNode)
+  footer?: ReactNode | ((collapsed: boolean) => ReactNode)
+  /** Shows a button that collapses the sidebar to an icon rail. */
+  collapsible?: boolean
+  collapsed?: boolean
+  defaultCollapsed?: boolean
+  onCollapsedChange?: (collapsed: boolean) => void
+  /** Remembers the collapsed state in localStorage under this key. */
+  storageKey?: string
+  collapseLabel?: string
+  expandLabel?: string
 }
 
 export const Sidebar = forwardRef<HTMLElement, SidebarProps>(function Sidebar({
@@ -162,30 +183,78 @@ export const Sidebar = forwardRef<HTMLElement, SidebarProps>(function Sidebar({
   ariaLabel = "Sidebar navigation",
   header,
   footer,
+  collapsible = false,
+  collapsed: collapsedProp,
+  defaultCollapsed = false,
+  onCollapsedChange,
+  storageKey,
+  collapseLabel = "Collapse sidebar",
+  expandLabel = "Expand sidebar",
   className,
   ...props
 }, ref) {
+  const [collapsed, setCollapsedState] = useControllableState({ value: collapsedProp, defaultValue: defaultCollapsed, onChange: onCollapsedChange })
+  const rail = collapsible && collapsed
+
+  // Restore after mount so server and client render the same markup first.
+  useEffect(() => {
+    if (!storageKey || collapsedProp !== undefined) return
+    try {
+      const stored = window.localStorage.getItem(storageKey)
+      if (stored !== null && (stored === "1") !== collapsed) setCollapsedState(stored === "1")
+    } catch { /* storage unavailable */ }
+    // Only on mount / key change.
+  }, [storageKey])
+
+  const setCollapsed = (next: boolean) => {
+    setCollapsedState(next)
+    if (storageKey) {
+      try { window.localStorage.setItem(storageKey, next ? "1" : "0") } catch { /* storage unavailable */ }
+    }
+  }
+
+  const render = (slot: SidebarProps["header"]) => (typeof slot === "function" ? slot(rail) : slot)
+
   return (
     <aside ref={ref}
+      data-collapsed={rail || undefined}
       className={cn(
-        "flex w-60 flex-col border border-border bg-surface",
+        "flex flex-col border border-border bg-surface transition-[width] duration-200",
+        rail ? "w-16" : "w-60",
         className,
       )}
       {...props}
     >
-      {header && <div className="border-b border-border p-4">{header}</div>}
-      <nav aria-label={ariaLabel} className="flex flex-1 flex-col gap-1 p-2">
+      {header && <div className={cn("border-b border-border", rail ? "grid place-items-center px-2 py-4" : "p-4")}>{render(header)}</div>}
+      <nav aria-label={ariaLabel} className={cn("flex flex-1 flex-col gap-1 p-2", rail && "items-center")}>
         {items.map((item) => (
           <NavigationLink
             key={item.id}
             {...item}
+            rail={rail}
             active={activeId === item.id}
             onSelect={onSelect}
-            className="w-full justify-start"
+            className={rail ? undefined : "w-full justify-start"}
           />
         ))}
       </nav>
-      {footer && <div className="border-t border-border p-3">{footer}</div>}
+      {(footer || collapsible) && (
+        <div className={cn("flex gap-2 border-t border-border p-3", rail ? "flex-col items-center px-2" : "items-center")}>
+          {footer && <div className={cn("min-w-0", !rail && "flex-1")}>{render(footer)}</div>}
+          {collapsible && (
+            <button
+              type="button"
+              aria-expanded={!rail}
+              aria-label={rail ? expandLabel : collapseLabel}
+              title={rail ? expandLabel : collapseLabel}
+              onClick={() => setCollapsed(!collapsed)}
+              className={cn(iconButtonStyles, !footer && !rail && "ml-auto")}
+            >
+              <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={cn("transition-transform", rail && "rotate-180")}><rect x="3" y="3" width="18" height="18" rx="2" /><path d="M9 3v18M16 15l-3-3 3-3" /></svg>
+            </button>
+          )}
+        </div>
+      )}
     </aside>
   )
 })

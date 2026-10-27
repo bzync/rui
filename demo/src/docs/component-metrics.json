@@ -1,9 +1,9 @@
 {
   "version": "0.0.11",
   "stylesheet": {
-    "raw": 108688,
-    "gzip": 17994,
-    "brotli": 14395
+    "raw": 109265,
+    "gzip": 18064,
+    "brotli": 14449
   },
   "sharedRuntime": {
     "raw": 37806,
@@ -1520,132 +1520,148 @@
         "framer-motion"
       ]
     },
+    "NavigationMenu": {
+      "entry": "components/navigation-menu.js",
+      "total": {
+        "raw": 45661,
+        "gzip": 12385,
+        "brotli": 10661
+      },
+      "specific": {
+        "raw": 7855,
+        "gzip": 2840,
+        "brotli": 2525
+      },
+      "lazy": null,
+      "modules": 5,
+      "peers": []
+    },
     "BottomBar": {
       "entry": "components/navigation.js",
       "total": {
-        "raw": 46734,
-        "gzip": 12412,
-        "brotli": 10696
+        "raw": 49653,
+        "gzip": 13374,
+        "brotli": 11493
       },
       "specific": {
-        "raw": 8928,
-        "gzip": 2867,
-        "brotli": 2489
+        "raw": 11847,
+        "gzip": 3808,
+        "brotli": 3335
       },
       "lazy": null,
-      "modules": 3,
+      "modules": 4,
       "peers": []
     },
     "BrandLink": {
       "entry": "components/navigation.js",
       "total": {
-        "raw": 46734,
-        "gzip": 12412,
-        "brotli": 10696
+        "raw": 49653,
+        "gzip": 13374,
+        "brotli": 11493
       },
       "specific": {
-        "raw": 8928,
-        "gzip": 2867,
-        "brotli": 2489
+        "raw": 11847,
+        "gzip": 3808,
+        "brotli": 3335
       },
       "lazy": null,
-      "modules": 3,
+      "modules": 4,
       "peers": []
     },
     "IconButton": {
       "entry": "components/navigation.js",
       "total": {
-        "raw": 46734,
-        "gzip": 12412,
-        "brotli": 10696
+        "raw": 49653,
+        "gzip": 13374,
+        "brotli": 11493
       },
       "specific": {
-        "raw": 8928,
-        "gzip": 2867,
-        "brotli": 2489
+        "raw": 11847,
+        "gzip": 3808,
+        "brotli": 3335
       },
       "lazy": null,
-      "modules": 3,
+      "modules": 4,
       "peers": []
     },
     "Navbar": {
       "entry": "components/navigation.js",
       "total": {
-        "raw": 46734,
-        "gzip": 12412,
-        "brotli": 10696
+        "raw": 49653,
+        "gzip": 13374,
+        "brotli": 11493
       },
       "specific": {
-        "raw": 8928,
-        "gzip": 2867,
-        "brotli": 2489
+        "raw": 11847,
+        "gzip": 3808,
+        "brotli": 3335
       },
       "lazy": null,
-      "modules": 3,
+      "modules": 4,
       "peers": []
     },
     "NavigationLink": {
       "entry": "components/navigation.js",
       "total": {
-        "raw": 46734,
-        "gzip": 12412,
-        "brotli": 10696
+        "raw": 49653,
+        "gzip": 13374,
+        "brotli": 11493
       },
       "specific": {
-        "raw": 8928,
-        "gzip": 2867,
-        "brotli": 2489
+        "raw": 11847,
+        "gzip": 3808,
+        "brotli": 3335
       },
       "lazy": null,
-      "modules": 3,
+      "modules": 4,
       "peers": []
     },
     "Sidebar": {
       "entry": "components/navigation.js",
       "total": {
-        "raw": 46734,
-        "gzip": 12412,
-        "brotli": 10696
+        "raw": 49653,
+        "gzip": 13374,
+        "brotli": 11493
       },
       "specific": {
-        "raw": 8928,
-        "gzip": 2867,
-        "brotli": 2489
+        "raw": 11847,
+        "gzip": 3808,
+        "brotli": 3335
       },
       "lazy": null,
-      "modules": 3,
+      "modules": 4,
       "peers": []
     },
     "Topbar": {
       "entry": "components/navigation.js",
       "total": {
-        "raw": 46734,
-        "gzip": 12412,
-        "brotli": 10696
+        "raw": 49653,
+        "gzip": 13374,
+        "brotli": 11493
       },
       "specific": {
-        "raw": 8928,
-        "gzip": 2867,
-        "brotli": 2489
+        "raw": 11847,
+        "gzip": 3808,
+        "brotli": 3335
       },
       "lazy": null,
-      "modules": 3,
+      "modules": 4,
       "peers": []
     },
     "TopbarTitle": {
       "entry": "components/navigation.js",
       "total": {
-        "raw": 46734,
-        "gzip": 12412,
-        "brotli": 10696
+        "raw": 49653,
+        "gzip": 13374,
+        "brotli": 11493
       },
       "specific": {
-        "raw": 8928,
-        "gzip": 2867,
-        "brotli": 2489
+        "raw": 11847,
+        "gzip": 3808,
+        "brotli": 3335
       },
       "lazy": null,
-      "modules": 3,
+      "modules": 4,
       "peers": []
     },
     "NumberInput": {

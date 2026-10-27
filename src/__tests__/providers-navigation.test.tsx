@@ -1,7 +1,7 @@
-import { render, screen } from "@testing-library/react"
+import { render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { describe, expect, it, vi } from "vitest"
-import { BottomBar, BrandLink, Navbar, Sidebar, ThemeProvider, ThemeToggle, Topbar, TopbarTitle } from "@/index"
+import { BottomBar, BrandLink, Navbar, NavigationMenu, Sidebar, ThemeProvider, ThemeToggle, Topbar, TopbarTitle } from "@/index"
 
 describe("themes", () => {
   it("toggles a scoped theme and exposes the active preference", async () => {
@@ -114,5 +114,60 @@ describe("BottomBar layout options", () => {
     render(<BottomBar labels="active" activeId="inbox" items={items} />)
     expect(screen.getByText("Inbox")).not.toHaveClass("sr-only")
     expect(screen.getByText("Home")).toHaveClass("sr-only")
+  })
+})
+
+describe("Sidebar rail", () => {
+  const railItems = [{ id: "home", label: "Home", icon: <svg /> }, { id: "inbox", label: "Inbox", icon: <svg />, badge: 3 }]
+
+  it("collapses to an icon rail that keeps labels as accessible names, and persists", async () => {
+    const user = userEvent.setup()
+    window.localStorage.removeItem("test-rail")
+    const onCollapsedChange = vi.fn()
+    const { container, unmount } = render(<Sidebar collapsible storageKey="test-rail" items={railItems} activeId="home" onCollapsedChange={onCollapsedChange} />)
+    const toggle = screen.getByRole("button", { name: "Collapse sidebar" })
+    expect(toggle).toHaveAttribute("aria-expanded", "true")
+    await user.click(toggle)
+    expect(onCollapsedChange).toHaveBeenCalledWith(true)
+    expect(container.querySelector("aside")).toHaveAttribute("data-collapsed", "true")
+    expect(screen.getByRole("button", { name: "Home" })).toHaveAttribute("aria-current", "page")
+    expect(screen.getByRole("button", { name: "Expand sidebar" })).toHaveAttribute("aria-expanded", "false")
+    unmount()
+    const again = render(<Sidebar collapsible storageKey="test-rail" items={railItems} />)
+    await waitFor(() => expect(again.container.querySelector("aside")).toHaveAttribute("data-collapsed", "true"))
+    window.localStorage.removeItem("test-rail")
+  })
+})
+
+describe("NavigationMenu", () => {
+  const menu = [
+    { label: "Products", links: [{ label: "Analytics", href: "#/a", description: "Dashboards" }, { label: "Billing", href: "#/b" }] },
+    { label: "Docs", href: "#/docs" },
+    { label: "Company", content: <a href="#/about">About us</a> },
+  ]
+
+  it("toggles panels with disclosure semantics and keyboard support", async () => {
+    const user = userEvent.setup()
+    render(<NavigationMenu items={menu} />)
+    const products = screen.getByRole("button", { name: "Products" })
+    expect(products).toHaveAttribute("aria-expanded", "false")
+    await user.click(products)
+    expect(products).toHaveAttribute("aria-expanded", "true")
+    expect(screen.getByRole("link", { name: /Analytics/ })).toBeVisible()
+    await user.keyboard("{Escape}")
+    expect(products).toHaveAttribute("aria-expanded", "false")
+    expect(products).toHaveFocus()
+    await user.keyboard("{ArrowDown}")
+    await waitFor(() => expect(screen.getByRole("link", { name: /Analytics/ })).toHaveFocus())
+    await user.keyboard("{ArrowDown}")
+    expect(screen.getByRole("link", { name: "Billing" })).toHaveFocus()
+    products.focus()
+    await user.keyboard("{ArrowLeft}")
+    // Moving while a panel is open opens the neighbour's panel.
+    expect(screen.getByRole("button", { name: "Company" })).toHaveFocus()
+    expect(screen.getByRole("button", { name: "Company" })).toHaveAttribute("aria-expanded", "true")
+    await user.keyboard("{ArrowLeft}")
+    expect(screen.getByRole("link", { name: "Docs" })).toHaveFocus()
+    expect(products).toHaveAttribute("aria-expanded", "false")
   })
 })

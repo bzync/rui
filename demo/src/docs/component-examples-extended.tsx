@@ -54,6 +54,29 @@ function NowPlayingSheetExample() {
   )
 }
 
+function CollapsibleSidebarExample() {
+  const [active, setActive] = useState("home")
+  return (
+    <div className="flex h-80 w-full overflow-hidden rounded-xl border border-border bg-bg">
+      <R.Sidebar
+        collapsible
+        storageKey="docs-sidebar-rail"
+        className="border-y-0 border-l-0"
+        activeId={active}
+        onSelect={setActive}
+        header={(collapsed) => (collapsed ? <Box size={20} aria-label="Acme" /> : <span className="font-semibold">Acme</span>)}
+        items={[
+          { id: "home", label: "Home", icon: <Home size={16} /> },
+          { id: "projects", label: "Projects", icon: <Folder size={16} />, badge: <R.Badge>4</R.Badge> },
+          { id: "team", label: "Team", icon: <Users size={16} /> },
+          { id: "settings", label: "Settings", icon: <Settings size={16} /> },
+        ]}
+      />
+      <div className="grid flex-1 place-items-center p-6 text-sm text-muted-foreground">Viewing {active}. Collapse the rail; hover an icon for its label.</div>
+    </div>
+  )
+}
+
 const ex = (id: string, title: string, description: string, code: string, preview: ReactNode, align?: "center" | "start"): ComponentExample =>
   ({ id, title, description, code, preview, align })
 
@@ -1253,6 +1276,30 @@ function App() {
   )
 }`,
       <SidebarExample />),
+    ex("sidebar-rail", "Collapsible icon rail", "collapsible adds a toggle that shrinks the sidebar to an icon rail; labels become hover/focus bubbles and stay the accessible names. storageKey remembers the choice, and header can render differently when collapsed.",
+      `function CollapsibleSidebar() {
+  const [active, setActive] = useState("home")
+  return (
+    <div className="flex h-80 w-full overflow-hidden rounded-xl border border-border bg-bg">
+      <Sidebar
+        collapsible
+        storageKey="docs-sidebar-rail"
+        className="border-y-0 border-l-0"
+        activeId={active}
+        onSelect={setActive}
+        header={(collapsed) => (collapsed ? <Box size={20} aria-label="Acme" /> : <span className="font-semibold">Acme</span>)}
+        items={[
+          { id: "home", label: "Home", icon: <Home size={16} /> },
+          { id: "projects", label: "Projects", icon: <Folder size={16} />, badge: <Badge>4</Badge> },
+          { id: "team", label: "Team", icon: <Users size={16} /> },
+          { id: "settings", label: "Settings", icon: <Settings size={16} /> },
+        ]}
+      />
+      <div className="grid flex-1 place-items-center p-6 text-sm text-muted-foreground">Viewing {active}. Collapse the rail; hover an icon for its label.</div>
+    </div>
+  )
+}`,
+      <CollapsibleSidebarExample />),
     ex("bottom-bar-layouts", "Bottom bar layouts", "Mix variant (bar / floating), indicator (pill / line / dot / none), labels (always / active / hidden) and a raised centerAction. Try the combinations — the phone updates live.",
       `function BottomBarPlayground() {
   const [active, setActive] = useState("home")
