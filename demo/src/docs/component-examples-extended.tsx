@@ -765,6 +765,22 @@ function BookingForm() {
       <FormControlsExample />),
   ],
 
+  "components/tag-input": () => [
+    ex("limits", "Limits and normalization", "maxTags caps the list; transform normalizes entries; duplicates are rejected with a message.",
+      `<TagInput
+  label="Topics"
+  defaultValue={["react", "design-systems"]}
+  maxTags={5}
+  transform={(tag) => tag.toLowerCase().replace(/\\s+/g, "-")}
+  hint="Up to 5 topics"
+/>`,
+      <div className="w-full max-w-md"><R.TagInput label="Topics" defaultValue={["react", "design-systems"]} maxTags={5} transform={(tag) => tag.toLowerCase().replace(/\s+/g, "-")} hint="Up to 5 topics" /></div>),
+    ex("sizes", "Sizes and states", "Shares the field scale; disabled keeps tags readable.",
+      `<TagInput size="sm" label="Small" defaultValue={["alpha"]} />
+<TagInput size="lg" label="Large (disabled)" defaultValue={["beta", "gamma"]} disabled />`,
+      <div className="demo-form-grid"><R.TagInput size="sm" label="Small" defaultValue={["alpha"]} /><R.TagInput size="lg" label="Large (disabled)" defaultValue={["beta", "gamma"]} disabled /></div>),
+  ],
+
   "components/time-picker": () => [
     ex("24h", "24-hour with seconds", "The value is always an HH:mm[:ss] string, whatever the display format.",
       `function BackupWindow() {

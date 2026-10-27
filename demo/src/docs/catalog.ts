@@ -60,6 +60,7 @@ const forms = [
   component("Textarea", "Collects multi-line text with consistent field messaging.", "Forms"),
   component("Select", "Selects one or multiple values from a keyboard-accessible listbox.", "Forms", ["dropdown", "listbox"]),
   component("Autocomplete", "Filters suggestions while the user types.", "Forms", ["combobox", "typeahead"]),
+  component("Tag Input", "Collects free-text values as removable chips.", "Forms", ["chips", "tags", "emails", "multi value"], "TagInput"),
   component("Checkbox", "Selects an independent boolean option.", "Forms", ["check"]),
   component("Switch", "Toggles a setting with immediate effect.", "Forms", ["toggle"]),
   component("Radio Group", "Selects exactly one option from a related set.", "Forms", ["radio"], "RadioGroup"),

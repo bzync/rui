@@ -11,7 +11,8 @@ export interface AutocompleteOption<V = string> {
 
 export interface AutocompletePropsBase<V = string>
   extends Omit<InputHTMLAttributes<HTMLInputElement>, "value" | "defaultValue" | "onChange" | "onSelect" | "prefix" | "size"> {
-  options: AutocompleteOption<V>[]
+  /** Static options. Optional with `loadOptions`. */
+  options?: AutocompleteOption<V>[]
   /** Submits the selected option value(s) with the form (one entry per value), not the typed text. */
   name?: string
   /** Associates the Autocomplete with a `<form>` elsewhere in the document by its id. */
@@ -29,6 +30,16 @@ export interface AutocompletePropsBase<V = string>
   size?: ControlSize
   loading?: boolean
   emptyMessage?: string
+  /** Offers "Create “…”" when the text matches no option. */
+  creatable?: boolean
+  /** Builds the created option (defaults to `{ value: text, label: text }`). */
+  onCreate?: (text: string) => AutocompleteOption<V> | void
+  /** Text of the create row. */
+  createLabel?: (text: string) => string
+  /** Async search: return options for the query. Stale requests are aborted. */
+  loadOptions?: (query: string, signal: AbortSignal) => Promise<AutocompleteOption<V>[]>
+  /** Debounce for loadOptions in ms. Default 250. */
+  debounceMs?: number
   maxVisible?: number
   /** Styles the component root. */
   wrapperClassName?: string

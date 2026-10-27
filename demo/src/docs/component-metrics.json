@@ -1,9 +1,9 @@
 {
   "version": "0.0.11",
   "stylesheet": {
-    "raw": 104535,
-    "gzip": 17356,
-    "brotli": 13968
+    "raw": 105403,
+    "gzip": 17426,
+    "brotli": 14056
   },
   "sharedRuntime": {
     "raw": 37806,
@@ -103,14 +103,14 @@
     "Autocomplete": {
       "entry": "components/autocomplete.js",
       "total": {
-        "raw": 67382,
-        "gzip": 18545,
-        "brotli": 15730
+        "raw": 69460,
+        "gzip": 19198,
+        "brotli": 16289
       },
       "specific": {
-        "raw": 29576,
-        "gzip": 8624,
-        "brotli": 7649
+        "raw": 31654,
+        "gzip": 9264,
+        "brotli": 8247
       },
       "lazy": null,
       "modules": 8,
@@ -2326,6 +2326,22 @@
       },
       "lazy": null,
       "modules": 3,
+      "peers": []
+    },
+    "TagInput": {
+      "entry": "components/tag-input.js",
+      "total": {
+        "raw": 44297,
+        "gzip": 12188,
+        "brotli": 10360
+      },
+      "specific": {
+        "raw": 6491,
+        "gzip": 2564,
+        "brotli": 2247
+      },
+      "lazy": null,
+      "modules": 4,
       "peers": []
     },
     "Tag": {

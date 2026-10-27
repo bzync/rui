@@ -1,7 +1,7 @@
 import { act, render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { describe, expect, it, vi } from "vitest"
-import { Autocomplete, Select } from "@/index"
+import { Autocomplete, Select, TagInput } from "@/index"
 
 const options = [
   { value: "us", label: "United States" },
@@ -196,5 +196,66 @@ describe("autocomplete selection state", () => {
     expect(screen.getByRole("combobox", { name: "Single" })).toHaveValue("Node.js")
     expect(screen.getByText("Go")).toBeInTheDocument()
     expect(screen.getByText("Rust")).toBeInTheDocument()
+  })
+})
+
+describe("Combobox: creatable and async", () => {
+  it("creates an option from typed text with the keyboard", async () => {
+    const user = userEvent.setup(); const onSelect = vi.fn()
+    render(<Autocomplete<string> multiple creatable label="Labels" options={[{ value: "bug", label: "bug" }]} onSelect={onSelect} />)
+    const input = screen.getByRole("combobox", { name: "Labels" })
+    await user.type(input, "urgent")
+    expect(await screen.findByRole("option", { name: "Create “urgent”" })).toBeInTheDocument()
+    await user.keyboard("{ArrowDown}{Enter}")
+    expect(onSelect).toHaveBeenLastCalledWith({ value: "urgent", label: "urgent" }, [{ value: "urgent", label: "urgent" }])
+    // The chip (plus the created option in the still-open list).
+    expect(screen.getAllByText("urgent").length).toBeGreaterThan(0)
+    // No create row for an existing label.
+    await user.type(input, "bug")
+    expect(screen.queryByRole("option", { name: /Create/ })).not.toBeInTheDocument()
+  })
+
+  it("loads options asynchronously with debounce and aborts stale requests", async () => {
+    const user = userEvent.setup()
+    const calls: { query: string; signal: AbortSignal }[] = []
+    const loadOptions = vi.fn((query: string, signal: AbortSignal) => {
+      calls.push({ query, signal })
+      return Promise.resolve([{ value: `${query}-1`, label: `Result for ${query}` }])
+    })
+    render(<Autocomplete label="Users" loadOptions={loadOptions} debounceMs={50} />)
+    await user.click(screen.getByRole("combobox", { name: "Users" }))
+    await user.keyboard("ma")
+    expect(await screen.findByRole("option", { name: "Result for ma" })).toBeInTheDocument()
+    // Only the settled query hit the "server"; earlier ones were debounced or aborted.
+    expect(calls[calls.length - 1].query).toBe("ma")
+    expect(calls.slice(0, -1).every((call) => call.signal.aborted)).toBe(true)
+  })
+})
+
+describe("TagInput", () => {
+  it("adds tags with Enter, comma and paste, validates, dedupes and removes", async () => {
+    const user = userEvent.setup(); const onChange = vi.fn()
+    render(<TagInput label="Invite" onChange={onChange} validate={(tag) => (/^\S+@\S+$/.test(tag) ? undefined : `“${tag}” is not an email.`)} />)
+    const input = screen.getByRole("textbox", { name: "Invite" })
+    await user.type(input, "a@x.io{Enter}b@x.io,")
+    expect(onChange).toHaveBeenLastCalledWith(["a@x.io", "b@x.io"])
+    await user.type(input, "nope{Enter}")
+    expect(screen.getByText("“nope” is not an email.")).toBeInTheDocument()
+    expect(input).toHaveValue("nope")
+    await user.clear(input)
+    await user.click(input)
+    await user.paste("c@x.io; a@x.io\nd@x.io")
+    expect(onChange).toHaveBeenLastCalledWith(["a@x.io", "b@x.io", "c@x.io", "d@x.io"])
+    await user.click(screen.getByRole("button", { name: "Remove b@x.io" }))
+    expect(onChange).toHaveBeenLastCalledWith(["a@x.io", "c@x.io", "d@x.io"])
+    await user.click(input)
+    await user.keyboard("{Backspace}")
+    expect(onChange).toHaveBeenLastCalledWith(["a@x.io", "c@x.io"])
+  })
+
+  it("enforces maxTags and submits with a native form", () => {
+    const { container } = render(<form><TagInput label="Labels" name="labels" defaultValue={["a", "b"]} maxTags={2} /></form>)
+    expect(screen.getByRole("textbox", { name: "Labels" })).toBeDisabled()
+    expect([...container.querySelectorAll('input[name="labels"]')].map((i) => (i as HTMLInputElement).value)).toEqual(["a", "b"])
   })
 })

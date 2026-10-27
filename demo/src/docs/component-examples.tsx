@@ -145,6 +145,20 @@ function SelectMultipleExample() {
   )
 }
 
+const people = ["Maya Chen", "Jordan Kim", "Sam Rivera", "Ari Patel", "Lena Ortiz", "Noah Smith", "Priya Shah", "Diego Ruiz"]
+
+// A stand-in for your search API.
+function searchPeople(query: string, signal: AbortSignal) {
+  return new Promise<R.AutocompleteOption[]>((resolve, reject) => {
+    const timer = window.setTimeout(() => resolve(people.filter((person) => person.toLowerCase().includes(query.toLowerCase())).map((person) => ({ value: person, label: person }))), 500)
+    signal.addEventListener("abort", () => { window.clearTimeout(timer); reject(signal.reason) })
+  })
+}
+
+function AsyncAutocompleteExample() {
+  return <div className="w-full max-w-sm"><R.Autocomplete<string> multiple label="Assignees" placeholder="Search people…" loadOptions={searchPeople} debounceMs={300} /></div>
+}
+
 function AutocompleteMultipleExample() {
   const [reviewers, setReviewers] = useState<string[]>(["maya"])
   return (
@@ -698,6 +712,32 @@ export const componentExamples: Record<string, () => ComponentExample[]> = {
   ],
 
   "components/autocomplete": () => [
+    ex("creatable", "Creatable options", "creatable adds a “Create” row when the text matches nothing; onCreate can shape the new option.",
+      `<Autocomplete<string>
+  multiple
+  creatable
+  label="Labels"
+  placeholder="Find or create a label…"
+  options={[
+    { value: "bug", label: "bug" },
+    { value: "feature", label: "feature" },
+    { value: "docs", label: "docs" },
+  ]}
+/>`,
+      <div className="w-full max-w-sm"><R.Autocomplete<string> multiple creatable label="Labels" placeholder="Find or create a label…" options={[{ value: "bug", label: "bug" }, { value: "feature", label: "feature" }, { value: "docs", label: "docs" }]} /></div>),
+    ex("async", "Async search", "loadOptions fetches results as you type (debounced); each new query aborts the previous request via its AbortSignal.",
+      `const people = ["Maya Chen", "Jordan Kim", "Sam Rivera", "Ari Patel", "Lena Ortiz", "Noah Smith", "Priya Shah", "Diego Ruiz"]
+
+// A stand-in for your search API.
+function searchPeople(query: string, signal: AbortSignal) {
+  return new Promise<AutocompleteOption[]>((resolve, reject) => {
+    const timer = window.setTimeout(() => resolve(people.filter((person) => person.toLowerCase().includes(query.toLowerCase())).map((person) => ({ value: person, label: person }))), 500)
+    signal.addEventListener("abort", () => { window.clearTimeout(timer); reject(signal.reason) })
+  })
+}
+
+<Autocomplete<string> multiple label="Assignees" placeholder="Search people…" loadOptions={searchPeople} debounceMs={300} />`,
+      <AsyncAutocompleteExample />),
     ex("multiple", "Multiple selection", "Selected values render as removable chips; onSelect receives the full selection.",
       `function ReviewerPicker() {
   const [reviewers, setReviewers] = useState<string[]>(["maya"])

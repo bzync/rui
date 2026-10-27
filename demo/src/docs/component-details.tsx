@@ -115,6 +115,23 @@ function FormUsagePreview() {
   )
 }
 
+function TagInputUsagePreview() {
+  const [emails, setEmails] = useState(["maya@acme.dev"])
+  return (
+    <div className="grid w-full max-w-md gap-3">
+      <R.TagInput
+        label="Invite by email"
+        value={emails}
+        onChange={setEmails}
+        transform={(tag) => tag.toLowerCase()}
+        validate={(tag) => (/^\S+@\S+\.\S+$/.test(tag) ? undefined : `“${tag}” is not a valid email.`)}
+        hint="Press Enter or comma, or paste a list"
+      />
+      <span className="text-sm text-muted-foreground" role="status">{`${emails.length} ${emails.length === 1 ? "invite" : "invites"} ready`}</span>
+    </div>
+  )
+}
+
 function TimePickerPreview() {
   const [value, setValue] = useState("09:30")
   const [confirmedValue, setConfirmedValue] = useState("09:30")
@@ -317,6 +334,27 @@ export const supplementalDetails: Record<string, () => SupplementalDetail> = {
     api(["value / defaultValue", "{ from: Date | null; to: Date | null }", "Controlled or initial range."], ["onChange", "(range) => void", "Called when a range is completed, a preset is applied or the value is cleared."], ["presets", "DateRangePreset[] | false", "Quick ranges beside the calendar; defaults to today, last 7/30 days, this and last month.", "defaultDateRangePresets"], ["numberOfMonths", "1 | 2", "Months side by side on wider screens (phones always show one).", "2"], ["minDate / maxDate", "Date", "Selectable bounds."], ["size", '"sm" | "md" | "lg"', "Trigger height, matching Input and Button.", '"md"'], ["formatRange", "(range) => string", "Custom trigger text."], ["label / hint / error / placeholder / clearable / disabled", "—", "Same field contract as DatePicker."]),
     "The trigger opens a labelled dialog; each month is a grid of day buttons announcing range start, end or in range. Arrow keys, Home/End and PageUp/PageDown move focus; Enter picks; Escape closes and returns focus to the trigger. Presets are a labelled button group. On phones the panel becomes a bottom sheet.",
   ),
+  "components/tag-input": () => detail(
+    `function InviteEmails() {
+  const [emails, setEmails] = useState(["maya@acme.dev"])
+  return (
+    <div className="grid w-full max-w-md gap-3">
+      <TagInput
+        label="Invite by email"
+        value={emails}
+        onChange={setEmails}
+        transform={(tag) => tag.toLowerCase()}
+        validate={(tag) => (/^\\S+@\\S+\\.\\S+$/.test(tag) ? undefined : \`“\${tag}” is not a valid email.\`)}
+        hint="Press Enter or comma, or paste a list"
+      />
+      <span className="text-sm text-muted-foreground" role="status">{\`\${emails.length} \${emails.length === 1 ? "invite" : "invites"} ready\`}</span>
+    </div>
+  )
+}`,
+    <TagInputUsagePreview />,
+    api(["value / defaultValue", "string[]", "Controlled or initial tags."], ["onChange", "(tags: string[]) => void", "Called when tags are added or removed."], ["separators", "string[]", "Keys that commit a tag.", '["Enter", ","]'], ["validate", "(tag) => string | void", "Return a message to reject a tag; it is shown inline and the text is kept for fixing."], ["transform", "(tag) => string", "Normalizes each tag before adding."], ["allowDuplicates", "boolean", "Allows repeated tags (case-insensitive check otherwise).", "false"], ["maxTags", "number", "Limit; the input disables when reached."], ["name", "string", "Submits one name=value entry per tag."], ["size / label / hint / error / disabled / placeholder", "—", "Shared field contract."]),
+    "The text input is labelled and connected to its hint or error. Chips are a labelled list; each has a named remove button. Backspace on an empty input removes the last tag. Pasting a comma, semicolon or newline separated list adds every valid entry and keeps rejected ones in the input.",
+  ),
   "components/time-picker": () => detail(
     `const [time, setTime] = useState("09:30")
 
@@ -472,7 +510,7 @@ export const supplementalDetails: Record<string, () => SupplementalDetail> = {
   ]}
 />`,
     <div className="w-full max-w-sm"><R.Autocomplete label="Runtime" placeholder="Search runtimes…" hint="Type to filter options" options={[{ value: "node", label: "Node.js 22" }, { value: "go", label: "Go 1.25" }, { value: "rust", label: "Rust" }]} /></div>,
-    api(["options", "AutocompleteOption[]", "Searchable option values and labels."], ["multiple", "boolean", "Enables multi-selection.", "false"], ["size", '"sm" | "md" | "lg"', "Trigger height, matching Input and Button.", '"md"'], ["value / defaultValue", "V | V[]", "Controlled or initial selection; a single value shows its label in the input."], ["inputValue", "string", "Controlled query text."], ["onSelect", "(option, all?) => void", "Selection callback."], ["label / hint / error", "string", "Accessible field messaging."]),
+    api(["options", "AutocompleteOption[]", "Searchable option values and labels."], ["multiple", "boolean", "Enables multi-selection.", "false"], ["creatable / onCreate / createLabel", "boolean / functions", "Offer a Create row for unmatched text and shape the new option."], ["loadOptions / debounceMs", "(query, signal) => Promise<options>", "Async search with debounce; stale requests are aborted."], ["size", '"sm" | "md" | "lg"', "Trigger height, matching Input and Button.", '"md"'], ["value / defaultValue", "V | V[]", "Controlled or initial selection; a single value shows its label in the input."], ["inputValue", "string", "Controlled query text."], ["onSelect", "(option, all?) => void", "Selection callback."], ["label / hint / error", "string", "Accessible field messaging."]),
     "Exposes combobox/listbox semantics with arrow-key navigation, Enter selection, Escape dismissal, and associated field messages.",
   ),
   "components/slider": () => detail(

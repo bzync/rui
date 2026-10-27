@@ -32,12 +32,14 @@ export type {
   AutocompletePropsMulti,
 } from "./autocomplete/types"
 
+const NO_OPTIONS: AutocompleteOption<unknown>[] = []
+
 function AutocompleteInner<V = string>(
   props: AutocompleteProps<V>,
   ref: React.Ref<HTMLInputElement>,
 ) {
   const {
-    options,
+    options = NO_OPTIONS as AutocompleteOption<V>[],
     inputValue: controlledInput,
     onInputChange,
     label,
@@ -46,7 +48,12 @@ function AutocompleteInner<V = string>(
     prefix,
     clearable = true,
     size = "md",
-    loading = false,
+    loading: loadingProp = false,
+    creatable = false,
+    onCreate,
+    createLabel = (text: string) => `Create “${text}”`,
+    loadOptions,
+    debounceMs = 250,
     emptyMessage = "No results",
     maxVisible = 8,
     className,
@@ -114,14 +121,23 @@ function AutocompleteInner<V = string>(
     // Only when the selected value changes; `options` identity churns every render.
   }, [controlledSingle, multiple, controlledInput])
 
+  // Every option seen so far (static, fetched or created), so selected chips
+  // keep their labels after async results change.
+  const [remoteOptions, setRemoteOptions] = useState<AutocompleteOption<V>[] | null>(null)
+  const [remoteLoading, setRemoteLoading] = useState(false)
+  const [createdOptions, setCreatedOptions] = useState<AutocompleteOption<V>[]>([])
+  const knownRef = useRef(new Map<V, AutocompleteOption<V>>())
+  for (const option of [...options, ...(remoteOptions ?? []), ...createdOptions]) knownRef.current.set(option.value, option)
+  const loading = loadingProp || remoteLoading
+
   const selected: AutocompleteOption<V>[] = useMemo(() => {
     if (!multiple) return []
     const multiProps = props as AutocompletePropsMulti<V>
     if (multiProps.value !== undefined) {
-      return options.filter((o) => (multiProps.value as V[]).includes(o.value))
+      return (multiProps.value as V[]).map((value) => knownRef.current.get(value)).filter((o): o is AutocompleteOption<V> => Boolean(o))
     }
     return localSelected
-  }, [multiple, options, props, localSelected])
+  }, [multiple, props, localSelected, options, remoteOptions, createdOptions])
 
   const selectedValues = useMemo(() => selected.map((o) => o.value), [selected])
 
@@ -132,10 +148,31 @@ function AutocompleteInner<V = string>(
   const listRef = useRef<HTMLUListElement>(null)
   const [query, setQuery] = useState("")
 
+  useEffect(() => {
+    if (!loadOptions || !open) return
+    const controller = new AbortController()
+    const timer = window.setTimeout(() => {
+      setRemoteLoading(true)
+      loadOptions(query.trim(), controller.signal)
+        .then((result) => { if (!controller.signal.aborted) setRemoteOptions(result) })
+        .catch(() => { if (!controller.signal.aborted) setRemoteOptions([]) })
+        .finally(() => { if (!controller.signal.aborted) setRemoteLoading(false) })
+    }, debounceMs)
+    return () => { window.clearTimeout(timer); controller.abort() }
+  }, [loadOptions, query, open, debounceMs])
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
-    return options.filter((opt) => !opt.disabled && opt.label.toLowerCase().includes(q)).slice(0, maxVisible)
-  }, [options, query, maxVisible])
+    // Async results are already filtered by the server.
+    if (loadOptions) return (remoteOptions ?? []).filter((opt) => !opt.disabled).slice(0, maxVisible)
+    return [...options, ...createdOptions].filter((opt) => !opt.disabled && opt.label.toLowerCase().includes(q)).slice(0, maxVisible)
+  }, [options, createdOptions, remoteOptions, loadOptions, query, maxVisible])
+
+  const createText = query.trim()
+  const showCreate = creatable && createText.length > 0 && !loading
+    && ![...knownRef.current.values()].some((opt) => opt.label.toLowerCase() === createText.toLowerCase())
+  // The create row sits after the options and is keyboard-reachable like one.
+  const optionCount = filtered.length + (showCreate ? 1 : 0)
 
   const handleSelectSingle = useCallback((opt: AutocompleteOption<V>) => {
     const singleProps = props as AutocompletePropsSingle<V>
@@ -182,6 +219,15 @@ function AutocompleteInner<V = string>(
     setInput("")
   }, [props, setInput])
 
+  function createOption() {
+    const option = onCreate?.(createText) ?? ({ value: createText as unknown as V, label: createText })
+    setCreatedOptions((current) => [...current, option])
+    knownRef.current.set(option.value, option)
+    if (multiple) addMulti(option)
+    else handleSelectSingle(option)
+    setQuery("")
+  }
+
   const handleKeyDown = useCallback((e: KeyboardEvent<HTMLInputElement>) => {
     if (multiple && e.key === "Backspace" && inputText === "" && selected.length > 0) {
       removeMulti(selected[selected.length - 1])
@@ -193,12 +239,13 @@ function AutocompleteInner<V = string>(
     }
     if (e.key === "ArrowDown") {
       e.preventDefault()
-      setActiveIdx((i) => Math.min(i + 1, filtered.length - 1))
+      setActiveIdx((i) => Math.min(i + 1, optionCount - 1))
     } else if (e.key === "ArrowUp") {
       e.preventDefault()
       setActiveIdx((i) => Math.max(i - 1, 0))
     } else if (e.key === "Enter") {
       e.preventDefault()
+      if (showCreate && activeIdx === filtered.length) { createOption(); return }
       const opt = filtered[activeIdx]
       if (!opt) return
       if (multiple) toggleMulti(opt)
@@ -207,7 +254,7 @@ function AutocompleteInner<V = string>(
       setOpen(false)
       setActiveIdx(-1)
     }
-  }, [multiple, inputText, selected, open, filtered, activeIdx, toggleMulti, handleSelectSingle, removeMulti])
+  }, [multiple, inputText, selected, open, filtered, activeIdx, toggleMulti, handleSelectSingle, removeMulti, showCreate, optionCount])
 
   useEffect(() => {
     if (activeIdx < 0 || !listRef.current) return
@@ -344,6 +391,8 @@ function AutocompleteInner<V = string>(
         loading={loading}
         filtered={filtered}
         emptyMessage={emptyMessage}
+        createRow={showCreate ? createLabel(createText) : null}
+        onCreate={createOption}
         activeIdx={activeIdx}
         setActiveIdx={setActiveIdx}
         inputText={query}

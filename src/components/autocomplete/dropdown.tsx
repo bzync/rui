@@ -12,7 +12,7 @@ import { Highlight, SpinnerIcon } from "./icons"
 export function AutocompleteDropdown<V>({
   listRef, listId, open, pos, multiple, loading, filtered, emptyMessage,
   activeIdx, setActiveIdx, inputText, selectedValues, singleValue,
-  onSelectSingle, onToggleMulti,
+  onSelectSingle, onToggleMulti, createRow, onCreate,
   className,
   optionClassName, loadingClassName, emptyClassName,
 }: {
@@ -31,6 +31,9 @@ export function AutocompleteDropdown<V>({
   singleValue: V | null | undefined
   onSelectSingle: (opt: AutocompleteOption<V>) => void
   onToggleMulti: (opt: AutocompleteOption<V>) => void
+  /** Label of the trailing create option, or null. */
+  createRow?: string | null
+  onCreate?: () => void
   className?: string
   optionClassName?: string
   loadingClassName?: string
@@ -59,10 +62,10 @@ export function AutocompleteDropdown<V>({
               <SpinnerIcon />
               Loading…
             </li>
-          ) : filtered.length === 0 ? (
+          ) : filtered.length === 0 && !createRow ? (
             <li className={cn("px-4 py-3 text-sm text-muted-foreground", emptyClassName)}>{emptyMessage}</li>
           ) : (
-            filtered.map((opt, i) => {
+            [...filtered.map((opt, i) => {
               const isActive = i === activeIdx
               const isSel = multiple ? selectedValues.includes(opt.value) : opt.value === singleValue
               return (
@@ -97,7 +100,21 @@ export function AutocompleteDropdown<V>({
                   )}
                 </li>
               )
-            })
+            }), createRow ? (
+              <li
+                key="__create"
+                id={`${listId}-opt-${filtered.length}`}
+                role="option"
+                aria-selected={false}
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={onCreate}
+                onMouseEnter={() => setActiveIdx(filtered.length)}
+                className={cn("flex min-h-9 cursor-pointer items-center gap-2 px-3 py-2 text-sm font-medium text-accent-strong transition-colors", filtered.length > 0 && "border-t border-border", activeIdx === filtered.length && "bg-surface-muted", optionClassName)}
+              >
+                <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14" /></svg>
+                {createRow}
+              </li>
+            ) : null]
           )}
         </motion.ul>
       )}
