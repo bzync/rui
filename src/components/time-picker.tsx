@@ -126,7 +126,7 @@ function TimeColumn({
         role="listbox"
         aria-labelledby={labelId}
         data-time-column={name}
-        className="max-h-52 min-w-0 overflow-y-auto overscroll-contain rounded-[var(--radius-md)] border border-border bg-surface p-1 scrollbar-thin sm:max-h-44"
+        className="max-h-52 min-w-0 overflow-y-auto overscroll-contain rounded-[var(--radius-md)] border border-border bg-surface-muted/30 p-1 scrollbar-thin sm:max-h-44"
       >
         {options.map((option, index) => {
           const selected = option.value === value
@@ -143,8 +143,8 @@ function TimeColumn({
                 "flex h-11 w-full items-center justify-center rounded-[var(--radius-sm)] px-1 text-sm tabular-nums transition-colors sm:h-9 sm:text-xs",
                 focusRingStyles,
                 selected
-                  ? "bg-primary font-semibold text-primary-foreground"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                  ? "bg-primary font-semibold text-primary-foreground shadow-xs"
+                  : "text-muted-foreground hover:bg-foreground/6 hover:text-foreground",
               )}
             >
               {option.label}
@@ -362,7 +362,7 @@ export const TimePicker = forwardRef<HTMLButtonElement, TimePickerProps>(({
       {label && (
         <label htmlFor={triggerId} className={cn(fieldLabelStyles, labelClassName)}>
           {label}
-          {required && <><span aria-hidden="true" className="ml-1 text-destructive">*</span><span className="sr-only"> (required)</span></>}
+          {required && <><span aria-hidden="true" className="ml-1 text-danger-strong">*</span><span className="sr-only"> (required)</span></>}
         </label>
       )}
       <button
@@ -419,10 +419,10 @@ export const TimePicker = forwardRef<HTMLButtonElement, TimePickerProps>(({
         >
           <div className="mb-3 flex items-center justify-between gap-3">
             <div className="min-w-0"><p className="truncate text-sm font-semibold text-foreground">Choose time</p><p className="text-[11px] text-muted-foreground">{format === "12" ? "12-hour" : "24-hour"} format</p></div>
-            <button type="button" onClick={() => setDraft(alignMinuteStep(nowParts(normalizedMinuteStep), normalizedMinuteStep, showSeconds))} className={cn("h-11 rounded-md px-3 text-xs font-medium text-accent-strong hover:bg-muted sm:h-8 sm:px-2.5 ", focusRingStyles)}>Now</button>
+            <button type="button" onClick={() => setDraft(alignMinuteStep(nowParts(normalizedMinuteStep), normalizedMinuteStep, showSeconds))} className={cn("h-11 rounded-[var(--radius-md)] px-3 text-xs font-medium text-accent-strong hover:bg-foreground/6 transition-colors sm:h-8 sm:px-2.5", focusRingStyles)}>Now</button>
           </div>
 
-          <div aria-live="polite" className="mb-3 flex h-11 items-center justify-center rounded-[var(--radius-md)] bg-muted px-3 text-lg font-semibold tabular-nums text-foreground">
+          <div aria-live="polite" className="mb-3 flex h-11 items-center justify-center rounded-[var(--radius-md)] border border-border/70 bg-surface-muted px-3 text-lg font-semibold tabular-nums text-foreground">
             {formatDisplay(serializeTime(draft, showSeconds), format, showSeconds)}
           </div>
 
@@ -440,12 +440,12 @@ export const TimePicker = forwardRef<HTMLButtonElement, TimePickerProps>(({
             {format === "12" && <TimeColumn id={`${triggerId}-period`} label="Period" name="period" options={periods} value={draft.hour >= 12 ? 1 : 0} onSelect={(period) => setDraft((current) => ({ ...current, hour: (current.hour % 12) + period * 12 }))} />}
           </div>
 
-          {outOfRange && <p role="status" className="mt-2 text-xs text-destructive">Choose a time {belowMinimum ? `at or after ${formatDisplay(serializeTime(minParts as TimeParts, showSeconds), format, showSeconds)}` : `at or before ${formatDisplay(serializeTime(maxParts as TimeParts, showSeconds), format, showSeconds)}`}.</p>}
+          {outOfRange && <p role="status" className="mt-2 text-xs text-danger-strong">Choose a time {belowMinimum ? `at or after ${formatDisplay(serializeTime(minParts as TimeParts, showSeconds), format, showSeconds)}` : `at or before ${formatDisplay(serializeTime(maxParts as TimeParts, showSeconds), format, showSeconds)}`}.</p>}
 
           <div className="sticky bottom-0 -mx-3 -mb-3 mt-3 flex flex-wrap items-center justify-end gap-2 border-t border-border bg-surface-raised px-3 pb-3 pt-3">
-            {clearable && !required && value && <button type="button" onClick={() => commit("")} className={cn("mr-auto h-11 rounded-md px-3 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground sm:h-8 sm:px-2.5", focusRingStyles)}>Clear</button>}
-            <button type="button" onClick={() => closePicker(true)} className={cn("h-11 rounded-md px-3 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground sm:h-8", focusRingStyles)}>Cancel</button>
-            <button type="button" disabled={outOfRange} onClick={() => commit(serializeTime(draft, showSeconds))} className={cn("h-11 rounded-md bg-primary px-4 text-xs font-semibold text-primary-foreground hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-40 sm:h-8 sm:px-3", focusRingStyles)}>Apply</button>
+            {clearable && !required && value && <button type="button" onClick={() => commit("")} className={cn("mr-auto h-11 rounded-[var(--radius-md)] px-3 text-xs font-medium text-muted-foreground hover:bg-foreground/6 hover:text-foreground transition-colors sm:h-8 sm:px-2.5", focusRingStyles)}>Clear</button>}
+            <button type="button" onClick={() => closePicker(true)} className={cn("h-11 rounded-[var(--radius-md)] px-3 text-xs font-medium text-muted-foreground hover:bg-foreground/6 hover:text-foreground transition-colors sm:h-8", focusRingStyles)}>Cancel</button>
+            <button type="button" disabled={outOfRange} onClick={() => commit(serializeTime(draft, showSeconds))} className={cn("h-11 rounded-[var(--radius-md)] bg-primary px-4 text-xs font-semibold text-primary-foreground hover:bg-primary-hover shadow-xs transition-colors disabled:cursor-not-allowed disabled:opacity-40 sm:h-8 sm:px-3", focusRingStyles)}>Apply</button>
           </div>
         </div>
         </>

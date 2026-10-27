@@ -197,7 +197,7 @@ function TimeColumn({ label, name, options, value, onSelect }: TimeColumnProps) 
                 "flex h-7 w-full items-center justify-center rounded-[var(--radius-xs)] text-xs tabular-nums transition-colors cursor-pointer",
                 focusRingStyles,
                 selected
-                  ? "bg-accent font-semibold text-accent-foreground shadow-xs"
+                  ? "bg-primary font-semibold text-primary-foreground shadow-xs"
                   : "text-muted-foreground hover:bg-foreground/6 hover:text-foreground",
               )}
             >
@@ -518,50 +518,51 @@ export const DateTimePicker = forwardRef<HTMLDivElement, DateTimePickerProps>(fu
             <path d="m6 9 6 6 6-6" />
           </svg>
         </button>
+      </div>
 
-        <ThemePortal>
-          <AnimatePresence>
-            {open && (
-              <>
-                <motion.div
-                  aria-hidden="true"
-                  className="fixed inset-0 z-(--z-popover) bg-overlay/40 sm:hidden"
-                  onClick={() => setOpen(false)}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.15 }}
-                />
-                <motion.div
-                  ref={mergeRefs(panelRef, setFloating)}
-                  id={dialogId}
-                  role="dialog"
-                  aria-label="Choose date and time"
-                  initial={{
-                    opacity: 0,
-                    scale: 0.96,
-                    y: placement === "top" ? 6 : -6,
-                  }}
-                  animate={{
-                    opacity: 1,
-                    scale: 1,
-                    y: 0,
-                  }}
-                  exit={{
-                    opacity: 0,
-                    scale: 0.96,
-                    y: placement === "top" ? 4 : -4,
-                  }}
-                  transition={{
-                    duration: 0.16,
-                    ease: [0.16, 1, 0.3, 1],
-                  }}
-                  style={{
-                    ...style,
-                    transformOrigin: placement === "top" ? "bottom left" : "top left",
-                  }}
-                  className="z-(--z-popover) flex max-w-[calc(100vw-1rem)] flex-col rounded-[var(--radius-lg)] border border-border bg-surface p-3.5 shadow-floating ring-1 ring-foreground/5 select-none"
-                >
+      <ThemePortal>
+        <AnimatePresence>
+          {open && (
+            <>
+              <motion.div
+                aria-hidden="true"
+                className="fixed inset-0 z-(--z-popover) bg-overlay/40 sm:hidden"
+                onClick={() => setOpen(false)}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+              />
+              <motion.div
+                ref={mergeRefs(panelRef, setFloating)}
+                id={dialogId}
+                role="dialog"
+                aria-label="Choose date and time"
+                initial={{
+                  opacity: 0,
+                  scale: 0.96,
+                  y: placement === "top" ? 6 : -6,
+                }}
+                animate={{
+                  opacity: 1,
+                  scale: 1,
+                  y: 0,
+                }}
+                exit={{
+                  opacity: 0,
+                  scale: 0.96,
+                  y: placement === "top" ? 4 : -4,
+                }}
+                transition={{
+                  duration: 0.16,
+                  ease: [0.16, 1, 0.3, 1],
+                }}
+                style={{
+                  ...style,
+                  transformOrigin: placement === "top" ? "bottom left" : "top left",
+                }}
+                className="z-(--z-popover) flex max-w-[calc(100vw-1rem)] flex-col rounded-[var(--radius-lg)] border border-border bg-surface-raised p-3.5 shadow-floating ring-1 ring-foreground/5 select-none"
+              >
                   {/* Presets header */}
                   {activePresets.length > 0 && (
                     <div className="flex flex-wrap gap-1.5 pb-2.5 mb-2.5 border-b border-border">
@@ -579,7 +580,7 @@ export const DateTimePicker = forwardRef<HTMLDivElement, DateTimePickerProps>(fu
                             setTempMinutes(next.getMinutes())
                             setTempSeconds(next.getSeconds())
                           }}
-                          className="rounded-[var(--radius-sm)] border border-border bg-surface px-2 py-0.5 text-xs font-medium text-foreground transition-colors hover:border-border-strong hover:bg-foreground/5 cursor-pointer"
+                          className="rounded-[var(--radius-sm)] border border-border bg-surface px-2.5 py-1 text-xs font-medium text-muted-foreground transition-colors hover:border-border-strong hover:bg-foreground/5 hover:text-foreground cursor-pointer focus-ring"
                         >
                           {preset.label}
                         </button>
@@ -595,7 +596,7 @@ export const DateTimePicker = forwardRef<HTMLDivElement, DateTimePickerProps>(fu
                       className={cn(
                         "flex-1 py-1 text-xs font-semibold rounded-[var(--radius-xs)] transition-colors text-center cursor-pointer",
                         mobileTab === "date"
-                          ? "bg-accent text-accent-foreground shadow-xs"
+                          ? "bg-primary text-primary-foreground shadow-xs"
                           : "text-muted-foreground hover:text-foreground",
                       )}
                     >
@@ -607,7 +608,7 @@ export const DateTimePicker = forwardRef<HTMLDivElement, DateTimePickerProps>(fu
                       className={cn(
                         "flex-1 py-1 text-xs font-semibold rounded-[var(--radius-xs)] transition-colors text-center cursor-pointer",
                         mobileTab === "time"
-                          ? "bg-accent text-accent-foreground shadow-xs"
+                          ? "bg-primary text-primary-foreground shadow-xs"
                           : "text-muted-foreground hover:text-foreground",
                       )}
                     >
@@ -684,9 +685,9 @@ export const DateTimePicker = forwardRef<HTMLDivElement, DateTimePickerProps>(fu
                                 "flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-xs font-medium transition-colors cursor-pointer",
                                 focusRingStyles,
                                 isSelected
-                                  ? "bg-accent text-accent-foreground font-semibold shadow-xs"
+                                  ? "bg-primary text-primary-foreground font-semibold shadow-xs"
                                   : isToday
-                                    ? "border border-accent text-accent font-semibold hover:bg-foreground/6"
+                                    ? "border border-accent-500/40 text-accent-strong font-semibold hover:bg-accent-500/10"
                                     : "text-foreground hover:bg-foreground/6",
                                 disabledDay && "opacity-25 cursor-not-allowed",
                               )}
@@ -723,7 +724,7 @@ export const DateTimePicker = forwardRef<HTMLDivElement, DateTimePickerProps>(fu
                             className={cn(
                               "flex-1 py-0.5 text-xs font-semibold rounded-[var(--radius-xs)] transition-colors text-center cursor-pointer",
                               !isPM
-                                ? "bg-accent text-accent-foreground shadow-xs"
+                                ? "bg-primary text-primary-foreground shadow-xs"
                                 : "text-muted-foreground hover:text-foreground",
                             )}
                           >
@@ -739,7 +740,7 @@ export const DateTimePicker = forwardRef<HTMLDivElement, DateTimePickerProps>(fu
                             className={cn(
                               "flex-1 py-0.5 text-xs font-semibold rounded-[var(--radius-xs)] transition-colors text-center cursor-pointer",
                               isPM
-                                ? "bg-accent text-accent-foreground shadow-xs"
+                                ? "bg-primary text-primary-foreground shadow-xs"
                                 : "text-muted-foreground hover:text-foreground",
                             )}
                           >
@@ -779,14 +780,14 @@ export const DateTimePicker = forwardRef<HTMLDivElement, DateTimePickerProps>(fu
                         <button
                           type="button"
                           onClick={handleNow}
-                          className="flex-1 rounded-[var(--radius-sm)] border border-border bg-surface px-2 py-1 text-xs font-medium text-foreground hover:bg-foreground/5 transition-colors cursor-pointer"
+                          className="flex-1 rounded-[var(--radius-sm)] border border-border bg-surface px-2 py-1 text-xs font-medium text-foreground hover:bg-foreground/5 hover:border-border-strong transition-colors cursor-pointer focus-ring"
                         >
                           Now
                         </button>
                         <button
                           type="button"
                           onClick={handleApply}
-                          className="flex-1 rounded-[var(--radius-sm)] bg-accent px-2 py-1 text-xs font-semibold text-accent-foreground hover:opacity-90 transition-opacity cursor-pointer"
+                          className="flex-1 rounded-[var(--radius-sm)] bg-primary px-2 py-1 text-xs font-semibold text-primary-foreground hover:bg-primary-hover shadow-xs transition-colors cursor-pointer focus-ring"
                         >
                           Done
                         </button>
@@ -798,7 +799,6 @@ export const DateTimePicker = forwardRef<HTMLDivElement, DateTimePickerProps>(fu
             )}
           </AnimatePresence>
         </ThemePortal>
-      </div>
 
       {error ? (
         <p id={messageId} aria-live="polite" className={fieldErrorStyles}>{error}</p>

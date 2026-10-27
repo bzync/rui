@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event"
 import { hydrateRoot } from "react-dom/client"
 import { renderToString } from "react-dom/server"
 import { describe, expect, it, vi } from "vitest"
-import { CommandPalette, CommandProvider, ConfirmDialog, ContextMenu, Menubar, CopyButton, DatePicker, Drawer, DropdownMenu, HoverCard, InfoButton, Modal, NotificationCenter, Popover, PopoverContent, Select, Sheet, SnackbarProvider, ThemeProvider, TimePicker, Tooltip, Tour, useSnackbar } from "@/index"
+import { CommandPalette, CommandProvider, ConfirmDialog, ContextMenu, Menubar, CopyButton, DatePicker, DateTimePicker, Drawer, DropdownMenu, HoverCard, InfoButton, Modal, NotificationCenter, Popover, PopoverContent, Select, Sheet, SnackbarProvider, ThemeProvider, TimePicker, Tooltip, Tour, useSnackbar } from "@/index"
 import { useState } from "react"
 
 describe("overlay and feedback components", () => {
@@ -18,6 +18,7 @@ describe("overlay and feedback components", () => {
             <td><Tooltip content="Tooltip body"><button>Help</button></Tooltip></td>
             <td><DatePicker label="Due date" /></td>
             <td><TimePicker label="Start time" /></td>
+            <td><DateTimePicker label="Appointment" /></td>
           </tr></tbody></table>
         </div>
       </ThemeProvider>,
@@ -54,6 +55,11 @@ describe("overlay and feedback components", () => {
     // Moving focus between columns inside the portalled panel keeps it open.
     await user.tab()
     expect(screen.getByRole("dialog", { name: "Choose start time" })).toBeInTheDocument()
+    await user.keyboard("{Escape}")
+
+    await user.click(screen.getByRole("button", { name: "Appointment" }))
+    const dateTimePanel = await screen.findByRole("dialog", { name: "Choose date and time" })
+    escapes(dateTimePanel)
   })
 
   it("keeps a portalled popover's form interactive and closes on outside click", async () => {

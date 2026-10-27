@@ -154,9 +154,9 @@ function paletteStyle(...palettes: Array<ThemePalette | undefined>): CSSProperti
       if (palette.colors.text !== undefined) { style["--color-text"] = palette.colors.text; style["--color-foreground"] = palette.colors.text }
       if (palette.colors.muted !== undefined) style["--color-muted"] = palette.colors.muted
       if (palette.colors.mutedForeground !== undefined) style["--color-muted-foreground"] = palette.colors.mutedForeground
-      if (palette.colors.primary !== undefined) style["--color-primary"] = palette.colors.primary
+      if (palette.colors.primary !== undefined) { style["--color-primary"] = palette.colors.primary; style["--color-accent"] = palette.colors.primary }
       if (palette.colors.primaryHover !== undefined) style["--color-primary-hover"] = palette.colors.primaryHover
-      if (palette.colors.primaryForeground !== undefined) style["--color-primary-foreground"] = palette.colors.primaryForeground
+      if (palette.colors.primaryForeground !== undefined) { style["--color-primary-foreground"] = palette.colors.primaryForeground; style["--color-accent-foreground"] = palette.colors.primaryForeground }
       if (palette.colors.danger !== undefined) { style["--color-danger"] = palette.colors.danger; style["--color-destructive"] = palette.colors.danger }
       if (palette.colors.dangerForeground !== undefined) style["--color-destructive-foreground"] = palette.colors.dangerForeground
       if (palette.colors.success !== undefined) style["--color-success"] = palette.colors.success
@@ -190,7 +190,7 @@ function paletteStyle(...palettes: Array<ThemePalette | undefined>): CSSProperti
   return style as CSSProperties
 }
 
-const accentAliases = [["--color-primary", 600], ["--color-primary-hover", 700], ["--color-focus-ring", 500]] as const
+const accentAliases = [["--color-primary", 600], ["--color-primary-hover", 700], ["--color-focus-ring", 500], ["--color-accent", 600]] as const
 
 /**
  * Aliases such as --color-primary: var(--color-accent-600) are declared on

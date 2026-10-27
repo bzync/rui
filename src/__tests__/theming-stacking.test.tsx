@@ -1,12 +1,12 @@
 /// <reference types="node" />
-import { render, screen } from "@testing-library/react"
+import { render, screen, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { readFileSync, readdirSync } from "node:fs"
 import { join, relative } from "node:path"
 import { describe, expect, it } from "vitest"
 import {
-  Alert, Avatar, Badge, Callout, Checkbox, Drawer, DropdownMenu, Modal, Popover, Progressbar, Select, Stat, StatusDot, Tag, ThemePortal,
-  ThemeProvider, Timeline, Tooltip, Z_INDEX,
+  Alert, Avatar, Badge, Callout, Checkbox, DateTimePicker, Drawer, DropdownMenu, Modal, Popover, Progressbar, Select, Stat, StatusDot, Tag, ThemePortal,
+  ThemeProvider, Timeline, TimePicker, Tooltip, Z_INDEX,
 } from "@/index"
 
 const SRC = join(__dirname, "..")
@@ -248,6 +248,39 @@ describe("theme scope", () => {
   it("is a plain portal outside a ThemeProvider", () => {
     render(<ThemePortal><span>bare</span></ThemePortal>)
     expect(screen.getByText("bare").parentElement).toBe(document.body)
+  })
+
+  it("keeps TimePicker and DateTimePicker inside the theme scope with semantic tokens", async () => {
+    const user = userEvent.setup()
+    render(
+      <ThemeProvider storageKey={false} theme="dark" palette={{ accent: { 600: "#8b5cf6" }, colors: { primary: "#8b5cf6" } }}>
+        <TimePicker label="Event time" defaultValue="14:30" />
+        <DateTimePicker label="Appointment" defaultValue={new Date(2026, 9, 28, 10, 0)} />
+      </ThemeProvider>,
+    )
+
+    // Open TimePicker
+    await user.click(screen.getByRole("button", { name: "Event time" }))
+    const timeDialog = await screen.findByRole("dialog", { name: "Choose event time" })
+    const timePortal = timeDialog.closest("[data-rui-portal]") as HTMLElement
+    expect(timePortal).not.toBeNull()
+    expect(timePortal).toHaveClass("dark")
+    expect(timeDialog).toHaveClass("bg-surface-raised")
+    // Active option in TimePicker has primary token
+    const selectedHour = within(timeDialog).getByRole("option", { name: "02" })
+    expect(selectedHour).toHaveClass("bg-primary", "text-primary-foreground")
+    await user.keyboard("{Escape}")
+
+    // Open DateTimePicker
+    await user.click(screen.getByRole("button", { name: "Appointment" }))
+    const dateDialog = await screen.findByRole("dialog", { name: "Choose date and time" })
+    const datePortal = dateDialog.closest("[data-rui-portal]") as HTMLElement
+    expect(datePortal).not.toBeNull()
+    expect(datePortal).toHaveClass("dark")
+    expect(dateDialog).toHaveClass("bg-surface-raised")
+    // Selected day in DateTimePicker has primary token
+    const selectedDay = within(dateDialog).getByRole("button", { name: /October 28, 2026/i })
+    expect(selectedDay).toHaveClass("bg-primary", "text-primary-foreground")
   })
 })
 

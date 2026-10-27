@@ -53,6 +53,8 @@
   --color-border-strong: #b4becd;
   --color-muted: #eef1f6;
   --color-muted-foreground: #64708a;
+  --color-accent: var(--color-accent-600);
+  --color-accent-foreground: #ffffff;
   --color-primary: var(--color-accent-600);
   --color-primary-hover: var(--color-accent-700);
   --color-primary-foreground: #ffffff;
@@ -220,6 +222,8 @@
    Re-declaring them on the theme scope makes them resolve against the scoped
    values instead. */
 :where(.rui-theme, .rtui-theme) {
+  --color-accent: var(--color-accent-600);
+  --color-accent-foreground: #ffffff;
   --color-accent-strong: var(--color-accent-700);
   --color-code-plain: var(--color-foreground);
   --color-surface-sunken: var(--color-surface-muted);
@@ -245,6 +249,8 @@
   --color-muted: #182432;
   --color-muted-foreground: #97a3b4;
 
+  --color-accent: var(--color-accent-500);
+  --color-accent-foreground: #ffffff;
   --color-accent-strong: var(--color-accent-300);
   --color-surface-sunken: var(--color-bg);
   --color-success-strong: color-mix(in oklab, var(--color-success) 62%, white);
