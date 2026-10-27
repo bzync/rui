@@ -73,3 +73,18 @@ describe("navigation", () => {
     expect(screen.getByRole("link", { name: "bzync" })).toBeInTheDocument()
   })
 })
+
+describe("BottomBar", () => {
+  it("renders native-style tabs with announced badges and an optional fixed position", async () => {
+    const user = userEvent.setup(); const onSelect = vi.fn()
+    const { container } = render(<BottomBar fixed activeId="home" onSelect={onSelect} items={[
+      { id: "home", label: "Home", icon: <svg /> },
+      { id: "inbox", label: "Inbox", icon: <svg />, badge: 3 },
+    ]} />)
+    expect(screen.getByRole("button", { name: "Home" })).toHaveAttribute("aria-current", "page")
+    // The count is part of the accessible name, not just a red dot.
+    await user.click(screen.getByRole("button", { name: "Inbox, 3" }))
+    expect(onSelect).toHaveBeenCalledWith("inbox")
+    expect(container.querySelector("nav")).toHaveClass("fixed", "bottom-0", "pb-safe-bottom")
+  })
+})

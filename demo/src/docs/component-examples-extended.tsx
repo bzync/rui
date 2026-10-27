@@ -27,6 +27,8 @@ import {
   Settings,
   Users,
   WifiOff,
+  Bell,
+  User,
 } from "lucide-react"
 import { type ReactNode, useEffect, useState } from "react"
 import { RuiBrandMark } from "../_shared/brand"
@@ -317,12 +319,23 @@ function SidebarExample() {
   )
 }
 
+const mobileTabs = [
+  { id: "home", label: "Home", icon: <Home size={20} />, content: ["Deploys today: 14", "Uptime: 99.98%", "Open incidents: 0"] },
+  { id: "projects", label: "Projects", icon: <Box size={20} />, badge: 12, content: ["api-gateway", "web-frontend", "queue-worker"] },
+  { id: "inbox", label: "Inbox", icon: <Bell size={20} />, badge: 3, content: ["Build failed on main", "Maya mentioned you", "Invoice paid"] },
+  { id: "account", label: "Account", icon: <User size={20} />, content: ["Profile", "Billing", "Sign out"] },
+]
+
 function BottomBarExample() {
-  const [active, setActive] = useState("overview")
+  const [active, setActive] = useState("home")
+  const tab = mobileTabs.find((item) => item.id === active)!
   return (
-    <div className="w-full max-w-sm overflow-hidden rounded-xl border border-border">
-      <p className="h-32 p-4 text-sm text-muted-foreground">{`Mobile screen: ${active}`}</p>
-      <R.BottomBar className="rounded-none border-x-0 border-b-0 shadow-none" items={navItems.slice(0, 3)} activeId={active} onSelect={setActive} />
+    <div className="flex h-[480px] w-full max-w-[360px] flex-col overflow-hidden rounded-[28px] border border-border bg-bg shadow-floating">
+      <header className="border-b border-border bg-surface px-4 py-3 text-sm font-semibold">{tab.label}</header>
+      <ul className="flex-1 divide-y divide-border overflow-y-auto">
+        {tab.content.map((line) => <li key={line} className="px-4 py-3 text-sm">{line}</li>)}
+      </ul>
+      <R.BottomBar items={mobileTabs} activeId={active} onSelect={setActive} />
     </div>
   )
 }
@@ -1186,19 +1199,26 @@ function App() {
   )
 }`,
       <SidebarExample />),
-    ex("bottom-bar", "Mobile bottom bar", "BottomBar renders compact icon tabs for small screens.",
-      `function MobileNav() {
-  const [active, setActive] = useState("overview")
+    ex("bottom-bar", "Mobile bottom bar", "A native-style tab bar: icon over label, a pill behind the active icon, count badges on the icon corner (announced in the tab name) and 64px touch targets. Pass fixed to pin it to the viewport bottom with safe-area padding.",
+      `const mobileTabs = [
+  { id: "home", label: "Home", icon: <Home size={20} />, content: ["Deploys today: 14", "Uptime: 99.98%", "Open incidents: 0"] },
+  { id: "projects", label: "Projects", icon: <Box size={20} />, badge: 12, content: ["api-gateway", "web-frontend", "queue-worker"] },
+  { id: "inbox", label: "Inbox", icon: <Bell size={20} />, badge: 3, content: ["Build failed on main", "Maya mentioned you", "Invoice paid"] },
+  { id: "account", label: "Account", icon: <User size={20} />, content: ["Profile", "Billing", "Sign out"] },
+]
+
+function MobileApp() {
+  const [active, setActive] = useState("home")
+  const tab = mobileTabs.find((item) => item.id === active)!
   return (
-    <BottomBar
-      items={[
-        { id: "overview", label: "Overview", icon: <Home size={16} /> },
-        { id: "projects", label: "Projects", icon: <Box size={16} />, badge: <Badge size="sm">12</Badge> },
-        { id: "activity", label: "Activity", icon: <Activity size={16} /> },
-      ]}
-      activeId={active}
-      onSelect={setActive}
-    />
+    <div className="flex h-[480px] w-full max-w-[360px] flex-col overflow-hidden rounded-[28px] border border-border bg-bg shadow-floating">
+      <header className="border-b border-border bg-surface px-4 py-3 text-sm font-semibold">{tab.label}</header>
+      <ul className="flex-1 divide-y divide-border overflow-y-auto">
+        {tab.content.map((line) => <li key={line} className="px-4 py-3 text-sm">{line}</li>)}
+      </ul>
+      {/* In an app, add fixed to pin it to the viewport bottom. */}
+      <BottomBar items={mobileTabs} activeId={active} onSelect={setActive} />
+    </div>
   )
 }`,
       <BottomBarExample />),
@@ -1637,6 +1657,30 @@ export default function App() {
       <R.Callout variant="info" title="This docs site runs DevMode in development" className="w-full max-w-lg">Start the docs with <R.InlineCode>npm --prefix demo run dev</R.InlineCode> and the inspector appears in the bottom-left corner.</R.Callout>),
   ],
 
+  "components/context-menu": () => [
+    ex("table", "On table rows", "Wrap any element — here each row gets its own menu with icons and a disabled item.",
+      `<Table aria-label="Files">
+  <TableBody>
+    {["design.fig", "budget.xlsx", "notes.md"].map((file) => (
+      <ContextMenu
+        key={file}
+        items={[
+          { label: "Share", icon: <Users size={14} /> },
+          { label: "Move to…", icon: <Folder size={14} />, disabled: true },
+          { label: "Delete", destructive: true },
+        ]}
+      >
+        <TableRow tabIndex={0}>
+          <TableCell>{file}</TableCell>
+          <TableCell className="text-right text-muted-foreground">Right-click</TableCell>
+        </TableRow>
+      </ContextMenu>
+    ))}
+  </TableBody>
+</Table>`,
+      <ContextMenuTableExample />),
+  ],
+
   "components/heading": () => [
     ex("scale", "Size scale", "Visual size is independent of the semantic level.",
       `<Heading as="h2" size="2xl">2xl heading</Heading>
@@ -1703,6 +1747,25 @@ export default function App() {
 </ul>`,
       <div className="demo-stack w-full max-w-sm"><R.Heading size="md">Configure <R.InlineCode>ThemeProvider</R.InlineCode></R.Heading><ul className="list-disc space-y-1 pl-5 text-sm"><li>Set <R.InlineCode>{"storageKey={false}"}</R.InlineCode> to disable persistence.</li><li>Token: <R.InlineCode>example-deploy-token-0000-1111-2222-3333-4444-5555-not-a-secret</R.InlineCode></li></ul></div>, "start"),
   ],
+}
+
+function ContextMenuTableExample() {
+  return (
+    <div className="w-full max-w-md">
+      <R.Table aria-label="Files">
+        <R.TableBody>
+          {["design.fig", "budget.xlsx", "notes.md"].map((file) => (
+            <R.ContextMenu key={file} items={[{ label: "Share", icon: <Users size={14} /> }, { label: "Move to…", icon: <Folder size={14} />, disabled: true }, { label: "Delete", destructive: true }]}>
+              <R.TableRow tabIndex={0}>
+                <R.TableCell>{file}</R.TableCell>
+                <R.TableCell className="text-right text-muted-foreground">Right-click</R.TableCell>
+              </R.TableRow>
+            </R.ContextMenu>
+          ))}
+        </R.TableBody>
+      </R.Table>
+    </div>
+  )
 }
 
 function ProjectListExample() {

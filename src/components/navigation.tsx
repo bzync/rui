@@ -191,11 +191,22 @@ export const Sidebar = forwardRef<HTMLElement, SidebarProps>(function Sidebar({
 })
 Sidebar.displayName = "Sidebar"
 
-export const BottomBar = forwardRef<HTMLElement, NavigationListProps>(function BottomBar({
+export interface BottomBarProps extends NavigationListProps {
+  /** Pins the bar to the bottom of the viewport (with safe-area padding). */
+  fixed?: boolean
+}
+
+/**
+ * Mobile tab bar in the native idiom (iOS / Material 3): icon over a short
+ * label, a pill indicator behind the active icon, badges as a count on the
+ * icon corner, full-height touch targets and a hairline top border.
+ */
+export const BottomBar = forwardRef<HTMLElement, BottomBarProps>(function BottomBar({
   items,
   activeId,
   onSelect,
   ariaLabel = "Mobile navigation",
+  fixed = false,
   className,
   ...props
 }, ref) {
@@ -203,22 +214,57 @@ export const BottomBar = forwardRef<HTMLElement, NavigationListProps>(function B
     <nav ref={ref}
       aria-label={ariaLabel}
       className={cn(
-        "grid min-h-16 border border-border bg-surface/95 px-1 pb-safe-bottom shadow-floating backdrop-blur-sm",
+        "grid border-t border-border bg-surface/95 pb-safe-bottom backdrop-blur-sm",
+        fixed && "fixed inset-x-0 bottom-0 z-(--z-sticky)",
         className,
       )}
       style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))` }}
       {...props}
     >
-      {items.map((item) => (
-        <NavigationLink
-          key={item.id}
-          {...item}
-          compact
-          active={activeId === item.id}
-          onSelect={onSelect}
-          className="rounded-none"
-        />
-      ))}
+      {items.map((item) => {
+        const active = activeId === item.id
+        const badgeText = typeof item.badge === "string" || typeof item.badge === "number" ? String(item.badge) : undefined
+        const content = (
+          <>
+            <span
+              className={cn(
+                "relative grid h-7 w-14 place-items-center rounded-full transition-colors [&_svg]:size-5",
+                active ? "bg-accent-500/12 text-accent-strong" : "text-muted-foreground group-hover/tab:text-foreground",
+              )}
+              aria-hidden="true"
+            >
+              {item.icon}
+              {/* Numbers/strings get the count bubble; custom nodes are placed as given. */}
+              {badgeText !== undefined ? (
+                <span className="absolute -top-1 left-1/2 ml-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-danger px-1 text-[10px] font-semibold leading-none text-white ring-2 ring-surface">
+                  {badgeText}
+                </span>
+              ) : item.badge ? (
+                <span className="absolute -top-1.5 left-1/2 ml-1.5">{item.badge}</span>
+              ) : null}
+            </span>
+            <span className={cn("max-w-full truncate px-1 text-[11px] leading-4", active ? "font-semibold text-foreground" : "font-medium text-muted-foreground group-hover/tab:text-foreground")}>
+              {item.label}
+            </span>
+          </>
+        )
+        const tabClass = cn(
+          "group/tab flex h-16 min-w-0 flex-col items-center justify-center gap-1 rounded-none outline-none",
+          focusRingStyles,
+          item.disabled && "pointer-events-none opacity-40",
+        )
+        const label = badgeText ? `${item.label}, ${badgeText}` : undefined
+        return item.href ? (
+          <a key={item.id} href={item.href} aria-label={label} aria-current={active ? "page" : undefined} aria-disabled={item.disabled || undefined} className={tabClass}
+            onClick={(event) => { if (onSelect) { event.preventDefault(); onSelect(item.id) } }}>
+            {content}
+          </a>
+        ) : (
+          <button key={item.id} type="button" aria-label={label} aria-current={active ? "page" : undefined} disabled={item.disabled} className={tabClass} onClick={() => onSelect?.(item.id)}>
+            {content}
+          </button>
+        )
+      })}
     </nav>
   )
 })
