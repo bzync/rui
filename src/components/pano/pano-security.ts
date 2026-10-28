@@ -36,8 +36,18 @@ export function safeImageSrc(url?: string | null): string {
     }
 
     if (proto === "data:" && /^data:image\/svg\+xml/i.test(trimmed)) {
-      // Disallow executable script tags or inline handlers in SVG data URIs
-      if (/<script/i.test(trimmed) || /on\w+\s*=/i.test(trimmed)) {
+      // Disallow executable script tags or inline event handlers in SVG data URIs
+      const lower = trimmed.toLowerCase()
+      if (
+        lower.includes("<script") ||
+        lower.includes("javascript:") ||
+        lower.includes("onload") ||
+        lower.includes("onerror") ||
+        lower.includes("onclick") ||
+        lower.includes("onmouseover") ||
+        lower.includes("onfocus") ||
+        lower.includes("onblur")
+      ) {
         return ""
       }
       return encodeURI(trimmed)
