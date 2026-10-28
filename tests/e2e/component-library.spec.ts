@@ -30,6 +30,7 @@ async function expectCopyControlInline(button: Locator) {
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/#/docs/introduction")
+  await expect(page.getByRole("heading", { level: 1, name: "@bzync/rui" })).toBeVisible()
 })
 
 test("documentation navigation resolves every configured page", async ({ page }, testInfo) => {

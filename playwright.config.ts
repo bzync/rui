@@ -1,8 +1,10 @@
+import os from "node:os"
 import { defineConfig } from "@playwright/test"
 
 export default defineConfig({
   testDir: "./tests/e2e",
   fullyParallel: true,
+  workers: process.env.CI ? 2 : Math.min(4, os.cpus().length),
   forbidOnly: true,
   retries: 0,
   reporter: "line",
