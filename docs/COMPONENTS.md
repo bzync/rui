@@ -60,15 +60,27 @@ import "@bzync/rui/styles.css" // once, near app root
 | `Kbd` | children (keys) |
 | `Stepper` | steps, activeStep |
 | `Rating` | `label`, `value/defaultValue`, `onValueChange`, `max`, `size: sm\|md\|lg`, `readOnly`, `showLabel/showValue`, `radiogroup` + `radio` |
+| `TagInput` | `label`, `value/defaultValue`, `onChange`, `maxTags`, `transform`, `hint`, `error`, `size: sm\|md\|lg` |
+| `PasswordInput` | `label`, `hint`, `error`, toggle reveal/hide password action with accessible `aria-label` |
+| `SearchInput` | `label`, `value/defaultValue`, `onSearch`, `onClear`, `loading`, clear button, search glyph |
+| `MaskedInput` | `mask`, `definitions`, `value/defaultValue`, `onChange`, `unmask`, slot characters |
+| `CurrencyInput` | `currency`, `locale`, `value/defaultValue`, `onChange`, formatting on blur/input |
+| `PhoneInput` | `defaultCountry`, `countries`, `value/defaultValue`, `onChange` |
 | `ToggleGroup` | see Actions — `ToggleGroup` / `ToggleGroupItem` |
 
 ## Display
 
 | Component | Key props |
 |---|---|
+| `Icon` / `Icons` | `name: IconName`, `size: xs\|sm\|md\|lg\|xl\|number`, `tone: default\|muted\|accent\|success\|warning\|danger\|info`, `spin: boolean`, `strokeWidth: number`, `label: string`, 50+ SVG icons, `createIcon` factory |
 | `Badge` | `variant`, `dot?`, children |
 | `Tag` | `onRemove`, label |
 | `Avatar` | `name`, `src`, `size`, fallback initials |
+| `Image` | `src`, `alt`, `fallbackSrc`, `aspectRatio`, `placeholder: blur\|skeleton`, `lazy`, fade-in transition |
+| `Lightbox` | `images: [{src, alt, caption}]`, `open`, `onOpenChange`, `index`, `onIndexChange`, arrow keys, swipe, thumbnails |
+| `Resizable` | `direction: horizontal\|vertical`, `ResizablePanelGroup`, `ResizablePanel {defaultSize, minSize, maxSize}`, `ResizableHandle {withHandle}` |
+| `PanoTour` suite | `PanoViewer` (360° WebGL equirectangular viewer, scene navigation, radar compass, hotspots), `PanoTourDialog` (full-screen modal tour with TTS narration and captions), `PanoTourButton`, `PanoTourEditor` (complete tour management studio), `PanoBackdrop` (interactive 360° hero banner) |
+| `VisuallyHidden` | screen-reader-only accessible container |
 | `Card` + `CardHeader/Title/Description/Body/Footer` | composition |
 | `Callout` | `title`, `variant` |
 | `Stat` | `label`, `value`, `trend: up\|down`, `trendValue` |
@@ -103,6 +115,8 @@ import "@bzync/rui/styles.css" // once, near app root
 |---|---|
 | `Modal` | `open`, `onClose`, `title`, `description`, `size: sm\|md\|lg\|xl\|2xl\|7xl\|full`, `scrollable`, focus trap + Escape |
 | `ResponsiveDialog` | `open`, `onOpenChange`, `breakpoint: sm`, `ResponsiveDialogTrigger/Content/Header/Footer/Close`, modal on desktop, swipeable bottom sheet on mobile |
+| `Banner` | `title`, `variant: subtle\|solid`, `tone: info\|success\|warning\|danger`, `dismissible`, `storageKey`, `action` |
+| `HoverCard` | `HoverCard`, `HoverCardTrigger`, `HoverCardContent`, preview cards with `openDelay` and `closeDelay` |
 | `Drawer` | `open`, `onClose`, `title`, `size`, focus trap |
 | `Sheet` | `open`, `onClose`, `snapPoints`, `defaultSnap`, draggable handle |
 | `Tour` | `steps: TourStep[]`, `open/onOpenChange`, `step/onStepChange`, `mask`, spotlight, keyboard navigation |
@@ -110,6 +124,7 @@ import "@bzync/rui/styles.css" // once, near app root
 | `ConfirmDialog` | `open`, `onConfirm`, `onCancel`, `title` |
 | `Popover` + `PopoverContent` | trigger, open/onOpenChange |
 | `DropdownMenu` | `trigger`, `items: [{label,onClick}]` |
+| `ContextMenu` | `trigger`, `items: [{label,icon,onClick,disabled,destructive}]`, right-click and Shift+F10/Context keyboard activation |
 | `Command` / `CommandPalette` + `CommandProvider` | searchable command palette |
 | `SnackbarProvider` + `useSnackbar()` | programmatic toasts, `snackbar.promise(promise, {loading, success, error})` helper |
 | `Pagination` | `page`, `totalPages`, `onPageChange` |
@@ -127,6 +142,8 @@ import "@bzync/rui/styles.css" // once, near app root
 | `Container` | `size: sm\|md\|lg\|xl\|full`, `gutter?` |
 | `Stack` / `Inline` / `PageHeader` | spacing/header |
 | `Navbar` / `Sidebar` / `Topbar` / `BottomBar` | `items: NavigationItem[]` (supports nested submenus via `children`), `activeId`, `onSelect`, expandable disclosure in expanded sidebar, portalled flyout menu in rail mode |
+| `NavigationMenu` | `NavigationMenu`, `NavigationMenuList`, `NavigationMenuItem`, `NavigationMenuTrigger`, `NavigationMenuContent`, `NavigationMenuLink` |
+| `Menubar` | `Menubar`, `MenubarMenu`, `MenubarTrigger`, `MenubarContent`, `MenubarItem`, `MenubarSeparator`, `MenubarShortcut`, `MenubarCheckboxItem`, `MenubarRadioGroup`, `MenubarRadioItem` |
 | `NavigationLink` | `id`, `label`, `href?`, `icon?`, `badge?`, `active?`, `compact?` |
 | `Breadcrumb` | `items` |
 | `DropdownMenu` / `Drawer` / `Pagination` / `Stepper` | see above |
@@ -144,7 +161,17 @@ import "@bzync/rui/styles.css" // once, near app root
 
 All render SVG and accept data arrays. Import via `charts` subpath entry.
 
-`BarChart`, `LineChart`, `MultiLineChart` (`labels`, `series: {label,data}[]`), `DonutChart` (`data`, `centerLabel`), `ScatterChart` (`series: {label,data:{x,y,label}[]} `), `GanttChart` (`tasks: {id,label,start,end}[]`), `HeatmapChart` (`data:number[][]`, `rowLabels`, `colLabels`), `RadarChart` (`axes`, `series`), `FunnelChart`, `WaterfallChart` — see `src/components/charts/*.tsx` for exact props.
+`BarChart`, `StackedBarChart`, `LineChart`, `MultiLineChart`, `AreaChart`, `DonutChart`, `ScatterChart`, `GanttChart`, `HeatmapChart`, `RadarChart`, `FunnelChart`, `WaterfallChart`, `Sparkline`, `Gauge` — see `src/components/charts/*.tsx` for exact props.
+
+## Hooks (`@bzync/rui` or `@bzync/rui/hooks`)
+
+| Hook | Returns | Notes |
+|---|---|---|
+| `useHotkeys(combos, callback)` | `void` | Binds global or element-scoped key chords (`meta+k`, `ctrl+s`, `escape`). |
+| `useClipboard({ timeout })` | `{ copy, copied, error }` | Copies text to clipboard and resets `copied` state after timeout. |
+| `useBreakpoint()` | `{ breakpoint, isMobile, isTablet, isDesktop }` | Responsive breakpoint matching against CSS `@theme` screens (`sm`, `md`, `lg`, `xl`, `2xl`). |
+| `useLocalStorage(key, initialValue)` | `[value, setValue, removeValue]` | Persistent state synchronized with `window.localStorage` and across browser tabs. |
+| `useDebounce(value, delay)` | `debouncedValue` | Debounces high-frequency input or state changes. |
 
 ---
 
