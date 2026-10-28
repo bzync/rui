@@ -1155,13 +1155,22 @@ export function PanoSceneStrip({
                 s.id === selected ? "ring-accent-600" : "ring-transparent hover:ring-border",
               )}
             >
-              <img
-                src={safeImageSrc(s.preview ?? s.image)}
-                alt=""
-                className="size-full object-cover"
-                loading="lazy"
-                draggable={false}
-              />
+              {(() => {
+                const thumb = safeImageSrc(s.preview || s.image)
+                return thumb ? (
+                  <img
+                    src={thumb}
+                    alt=""
+                    className="size-full object-cover"
+                    loading="lazy"
+                    draggable={false}
+                  />
+                ) : (
+                  <div className="flex size-full items-center justify-center bg-surface">
+                    <PanoIcons.Image className="size-4 opacity-40 text-muted-foreground" />
+                  </div>
+                )
+              })()}
               <span className="absolute inset-x-0 bottom-0 truncate bg-gradient-to-t from-black/80 to-transparent px-2 pt-4 pb-1 text-left text-xs font-medium text-white">
                 {s.name}
               </span>

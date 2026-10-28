@@ -185,10 +185,5 @@ function renderToJpeg(bmp: ImageBitmap, w: number, h: number, quality: number): 
 }
 
 function blobToDataUrl(blob: Blob): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const r = new FileReader()
-    r.onload = () => resolve(String(r.result))
-    r.onerror = () => reject(new Error("Could not read preview."))
-    r.readAsDataURL(blob)
-  })
+  return Promise.resolve(URL.createObjectURL(blob))
 }

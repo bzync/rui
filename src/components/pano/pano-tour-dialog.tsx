@@ -457,13 +457,22 @@ export function PanoTourDialog({
                       i === index ? "ring-white shadow-md opacity-100" : "opacity-75 ring-transparent hover:opacity-100",
                     )}
                   >
-                    <img
-                      src={safeImageSrc(s.preview ?? s.image)}
-                      alt=""
-                      className="size-full object-cover"
-                      loading="lazy"
-                      draggable={false}
-                    />
+                    {(() => {
+                      const thumb = safeImageSrc(s.preview || s.image)
+                      return thumb ? (
+                        <img
+                          src={thumb}
+                          alt=""
+                          className="size-full object-cover"
+                          loading="lazy"
+                          draggable={false}
+                        />
+                      ) : (
+                        <div className="flex size-full items-center justify-center bg-black/40">
+                          <PanoIcons.Image className="size-4 opacity-40 text-white" />
+                        </div>
+                      )
+                    })()}
                     <span className="absolute inset-x-0 bottom-0 truncate bg-black/65 px-1.5 py-0.5 text-[0.65rem] sm:text-[0.7rem] font-medium">
                       {s.name}
                     </span>

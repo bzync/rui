@@ -798,6 +798,25 @@ describe("PanoTour 360° viewer, dialog, and editor", () => {
     expect(videoEmbed("https://evilvimeo.com/123")).toBeNull()
     expect(videoEmbed("javascript:alert(1)")).toBeNull()
 
+    // safeImageSrc rejects dangerous schemes, script-bearing SVGs, and non-image data URIs
+    expect(safeImageSrc("javascript:alert(1)")).toBe("")
+    expect(safeImageSrc("vbscript:msgbox(1)")).toBe("")
+    expect(safeImageSrc("data:text/html,<script>alert(1)</script>")).toBe("")
+    expect(safeImageSrc("data:image/svg+xml;utf8,<svg><script>alert(1)</script></svg>")).toBe("")
+    expect(safeImageSrc("data:image/svg+xml;utf8,<svg onload=alert(1)>")).toBe("")
+    expect(safeImageSrc("https://example.com/p.jpg")).toBe("https://example.com/p.jpg")
+    expect(safeImageSrc("/photos/sky.jpg")).toBe("/photos/sky.jpg")
+    expect(safeImageSrc("./photos/sky.jpg")).toBe("./photos/sky.jpg")
+    expect(safeImageSrc("blob:http://localhost/uuid")).toBe("blob:http://localhost/uuid")
+    expect(safeImageSrc(createEquirectangularDemoUrl())).toContain("data:image/svg+xml")
+
+    // safeExternalUrl only permits web and comms schemes
+    expect(safeExternalUrl("javascript:alert(1)")).toBeNull()
+    expect(safeExternalUrl("data:text/html,test")).toBeNull()
+    expect(safeExternalUrl("https://example.com")).toBe("https://example.com")
+    expect(safeExternalUrl("mailto:support@bzync.com")).toBe("mailto:support@bzync.com")
+    expect(safeExternalUrl("tel:+1234567890")).toBe("tel:+1234567890")
+
     // sanitizePanoScenes
     const sanitized = sanitizePanoScenes([
       {

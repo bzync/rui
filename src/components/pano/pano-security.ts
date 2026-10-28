@@ -7,28 +7,44 @@ import type { PanoScene } from "./types"
  * Allows:
  * - Relative paths (`/path`, `./path`, `../path`)
  * - Safe web protocols (`http:`, `https:`, `blob:`)
- * - Safe raster / vector image data URIs (`data:image/(png|jpeg|jpg|gif|webp|avif|svg+xml)`)
+ * - Safe raster image data URIs (`data:image/(png|jpeg|jpg|gif|webp|avif);base64,...`)
+ * - Safe demo SVG data URIs (without `<script>` or inline event handlers)
  */
 export function safeImageSrc(url?: string | null): string {
   if (!url) return ""
   const trimmed = url.trim()
   if (!trimmed) return ""
 
-  // Deny dangerous executable schemes immediately
-  if (/^(?:javascript|vbscript):/i.test(trimmed)) return ""
+  // Allowlist guard: strictly match safe schemes or relative paths
+  const isSafeScheme =
+    /^(?:https?:\/\/|blob:|\/|\.\/|\.\.\/)/i.test(trimmed) ||
+    /^data:image\/(?:png|jpe?g|webp|avif|gif);base64,/i.test(trimmed) ||
+    /^data:image\/svg\+xml(?:;[a-z0-9_=-]+)*,/i.test(trimmed)
 
-  // Allow relative URLs
-  if (trimmed.startsWith("/") || trimmed.startsWith("./") || trimmed.startsWith("../")) {
-    return trimmed
-  }
+  if (!isSafeScheme) return ""
 
   try {
     const parsed = new URL(trimmed, "https://placeholder.invalid")
-    if (parsed.protocol === "http:" || parsed.protocol === "https:" || parsed.protocol === "blob:") {
-      return trimmed
+    const proto = parsed.protocol
+
+    if (proto === "http:" || proto === "https:" || proto === "blob:") {
+      return encodeURI(trimmed)
     }
-    if (parsed.protocol === "data:" && /^data:image\/(?:png|jpe?g|gif|webp|avif|svg\+xml);/i.test(trimmed)) {
-      return trimmed
+
+    if (proto === "data:" && /^data:image\/(?:png|jpe?g|webp|avif|gif);base64,/i.test(trimmed)) {
+      return encodeURI(trimmed)
+    }
+
+    if (proto === "data:" && /^data:image\/svg\+xml/i.test(trimmed)) {
+      // Disallow executable script tags or inline handlers in SVG data URIs
+      if (/<script/i.test(trimmed) || /on\w+\s*=/i.test(trimmed)) {
+        return ""
+      }
+      return encodeURI(trimmed)
+    }
+
+    if (trimmed.startsWith("/") || trimmed.startsWith("./") || trimmed.startsWith("../")) {
+      return encodeURI(trimmed)
     }
   } catch {
     return ""
@@ -44,12 +60,18 @@ export function safeImageSrc(url?: string | null): string {
 export function safeExternalUrl(url?: string | null): string | null {
   if (!url) return null
   const trimmed = url.trim()
-  if (!trimmed || /^(?:javascript|vbscript|data):/i.test(trimmed)) return null
+  if (!trimmed) return null
+
+  // Allowlist guard: only http, https, mailto, and tel are permitted
+  if (!/^(?:https?:\/\/|mailto:|tel:)/i.test(trimmed)) {
+    return null
+  }
 
   try {
     const parsed = new URL(trimmed, "https://placeholder.invalid")
-    if (parsed.protocol === "http:" || parsed.protocol === "https:" || parsed.protocol === "mailto:" || parsed.protocol === "tel:") {
-      return trimmed
+    const proto = parsed.protocol
+    if (proto === "http:" || proto === "https:" || proto === "mailto:" || proto === "tel:") {
+      return encodeURI(trimmed)
     }
   } catch {
     return null
