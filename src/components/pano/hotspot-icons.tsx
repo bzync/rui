@@ -382,6 +382,23 @@ export const PanoIcons = {
   ),
   ChevronLeft: createSvgIcon(<path d="m15 18-6-6 6-6" />, "ChevronLeft"),
   ChevronRight: createSvgIcon(<path d="m9 18 6-6-6-6" />, "ChevronRight"),
+  ChevronDown: createSvgIcon(<path d="m6 9 6 6 6-6" />, "ChevronDown"),
+  Building: createSvgIcon(
+    <>
+      <rect width="16" height="20" x="4" y="2" rx="2" />
+      <path d="M9 22v-4h6v4" />
+      <path d="M8 6h.01" />
+      <path d="M16 6h.01" />
+      <path d="M12 6h.01" />
+      <path d="M12 10h.01" />
+      <path d="M12 14h.01" />
+      <path d="M16 10h.01" />
+      <path d="M16 14h.01" />
+      <path d="M8 10h.01" />
+      <path d="M8 14h.01" />
+    </>,
+    "Building",
+  ),
   RotateCcw: createSvgIcon(
     <>
       <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />

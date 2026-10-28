@@ -182,6 +182,7 @@ export const PanoTourEditor = forwardRef<HTMLDivElement, PanoTourEditorProps>(
     const [copyOpen, setCopyOpen] = useState(false)
     const [jsonOpen, setJsonOpen] = useState(false)
     const [sidebarOpen, setSidebarOpen] = useState(defaultSidebarOpen)
+    const [mobilePlacesOpen, setMobilePlacesOpen] = useState(false)
     const [deletingScene, setDeletingScene] = useState<PanoScene | null>(null)
     const [confirmClearTour, setConfirmClearTour] = useState(false)
     const [notice, setNotice] = useState<{ kind: "ok" | "bad"; text: string } | null>(null)
@@ -529,15 +530,27 @@ export const PanoTourEditor = forwardRef<HTMLDivElement, PanoTourEditorProps>(
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2.5">
             {places && places.length > 0 && (
-              <button
-                type="button"
-                onClick={() => setSidebarOpen((s) => !s)}
-                title={sidebarOpen ? "Hide places sidebar" : "Show places sidebar"}
-                aria-label={sidebarOpen ? "Hide places sidebar" : "Show places sidebar"}
-                className={cn(btnCls("secondary", "sm", "hidden px-2 @3xl:inline-flex"))}
-              >
-                <PanoIcons.PanelLeft className="size-4" />
-              </button>
+              <>
+                <button
+                  type="button"
+                  onClick={() => setSidebarOpen((s) => !s)}
+                  title={sidebarOpen ? "Hide places sidebar" : "Show places sidebar"}
+                  aria-label={sidebarOpen ? "Hide places sidebar" : "Show places sidebar"}
+                  className={cn(btnCls("secondary", "sm", "hidden px-2 @3xl:inline-flex"))}
+                >
+                  <PanoIcons.PanelLeft className="size-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMobilePlacesOpen(true)}
+                  className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-border bg-surface px-2.5 text-xs font-semibold text-foreground hover:bg-foreground/6 @3xl:hidden"
+                  aria-label="Choose place"
+                >
+                  <PanoIcons.Building className="size-3.5 text-muted-foreground" />
+                  <span className="max-w-32 truncate sm:max-w-44">{currentPlace?.name ?? "Places"}</span>
+                  <PanoIcons.ChevronDown className="size-3 text-muted-foreground" />
+                </button>
+              </>
             )}
             <div>
               <h2 className="text-lg font-semibold text-foreground">{currentPlace?.name ?? title}</h2>
@@ -675,49 +688,55 @@ export const PanoTourEditor = forwardRef<HTMLDivElement, PanoTourEditorProps>(
                     }}
                     className="aspect-[16/10] w-full sm:aspect-[16/9]"
                   >
-                    <PanoToolbar mode={mode} setMode={setMode} canLink={others.length > 0} />
+                    <div className="pointer-events-none absolute inset-x-2.5 top-2.5 z-10 flex flex-wrap items-start justify-between gap-1.5 sm:inset-x-3 sm:top-3">
+                      <div className="pointer-events-auto max-w-full">
+                        <PanoToolbar mode={mode} setMode={setMode} canLink={others.length > 0} />
+                      </div>
 
-                    <div className="absolute top-3 right-3 flex gap-1.5">
-                      {viewMoved && (
+                      <div className="pointer-events-auto ml-auto flex gap-1.5">
+                        {viewMoved && (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              pano.current?.lookAt({ yaw: scene.yaw, pitch: scene.pitch, fov: scene.fov })
+                            }
+                            title="Turn back to this scene’s current start view"
+                            className="h-8 cursor-pointer rounded-full bg-black/60 px-2.5 sm:px-3 text-xs font-medium text-white backdrop-blur-sm hover:bg-black/80"
+                          >
+                            <span className="hidden sm:inline">Back to start</span>
+                            <span className="sm:hidden">Reset</span>
+                          </button>
+                        )}
                         <button
                           type="button"
-                          onClick={() =>
-                            pano.current?.lookAt({ yaw: scene.yaw, pitch: scene.pitch, fov: scene.fov })
-                          }
-                          title="Turn back to this scene’s current start view"
-                          className="h-8 cursor-pointer rounded-full bg-black/60 px-3 text-xs font-medium text-white backdrop-blur-sm hover:bg-black/80"
+                          onClick={setInitialView}
+                          title="Save the direction you’re looking as the starting view of this scene"
+                          className="inline-flex h-8 cursor-pointer items-center gap-1 sm:gap-1.5 rounded-full bg-black/60 px-2.5 sm:px-3 text-xs font-medium text-white backdrop-blur-sm hover:bg-black/80"
                         >
-                          Back to start
+                          <PanoIcons.Eye className="size-3.5" />
+                          <span>Start here</span>
                         </button>
-                      )}
-                      <button
-                        type="button"
-                        onClick={setInitialView}
-                        title="Save the direction you’re looking as the starting view of this scene"
-                        className="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-full bg-black/60 px-3 text-xs font-medium text-white backdrop-blur-sm hover:bg-black/80"
-                      >
-                        <PanoIcons.Eye className="size-3.5" /> Start here
-                      </button>
+                      </div>
                     </div>
 
                     {mode !== "look" && (
-                      <div className="absolute inset-x-3 bottom-3 flex justify-center">
-                        <div className="flex flex-wrap items-center gap-2 rounded-full bg-black/80 px-3.5 py-1.5 text-xs text-white shadow-lg backdrop-blur-sm">
-                          <span>{PANO_HOTSPOT_KINDS[mode].hint}</span>
+                      <div className="absolute inset-x-2.5 bottom-2.5 z-10 flex justify-center sm:inset-x-3 sm:bottom-3">
+                        <div className="flex max-w-full flex-wrap items-center justify-center gap-1.5 rounded-2xl bg-black/85 px-3 py-1.5 text-center text-xs text-white shadow-lg backdrop-blur-sm sm:rounded-full sm:px-3.5">
+                          <span className="hidden sm:inline">{PANO_HOTSPOT_KINDS[mode].hint}</span>
                           <button
                             type="button"
                             onClick={() => {
                               const v = pano.current?.view() ?? { yaw: scene.yaw, pitch: scene.pitch }
                               placeHotspot(Math.round(v.yaw * 10) / 10, Math.round(v.pitch * 10) / 10)
                             }}
-                            className="cursor-pointer rounded-full bg-accent-600 px-2.5 py-0.5 font-semibold text-white hover:bg-accent-500"
+                            className="cursor-pointer rounded-full bg-accent-600 px-2.5 py-1 text-xs font-semibold text-white hover:bg-accent-500"
                           >
                             + Place at center
                           </button>
                           <button
                             type="button"
                             onClick={() => setMode("look")}
-                            className="cursor-pointer rounded-full bg-white/15 px-2 py-0.5 text-white/85 hover:bg-white/25"
+                            className="cursor-pointer rounded-full bg-white/15 px-2 py-1 text-xs text-white/85 hover:bg-white/25"
                           >
                             Cancel
                           </button>
@@ -860,6 +879,24 @@ export const PanoTourEditor = forwardRef<HTMLDivElement, PanoTourEditorProps>(
           />
         )}
 
+        {mobilePlacesOpen && places && (
+          <Modal
+            open
+            onClose={() => setMobilePlacesOpen(false)}
+            title="Choose a place"
+            description="Select a place to edit its 360° virtual tour."
+          >
+            <PanoPlaceList
+              places={places}
+              selected={selectedPlaceId ?? places[0]?.id ?? ""}
+              onSelect={(id) => {
+                onSelectPlace?.(id)
+                setMobilePlacesOpen(false)
+              }}
+            />
+          </Modal>
+        )}
+
         {deletingScene &&
           (() => {
             const links = scenes.filter((x) => x.hotspots.some((h) => h.target === deletingScene.id)).length
@@ -992,7 +1029,7 @@ export function PanoToolbar({
   }
   return (
     <div
-      className="absolute top-3 left-3 flex max-w-[calc(100%-9rem)] gap-0.5 overflow-x-auto rounded-full bg-black/60 p-0.5 backdrop-blur-sm [scrollbar-width:none]"
+      className="flex max-w-full gap-0.5 overflow-x-auto rounded-full bg-black/60 p-0.5 backdrop-blur-sm [scrollbar-width:none]"
       role="toolbar"
       aria-label="Add hotspots"
     >
@@ -1047,6 +1084,13 @@ export function PanoSceneStrip({
 }) {
   const [dragging, setDragging] = useState<string | number | null>(null)
   const [over, setOver] = useState<number | null>(null)
+  const stripRef = useRef<HTMLOListElement>(null)
+
+  useEffect(() => {
+    if (!stripRef.current) return
+    const activeBtn = stripRef.current.querySelector<HTMLButtonElement>('[aria-current="true"]')
+    activeBtn?.scrollIntoView?.({ behavior: "smooth", inline: "nearest", block: "nearest" })
+  }, [selected])
 
   const drop = (targetIndex: number) => {
     if (dragging === null) return
@@ -1063,7 +1107,8 @@ export function PanoSceneStrip({
   return (
     <div>
       <ol
-        className="flex gap-2 overflow-x-auto pb-1"
+        ref={stripRef}
+        className="flex gap-2 overflow-x-auto pb-1 [-webkit-overflow-scrolling:touch] [scrollbar-width:none]"
         aria-label="Scenes (drag to reorder; the first is where guests start)"
       >
         {scenes.map((s, i) => (

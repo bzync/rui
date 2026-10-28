@@ -266,17 +266,18 @@ function PanoTourUsagePreview() {
           showFilmstrip
           className="aspect-[16/9] w-full"
         />
-        <div className="pointer-events-none absolute inset-x-0 top-0 flex items-center justify-between bg-gradient-to-b from-black/65 to-transparent p-3 text-white">
-          <div>
-            <p className="text-[11px] font-medium text-white/75">Happy Homes Candelaria</p>
-            <p className="text-sm font-semibold">{active.name}</p>
+        <div className="pointer-events-none absolute inset-x-0 top-0 flex items-center justify-between gap-2 bg-gradient-to-b from-black/65 to-transparent p-2.5 text-white sm:p-3">
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-[10px] font-medium text-white/75 sm:text-[11px]">Happy Homes Candelaria</p>
+            <p className="truncate text-xs font-semibold sm:text-sm">{active.name}</p>
           </div>
-          <div className="pointer-events-auto">
+          <div className="pointer-events-auto flex-none">
             <R.PanoTourButton
               title="Happy Homes Candelaria"
               scenes={scenes}
               startScene={active.id}
-              label="Full-screen 360° tour"
+              label="360° tour"
+              className="text-xs"
             />
           </div>
         </div>
@@ -2374,17 +2375,18 @@ const columns: ColumnDef<(typeof services)[number]>[] = [
           showFilmstrip
           className="aspect-[16/9] w-full"
         />
-        <div className="pointer-events-none absolute inset-x-0 top-0 flex items-center justify-between bg-gradient-to-b from-black/65 to-transparent p-3 text-white">
-          <div>
-            <p className="text-[11px] font-medium text-white/75">Happy Homes Candelaria</p>
-            <p className="text-sm font-semibold">{active.name}</p>
+        <div className="pointer-events-none absolute inset-x-0 top-0 flex items-center justify-between gap-2 bg-gradient-to-b from-black/65 to-transparent p-2.5 text-white sm:p-3">
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-[10px] font-medium text-white/75 sm:text-[11px]">Happy Homes Candelaria</p>
+            <p className="truncate text-xs font-semibold sm:text-sm">{active.name}</p>
           </div>
-          <div className="pointer-events-auto">
+          <div className="pointer-events-auto flex-none">
             <PanoTourButton
               title="Happy Homes Candelaria"
               scenes={scenes}
               startScene={active.id}
-              label="Full-screen 360° tour"
+              label="360° tour"
+              className="text-xs"
             />
           </div>
         </div>

@@ -460,7 +460,7 @@ export const PanoViewer = forwardRef<HTMLDivElement, PanoViewerProps>(
         onPointerUp={onBoxUp}
         onDoubleClick={onDoubleClick}
         className={cn(
-          "relative overflow-hidden bg-surface outline-none select-none focus-visible:ring-2 focus-visible:ring-accent-500",
+          "relative overflow-hidden bg-surface outline-none select-none touch-none focus-visible:ring-2 focus-visible:ring-accent-500",
           background ? "pointer-events-none" : editor?.picking ? "cursor-crosshair" : "cursor-grab active:cursor-grabbing",
           className,
         )}
@@ -526,7 +526,7 @@ export const PanoViewer = forwardRef<HTMLDivElement, PanoViewerProps>(
                   aria-label={text || "Detail"}
                   style={{ left: 0, top: 0, willChange: "transform" }}
                   className={cn(
-                    "group pointer-events-auto absolute flex items-center gap-1.5 rounded-full font-semibold shadow-lg transition-shadow hover:ring-2 hover:ring-white/95 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none",
+                    "group pointer-events-auto absolute flex items-center gap-1.5 rounded-full font-semibold shadow-lg transition-shadow hover:ring-2 hover:ring-white/95 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none after:absolute after:-inset-2 after:rounded-full after:content-['']",
                     pill ? resolvedSize.pill : cn("grid place-items-center", resolvedSize.iconOnly),
                     hotspotToneStyles[resolvedTone],
                     selected && "ring-2 ring-accent-500 ring-offset-2 ring-offset-black/60",
@@ -572,11 +572,11 @@ export const PanoViewer = forwardRef<HTMLDivElement, PanoViewerProps>(
                     </span>
                   )}
 
-                  {/* Expanded rich info card */}
+                  {/* Expanded rich info card (desktop anchored tooltip) */}
                   {open && (h.label || h.description) && (
                     <span
-                      role="status"
-                      className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-2.5 w-max max-w-68 -translate-x-1/2 rounded-xl border border-white/15 bg-black/90 px-3.5 py-2.5 text-left text-xs font-normal whitespace-normal text-white shadow-xl backdrop-blur-md"
+                      aria-hidden="true"
+                      className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-2.5 hidden w-max max-w-68 -translate-x-1/2 rounded-xl border border-white/15 bg-black/90 px-3.5 py-2.5 text-left text-xs font-normal whitespace-normal text-white shadow-xl backdrop-blur-md sm:block"
                     >
                       {h.badge && (
                         <span className="mb-1 inline-block rounded bg-accent-500/25 px-1.5 py-0.5 text-[10px] font-semibold text-accent-200">
@@ -596,6 +596,41 @@ export const PanoViewer = forwardRef<HTMLDivElement, PanoViewerProps>(
             })}
           </div>
         )}
+
+        {/* Mobile bottom info sheet for active note hotspot */}
+        {!background && !editor && note && (() => {
+          const activeSpot = spots.find((s) => s.id === note && s.type === "info")
+          if (!activeSpot || (!activeSpot.label && !activeSpot.description)) return null
+          return (
+            <div
+              data-pano-ui
+              role="status"
+              className="pointer-events-auto absolute inset-x-3 bottom-3 z-30 block rounded-xl border border-white/20 bg-black/95 p-3.5 text-white shadow-2xl backdrop-blur-md sm:hidden"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  {activeSpot.badge && (
+                    <span className="mb-1 inline-block rounded bg-accent-500/25 px-1.5 py-0.5 text-[10px] font-semibold text-accent-200">
+                      {activeSpot.badge}
+                    </span>
+                  )}
+                  {activeSpot.label && <span className="block text-sm font-semibold text-white">{activeSpot.label}</span>}
+                  {activeSpot.description && (
+                    <p className="mt-1 text-xs leading-relaxed text-white/80">{activeSpot.description}</p>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setNote(null)}
+                  aria-label="Close note"
+                  className="grid size-7 flex-none cursor-pointer place-items-center rounded-full bg-white/15 text-white hover:bg-white/25 active:bg-white/30"
+                >
+                  <PanoIcons.X className="size-3.5" />
+                </button>
+              </div>
+            </div>
+          )
+        })()}
 
         {/* Onboarding hint */}
         {!background && !editor && showHint && !interacted && ready && (
@@ -627,7 +662,7 @@ export const PanoViewer = forwardRef<HTMLDivElement, PanoViewerProps>(
             title="Reset 360° camera view (radar dots show hotspot directions)"
             aria-label="Reset 360° camera view"
             className={cn(
-              "absolute left-3 z-10 inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-full bg-black/60 px-2.5 text-[11px] font-medium text-white backdrop-blur-sm transition-colors hover:bg-black/80",
+              "absolute left-3 z-10 inline-flex h-8 sm:h-7 cursor-pointer items-center gap-1.5 rounded-full bg-black/60 px-2 sm:px-2.5 text-[11px] font-medium text-white backdrop-blur-sm transition-colors hover:bg-black/80",
               showFilmstrip && scenes && scenes.length > 1 ? "bottom-14" : "bottom-3",
             )}
           >
@@ -657,9 +692,10 @@ export const PanoViewer = forwardRef<HTMLDivElement, PanoViewerProps>(
               <polygon points="12,4.5 14.2,12 12,10.6 9.8,12" fill="#f87171" />
               <polygon points="12,19.5 14.2,12 12,13.4 9.8,12" fill="currentColor" fillOpacity="0.7" />
             </svg>
-            <span ref={compassLabelRef} className="tabular-nums">
+            <span ref={compassLabelRef} className="hidden sm:inline tabular-nums">
               360° · Drag to look
             </span>
+            <span className="sm:hidden font-mono text-[10px] tabular-nums">360°</span>
           </button>
         )}
 
@@ -668,7 +704,7 @@ export const PanoViewer = forwardRef<HTMLDivElement, PanoViewerProps>(
           <div
             data-pano-ui
             className={cn(
-              "absolute right-3 z-10 flex items-center gap-1 rounded-full bg-black/60 p-1 text-white backdrop-blur-sm",
+              "absolute right-3 z-10 flex items-center gap-0.5 sm:gap-1 rounded-full bg-black/60 p-1 text-white backdrop-blur-sm",
               showFilmstrip && scenes && scenes.length > 1 ? "bottom-14" : "bottom-3",
             )}
           >
@@ -679,9 +715,9 @@ export const PanoViewer = forwardRef<HTMLDivElement, PanoViewerProps>(
                   onClick={() => stepHotspot(-1)}
                   title="Previous hotspot"
                   aria-label="Previous hotspot"
-                  className="grid size-6 cursor-pointer place-items-center rounded-full hover:bg-white/15"
+                  className="grid size-7 sm:size-6 cursor-pointer place-items-center rounded-full hover:bg-white/15"
                 >
-                  <PanoIcons.ChevronLeft className="size-3.5" />
+                  <PanoIcons.ChevronLeft className="size-4 sm:size-3.5" />
                 </button>
                 <button
                   type="button"
@@ -696,9 +732,9 @@ export const PanoViewer = forwardRef<HTMLDivElement, PanoViewerProps>(
                   onClick={() => stepHotspot(1)}
                   title="Next hotspot"
                   aria-label="Next hotspot"
-                  className="grid size-6 cursor-pointer place-items-center rounded-full hover:bg-white/15"
+                  className="grid size-7 sm:size-6 cursor-pointer place-items-center rounded-full hover:bg-white/15"
                 >
-                  <PanoIcons.ChevronRight className="size-3.5" />
+                  <PanoIcons.ChevronRight className="size-4 sm:size-3.5" />
                 </button>
               </div>
             )}
@@ -708,16 +744,16 @@ export const PanoViewer = forwardRef<HTMLDivElement, PanoViewerProps>(
               aria-pressed={spinning}
               title={spinning ? "Pause 360° rotation" : "Auto-rotate 360°"}
               aria-label={spinning ? "Pause 360° rotation" : "Auto-rotate 360°"}
-              className="grid size-6 cursor-pointer place-items-center rounded-full hover:bg-white/15"
+              className="grid size-7 sm:size-6 cursor-pointer place-items-center rounded-full hover:bg-white/15"
             >
-              {spinning ? <PanoIcons.Pause className="size-3" /> : <PanoIcons.Play className="size-3" />}
+              {spinning ? <PanoIcons.Pause className="size-3.5 sm:size-3" /> : <PanoIcons.Play className="size-3.5 sm:size-3" />}
             </button>
             <button
               type="button"
               onClick={() => eng.current?.zoomBy(1.2)}
               title="Zoom out"
               aria-label="Zoom out"
-              className="grid size-6 cursor-pointer place-items-center rounded-full hover:bg-white/15"
+              className="hidden sm:grid size-6 cursor-pointer place-items-center rounded-full hover:bg-white/15"
             >
               <PanoIcons.ZoomOut className="size-3.5" />
             </button>
@@ -726,7 +762,7 @@ export const PanoViewer = forwardRef<HTMLDivElement, PanoViewerProps>(
               onClick={() => eng.current?.zoomBy(1 / 1.2)}
               title="Zoom in"
               aria-label="Zoom in"
-              className="grid size-6 cursor-pointer place-items-center rounded-full hover:bg-white/15"
+              className="hidden sm:grid size-6 cursor-pointer place-items-center rounded-full hover:bg-white/15"
             >
               <PanoIcons.ZoomIn className="size-3.5" />
             </button>
@@ -735,9 +771,9 @@ export const PanoViewer = forwardRef<HTMLDivElement, PanoViewerProps>(
               onClick={toggleFullscreen}
               title={isFullscreen ? "Exit fullscreen" : "Fullscreen 360° view"}
               aria-label={isFullscreen ? "Exit fullscreen" : "Fullscreen 360° view"}
-              className="grid size-6 cursor-pointer place-items-center rounded-full hover:bg-white/15"
+              className="grid size-7 sm:size-6 cursor-pointer place-items-center rounded-full hover:bg-white/15"
             >
-              {isFullscreen ? <PanoIcons.Minimize className="size-3.5" /> : <PanoIcons.Maximize className="size-3.5" />}
+              {isFullscreen ? <PanoIcons.Minimize className="size-4 sm:size-3.5" /> : <PanoIcons.Maximize className="size-4 sm:size-3.5" />}
             </button>
           </div>
         )}
@@ -747,7 +783,7 @@ export const PanoViewer = forwardRef<HTMLDivElement, PanoViewerProps>(
           <nav
             data-pano-ui
             aria-label="Tour scenes"
-            className="absolute inset-x-0 bottom-0 z-10 flex items-center gap-1.5 overflow-x-auto bg-gradient-to-t from-black/80 via-black/40 to-transparent px-3 py-2.5 [scrollbar-width:none]"
+            className="absolute inset-x-0 bottom-0 z-10 flex items-center gap-1.5 overflow-x-auto bg-gradient-to-t from-black/80 via-black/40 to-transparent px-3 py-2 [scrollbar-width:none] [-webkit-overflow-scrolling:touch]"
           >
             {scenes.map((s) => {
               const active = s.id === scene.id
@@ -758,7 +794,7 @@ export const PanoViewer = forwardRef<HTMLDivElement, PanoViewerProps>(
                   onClick={() => goToScene(s.id, null)}
                   aria-current={active ? "true" : undefined}
                   className={cn(
-                    "inline-flex h-7 flex-none cursor-pointer items-center gap-1.5 rounded-full px-2.5 text-xs font-medium transition-colors backdrop-blur-sm",
+                    "inline-flex h-8 sm:h-7 flex-none cursor-pointer items-center gap-1.5 rounded-full px-2.5 text-xs font-medium transition-colors backdrop-blur-sm",
                     active
                       ? "bg-white font-semibold text-black shadow-sm"
                       : "bg-black/55 text-white/90 hover:bg-black/75",
@@ -768,11 +804,11 @@ export const PanoViewer = forwardRef<HTMLDivElement, PanoViewerProps>(
                     <img
                       src={s.preview ?? s.image}
                       alt=""
-                      className="size-4 rounded-full object-cover"
+                      className="size-4.5 sm:size-4 rounded-full object-cover"
                       loading="lazy"
                     />
                   )}
-                  <span className="max-w-36 truncate">{s.name}</span>
+                  <span className="max-w-28 sm:max-w-36 truncate">{s.name}</span>
                 </button>
               )
             })}

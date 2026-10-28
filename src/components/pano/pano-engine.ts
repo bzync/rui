@@ -169,6 +169,7 @@ export class PanoEngine {
   private tween: Tween | null = null
   private keys = new Set<string>()
   private gyroClean: (() => void) | null = null
+  private pointerActive = false
   private loadSeq = 0
 
   private raf = 0
@@ -481,8 +482,13 @@ export class PanoEngine {
     }
 
     let baseYaw: number | null = null
-    const startYaw = this.yaw
+    let startYaw = this.yaw
     const handler = (e: DeviceOrientationEvent) => {
+      if (this.pointerActive) {
+        baseYaw = null
+        startYaw = this.yaw
+        return
+      }
       if (e.alpha === null || e.beta === null || e.gamma === null) return
       const orient = (screen.orientation?.angle ?? 0) * DEG
       const a = e.alpha * DEG
@@ -642,6 +648,8 @@ export class PanoEngine {
 
   private bindInput(): () => void {
     const el = this.box
+    const origTouchAction = el.style.touchAction
+    el.style.touchAction = "none"
     const pointers = new Map<number, { x: number; y: number }>()
     let prevX = 0
     let prevY = 0
@@ -656,6 +664,7 @@ export class PanoEngine {
       if ((e.target as HTMLElement | null)?.closest("[data-pano-ui]")) return
       el.setPointerCapture?.(e.pointerId)
       pointers.set(e.pointerId, { x: e.clientX, y: e.clientY })
+      this.pointerActive = true
       this.tween = null
       this.vy = 0
       this.vp = 0
@@ -711,6 +720,7 @@ export class PanoEngine {
         this.vy = 0
         this.vp = 0
       } else if (pointers.size === 0) {
+        this.pointerActive = false
         const stale = performance.now() - prevT > 90
         if (!stale && Math.hypot(this.vy, this.vp) > 12) {
           this.vy = clamp(this.vy, -360, 360)
@@ -753,7 +763,10 @@ export class PanoEngine {
       this.keys.delete(e.key)
     }
 
-    const onBlur = () => this.keys.clear()
+    const onBlur = () => {
+      this.keys.clear()
+      this.pointerActive = false
+    }
 
     el.addEventListener("pointerdown", onDown)
     el.addEventListener("pointermove", onMove)
@@ -764,6 +777,7 @@ export class PanoEngine {
     el.addEventListener("keyup", onKeyUp)
     el.addEventListener("blur", onBlur)
     return () => {
+      el.style.touchAction = origTouchAction
       el.removeEventListener("pointerdown", onDown)
       el.removeEventListener("pointermove", onMove)
       el.removeEventListener("pointerup", onUp)

@@ -72,9 +72,11 @@ export function PanoTourDialog({
   const [caption, setCaption] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
   const [fullscreen, setFullscreen] = useState(false)
+  const [filmstripOpen, setFilmstripOpen] = useState(true)
 
   const rootRef = useRef<HTMLDivElement>(null)
   const closeBtnRef = useRef<HTMLButtonElement>(null)
+  const stripNavRef = useRef<HTMLElement>(null)
   const pano = useRef<PanoHandle>(null)
 
   const close = () => {
@@ -178,6 +180,12 @@ export function PanoTourDialog({
     return () => document.removeEventListener("fullscreenchange", onFs)
   }, [])
 
+  useEffect(() => {
+    if (!stripNavRef.current) return
+    const activeBtn = stripNavRef.current.querySelector<HTMLButtonElement>('[aria-current="true"]')
+    activeBtn?.scrollIntoView?.({ behavior: "smooth", inline: "center", block: "nearest" })
+  }, [index, filmstripOpen])
+
   if (!open || !hydrated) return null
 
   const go = (i: number, via: Partial<PanoView> | null = null) => {
@@ -238,7 +246,8 @@ export function PanoTourDialog({
     const on = !gyro
     const ok = (await pano.current?.gyroscope(on)) ?? false
     setGyro(on && ok)
-    if (on && !ok) setNotice("Tilt controls aren’t available on this device.")
+    if (on && ok) setNotice("Tilt phone to look around.")
+    else if (on && !ok) setNotice("Tilt controls aren’t available on this device.")
   }
 
   const toggleNarration = () => {
@@ -306,11 +315,11 @@ export function PanoTourDialog({
           )}
 
           {/* Top HUD bar */}
-          <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between gap-3 bg-gradient-to-b from-black/70 via-black/30 to-transparent p-3 sm:p-4">
-            <div className="min-w-0">
-              <p className="truncate text-xs font-medium text-white/75">{tourTitle}</p>
+          <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between gap-2.5 bg-gradient-to-b from-black/80 via-black/40 to-transparent pt-[max(0.75rem,env(safe-area-inset-top))] px-[max(0.75rem,env(safe-area-inset-left))] pr-[max(0.75rem,env(safe-area-inset-right))] pb-3 sm:p-4">
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-[11px] font-medium text-white/75">{tourTitle}</p>
               {scene && (
-                <p className="truncate text-base font-semibold">
+                <p className="truncate text-sm sm:text-base font-semibold">
                   {scene.name}
                   {scenes && scenes.length > 1 && (
                     <span className="ml-2 text-xs font-normal text-white/65">
@@ -349,9 +358,21 @@ export function PanoTourDialog({
                       aria-pressed={gyro}
                       aria-label="Tilt phone to look around"
                       title="Tilt to look around"
-                      className={cn(roundBtn, "sm:hidden", gyro && "bg-white text-black hover:bg-white/90")}
+                      className={cn(roundBtn, "sm:hidden", gyro && "bg-white text-black hover:bg-white/90 shadow-md")}
                     >
                       <PanoIcons.Compass className="size-4" />
+                    </button>
+                  )}
+                  {scenes && scenes.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => setFilmstripOpen((v) => !v)}
+                      aria-pressed={filmstripOpen}
+                      aria-label={filmstripOpen ? "Hide scenes filmstrip" : "Show scenes filmstrip"}
+                      title={filmstripOpen ? "Hide scenes" : "Show scenes"}
+                      className={cn(roundBtn, "sm:hidden", !filmstripOpen && "bg-white/20")}
+                    >
+                      <PanoIcons.Image className="size-4" />
                     </button>
                   )}
                   {(hasDescriptions || speechOk) && (
@@ -394,9 +415,14 @@ export function PanoTourDialog({
             <div
               role="status"
               aria-live="polite"
-              className="pointer-events-none absolute inset-x-3 bottom-24 flex justify-center sm:bottom-28"
+              className={cn(
+                "pointer-events-none absolute inset-x-3 z-10 flex justify-center transition-all",
+                filmstripOpen && scenes && scenes.length > 1
+                  ? "bottom-20 sm:bottom-28"
+                  : "bottom-[max(1.5rem,env(safe-area-inset-bottom))] sm:bottom-12",
+              )}
             >
-              <p className="max-w-xl rounded-lg bg-black/75 px-3.5 py-2 text-center text-xs leading-relaxed text-white backdrop-blur-sm sm:text-sm">
+              <p className="max-w-xl rounded-lg bg-black/80 px-3.5 py-2 text-center text-xs leading-relaxed text-white shadow-lg backdrop-blur-sm sm:text-sm">
                 {notice ?? caption ?? scene?.description}
               </p>
             </div>
@@ -404,34 +430,48 @@ export function PanoTourDialog({
 
           {/* Scene filmstrip */}
           {scenes && scenes.length > 1 && (
-            <nav
-              aria-label="Scenes"
-              className="absolute inset-x-0 bottom-0 flex gap-2 overflow-x-auto bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 sm:justify-center sm:p-4"
-            >
-              {scenes.map((s, i) => (
+            filmstripOpen ? (
+              <nav
+                ref={stripNavRef}
+                aria-label="Scenes"
+                className="absolute inset-x-0 bottom-0 z-10 flex gap-2 overflow-x-auto bg-gradient-to-t from-black/85 via-black/45 to-transparent px-3 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:justify-center sm:p-4 [-webkit-overflow-scrolling:touch] [scrollbar-width:none]"
+              >
+                {scenes.map((s, i) => (
+                  <button
+                    key={s.id}
+                    type="button"
+                    onClick={() => go(i)}
+                    aria-current={i === index ? "true" : undefined}
+                    className={cn(
+                      "relative h-13 w-22 flex-none cursor-pointer overflow-hidden rounded-md ring-2 transition-all sm:h-16 sm:w-28",
+                      i === index ? "ring-white shadow-md opacity-100" : "opacity-75 ring-transparent hover:opacity-100",
+                    )}
+                  >
+                    <img
+                      src={s.preview ?? s.image}
+                      alt=""
+                      className="size-full object-cover"
+                      loading="lazy"
+                      draggable={false}
+                    />
+                    <span className="absolute inset-x-0 bottom-0 truncate bg-black/65 px-1.5 py-0.5 text-[0.65rem] sm:text-[0.7rem] font-medium">
+                      {s.name}
+                    </span>
+                  </button>
+                ))}
+              </nav>
+            ) : (
+              <div className="absolute inset-x-0 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-10 flex justify-center sm:hidden">
                 <button
-                  key={s.id}
                   type="button"
-                  onClick={() => go(i)}
-                  aria-current={i === index ? "true" : undefined}
-                  className={cn(
-                    "relative h-14 w-24 flex-none cursor-pointer overflow-hidden rounded-md ring-2 transition-opacity sm:h-16 sm:w-28",
-                    i === index ? "ring-white" : "opacity-75 ring-transparent hover:opacity-100",
-                  )}
+                  onClick={() => setFilmstripOpen(true)}
+                  className="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-full bg-black/65 px-3 text-xs font-medium text-white shadow-lg backdrop-blur-sm transition-colors hover:bg-black/80"
                 >
-                  <img
-                    src={s.preview ?? s.image}
-                    alt=""
-                    className="size-full object-cover"
-                    loading="lazy"
-                    draggable={false}
-                  />
-                  <span className="absolute inset-x-0 bottom-0 truncate bg-black/65 px-1.5 py-0.5 text-[0.7rem] font-medium">
-                    {s.name}
-                  </span>
+                  <PanoIcons.Image className="size-3.5" />
+                  <span>Scenes ({index + 1}/{scenes.length})</span>
                 </button>
-              ))}
-            </nav>
+              </div>
+            )
           )}
 
           {media && <PanoMediaPopup media={media} onClose={() => setMedia(null)} />}
@@ -671,10 +711,10 @@ export const PanoBackdrop = forwardRef<HTMLDivElement, PanoBackdropProps>(
           <button
             type="button"
             onClick={() => setTouring(true)}
-            className="absolute top-3 right-3 z-20 inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-full bg-black/55 px-3 text-xs font-medium text-white backdrop-blur-sm transition-colors hover:bg-black/75"
+            className="absolute top-3 right-3 z-20 inline-flex h-8 max-w-[calc(100%-1.5rem)] cursor-pointer items-center gap-1.5 rounded-full bg-black/55 px-3 text-xs font-medium text-white backdrop-blur-sm transition-colors hover:bg-black/75"
           >
-            <PanoIcons.Rotate3d className="size-3.5" />
-            <span>{triggerLabel ?? `Look around: ${scene.name}`}</span>
+            <PanoIcons.Rotate3d className="size-3.5 flex-none" />
+            <span className="truncate">{triggerLabel ?? `Look around: ${scene.name}`}</span>
           </button>
         )}
         {touring && scene && (
