@@ -15,6 +15,7 @@ export interface SliderProps extends Omit<InputHTMLAttributes<HTMLInputElement>,
   step?: number
   /** Track and thumb scale. */
   size?: "sm" | "md" | "lg"
+  onValueChange?: (value: number) => void
 }
 
 const sliderSizes = {
@@ -39,6 +40,7 @@ export const Slider = forwardRef<HTMLInputElement, SliderProps>(
       value: controlledValue,
       defaultValue,
       onChange,
+      onValueChange,
       disabled,
       id,
       ...props
@@ -99,6 +101,7 @@ export const Slider = forwardRef<HTMLInputElement, SliderProps>(
               const next = Number(e.target.value)
               if (controlledValue === undefined) setLocalValue(next)
               onChange?.(e)
+              onValueChange?.(next)
             }}
             className={cn(
               "relative w-full appearance-none bg-transparent cursor-pointer",

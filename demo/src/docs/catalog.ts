@@ -110,6 +110,7 @@ const display = [
   component("Resizable", "Split views with draggable, keyboard-resizable panels.", "Display", ["split", "panels", "splitter", "pane"], "Resizable"),
   component("Image", "Lazy image with reserved space, blur or skeleton placeholder and fallback.", "Display", ["img", "picture", "photo", "lazy", "placeholder"]),
   component("Lightbox", "Full-screen image viewer with keyboard, swipe and thumbnails.", "Display", ["gallery", "image viewer", "carousel", "zoom"]),
+  component("Pano Tour", "Interactive 360° equirectangular panorama viewer, full-screen tour player, and visual tour editor.", "Display", ["360", "panorama", "virtual tour", "webgl", "hotspot", "pano"], "PanoViewer"),
   component("Scroll Area", "Provides a bounded, keyboard-scrollable content region.", "Display", ["overflow"], "ScrollArea"),
 ]
 

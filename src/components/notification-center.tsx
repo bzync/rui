@@ -11,8 +11,11 @@ import { ThemePortal } from "./theme-provider"
 import {
   type ForwardedRef,
   type HTMLAttributes,
+  type ReactElement,
   type ReactNode,
+  cloneElement,
   forwardRef,
+  isValidElement,
   useEffect,
   useId,
   useRef,
@@ -204,28 +207,50 @@ export const NotificationCenter = forwardRef<HTMLDivElement, NotificationCenterP
   })
 
   const tabOptions = categories ?? ["all", "unread"]
+  const computedAriaLabel = `${ariaLabel}${unreadCount > 0 ? ` (${unreadCount} unread)` : ""}`
+
+  type TriggerElementProps = HTMLAttributes<HTMLElement> & {
+    ref?: React.Ref<HTMLElement>
+    "aria-haspopup"?: "dialog"
+    "aria-expanded"?: boolean
+    "aria-label"?: string
+  }
 
   return (
     <div ref={ref} className={cn("relative inline-block", className)} {...props}>
       {trigger ? (
-        <button
-          ref={triggerRef}
-          type="button"
-          aria-haspopup="dialog"
-          aria-expanded={open}
-          aria-label={`${ariaLabel}${unreadCount > 0 ? ` (${unreadCount} unread)` : ""}`}
-          onClick={() => setOpen(!open)}
-          className={cn("cursor-pointer", triggerClassName)}
-        >
-          {trigger}
-        </button>
+        isValidElement(trigger) && (trigger.type === "button" || typeof trigger.type !== "string") ? (
+          cloneElement(trigger as ReactElement<TriggerElementProps>, {
+            ref: mergeRefs(triggerRef as React.Ref<HTMLElement>, (trigger as { ref?: React.Ref<HTMLElement> }).ref),
+            "aria-haspopup": "dialog",
+            "aria-expanded": open,
+            "aria-label": (trigger.props as TriggerElementProps)["aria-label"] ?? computedAriaLabel,
+            onClick: (e: React.MouseEvent<HTMLElement>) => {
+              ;(trigger.props as TriggerElementProps).onClick?.(e)
+              if (!e.defaultPrevented) setOpen(!open)
+            },
+            className: cn((trigger.props as TriggerElementProps).className, triggerClassName),
+          })
+        ) : (
+          <button
+            ref={triggerRef}
+            type="button"
+            aria-haspopup="dialog"
+            aria-expanded={open}
+            aria-label={computedAriaLabel}
+            onClick={() => setOpen(!open)}
+            className={cn("cursor-pointer", triggerClassName)}
+          >
+            {trigger}
+          </button>
+        )
       ) : (
         <button
           ref={triggerRef}
           type="button"
           aria-haspopup="dialog"
           aria-expanded={open}
-          aria-label={`${ariaLabel}${unreadCount > 0 ? ` (${unreadCount} unread)` : ""}`}
+          aria-label={computedAriaLabel}
           onClick={() => setOpen(!open)}
           className={cn(
             "relative inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-surface text-foreground transition-colors hover:bg-foreground/6 focus:outline-none",
@@ -248,7 +273,6 @@ export const NotificationCenter = forwardRef<HTMLDivElement, NotificationCenterP
             ref={mergeRefs(panelRef, setFloating)}
             style={style}
             role="dialog"
-            aria-modal="true"
             aria-labelledby={titleId}
             className={cn(
               "z-(--z-popover) flex w-80 sm:w-96 flex-col rounded-[var(--radius-lg)] border border-border bg-surface shadow-floating ring-1 ring-foreground/5",

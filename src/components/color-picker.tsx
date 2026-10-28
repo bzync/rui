@@ -1,7 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/cn"
-import { controlBaseStyles, fieldDescriptionStyles, fieldErrorStyles, fieldLabelStyles, fieldRootStyles, focusRingStyles } from "@/lib/component-styles"
+import { controlBaseStyles, controlInvalidStyles, fieldDescriptionStyles, fieldErrorStyles, fieldLabelStyles, fieldRootStyles, focusRingStyles } from "@/lib/component-styles"
 import { useAnchoredPosition } from "@/hooks/use-anchored-position"
 import { useControllableState } from "@/hooks/use-controllable-state"
 import { mergeRefs } from "@/lib/merge-refs"
@@ -26,6 +26,9 @@ export interface ColorPickerProps extends Omit<HTMLAttributes<HTMLDivElement>, "
   value?: string
   defaultValue?: string
   onChange?: (hex: string) => void
+  onValueChange?: (hex: string) => void
+  name?: string
+  required?: boolean
   label?: string
   hint?: string
   error?: string
@@ -44,10 +47,13 @@ const DEFAULT_PRESETS = [
 ]
 
 const triggerSizes: Record<ColorPickerSize, string> = {
-  sm: "h-8 px-2 text-xs",
-  md: "h-9 px-2.5 text-sm",
-  lg: "h-10 px-3 text-sm",
+  sm: "h-8 px-2.5 text-xs",
+  md: "h-9 px-3 text-sm",
+  lg: "h-10 px-3.5 text-sm",
 }
+
+const CHECKERBOARD_BG =
+  "repeating-conic-gradient(rgba(128,128,128,0.22) 0% 25%, transparent 0% 50%) 50% / 8px 8px"
 
 // Color math helpers (HSV <-> RGB <-> HEX)
 function hexToHsv(hex: string): [number, number, number] {
@@ -99,11 +105,40 @@ function hsvToHex(h: number, s: number, v: number): string {
   return `#${toHex(r)}${toHex(g)}${toHex(b)}`
 }
 
+function parseAlpha(color: string): number {
+  const hex8 = /^#[0-9a-fA-F]{8}$/.exec(color.trim())
+  if (hex8) {
+    return Math.round((parseInt(color.trim().slice(7, 9), 16) / 255) * 100)
+  }
+  const rgba = /^rgba?\(\s*\d+\s*,\s*\d+\s*,\s*\d+(?:\s*,\s*([0-9.]+))?\s*\)$/i.exec(color.trim())
+  if (rgba && rgba[1] !== undefined) {
+    const parsed = parseFloat(rgba[1])
+    if (Number.isFinite(parsed)) {
+      return Math.max(0, Math.min(100, Math.round(parsed * 100)))
+    }
+  }
+  return 100
+}
+
+function formatHexWithAlpha(baseHex: string, alpha: number, showAlpha: boolean): string {
+  const hex6 = baseHex.slice(0, 7)
+  if (showAlpha && alpha < 100) {
+    const alphaHex = Math.round((Math.max(0, Math.min(100, alpha)) / 100) * 255)
+      .toString(16)
+      .padStart(2, "0")
+    return `${hex6}${alphaHex}`
+  }
+  return hex6
+}
+
 export const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(function ColorPicker(
   {
     value: controlledValue,
     defaultValue = "#3b82f6",
     onChange,
+    onValueChange,
+    name,
+    required,
     label,
     hint,
     error,
@@ -123,26 +158,38 @@ export const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(function
   const [color, setColor] = useControllableState({
     value: controlledValue,
     defaultValue,
-    onChange,
+    onChange: (next) => {
+      onChange?.(next)
+      onValueChange?.(next)
+    },
   })
 
   const [open, setOpen] = useState(false)
   const triggerRef = useRef<HTMLButtonElement | null>(null)
   const panelRef = useRef<HTMLDivElement | null>(null)
   const canvasRef = useRef<HTMLDivElement | null>(null)
+  const alphaTrackRef = useRef<HTMLDivElement | null>(null)
 
   const uid = useId()
   const inputId = id ?? uid
+  const messageId = `${inputId}-message`
+  const hasError = Boolean(error)
+  const describedBy = error || hint ? messageId : undefined
 
   const [hsv, setHsv] = useState<[number, number, number]>(() => hexToHsv(color))
+  const [alpha, setAlpha] = useState<number>(() => parseAlpha(color))
   const [hue, sat, val] = hsv
 
-  // Sync internal HSV when external color prop changes
+  // Sync internal HSV and alpha when external color prop changes
   useEffect(() => {
-    if (color) setHsv(hexToHsv(color))
+    if (color) {
+      setHsv(hexToHsv(color))
+      setAlpha(parseAlpha(color))
+    }
   }, [color])
 
   const [isDraggingCanvas, setIsDraggingCanvas] = useState(false)
+  const [isDraggingAlpha, setIsDraggingAlpha] = useState(false)
 
   const { setFloating, style, placement } = useAnchoredPosition({
     open,
@@ -175,11 +222,61 @@ export const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(function
     }
   }, [open])
 
-  const updateColorFromHsv = useCallback((h: number, s: number, v: number) => {
+  const updateColorFromHsv = useCallback((h: number, s: number, v: number, a: number = alpha) => {
     setHsv([h, s, v])
-    const hex = hsvToHex(h, s, v)
+    setAlpha(a)
+    const hex = formatHexWithAlpha(hsvToHex(h, s, v), a, showAlpha)
     setColor(hex)
-  }, [setColor])
+  }, [alpha, showAlpha, setColor])
+
+  const updateAlphaAtClientX = (clientX: number) => {
+    if (!alphaTrackRef.current) return
+    const rect = alphaTrackRef.current.getBoundingClientRect()
+    const x = rect.width > 0 ? Math.max(0, Math.min(1, (clientX - rect.left) / rect.width)) : 0
+    const nextAlpha = Math.round(x * 100)
+    updateColorFromHsv(hue, sat, val, nextAlpha)
+  }
+
+  const handleAlphaPointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (!alphaTrackRef.current || disabled) return
+    e.preventDefault()
+    e.currentTarget.setPointerCapture(e.pointerId)
+    setIsDraggingAlpha(true)
+    updateAlphaAtClientX(e.clientX)
+  }
+
+  const handleAlphaPointerMove = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (!isDraggingAlpha) return
+    updateAlphaAtClientX(e.clientX)
+  }
+
+  const handleAlphaPointerUp = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (isDraggingAlpha) {
+      setIsDraggingAlpha(false)
+      try {
+        e.currentTarget.releasePointerCapture(e.pointerId)
+      } catch {
+        // Pointer capture might have been automatically released
+      }
+    }
+  }
+
+  const handleAlphaKeyDown = (e: ReactKeyboardEvent<HTMLDivElement>) => {
+    if (disabled) return
+    if (e.key === "ArrowLeft" || e.key === "ArrowDown") {
+      e.preventDefault()
+      updateColorFromHsv(hue, sat, val, Math.max(0, alpha - 1))
+    } else if (e.key === "ArrowRight" || e.key === "ArrowUp") {
+      e.preventDefault()
+      updateColorFromHsv(hue, sat, val, Math.min(100, alpha + 1))
+    } else if (e.key === "Home") {
+      e.preventDefault()
+      updateColorFromHsv(hue, sat, val, 0)
+    } else if (e.key === "End") {
+      e.preventDefault()
+      updateColorFromHsv(hue, sat, val, 100)
+    }
+  }
 
   const updateCanvasAtClientCoord = (clientX: number, clientY: number) => {
     if (!canvasRef.current) return
@@ -254,40 +351,46 @@ export const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(function
   return (
     <div ref={ref} className={cn(fieldRootStyles, className)} {...props}>
       {label && (
-        <label id={`${inputId}-label`} className={cn(fieldLabelStyles, disabled && "opacity-50")}>
+        <label id={`${inputId}-label`} htmlFor={inputId} className={cn(fieldLabelStyles, disabled && "opacity-50")}>
           {label}
         </label>
       )}
+      {name && !disabled && <input type="hidden" name={name} value={color} required={required} />}
 
-      <div className="relative inline-block w-full">
+      <div className="relative w-full">
         <button
           ref={triggerRef}
           type="button"
           id={inputId}
+          aria-labelledby={label ? `${inputId}-label` : undefined}
           aria-haspopup="dialog"
           aria-expanded={open}
+          aria-invalid={hasError || undefined}
+          aria-describedby={describedBy}
           disabled={disabled}
           onClick={() => setOpen(!open)}
           className={cn(
+            "flex w-full cursor-pointer items-center justify-between gap-2.5 rounded-[var(--radius-md)] font-mono text-left outline-none",
             controlBaseStyles,
             triggerSizes[size],
-            "w-full justify-between font-mono text-left transition-all duration-150",
-            open && "ring-2 ring-accent border-accent",
+            open && "border-accent-500 ring-[3px] ring-focus-ring/25",
+            hasError && controlInvalidStyles,
             disabled && "cursor-not-allowed opacity-50",
-            focusRingStyles,
           )}
         >
-          <span className="flex items-center gap-2.5 min-w-0">
+          <span className="flex min-w-0 items-center gap-2.5">
             <span
-              className="h-4.5 w-4.5 rounded-full border border-border shrink-0 shadow-2xs transition-transform duration-150"
-              style={{ backgroundColor: color }}
-            />
-            <span className="truncate text-xs font-semibold uppercase tracking-wider">{color}</span>
+              className="relative size-4.5 shrink-0 overflow-hidden rounded-[5px] border border-foreground/15 shadow-2xs"
+              style={{ background: CHECKERBOARD_BG }}
+            >
+              <span className="absolute inset-0" style={{ backgroundColor: color }} />
+            </span>
+            <span className="truncate text-xs font-semibold uppercase tracking-wider text-foreground">{color}</span>
           </span>
           <svg
             aria-hidden="true"
             className={cn(
-              "h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform duration-200 ease-out",
+              "size-3.5 shrink-0 text-muted-foreground transition-transform duration-200 ease-out",
               open && "rotate-180 text-foreground",
             )}
             viewBox="0 0 24 24"
@@ -352,6 +455,9 @@ export const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(function
                     role="slider"
                     tabIndex={disabled ? -1 : 0}
                     aria-label="Color saturation and brightness"
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-valuenow={sat}
                     aria-valuetext={`Saturation ${sat}%, Brightness ${val}%`}
                     onPointerDown={handleCanvasPointerDown}
                     onPointerMove={handleCanvasPointerMove}
@@ -359,7 +465,7 @@ export const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(function
                     onPointerCancel={handleCanvasPointerUp}
                     onKeyDown={handleCanvasKeyDown}
                     className={cn(
-                      "relative h-36 w-full rounded-[var(--radius-md)] select-none touch-none overflow-hidden transition-shadow",
+                      "relative h-36 w-full rounded-[var(--radius-md)] ring-1 ring-inset ring-foreground/15 select-none touch-none overflow-hidden transition-shadow",
                       isDraggingCanvas ? "cursor-grabbing" : "cursor-crosshair",
                       focusRingStyles,
                     )}
@@ -424,12 +530,44 @@ export const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(function
                     )}
                   </div>
 
+                  {showAlpha && (
+                    <div
+                      ref={alphaTrackRef}
+                      role="slider"
+                      tabIndex={disabled ? -1 : 0}
+                      aria-label="Opacity"
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      aria-valuenow={alpha}
+                      aria-valuetext={`${alpha}%`}
+                      onPointerDown={handleAlphaPointerDown}
+                      onPointerMove={handleAlphaPointerMove}
+                      onPointerUp={handleAlphaPointerUp}
+                      onPointerCancel={handleAlphaPointerUp}
+                      onKeyDown={handleAlphaKeyDown}
+                      className={cn(
+                        "relative h-3.5 w-full cursor-pointer rounded-full ring-1 ring-inset ring-foreground/15 select-none touch-none",
+                        focusRingStyles,
+                      )}
+                      style={{
+                        backgroundImage: `linear-gradient(to right, transparent, ${hsvToHex(hue, sat, val)}), ${CHECKERBOARD_BG}`,
+                      }}
+                    >
+                      <div
+                        className="absolute top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-border-strong bg-white shadow-md pointer-events-none"
+                        style={{ left: `${alpha}%` }}
+                      />
+                    </div>
+                  )}
+
                   {/* Hex Input & Swatch Preview */}
                   <div className="flex items-center gap-2">
                     <div
-                      className="h-7 w-7 rounded-[var(--radius-sm)] border border-border shadow-2xs shrink-0 transition-colors duration-150"
-                      style={{ backgroundColor: color }}
-                    />
+                      className="relative size-8 shrink-0 overflow-hidden rounded-[var(--radius-sm)] border border-foreground/15 shadow-2xs"
+                      style={{ background: CHECKERBOARD_BG }}
+                    >
+                      <span className="absolute inset-0 transition-colors duration-150" style={{ backgroundColor: color }} />
+                    </div>
                     <input
                       type="text"
                       aria-label="Hex color code"
@@ -437,13 +575,14 @@ export const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(function
                       onChange={(e) => {
                         const val = e.target.value
                         setColor(val)
-                        if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
+                        if (/^#[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?$/.test(val)) {
                           setHsv(hexToHsv(val))
+                          setAlpha(parseAlpha(val))
                         }
                       }}
                       className={cn(
-                        "w-full rounded-[var(--radius-sm)] border border-border bg-surface px-2 py-1 font-mono text-xs uppercase text-foreground outline-none transition-colors",
-                        "focus:border-accent focus:ring-1 focus:ring-accent",
+                        "h-8 w-full rounded-[var(--radius-sm)] px-2.5 font-mono text-xs uppercase text-foreground outline-none",
+                        controlBaseStyles,
                       )}
                     />
                   </div>
@@ -452,7 +591,7 @@ export const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(function
                   {presets.length > 0 && (
                     <div className="flex flex-col gap-1.5 pt-2 border-t border-border">
                       <span className="text-[11px] font-medium text-muted-foreground">Presets</span>
-                      <div className="flex flex-wrap gap-1.5" role="group" aria-label="Color presets">
+                      <div className="grid grid-cols-6 gap-1.5" role="group" aria-label="Color presets">
                         {presets.map((preset) => {
                           const isSelected = color.toLowerCase() === preset.toLowerCase()
                           return (
@@ -466,8 +605,8 @@ export const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(function
                                 setHsv(hexToHsv(preset))
                               }}
                               className={cn(
-                                "group relative h-5 w-5 rounded-[var(--radius-sm)] border border-border shadow-2xs transition-all duration-150 ease-out hover:scale-115 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring",
-                                isSelected && "ring-2 ring-accent ring-offset-2 ring-offset-surface scale-105",
+                                "group relative h-6 w-full cursor-pointer rounded-[var(--radius-sm)] border border-foreground/15 shadow-2xs transition-all duration-150 ease-out hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring",
+                                isSelected && "ring-2 ring-accent ring-offset-2 ring-offset-surface",
                               )}
                               style={{ backgroundColor: preset }}
                             >
@@ -492,9 +631,9 @@ export const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(function
       </div>
 
       {error ? (
-        <p className={fieldErrorStyles}>{error}</p>
+        <p id={messageId} className={fieldErrorStyles}>{error}</p>
       ) : hint ? (
-        <p className={fieldDescriptionStyles}>{hint}</p>
+        <p id={messageId} className={fieldDescriptionStyles}>{hint}</p>
       ) : null}
     </div>
   )

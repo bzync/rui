@@ -60,7 +60,6 @@ export const Stepper = forwardRef<HTMLOListElement, StepperProps>(function Stepp
   return (
     <ol
       ref={ref}
-      aria-orientation={orientation}
       className={cn(vertical ? "flex flex-col" : "flex min-w-0 items-start overflow-x-auto", className)}
       {...props}
     >
@@ -82,7 +81,7 @@ export const Stepper = forwardRef<HTMLOListElement, StepperProps>(function Stepp
           </span>
         )
         const text = (
-          <span className={cn("flex min-w-0 flex-col", vertical ? "pb-6 pt-1.5" : "mt-2 items-center px-1 text-center")}>
+          <span className={cn("flex min-w-0 flex-col", vertical ? "pt-1.5" : "mt-2 items-center px-1 text-center")}>
             <span className={cn(vertical ? "text-sm leading-none" : "text-xs", "font-medium", state === "active" ? "text-foreground" : "text-muted-foreground", labelClassName)}>
               {step.label}
               <span className="sr-only">{`, ${status}`}</span>
@@ -95,20 +94,20 @@ export const Stepper = forwardRef<HTMLOListElement, StepperProps>(function Stepp
             aria-hidden="true"
             className={cn(
               "rounded-full transition-colors",
-              vertical ? "my-1 min-h-8 w-0.5 flex-1" : "mx-2 h-0.5 flex-1",
+              vertical ? "ml-[15px] my-1 min-h-8 w-0.5 flex-1" : "mx-2 mt-4 h-0.5 flex-1",
               state === "done" ? "bg-primary" : "bg-border",
               connectorClassName,
             )}
           />
         )
-        const body = vertical ? (
-          <span className="flex gap-3">
-            <span className="flex flex-col items-center">{indicator}{connector}</span>
+        const stepContent = vertical ? (
+          <span className="flex items-start gap-3">
+            {indicator}
             {text}
           </span>
         ) : (
           <span className="flex flex-col items-center">
-            <span className="flex w-full items-center">{indicator}{connector}</span>
+            {indicator}
             {text}
           </span>
         )
@@ -117,17 +116,18 @@ export const Stepper = forwardRef<HTMLOListElement, StepperProps>(function Stepp
           <li
             key={i}
             aria-current={state === "active" ? "step" : undefined}
-            className={cn(vertical ? "" : "min-w-0 flex-1", stepClassName)}
+            className={cn(vertical ? "flex flex-col" : "flex min-w-0 flex-1 items-start", isLast && !vertical && "flex-initial", stepClassName)}
           >
             {interactive ? (
               <button
                 type="button"
                 onClick={() => onStepClick?.(i)}
-                className={cn("w-full rounded-[var(--radius-md)] text-left", vertical ? "" : "text-center", focusRingStyles, "[&:hover_.rounded-full]:border-accent-500")}
+                className={cn("rounded-[var(--radius-md)] text-left", vertical ? "" : "text-center", focusRingStyles, "[&:hover_.rounded-full]:border-accent-500")}
               >
-                {body}
+                {stepContent}
               </button>
-            ) : body}
+            ) : stepContent}
+            {connector}
           </li>
         )
       })}

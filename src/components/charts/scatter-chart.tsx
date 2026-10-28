@@ -1,7 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/cn"
-import { useState, forwardRef } from "react"
+import { type HTMLAttributes, useState, forwardRef } from "react"
 import { type TooltipState, ChartTooltip, CHART_SERIES } from "./shared"
 
 export interface ScatterPoint {
@@ -19,7 +19,7 @@ export interface ScatterSeries {
   data: ScatterPoint[]
 }
 
-export interface ScatterChartProps {
+export interface ScatterChartProps extends HTMLAttributes<HTMLDivElement> {
   series: ScatterSeries[]
   height?: number
   xLabel?: string
@@ -28,6 +28,7 @@ export interface ScatterChartProps {
   className?: string
   formatX?: (v: number) => string
   formatY?: (v: number) => string
+  ariaLabel?: string
 }
 
 const SCATTER_COLORS = CHART_SERIES
@@ -41,6 +42,9 @@ export const ScatterChart = forwardRef<HTMLDivElement, ScatterChartProps>(functi
   className,
   formatX = String,
   formatY = String,
+  ariaLabel,
+  style,
+  ...props
 }, ref) {
   const [tooltip, setTooltip] = useState<TooltipState | null>(null)
   const [hovered, setHovered] = useState<string | null>(null)
@@ -65,10 +69,12 @@ export const ScatterChart = forwardRef<HTMLDivElement, ScatterChartProps>(functi
     top:  PLOT_Y0 + ((yMax - y) / yRange) * PLOT_H,
   })
 
+  const svgLabel = ariaLabel ?? props["aria-label"] ?? "Scatter chart"
+
   return (
-    <div ref={ref} className={cn("relative w-full select-none", className)} style={{ height }}>
+    <div ref={ref} className={cn("relative w-full select-none", className)} style={{ height, ...style }} {...props}>
       {/* Background: gridlines + axes only (no circles — preserveAspectRatio=none distorts SVG circles into ellipses) */}
-      <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full text-foreground">
+      <svg role="img" aria-label={svgLabel} viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full text-foreground">
         {Array.from({ length: gridLines + 1 }).map((_, i) => {
           const gy = PLOT_Y0 + (i / gridLines) * PLOT_H
           const gx = PLOT_X0 + (i / gridLines) * PLOT_W
@@ -91,9 +97,22 @@ export const ScatterChart = forwardRef<HTMLDivElement, ScatterChartProps>(functi
           const diameter = (p.r ?? 1) * 10  // px
           const key = `${si}-${pi}`
           const isHov = hovered === key
+          const content = (
+            <span>
+              {(p.label || s.label) && (
+                <span className="text-tooltip-foreground/75 mr-2">{p.label ?? s.label}</span>
+              )}
+              <span className="font-semibold text-tooltip-foreground">
+                ({formatX(p.x)}, {formatY(p.y)})
+              </span>
+            </span>
+          )
           return (
             <div
               key={key}
+              tabIndex={0}
+              aria-label={`${p.label ?? s.label}: (${formatX(p.x)}, ${formatY(p.y)})`}
+              className="outline-none focus-visible:opacity-85"
               style={{
                 position: "absolute",
                 left: `${left}%`,
@@ -115,19 +134,20 @@ export const ScatterChart = forwardRef<HTMLDivElement, ScatterChartProps>(functi
                 setTooltip({
                   x: e.clientX,
                   y: e.clientY,
-                  content: (
-                    <span>
-                      {(p.label || s.label) && (
-                        <span className="text-muted-foreground mr-2">{p.label ?? s.label}</span>
-                      )}
-                      <span className="font-semibold text-foreground">
-                        ({formatX(p.x)}, {formatY(p.y)})
-                      </span>
-                    </span>
-                  ),
+                  content,
                 })
               }
               onMouseLeave={() => { setHovered(null); setTooltip(null) }}
+              onFocus={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect()
+                setHovered(key)
+                setTooltip({
+                  x: rect.left + rect.width / 2,
+                  y: rect.top,
+                  content,
+                })
+              }}
+              onBlur={() => { setHovered(null); setTooltip(null) }}
             />
           )
         })

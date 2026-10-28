@@ -39,6 +39,9 @@ export interface DateTimePickerProps extends Omit<HTMLAttributes<HTMLDivElement>
   value?: Date | null
   defaultValue?: Date | null
   onChange?: (date: Date | null) => void
+  onValueChange?: (date: Date | null) => void
+  name?: string
+  required?: boolean
   label?: string
   hint?: string
   error?: string
@@ -215,6 +218,9 @@ export const DateTimePicker = forwardRef<HTMLDivElement, DateTimePickerProps>(fu
     value: controlledValue,
     defaultValue = null,
     onChange,
+    onValueChange,
+    name,
+    required,
     label,
     hint,
     error,
@@ -240,7 +246,10 @@ export const DateTimePicker = forwardRef<HTMLDivElement, DateTimePickerProps>(fu
   const [selected, setSelected] = useControllableState<Date | null>({
     value: controlledValue,
     defaultValue,
-    onChange,
+    onChange: (next) => {
+      onChange?.(next)
+      onValueChange?.(next)
+    },
   })
 
   const [open, setOpen] = useState(false)
@@ -427,6 +436,9 @@ export const DateTimePicker = forwardRef<HTMLDivElement, DateTimePickerProps>(fu
 
   return (
     <div ref={ref} className={cn("relative", fieldRootStyles, className)} {...props}>
+      {name && !disabled && (
+        <input type="hidden" name={name} value={selected ? selected.toISOString() : ""} required={required} />
+      )}
       {label && (
         <label htmlFor={inputId} id={`${inputId}-label`} className={cn(fieldLabelStyles, disabled && "opacity-50")}>
           {label}

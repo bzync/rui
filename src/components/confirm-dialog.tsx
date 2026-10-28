@@ -1,13 +1,14 @@
 "use client"
 
-import { ReactNode } from "react"
+import { ReactNode, forwardRef } from "react"
 import { cn } from "@/lib/cn"
 import { Button } from "./button"
 import { Modal } from "./modal"
 
 export interface ConfirmDialogProps {
   open: boolean
-  onClose: () => void
+  onClose?: () => void
+  onOpenChange?: (open: boolean) => void
   onConfirm: () => void
   title?: string
   description?: ReactNode
@@ -27,9 +28,10 @@ export interface ConfirmDialogProps {
   portalled?: boolean
 }
 
-export function ConfirmDialog({
+export const ConfirmDialog = forwardRef<HTMLDivElement, ConfirmDialogProps>(function ConfirmDialog({
   open,
   onClose,
+  onOpenChange,
   onConfirm,
   title = "Are you sure?",
   description,
@@ -46,7 +48,12 @@ export function ConfirmDialog({
   cancelButtonClassName,
   confirmButtonClassName,
   portalled,
-}: ConfirmDialogProps) {
+}, ref) {
+  const handleClose = () => {
+    onClose?.()
+    onOpenChange?.(false)
+  }
+
   const defaultIcon = destructive ? (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="text-danger-strong"><path d="m21.73 18-8-14a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" /><path d="M12 9v4" /><path d="M12 17h.01" /></svg>
   ) : (
@@ -55,8 +62,10 @@ export function ConfirmDialog({
 
   return (
     <Modal
+      ref={ref}
       open={open}
       onClose={onClose}
+      onOpenChange={onOpenChange}
       size="sm"
       title={title}
       description={typeof description === "string" ? description : undefined}
@@ -70,7 +79,7 @@ export function ConfirmDialog({
         <div className={cn("text-sm leading-relaxed text-muted-foreground", contentClassName)}>{description}</div>
       )}
       <div className={cn("flex flex-wrap justify-end gap-2.5 pt-2", actionsClassName)}>
-        <Button variant="ghost" onClick={onClose} disabled={loading} className={cancelButtonClassName}>
+        <Button variant="ghost" onClick={handleClose} disabled={loading} className={cancelButtonClassName}>
           {cancelLabel}
         </Button>
         <Button variant={destructive ? "danger" : "primary"} onClick={onConfirm} loading={loading} autoFocus className={confirmButtonClassName}>
@@ -79,4 +88,5 @@ export function ConfirmDialog({
       </div>
     </Modal>
   )
-}
+})
+ConfirmDialog.displayName = "ConfirmDialog"

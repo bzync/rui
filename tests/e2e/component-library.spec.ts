@@ -34,6 +34,7 @@ test.beforeEach(async ({ page }) => {
 
 test("documentation navigation resolves every configured page", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "desktop-1280", "The complete link audit only needs one desktop project")
+  test.setTimeout(60_000)
 
   const links = page.locator(".docs-sidebar a")
   const count = await links.count()

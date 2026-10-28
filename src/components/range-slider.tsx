@@ -26,6 +26,7 @@ export interface RangeSliderProps extends Omit<HTMLAttributes<HTMLDivElement>, "
   label?: string
   hint?: string
   error?: string
+  name?: string
   min?: number
   max?: number
   step?: number
@@ -33,6 +34,7 @@ export interface RangeSliderProps extends Omit<HTMLAttributes<HTMLDivElement>, "
   value?: [number, number]
   defaultValue?: [number, number]
   onChange?: (val: [number, number]) => void
+  onValueChange?: (val: [number, number]) => void
   onChangeEnd?: (val: [number, number]) => void
   formatValue?: (val: number) => string
   showValue?: boolean
@@ -60,6 +62,7 @@ export const RangeSlider = forwardRef<HTMLDivElement, RangeSliderProps>(function
     label,
     hint,
     error,
+    name,
     min = 0,
     max = 100,
     step = 1,
@@ -67,6 +70,7 @@ export const RangeSlider = forwardRef<HTMLDivElement, RangeSliderProps>(function
     value: controlledValue,
     defaultValue = [min, max],
     onChange,
+    onValueChange,
     onChangeEnd,
     formatValue = (v) => String(v),
     showValue = true,
@@ -84,17 +88,32 @@ export const RangeSlider = forwardRef<HTMLDivElement, RangeSliderProps>(function
 ) {
   const uid = useId()
   const inputId = id ?? uid
-  const messageId = `${inputId}-message`
+  const labelId = `${inputId}-label`
+  const hasError = Boolean(error)
+  const errorId = hasError ? `${inputId}-error` : undefined
+  const hintId = hint && !hasError ? `${inputId}-hint` : undefined
+  const describedBy = errorId ?? hintId
   const trackRef = useRef<HTMLDivElement | null>(null)
 
   const [activeThumb, setActiveThumb] = useState<0 | 1 | null>(null)
   const [hoveredThumb, setHoveredThumb] = useState<0 | 1 | null>(null)
 
-  const [range, setRange] = useControllableState<[number, number]>({
+  const [range, setRangeState] = useControllableState<[number, number]>({
     value: controlledValue,
     defaultValue,
-    onChange,
+    onChange: (next) => {
+      onChange?.(next)
+      onValueChange?.(next)
+    },
   })
+
+  const rangeRef = useRef<[number, number]>(range)
+  rangeRef.current = range
+
+  const setRange = useCallback((next: [number, number]) => {
+    rangeRef.current = next
+    setRangeState(next)
+  }, [setRangeState])
 
   const [valMin, valMax] = range
   const cfg = sizeConfig[size]
@@ -116,19 +135,20 @@ export const RangeSlider = forwardRef<HTMLDivElement, RangeSliderProps>(function
   const updateThumb = useCallback((index: 0 | 1, nextRaw: number) => {
     const next = clamp(nextRaw)
     const minDiff = minStepsBetweenThumbs * step
+    const [curMin, curMax] = rangeRef.current
 
     if (index === 0) {
-      const allowedMax = valMax - minDiff
+      const allowedMax = curMax - minDiff
       const clamped = Math.min(next, allowedMax)
-      const nextRange: [number, number] = [clamped, valMax]
+      const nextRange: [number, number] = [clamped, curMax]
       setRange(nextRange)
     } else {
-      const allowedMin = valMin + minDiff
+      const allowedMin = curMin + minDiff
       const clamped = Math.max(next, allowedMin)
-      const nextRange: [number, number] = [valMin, clamped]
+      const nextRange: [number, number] = [curMin, clamped]
       setRange(nextRange)
     }
-  }, [clamp, minStepsBetweenThumbs, setRange, step, valMax, valMin])
+  }, [clamp, minStepsBetweenThumbs, setRange, step])
 
   const handlePointerDown = (e: ReactPointerEvent, thumbIndex?: 0 | 1) => {
     if (disabled || e.button !== 0 || !trackRef.current) return
@@ -161,7 +181,7 @@ export const RangeSlider = forwardRef<HTMLDivElement, RangeSliderProps>(function
       window.removeEventListener("pointermove", handlePointerMove)
       window.removeEventListener("pointerup", handlePointerUp)
       setActiveThumb(null)
-      onChangeEnd?.(range)
+      onChangeEnd?.(rangeRef.current)
     }
 
     window.addEventListener("pointermove", handlePointerMove)
@@ -198,7 +218,7 @@ export const RangeSlider = forwardRef<HTMLDivElement, RangeSliderProps>(function
       {(label || showValue) && (
         <div className="flex items-center justify-between gap-2">
           {label && (
-            <label id={`${inputId}-label`} className={cn(fieldLabelStyles, disabled && "opacity-50")}>
+            <label id={labelId} className={cn(fieldLabelStyles, disabled && "opacity-50")}>
               {label}
             </label>
           )}
@@ -208,6 +228,10 @@ export const RangeSlider = forwardRef<HTMLDivElement, RangeSliderProps>(function
             </span>
           )}
         </div>
+      )}
+
+      {name && !disabled && (
+        <input type="hidden" name={name} value={`${range[0]},${range[1]}`} />
       )}
 
       {/* Slider Track Area */}
@@ -240,6 +264,8 @@ export const RangeSlider = forwardRef<HTMLDivElement, RangeSliderProps>(function
           aria-valuemax={valMax - minStepsBetweenThumbs * step}
           aria-valuenow={valMin}
           aria-valuetext={formatValue(valMin)}
+          aria-invalid={hasError || undefined}
+          aria-describedby={describedBy}
           onPointerDown={(e) => {
             e.stopPropagation()
             handlePointerDown(e, 0)
@@ -277,6 +303,8 @@ export const RangeSlider = forwardRef<HTMLDivElement, RangeSliderProps>(function
           aria-valuemax={max}
           aria-valuenow={valMax}
           aria-valuetext={formatValue(valMax)}
+          aria-invalid={hasError || undefined}
+          aria-describedby={describedBy}
           onPointerDown={(e) => {
             e.stopPropagation()
             handlePointerDown(e, 1)
@@ -330,11 +358,11 @@ export const RangeSlider = forwardRef<HTMLDivElement, RangeSliderProps>(function
 
       {/* Message & error */}
       {error ? (
-        <p id={messageId} className={fieldErrorStyles}>
+        <p id={errorId} aria-live="polite" className={fieldErrorStyles}>
           {error}
         </p>
       ) : hint ? (
-        <p id={messageId} className={fieldDescriptionStyles}>
+        <p id={hintId} className={fieldDescriptionStyles}>
           {hint}
         </p>
       ) : null}

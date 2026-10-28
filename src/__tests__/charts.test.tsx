@@ -73,4 +73,16 @@ describe("new charts", () => {
     expect(meter).toHaveAttribute("aria-valuetext", "92 (Critical)")
     expect(R.niceTicks(0, 87)).toEqual([0, 25, 50, 75, 100])
   })
+
+  it("spreads native root attributes, labels SVGs, and triggers tooltips on keyboard focus", async () => {
+    const user = userEvent.setup()
+    render(<BarChart id="revenue-chart" data-testid="rev-bar" ariaLabel="Monthly revenue" data={data} />)
+    const root = screen.getByTestId("rev-bar")
+    expect(root).toHaveAttribute("id", "revenue-chart")
+    expect(screen.getByRole("img", { name: "Monthly revenue" })).toBeInTheDocument()
+
+    await user.tab()
+    expect(screen.getAllByText("Jan")).toHaveLength(2)
+    expect(screen.getByText("10")).toBeInTheDocument()
+  })
 })

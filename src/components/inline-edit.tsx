@@ -1,14 +1,17 @@
 "use client"
 
 import { cn } from "@/lib/cn"
-import { focusRingStyles } from "@/lib/component-styles"
+import { fieldDescriptionStyles, fieldErrorStyles, focusRingStyles } from "@/lib/component-styles"
 import { useControllableState } from "@/hooks/use-controllable-state"
 import { CheckIcon } from "@/lib/icons"
+import { mergeRefs } from "@/lib/merge-refs"
 import {
   type HTMLAttributes,
   type KeyboardEvent as ReactKeyboardEvent,
+  type ReactNode,
   forwardRef,
   useEffect,
+  useId,
   useRef,
   useState,
 } from "react"
@@ -17,8 +20,12 @@ export interface InlineEditProps extends Omit<HTMLAttributes<HTMLDivElement>, "o
   value?: string
   defaultValue?: string
   onChange?: (val: string) => void
+  onValueChange?: (val: string) => void
   onSave?: (val: string) => Promise<void> | void
   onCancel?: () => void
+  label?: ReactNode
+  hint?: ReactNode
+  error?: string
   placeholder?: string
   multiline?: boolean
   validate?: (val: string) => string | null | undefined
@@ -34,15 +41,19 @@ export const InlineEdit = forwardRef<HTMLDivElement, InlineEditProps>(function I
     value: controlledValue,
     defaultValue = "",
     onChange,
+    onValueChange,
     onSave,
     onCancel,
+    label,
+    hint,
+    error,
     placeholder = "Click to edit…",
     multiline = false,
     validate,
     saveOnBlur = true,
     disabled = false,
     readOnly = false,
-    ariaLabel = "Editable text",
+    ariaLabel,
     inputClassName,
     className,
     ...props
@@ -52,7 +63,10 @@ export const InlineEdit = forwardRef<HTMLDivElement, InlineEditProps>(function I
   const [val, setVal] = useControllableState({
     value: controlledValue,
     defaultValue,
-    onChange,
+    onChange: (next) => {
+      onChange?.(next)
+      onValueChange?.(next)
+    },
   })
 
   const [isEditing, setIsEditing] = useState(false)
@@ -60,7 +74,14 @@ export const InlineEdit = forwardRef<HTMLDivElement, InlineEditProps>(function I
   const [saving, setSaving] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
+  const uid = useId()
+  const triggerRef = useRef<HTMLDivElement | null>(null)
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null)
+
+  const displayError = error ?? errorMessage
+  const errorId = displayError ? `${uid}-error` : undefined
+  const hintId = hint && !displayError ? `${uid}-hint` : undefined
+  const describedBy = errorId ?? hintId
 
   useEffect(() => {
     setDraft(val)
@@ -85,6 +106,7 @@ export const InlineEdit = forwardRef<HTMLDivElement, InlineEditProps>(function I
     setErrorMessage(null)
     setIsEditing(false)
     onCancel?.()
+    requestAnimationFrame(() => triggerRef.current?.focus())
   }
 
   const save = async () => {
@@ -100,6 +122,7 @@ export const InlineEdit = forwardRef<HTMLDivElement, InlineEditProps>(function I
 
     if (draft === val) {
       setIsEditing(false)
+      requestAnimationFrame(() => triggerRef.current?.focus())
       return
     }
 
@@ -108,6 +131,7 @@ export const InlineEdit = forwardRef<HTMLDivElement, InlineEditProps>(function I
       await onSave?.(draft)
       setVal(draft)
       setIsEditing(false)
+      requestAnimationFrame(() => triggerRef.current?.focus())
     } catch (err: unknown) {
       setErrorMessage(err instanceof Error ? err.message : "Failed to save")
     } finally {
@@ -136,10 +160,10 @@ export const InlineEdit = forwardRef<HTMLDivElement, InlineEditProps>(function I
   if (!isEditing) {
     return (
       <div
-        ref={ref}
+        ref={mergeRefs(triggerRef, ref)}
         role="button"
         tabIndex={disabled || readOnly ? -1 : 0}
-        aria-label={ariaLabel}
+        aria-label={ariaLabel ?? (typeof label === "string" ? label : "Editable text")}
         onClick={startEditing}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
@@ -183,13 +207,16 @@ export const InlineEdit = forwardRef<HTMLDivElement, InlineEditProps>(function I
             ref={inputRef as React.RefObject<HTMLTextAreaElement>}
             value={draft}
             disabled={saving}
+            aria-label={ariaLabel ?? (typeof label === "string" ? label : "Inline editable value")}
+            aria-invalid={Boolean(displayError) || undefined}
+            aria-describedby={describedBy}
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={handleKeyDown}
             rows={3}
             className={cn(
               "w-full rounded-[var(--radius-md)] border border-border bg-surface px-2.5 py-1.5 text-sm text-foreground shadow-xs outline-none transition-colors",
               focusRingStyles,
-              errorMessage && "border-danger ring-1 ring-danger",
+              displayError && "border-danger ring-1 ring-danger",
               inputClassName,
             )}
           />
@@ -199,12 +226,15 @@ export const InlineEdit = forwardRef<HTMLDivElement, InlineEditProps>(function I
             type="text"
             value={draft}
             disabled={saving}
+            aria-label={ariaLabel ?? (typeof label === "string" ? label : "Inline editable value")}
+            aria-invalid={Boolean(displayError) || undefined}
+            aria-describedby={describedBy}
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={handleKeyDown}
             className={cn(
               "w-full rounded-[var(--radius-md)] border border-border bg-surface px-2.5 py-1 text-sm text-foreground shadow-xs outline-none transition-colors",
               focusRingStyles,
-              errorMessage && "border-danger ring-1 ring-danger",
+              displayError && "border-danger ring-1 ring-danger",
               inputClassName,
             )}
           />
@@ -244,8 +274,11 @@ export const InlineEdit = forwardRef<HTMLDivElement, InlineEditProps>(function I
         </div>
       </div>
 
-      {errorMessage && (
-        <span className="text-xs text-danger font-medium">{errorMessage}</span>
+      {displayError && (
+        <span id={errorId} className={fieldErrorStyles}>{displayError}</span>
+      )}
+      {hint && !displayError && (
+        <span id={hintId} className={fieldDescriptionStyles}>{hint}</span>
       )}
     </div>
   )

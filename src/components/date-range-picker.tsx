@@ -26,6 +26,9 @@ export interface DateRangePickerProps extends Omit<HTMLAttributes<HTMLDivElement
   /** Initial range when uncontrolled. */
   defaultValue?: DateRange
   onChange?: (range: DateRange) => void
+  onValueChange?: (range: DateRange) => void
+  name?: string
+  required?: boolean
   label?: string
   hint?: string
   error?: string
@@ -75,6 +78,9 @@ export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
   value,
   defaultValue = EMPTY,
   onChange,
+  onValueChange,
+  name,
+  required,
   label,
   hint,
   error,
@@ -90,7 +96,14 @@ export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
   className,
   ...props
 }, ref) {
-  const [range, setRange] = useControllableState({ value, defaultValue, onChange })
+  const [range, setRange] = useControllableState({
+    value,
+    defaultValue,
+    onChange: (next) => {
+      onChange?.(next)
+      onValueChange?.(next)
+    },
+  })
   const [open, setOpen] = useState(false)
   // In-progress selection: the anchor (first click) and the hovered end.
   const [anchor, setAnchor] = useState<Date | null>(null)
@@ -288,6 +301,14 @@ export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
   return (
     <div ref={mergeRefs(rootRef, ref)} className={cn("relative", fieldRootStyles, className)} {...props}>
       {label && <label htmlFor={triggerId} className={fieldLabelStyles}>{label}</label>}
+      {name && !disabled && (
+        <input
+          type="hidden"
+          name={name}
+          value={range.from || range.to ? `${range.from ? dayKey(range.from) : ""}/${range.to ? dayKey(range.to) : ""}` : ""}
+          required={required}
+        />
+      )}
       <div className={cn("flex w-full items-center rounded-[var(--radius-md)]", sizeStyles.height, controlBaseStyles, error && controlInvalidStyles, disabled && "cursor-not-allowed opacity-50")}>
         <button
           ref={triggerRef}

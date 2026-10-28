@@ -9,6 +9,8 @@ import {
   IconButton, InlineEdit, Kanban, NumberInput, Pagination, Popover, PopoverContent,
   RangeSlider, SortableList, Tabs, TabsContent, TabsList, TabsTrigger, Tag, Toggle,
   ToggleGroup, ToggleGroupItem, Tree,
+  PanoEngine, PanoViewer, PanoTourButton, PanoTourDialog, PanoTourEditor, createEquirectangularDemoUrl, nameFromFile,
+  type PanoScene,
 } from "@/index"
 
 describe("interactive component contracts", () => {
@@ -68,7 +70,7 @@ describe("interactive component contracts", () => {
     expect(screen.getByTestId("billing-toggle")).toHaveClass("bg-surface-muted")
     expect(screen.getByRole("button", { name: "Monthly" })).toHaveAttribute("aria-pressed", "false")
     expect(screen.getByRole("button", { name: /Annually/ })).toHaveAttribute("aria-pressed", "true")
-    expect(screen.getByText("Save 20%")).toHaveClass("text-success")
+    expect(screen.getByText("Save 20%")).toHaveClass("text-success-strong")
   })
 
   it("switches tabs and selects tree nodes", async () => {
@@ -629,3 +631,143 @@ describe("SortableList and Kanban", () => {
     expect(onChange).toHaveBeenCalled()
   })
 })
+
+describe("PanoTour 360° viewer, dialog, and editor", () => {
+  const sampleScenes: PanoScene[] = [
+    {
+      id: "lobby",
+      name: "Grand Lobby",
+      description: "Welcome to the Grand Lobby.",
+      image: createEquirectangularDemoUrl({ title: "Grand Lobby" }),
+      yaw: 0,
+      pitch: 0,
+      fov: 75,
+      hotspots: [
+        { id: "h1", type: "scene", yaw: 15, pitch: 0, target: "terrace", label: "Ocean Terrace" },
+        { id: "h2", type: "info", yaw: -15, pitch: 5, label: "24/7 Concierge Desk" },
+        { id: "h3", type: "action", yaw: 0, pitch: -10, action: "book", label: "Book Suite" },
+      ],
+    },
+    {
+      id: "terrace",
+      name: "Ocean Terrace",
+      description: "Panoramic view of the ocean.",
+      image: createEquirectangularDemoUrl({ title: "Ocean Terrace" }),
+      yaw: 0,
+      pitch: 0,
+      fov: 75,
+      hotspots: [
+        { id: "h4", type: "scene", yaw: 0, pitch: 0, target: "lobby", label: "Back to Lobby" },
+      ],
+    },
+  ]
+
+  it("renders PanoViewer with hotspots, inline notes, and hotspot callbacks", async () => {
+    const user = userEvent.setup()
+    const onHotspot = vi.fn()
+
+    render(
+      <PanoViewer
+        scene={sampleScenes[0]}
+        names={{ lobby: "Grand Lobby", terrace: "Ocean Terrace" }}
+        onHotspot={onHotspot}
+      />,
+    )
+
+    const app = screen.getByRole("application", { name: /Grand Lobby/i })
+    expect(app).toHaveAttribute("aria-roledescription", "360 degree panorama")
+
+    const infoBtn = screen.getByRole("button", { name: "24/7 Concierge Desk" })
+    expect(infoBtn).toHaveAttribute("aria-expanded", "false")
+    await user.click(infoBtn)
+    expect(infoBtn).toHaveAttribute("aria-expanded", "true")
+    expect(screen.getByRole("status")).toHaveTextContent("24/7 Concierge Desk")
+
+    const walkBtn = screen.getByRole("button", { name: "Ocean Terrace" })
+    await user.click(walkBtn)
+    expect(onHotspot).toHaveBeenCalledWith(expect.objectContaining({ id: "h1", type: "scene" }))
+  })
+
+  it("opens PanoTourDialog from PanoTourButton, navigates scenes, and closes on Escape", async () => {
+    const user = userEvent.setup()
+
+    render(<PanoTourButton title="Resort Tour" scenes={sampleScenes} />)
+
+    const trigger = screen.getByRole("button", { name: /360° tour of Resort Tour/i })
+    await user.click(trigger)
+
+    expect(screen.getByRole("dialog", { name: /Resort Tour — 360° tour/i })).toBeInTheDocument()
+    expect(screen.getByText("1 of 2")).toBeInTheDocument()
+
+    // Switch scene via filmstrip
+    const nav = screen.getByRole("navigation", { name: "Scenes" })
+    const terraceBtn = nav.querySelectorAll("button")[1]
+    await user.click(terraceBtn)
+    expect(screen.getByText("2 of 2")).toBeInTheDocument()
+
+    // Dismiss via Escape
+    await user.keyboard("{Escape}")
+    expect(screen.queryByRole("dialog", { name: /Resort Tour — 360° tour/i })).not.toBeInTheDocument()
+  })
+
+  it("edits scenes and hotspots in PanoTourEditor and formats filenames via nameFromFile", async () => {
+    const user = userEvent.setup()
+    const onScenesChange = vi.fn()
+
+    expect(nameFromFile("IMG_20260412_Pool_Deck.jpg")).toBe("Pool Deck")
+
+    render(
+      <PanoTourEditor
+        title="Resort Studio"
+        defaultScenes={sampleScenes}
+        onScenesChange={onScenesChange}
+      />,
+    )
+
+    // Rename scene
+    const nameInput = screen.getByLabelText("Scene name")
+    await user.clear(nameInput)
+    await user.type(nameInput, "Main Lobby")
+    expect(onScenesChange).toHaveBeenCalled()
+
+    // Select a hotspot in the inspector to expand PanoHotspotEditor
+    const showButtons = screen.getAllByRole("button", { name: "Show on the photo" })
+    await user.click(showButtons[0])
+    expect(screen.getByRole("radiogroup", { name: "Icon" })).toBeInTheDocument()
+  })
+
+  it("keeps hotspots anchored to their 3D spherical coordinates across camera yaw and pitch rotations", () => {
+    const box = document.createElement("div")
+    Object.defineProperty(box, "clientWidth", { value: 800 })
+    Object.defineProperty(box, "clientHeight", { value: 450 })
+    box.getBoundingClientRect = () =>
+      ({ left: 0, top: 0, width: 800, height: 450, right: 800, bottom: 450, x: 0, y: 0, toJSON: () => ({}) }) as DOMRect
+
+    const engine = new PanoEngine(box, { interactive: false })
+
+    for (const cam of [
+      { yaw: 0, pitch: 0, fov: 75 },
+      { yaw: 42, pitch: -18, fov: 70 },
+      { yaw: -115, pitch: 24, fov: 60 },
+      { yaw: 165, pitch: -8, fov: 80 },
+    ]) {
+      engine.setView(cam)
+
+      // Looking directly at the camera's own (yaw, pitch) always projects to the exact screen center (400, 225)
+      const center = engine.project(cam.yaw, cam.pitch)
+      expect(center).not.toBeNull()
+      expect(center!.x).toBeCloseTo(400, 3)
+      expect(center!.y).toBeCloseTo(225, 3)
+
+      // Clicking any pixel (px, py) via unproject() and projecting that (yaw, pitch) back lands on (px, py)
+      const picked = engine.unproject(540, 170)
+      const reprojected = engine.project(picked.yaw, picked.pitch)
+      expect(reprojected).not.toBeNull()
+      expect(reprojected!.x).toBeCloseTo(540, 0)
+      expect(reprojected!.y).toBeCloseTo(170, 0)
+    }
+
+    engine.destroy()
+  })
+})
+

@@ -1,7 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/cn"
-import { useEffect, useId, useState, forwardRef } from "react"
+import { type HTMLAttributes, useEffect, useId, useState, forwardRef } from "react"
 import { type TooltipState, ChartTooltip, CHART_POSITIVE, CHART_NEGATIVE } from "./shared"
 
 export interface WaterfallItem {
@@ -12,11 +12,12 @@ export interface WaterfallItem {
   color?: string
 }
 
-export interface WaterfallChartProps {
+export interface WaterfallChartProps extends HTMLAttributes<HTMLDivElement> {
   data: WaterfallItem[]
   height?: number
   className?: string
   formatValue?: (v: number) => string
+  ariaLabel?: string
 }
 
 export const WaterfallChart = forwardRef<HTMLDivElement, WaterfallChartProps>(function WaterfallChart({
@@ -24,6 +25,9 @@ export const WaterfallChart = forwardRef<HTMLDivElement, WaterfallChartProps>(fu
   height = 240,
   className,
   formatValue = String,
+  ariaLabel,
+  style,
+  ...props
 }, ref) {
   const [tooltip, setTooltip] = useState<TooltipState | null>(null)
   const [hovered, setHovered] = useState<number | null>(null)
@@ -57,9 +61,11 @@ export const WaterfallChart = forwardRef<HTMLDivElement, WaterfallChartProps>(fu
   const barPad = barW * 0.2
   const barPct = barW - barPad * 2
 
+  const svgLabel = ariaLabel ?? props["aria-label"] ?? "Waterfall chart"
+
   return (
-    <div ref={ref} className={cn("relative w-full select-none", className)} style={{ height }}>
-      <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full text-foreground">
+    <div ref={ref} className={cn("relative w-full select-none", className)} style={{ height, ...style }} {...props}>
+      <svg role="img" aria-label={svgLabel} viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full text-foreground">
         <defs>
           {bars.map((b, i) => (
             <linearGradient key={i} id={`${uid}-wf-${i}`} x1="0" y1="0" x2="0" y2="1">
@@ -94,26 +100,40 @@ export const WaterfallChart = forwardRef<HTMLDivElement, WaterfallChartProps>(fu
           const x = i * barW + barPad
           const dur = 0.4
           const delay = i * 0.05
+          const valStr = `${b.value >= 0 && !b.total ? "+" : ""}${formatValue(b.value)}`
+          const content = (
+            <span>
+              <span className="text-tooltip-foreground/75 mr-2">{b.label}</span>
+              <span className="font-semibold" style={{ color: b.color }}>
+                {valStr}
+              </span>
+            </span>
+          )
           return (
             <rect key={i} x={x} width={barPct} rx="1.2"
               y={ready ? top : bot}
               height={ready ? barH : 0}
+              tabIndex={0}
+              aria-label={`${b.label}: ${valStr}`}
               onMouseEnter={() => setHovered(i)}
               onMouseMove={(e) =>
                 setTooltip({
                   x: e.clientX, y: e.clientY,
-                  content: (
-                    <span>
-                      <span className="text-muted-foreground mr-2">{b.label}</span>
-                      <span className="font-semibold" style={{ color: b.color }}>
-                        {b.value >= 0 && !b.total ? "+" : ""}{formatValue(b.value)}
-                      </span>
-                    </span>
-                  ),
+                  content,
                 })
               }
               onMouseLeave={() => { setHovered(null); setTooltip(null) }}
-              className="cursor-pointer"
+              onFocus={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect()
+                setHovered(i)
+                setTooltip({
+                  x: rect.left + rect.width / 2,
+                  y: rect.top,
+                  content,
+                })
+              }}
+              onBlur={() => { setHovered(null); setTooltip(null) }}
+              className="cursor-pointer outline-none focus-visible:opacity-85"
               style={{
                 fill: `url(#${uid}-wf-${i})`,
                 fillOpacity: hovered !== null && hovered !== i ? 0.35 : 1,

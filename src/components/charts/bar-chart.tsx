@@ -1,12 +1,12 @@
 "use client"
 
 import { cn } from "@/lib/cn"
-import { useState, useId, useEffect, forwardRef } from "react"
+import { type HTMLAttributes, useState, useId, useEffect, forwardRef } from "react"
 import { type ChartDataPoint, type TooltipState, ChartTooltip } from "./shared"
 
 // ─── BarChart ─────────────────────────────────────────────────────────────────
 
-export interface BarChartProps {
+export interface BarChartProps extends HTMLAttributes<HTMLDivElement> {
   data: ChartDataPoint[]
   height?: number
   /** Color applied to all bars unless each data point specifies its own */
@@ -19,6 +19,7 @@ export interface BarChartProps {
   orientation?: "vertical" | "horizontal"
   className?: string
   formatValue?: (v: number) => string
+  ariaLabel?: string
 }
 
 export const BarChart = forwardRef<HTMLDivElement, BarChartProps>(function BarChart({
@@ -30,6 +31,9 @@ export const BarChart = forwardRef<HTMLDivElement, BarChartProps>(function BarCh
   orientation = "vertical",
   className,
   formatValue = String,
+  ariaLabel,
+  style,
+  ...props
 }, ref) {
   const [tooltip, setTooltip] = useState<TooltipState | null>(null)
   const [hovered, setHovered] = useState<number | null>(null)
@@ -46,6 +50,7 @@ export const BarChart = forwardRef<HTMLDivElement, BarChartProps>(function BarCh
   if (orientation === "horizontal") {
     return (
       <HorizontalBarChart
+        ref={ref}
         data={data}
         height={height}
         color={color}
@@ -53,6 +58,9 @@ export const BarChart = forwardRef<HTMLDivElement, BarChartProps>(function BarCh
         gridLines={gridLines}
         className={className}
         formatValue={formatValue}
+        ariaLabel={ariaLabel}
+        style={style}
+        {...props}
       />
     )
   }
@@ -67,10 +75,17 @@ export const BarChart = forwardRef<HTMLDivElement, BarChartProps>(function BarCh
   const barPct = barW - barPad * 2
 
   const svgYtoPx = (svgY: number) => (svgY / 100) * height
+  const svgLabel = ariaLabel ?? props["aria-label"] ?? "Bar chart"
 
   return (
-    <div ref={ref} className={cn("relative w-full select-none", className)} style={{ height }}>
-      <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full text-foreground">
+    <div ref={ref} className={cn("relative w-full select-none", className)} style={{ height, ...style }} {...props}>
+      <svg
+        role="img"
+        aria-label={svgLabel}
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+        className="absolute inset-0 w-full h-full text-foreground"
+      >
         <defs>
           {data.map((d, i) => {
             const c = d.color ?? color
@@ -99,6 +114,12 @@ export const BarChart = forwardRef<HTMLDivElement, BarChartProps>(function BarCh
           const y = BASELINE - barH
           const dur = 0.45
           const delay = i * 0.05
+          const content = (
+            <span>
+              <span className="text-tooltip-foreground/75 mr-2">{d.label}</span>
+              <span className="font-semibold text-tooltip-foreground">{formatValue(d.value)}</span>
+            </span>
+          )
           return (
             <rect
               key={i}
@@ -107,21 +128,28 @@ export const BarChart = forwardRef<HTMLDivElement, BarChartProps>(function BarCh
               rx="1.2"
               y={ready ? y : BASELINE}
               height={ready ? barH : 0}
+              tabIndex={0}
+              aria-label={`${d.label}: ${formatValue(d.value)}`}
               onMouseEnter={() => setHovered(i)}
               onMouseMove={(e) =>
                 setTooltip({
                   x: e.clientX,
                   y: e.clientY,
-                  content: (
-                    <span>
-                      <span className="text-muted-foreground mr-2">{d.label}</span>
-                      <span className="font-semibold text-foreground">{formatValue(d.value)}</span>
-                    </span>
-                  ),
+                  content,
                 })
               }
               onMouseLeave={() => { setHovered(null); setTooltip(null) }}
-              className="cursor-pointer"
+              onFocus={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect()
+                setHovered(i)
+                setTooltip({
+                  x: rect.left + rect.width / 2,
+                  y: rect.top,
+                  content,
+                })
+              }}
+              onBlur={() => { setHovered(null); setTooltip(null) }}
+              className="cursor-pointer outline-none focus-visible:opacity-85"
               style={{
                 fill: `url(#${uid}-bcg-${i})`,
                 fillOpacity: hovered !== null && hovered !== i ? 0.35 : 1,
@@ -183,13 +211,17 @@ BarChart.displayName = "BarChart"
 // ─── HorizontalBarChart (internal — used via BarChart orientation="horizontal") ─
 // Pure HTML/CSS layout: [label col] [bar track] — avoids SVG label-over-bar overlap
 
-function HorizontalBarChart({
+const HorizontalBarChart = forwardRef<HTMLDivElement, Omit<BarChartProps, "orientation">>(function HorizontalBarChart({
   data,
   color,
   showValues,
   className,
   formatValue = String,
-}: Omit<BarChartProps, "orientation">) {
+  ariaLabel,
+  height: _height,
+  gridLines: _gridLines,
+  ...props
+}, ref) {
   const [tooltip, setTooltip] = useState<TooltipState | null>(null)
   const [hovered, setHovered] = useState<number | null>(null)
   const [ready, setReady] = useState(false)
@@ -201,11 +233,23 @@ function HorizontalBarChart({
   }, [])
 
   return (
-    <div className={cn("w-full select-none flex flex-col gap-2.5", className)}>
+    <div
+      ref={ref}
+      role="img"
+      aria-label={ariaLabel ?? props["aria-label"] ?? "Bar chart"}
+      className={cn("w-full select-none flex flex-col gap-2.5", className)}
+      {...props}
+    >
       {data.map((d, i) => {
         const pct = (d.value / max) * 100
         const c = d.color ?? color ?? "var(--chart-1)"
         const isHov = hovered === i
+        const content = (
+          <span>
+            <span className="text-tooltip-foreground/75 mr-2">{d.label}</span>
+            <span className="font-semibold text-tooltip-foreground">{formatValue(d.value)}</span>
+          </span>
+        )
         return (
           <div key={i} className="flex items-center gap-3">
             {/* Label — fixed width so bars all start at the same x */}
@@ -216,7 +260,9 @@ function HorizontalBarChart({
             {/* Bar track */}
             <div className="flex-1 h-8 relative rounded-md bg-foreground/5 overflow-hidden">
               <div
-                className="absolute left-0 top-0 bottom-0 rounded-md cursor-pointer"
+                tabIndex={0}
+                aria-label={`${d.label}: ${formatValue(d.value)}`}
+                className="absolute left-0 top-0 bottom-0 rounded-md cursor-pointer outline-none focus-visible:opacity-85"
                 style={{
                   width: ready ? `${pct}%` : 0,
                   background: `linear-gradient(90deg, ${c}70, ${c})`,
@@ -231,15 +277,20 @@ function HorizontalBarChart({
                 onMouseMove={(e) =>
                   setTooltip({
                     x: e.clientX, y: e.clientY,
-                    content: (
-                      <span>
-                        <span className="text-muted-foreground mr-2">{d.label}</span>
-                        <span className="font-semibold text-foreground">{formatValue(d.value)}</span>
-                      </span>
-                    ),
+                    content,
                   })
                 }
                 onMouseLeave={() => { setHovered(null); setTooltip(null) }}
+                onFocus={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect()
+                  setHovered(i)
+                  setTooltip({
+                    x: rect.left + rect.width / 2,
+                    y: rect.top,
+                    content,
+                  })
+                }}
+                onBlur={() => { setHovered(null); setTooltip(null) }}
               />
 
               {/* Value label — sits to the right of the bar end */}
@@ -261,5 +312,5 @@ function HorizontalBarChart({
       <ChartTooltip tooltip={tooltip} />
     </div>
   )
-}
+})
 

@@ -1,6 +1,6 @@
 import { cn } from "@/lib/cn"
 import { statusSolidStyles, statusTextStyles } from "@/lib/status-styles"
-import { ReactNode } from "react"
+import { type HTMLAttributes, type ReactNode, forwardRef } from "react"
 
 export interface TimelineEvent {
   id: string
@@ -14,7 +14,7 @@ export interface TimelineEvent {
   markerClassName?: string
 }
 
-export interface TimelineProps {
+export interface TimelineProps extends HTMLAttributes<HTMLOListElement> {
   events: TimelineEvent[]
   className?: string
 }
@@ -37,15 +37,18 @@ const iconVariants = {
   info:    `bg-info/15 ${statusTextStyles.info}`,
 }
 
-export function Timeline({ events, className }: TimelineProps) {
+export const Timeline = forwardRef<HTMLOListElement, TimelineProps>(function Timeline(
+  { events, className, ...props },
+  ref,
+) {
   return (
-    <div className={cn("flex flex-col", className)}>
+    <ol ref={ref} className={cn("flex flex-col", className)} {...props}>
       {events.map((event, i) => {
         const isLast = i === events.length - 1
         const variant = event.variant ?? "default"
 
         return (
-          <div key={event.id} className="flex gap-3">
+          <li key={event.id} className="flex gap-3">
             <div className="flex flex-col items-center">
               {event.icon ? (
                 <div className={cn("w-8 h-8 rounded-full flex items-center justify-center shrink-0", iconVariants[variant], event.markerClassName)}>
@@ -69,9 +72,10 @@ export function Timeline({ events, className }: TimelineProps) {
                 <p className="text-sm text-muted-foreground mt-0.5">{event.description}</p>
               )}
             </div>
-          </div>
+          </li>
         )
       })}
-    </div>
+    </ol>
   )
-}
+})
+Timeline.displayName = "Timeline"

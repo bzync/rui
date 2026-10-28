@@ -53,8 +53,24 @@ export const Accordion = forwardRef<HTMLDivElement, AccordionProps>(function Acc
     else setOpenIds(multiple ? [...openIds, id] : [id])
   }
 
+  function handleTriggerKeyDown(event: React.KeyboardEvent<HTMLButtonElement>) {
+    if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) return
+    const root = event.currentTarget.closest("[data-accordion-root]")
+    const triggers = Array.from(root?.querySelectorAll<HTMLButtonElement>("button[data-accordion-trigger]:not(:disabled)") ?? [])
+    const index = triggers.indexOf(event.currentTarget)
+    if (index < 0 || triggers.length === 0) return
+    event.preventDefault()
+    const nextIndex =
+      event.key === "Home"
+        ? 0
+        : event.key === "End"
+          ? triggers.length - 1
+          : (index + (event.key === "ArrowDown" ? 1 : -1) + triggers.length) % triggers.length
+    triggers[nextIndex]?.focus()
+  }
+
   return (
-    <div ref={ref} className={cn("flex flex-col divide-y divide-border", className)} {...props}>
+    <div ref={ref} data-accordion-root className={cn("flex flex-col divide-y divide-border", className)} {...props}>
       {items.map((item) => {
         const isOpen = open.has(item.id)
         const safeId = encodeURIComponent(item.id)
@@ -62,33 +78,37 @@ export const Accordion = forwardRef<HTMLDivElement, AccordionProps>(function Acc
         const panelId = `${accordionId}-panel-${safeId}`
         return (
           <div key={item.id} className={itemClassName}>
-            <button
-              type="button"
-              id={triggerId}
-              aria-expanded={isOpen}
-              aria-controls={panelId}
-              disabled={item.disabled || disabled}
-              onClick={() => toggle(item.id)}
-              className={cn(
-                "flex items-center justify-between w-full text-left gap-3 transition-colors",
-                accordionSizes[size].trigger,
-                "text-foreground hover:text-foreground",
-                focusRingStyles,
-                (item.disabled || disabled) && "opacity-40 cursor-not-allowed",
-                triggerClassName,
-              )}
-            >
-              <span className="flex-1 min-w-0">{item.trigger}</span>
-              <motion.span
-                animate={{ rotate: isOpen ? 180 : 0 }}
-                transition={{ duration: 0.2 }}
-                className="shrink-0 text-muted-foreground"
+            <h3 className="m-0 flex">
+              <button
+                type="button"
+                id={triggerId}
+                data-accordion-trigger
+                aria-expanded={isOpen}
+                aria-controls={panelId}
+                disabled={item.disabled || disabled}
+                onClick={() => toggle(item.id)}
+                onKeyDown={handleTriggerKeyDown}
+                className={cn(
+                  "flex items-center justify-between w-full text-left gap-3 transition-colors",
+                  accordionSizes[size].trigger,
+                  "text-foreground hover:text-foreground",
+                  focusRingStyles,
+                  (item.disabled || disabled) && "opacity-40 cursor-not-allowed",
+                  triggerClassName,
+                )}
               >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="m6 9 6 6 6-6" />
-                </svg>
-              </motion.span>
-            </button>
+                <span className="flex-1 min-w-0">{item.trigger}</span>
+                <motion.span
+                  animate={{ rotate: isOpen ? 180 : 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="shrink-0 text-muted-foreground"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="m6 9 6 6 6-6" />
+                  </svg>
+                </motion.span>
+              </button>
+            </h3>
             <AnimatePresence initial={false}>
               {isOpen && (
                 <motion.div

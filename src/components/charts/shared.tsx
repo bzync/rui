@@ -57,14 +57,22 @@ export function visibleLabelAt(n: number, max: number) {
 
 export function ChartTooltip({ tooltip }: { tooltip: TooltipState | null }) {
   if (!tooltip || typeof document === "undefined") return null
+  const nearTop = tooltip.y < 40
+  const maxLeft = typeof window !== "undefined" ? Math.max(8, window.innerWidth - 180) : Infinity
+  const left = Math.min(Math.max(8, tooltip.x + 12), maxLeft)
+  const top = nearTop ? tooltip.y + 12 : tooltip.y - 10
   return (
     <ThemePortal>
-    <div
-      className="pointer-events-none fixed z-(--z-tooltip) px-3 py-2 rounded-[var(--radius-md)] border border-border bg-surface-raised shadow-floating text-sm text-foreground whitespace-nowrap"
-      style={{ left: tooltip.x + 14, top: tooltip.y - 10 }}
-    >
-      {tooltip.content}
-    </div>
+      <div
+        className="pointer-events-none fixed z-(--z-tooltip) rounded-[var(--radius-md)] border border-tooltip-border bg-tooltip px-2.5 py-1.5 text-xs text-tooltip-foreground shadow-lg whitespace-nowrap [&_.text-muted-foreground]:text-tooltip-foreground/75 [&_.text-foreground]:text-tooltip-foreground"
+        style={{
+          left,
+          top,
+          transform: nearTop ? "translateY(0)" : "translateY(-100%)",
+        }}
+      >
+        {tooltip.content}
+      </div>
     </ThemePortal>
   )
 }

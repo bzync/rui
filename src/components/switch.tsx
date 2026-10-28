@@ -1,8 +1,10 @@
 "use client"
 
 import { cn } from "@/lib/cn"
+import { fieldDescriptionStyles, fieldErrorStyles, peerFocusRingStyles } from "@/lib/component-styles"
 import {
   InputHTMLAttributes,
+  ReactNode,
   forwardRef,
   useEffect,
   useId,
@@ -11,10 +13,13 @@ import {
 
 export interface SwitchProps
   extends Omit<InputHTMLAttributes<HTMLInputElement>, "size" | "type"> {
-  label?: string
-  description?: string
+  label?: ReactNode
+  description?: ReactNode
+  hint?: ReactNode
+  error?: string
   size?: "sm" | "md"
   onCheckedChange?: (checked: boolean) => void
+  onValueChange?: (checked: boolean) => void
 }
 
 const track = {
@@ -28,11 +33,14 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(
       className,
       label,
       description,
+      hint,
+      error,
       size = "md",
       checked,
       defaultChecked,
       onChange,
       onCheckedChange,
+      onValueChange,
       disabled,
       id,
       ...props
@@ -48,13 +56,24 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(
     }, [checked])
 
     const uid = useId()
-    const switchId = id ?? uid
+    const inputId = id ?? uid
+    const labelId = `${inputId}-label`
+    const helperText = description ?? hint
+    const errorId = `${inputId}-error`
+    const hintId = `${inputId}-hint`
+    const describedBy = [
+      props["aria-describedby"],
+      error ? errorId : undefined,
+      helperText ? hintId : undefined,
+    ]
+      .filter(Boolean)
+      .join(" ") || undefined
     const dims = track[size]
     const thumbX = isChecked ? dims.w - dims.thumb - dims.gap : dims.gap
 
     return (
       <label
-        htmlFor={switchId}
+        htmlFor={inputId}
         className={cn(
           "flex items-start gap-3 cursor-pointer",
           disabled && "cursor-not-allowed opacity-50",
@@ -63,9 +82,14 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(
       >
         <div className="relative mt-0.5 shrink-0" style={{ width: dims.w, height: dims.h }}>
           <input
+            {...props}
             ref={ref}
             type="checkbox"
-            id={switchId}
+            role="switch"
+            id={inputId}
+            aria-labelledby={props["aria-labelledby"] ?? (!props["aria-label"] && label ? labelId : undefined)}
+            aria-invalid={Boolean(error) || props["aria-invalid"]}
+            aria-describedby={describedBy}
             className="peer absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0 disabled:cursor-not-allowed"
             checked={isChecked}
             disabled={disabled}
@@ -73,12 +97,13 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(
               if (checked === undefined) setIsChecked(e.target.checked)
               onChange?.(e)
               onCheckedChange?.(e.target.checked)
+              onValueChange?.(e.target.checked)
             }}
-            {...props}
           />
           <div
             className={cn(
-              "rounded-full w-full h-full border transition-all duration-200 peer-focus-visible:ring-[3px] peer-focus-visible:ring-focus-ring/35 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-bg",
+              "rounded-full w-full h-full border transition-all duration-200",
+              peerFocusRingStyles,
               isChecked
                 ? "bg-primary border-primary"
                 : "bg-muted border-border-strong",
@@ -98,13 +123,16 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(
             }}
           />
         </div>
-        {(label || description) && (
-          <div className="min-w-0">
+        {(label || helperText || error) && (
+          <div className="min-w-0 flex flex-col gap-0.5">
             {label && (
-              <p className="text-sm font-medium text-foreground">{label}</p>
+              <p id={labelId} className="text-sm font-medium text-foreground">{label}</p>
             )}
-            {description && (
-              <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>
+            {helperText && (
+              <span id={hintId} className={fieldDescriptionStyles}>{helperText}</span>
+            )}
+            {error && (
+              <span id={errorId} role="alert" className={fieldErrorStyles}>{error}</span>
             )}
           </div>
         )}

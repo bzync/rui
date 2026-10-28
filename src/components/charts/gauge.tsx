@@ -31,6 +31,7 @@ export interface GaugeProps extends Omit<HTMLAttributes<HTMLDivElement>, "childr
   formatValue?: (value: number) => string
   /** Small text under the value, e.g. a target. */
   caption?: ReactNode
+  ariaLabel?: string
 }
 
 const toneColor: Record<GaugeTone, string> = {
@@ -71,6 +72,7 @@ export const Gauge = forwardRef<HTMLDivElement, GaugeProps>(function Gauge({
   valueLabel,
   formatValue = (v) => `${Math.round(v)}`,
   caption,
+  ariaLabel,
   className,
   ...props
 }, ref) {
@@ -94,7 +96,7 @@ export const Gauge = forwardRef<HTMLDivElement, GaugeProps>(function Gauge({
     <div
       ref={ref}
       role="meter"
-      aria-label={label}
+      aria-label={ariaLabel ?? label}
       aria-valuemin={min}
       aria-valuemax={max}
       aria-valuenow={clamped}

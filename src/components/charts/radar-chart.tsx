@@ -1,7 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/cn"
-import { useState, forwardRef } from "react"
+import { type HTMLAttributes, useState, forwardRef } from "react"
 import { type TooltipState, ChartTooltip, CHART_SERIES } from "./shared"
 
 export interface RadarSeries {
@@ -10,12 +10,13 @@ export interface RadarSeries {
   data: number[]
 }
 
-export interface RadarChartProps {
+export interface RadarChartProps extends HTMLAttributes<HTMLDivElement> {
   axes: string[]
   series: RadarSeries[]
   size?: number
   gridLines?: number
   className?: string
+  ariaLabel?: string
 }
 
 const RADAR_COLORS = CHART_SERIES
@@ -26,6 +27,8 @@ export const RadarChart = forwardRef<HTMLDivElement, RadarChartProps>(function R
   size = 240,
   gridLines = 4,
   className,
+  ariaLabel,
+  ...props
 }, ref) {
   const [tooltip, setTooltip] = useState<TooltipState | null>(null)
 
@@ -49,9 +52,11 @@ export const RadarChart = forwardRef<HTMLDivElement, RadarChartProps>(function R
       return `${i === 0 ? "M" : "L"}${x},${y}`
     }).join(" ") + "Z"
 
+  const svgLabel = ariaLabel ?? props["aria-label"] ?? "Radar chart"
+
   return (
-    <div ref={ref} className={cn("inline-flex flex-col items-center gap-4", className)}>
-      <svg viewBox="0 0 100 100" style={{ width: size, height: size }} className="text-foreground">
+    <div ref={ref} className={cn("inline-flex flex-col items-center gap-4", className)} {...props}>
+      <svg role="img" aria-label={svgLabel} viewBox="0 0 100 100" style={{ width: size, height: size }} className="text-foreground">
         {Array.from({ length: gridLines }).map((_, gi) => {
           const r = R * ((gi + 1) / gridLines)
           const pts = Array.from({ length: n }, (_, i) => point(r, i))
@@ -71,21 +76,38 @@ export const RadarChart = forwardRef<HTMLDivElement, RadarChartProps>(function R
               />
               {s.data.map((v, i) => {
                 const { x, y } = point((v / maxVal) * R, i)
+                const content = (
+                  <span>
+                    <span className="text-tooltip-foreground/75 mr-2">{axes[i]}</span>
+                    <span className="font-semibold" style={{ color: c }}>{v}</span>
+                  </span>
+                )
                 return (
-                  <circle key={i} cx={x} cy={y} r="1.5"
+                  <circle
+                    key={i}
+                    cx={x}
+                    cy={y}
+                    r="1.5"
+                    tabIndex={0}
+                    aria-label={`${s.label} ${axes[i]}: ${v}`}
+                    className="outline-none focus-visible:opacity-85"
                     style={{ fill: c, fillOpacity: 0.9, cursor: "pointer" }}
                     onMouseMove={(e) =>
                       setTooltip({
                         x: e.clientX, y: e.clientY,
-                        content: (
-                          <span>
-                            <span className="text-muted-foreground mr-2">{axes[i]}</span>
-                            <span className="font-semibold" style={{ color: c }}>{v}</span>
-                          </span>
-                        ),
+                        content,
                       })
                     }
                     onMouseLeave={() => setTooltip(null)}
+                    onFocus={(e) => {
+                      const rect = e.currentTarget.getBoundingClientRect()
+                      setTooltip({
+                        x: rect.left + rect.width / 2,
+                        y: rect.top,
+                        content,
+                      })
+                    }}
+                    onBlur={() => setTooltip(null)}
                   />
                 )
               })}

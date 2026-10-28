@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/cn"
 import { motion } from "@/lib/motion-components"
-import { useState, useId, forwardRef } from "react"
+import { type HTMLAttributes, useState, useId, forwardRef } from "react"
 import { type TooltipState, ChartTooltip, visibleLabelAt, CHART_SERIES } from "./shared"
 
 export interface MultiLineSeries {
@@ -11,7 +11,7 @@ export interface MultiLineSeries {
   data: number[]
 }
 
-export interface MultiLineChartProps {
+export interface MultiLineChartProps extends HTMLAttributes<HTMLDivElement> {
   labels: string[]
   series: MultiLineSeries[]
   height?: number
@@ -22,6 +22,7 @@ export interface MultiLineChartProps {
   formatValue?: (v: number) => string
   /** Max number of x-axis labels to show before thinning them out evenly. Default 8. */
   maxLabels?: number
+  ariaLabel?: string
 }
 
 const DEFAULT_COLORS = CHART_SERIES
@@ -36,6 +37,9 @@ export const MultiLineChart = forwardRef<HTMLDivElement, MultiLineChartProps>(fu
   className,
   formatValue = String,
   maxLabels = 8,
+  ariaLabel,
+  style,
+  ...props
 }, ref) {
   const [tooltip, setTooltip] = useState<TooltipState | null>(null)
   const uid = useId().replace(/:/g, "")
@@ -65,9 +69,17 @@ export const MultiLineChart = forwardRef<HTMLDivElement, MultiLineChartProps>(fu
     return d
   }
 
+  const svgLabel = ariaLabel ?? props["aria-label"] ?? "Multi-line chart"
+
   return (
-    <div ref={ref} className={cn("relative w-full select-none", className)} style={{ height }}>
-      <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full overflow-visible text-foreground">
+    <div ref={ref} className={cn("relative w-full select-none", className)} style={{ height, ...style }} {...props}>
+      <svg
+        role="img"
+        aria-label={svgLabel}
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+        className="absolute inset-0 w-full h-full overflow-visible text-foreground"
+      >
         <defs>
           {series.map((s, i) => {
             const c = s.color ?? DEFAULT_COLORS[i % DEFAULT_COLORS.length]
@@ -109,38 +121,52 @@ export const MultiLineChart = forwardRef<HTMLDivElement, MultiLineChartProps>(fu
                   style={{ stroke: c, pointerEvents: "none" }}
                 />
               )}
-              {dots && points.map((p, pi) => (
-                <g key={pi}>
-                  <motion.circle
-                    cx={p.x}
-                    cy={p.y}
-                    r="1.2"
-                    style={{ fill: c, pointerEvents: "none" }}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.7 + si * 0.1 + pi * 0.02 }}
-                  />
-                  <circle
-                    cx={p.x}
-                    cy={p.y}
-                    r="5"
-                    fill="transparent"
-                    className="cursor-pointer"
-                    onMouseMove={(e) =>
-                      setTooltip({
-                        x: e.clientX, y: e.clientY,
-                        content: (
-                          <span>
-                            <span className="text-muted-foreground mr-2">{labels[pi]} · {s.label}</span>
-                            <span className="font-semibold" style={{ color: c }}>{formatValue(s.data[pi])}</span>
-                          </span>
-                        ),
-                      })
-                    }
-                    onMouseLeave={() => setTooltip(null)}
-                  />
-                </g>
-              ))}
+              {dots && points.map((p, pi) => {
+                const content = (
+                  <span>
+                    <span className="text-tooltip-foreground/75 mr-2">{labels[pi]} · {s.label}</span>
+                    <span className="font-semibold" style={{ color: c }}>{formatValue(s.data[pi])}</span>
+                  </span>
+                )
+                return (
+                  <g key={pi}>
+                    <motion.circle
+                      cx={p.x}
+                      cy={p.y}
+                      r="1.2"
+                      style={{ fill: c, pointerEvents: "none" }}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.7 + si * 0.1 + pi * 0.02 }}
+                    />
+                    <circle
+                      cx={p.x}
+                      cy={p.y}
+                      r="5"
+                      fill="transparent"
+                      tabIndex={0}
+                      aria-label={`${labels[pi]} ${s.label}: ${formatValue(s.data[pi])}`}
+                      className="cursor-pointer outline-none focus-visible:opacity-85"
+                      onMouseMove={(e) =>
+                        setTooltip({
+                          x: e.clientX, y: e.clientY,
+                          content,
+                        })
+                      }
+                      onMouseLeave={() => setTooltip(null)}
+                      onFocus={(e) => {
+                        const rect = e.currentTarget.getBoundingClientRect()
+                        setTooltip({
+                          x: rect.left + rect.width / 2,
+                          y: rect.top,
+                          content,
+                        })
+                      }}
+                      onBlur={() => setTooltip(null)}
+                    />
+                  </g>
+                )
+              })}
             </g>
           )
         })}

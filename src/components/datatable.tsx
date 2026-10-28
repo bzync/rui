@@ -6,6 +6,7 @@ import { useControllableState } from "@/hooks/use-controllable-state"
 import { useIsomorphicLayoutEffect } from "@/hooks/use-isomorphic-layout-effect"
 import {
   type CSSProperties,
+  type HTMLAttributes,
   type KeyboardEvent as ReactKeyboardEvent,
   type PointerEvent as ReactPointerEvent,
   type ReactElement,
@@ -22,9 +23,18 @@ import { PaginationFooter } from "./datatable/pagination-footer"
 import { RowsDropdown } from "./datatable/rows-dropdown"
 import { SkeletonRow } from "./datatable/skeleton-row"
 import { SortIcon } from "./datatable/sort-icon"
-import type { ColumnDef, DataTableProps, DataTableSort, SortDir } from "./datatable/types"
+import type {
+  ColumnDef,
+  DataTableProps as BaseDataTableProps,
+  DataTableSort,
+  DataTableVirtualization,
+  SortDir,
+} from "./datatable/types"
 
-export type { SortDir, ColumnDef, DataTableProps, DataTableSort, DataTableVirtualization } from "./datatable/types"
+export type { SortDir, ColumnDef, DataTableSort, DataTableVirtualization }
+
+export type DataTableProps<T extends { id: string | number }> = BaseDataTableProps<T> &
+  Omit<HTMLAttributes<HTMLDivElement>, keyof BaseDataTableProps<T> | "onChange">
 
 const alignClass = { left: "text-left", center: "text-center", right: "text-right" } as const
 const SELECT_KEY = "__select"
@@ -88,6 +98,7 @@ function DataTableInner<T extends { id: string | number }>({
   manual = false,
   rowCount,
   virtualized,
+  ...props
 }: DataTableProps<T>, ref: Ref<HTMLDivElement>) {
   const paginate = pageSizeOptions !== false && !virtualized
   const [sort, setSort] = useControllableState<DataTableSort>({ value: controlledSort, defaultValue: NO_SORT, onChange: onSortChange })
@@ -239,9 +250,13 @@ function DataTableInner<T extends { id: string | number }>({
     const onUp = () => {
       handle.removeEventListener("pointermove", onMove)
       handle.removeEventListener("pointerup", onUp)
+      handle.removeEventListener("pointercancel", onUp)
+      document.removeEventListener("pointercancel", onUp)
     }
     handle.addEventListener("pointermove", onMove)
     handle.addEventListener("pointerup", onUp)
+    handle.addEventListener("pointercancel", onUp)
+    document.addEventListener("pointercancel", onUp)
   }
 
   const resizeWithKeys = (event: ReactKeyboardEvent<HTMLSpanElement>, col: ColumnDef<T>) => {
@@ -265,7 +280,7 @@ function DataTableInner<T extends { id: string | number }>({
 
   if (unstyled) {
     return (
-      <div ref={ref} className={cn("w-full", className)}>
+      <div ref={ref} className={cn("w-full", className)} {...props}>
         {searchable && <input aria-label={searchPlaceholder} value={query} onChange={(e) => setQuery(e.target.value)} placeholder={searchPlaceholder} />}
         <table aria-label={ariaLabel} className={tableClassName}><tbody>{rows.map(r => <tr key={r.id} onClick={onRowClick ? () => onRowClick(r) : undefined}>{visibleColumns.map(c => <td key={c.key}>{c.cell(r)}</td>)}</tr>)}</tbody></table>
       </div>
@@ -324,7 +339,7 @@ function DataTableInner<T extends { id: string | number }>({
   )
 
   return (
-    <div ref={ref} className={cn("w-full min-w-0 max-w-full flex flex-col gap-3", className)}>
+    <div ref={ref} className={cn("w-full min-w-0 max-w-full flex flex-col gap-3", className)} {...props}>
       {toolbar}
       {bulkActions && selectedRows.length > 0 && (
         <div role="region" aria-label="Bulk actions" className="flex flex-wrap items-center gap-2 rounded-[var(--radius-lg)] border border-accent-500/25 bg-accent-500/8 px-3 py-2 text-sm">
@@ -372,7 +387,7 @@ function DataTableInner<T extends { id: string | number }>({
                     style={{ width: widths[col.key] ?? col.width, ...offsets[col.key] }}
                     className={cn("relative px-4 py-2.5 text-[11px] font-semibold text-muted-foreground group-data-[density=compact]/table:px-3 group-data-[density=compact]/table:py-2", alignClass[col.align ?? "left"], pinnedClass(col.key, true), col.headerClassName)}
                   >
-                    {col.sortable ? <button type="button" className="inline-flex items-center gap-1 rounded-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-focus-ring/35" onClick={() => handleSort(col.key)}>{col.header}<SortIcon dir={sort.key === col.key ? sort.dir : null} /></button> : col.header}
+                    {col.sortable ? <button type="button" className={cn("inline-flex items-center gap-1 rounded-sm transition-colors hover:text-foreground", focusRingStyles)} onClick={() => handleSort(col.key)}>{col.header}<SortIcon dir={sort.key === col.key ? sort.dir : null} /></button> : col.header}
                     {resizableColumns && (
                       <span
                         role="separator"
@@ -446,3 +461,4 @@ function DataTableInner<T extends { id: string | number }>({
 export const DataTable = forwardRef(DataTableInner) as <T extends { id: string | number }>(
   props: DataTableProps<T> & { ref?: Ref<HTMLDivElement> },
 ) => ReactElement
+;(DataTable as { displayName?: string }).displayName = "DataTable"

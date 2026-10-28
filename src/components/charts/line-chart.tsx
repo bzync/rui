@@ -2,10 +2,10 @@
 
 import { cn } from "@/lib/cn"
 import { motion } from "@/lib/motion-components"
-import { useState, useId, forwardRef } from "react"
+import { type HTMLAttributes, useState, useId, forwardRef } from "react"
 import { type ChartDataPoint, type TooltipState, ChartTooltip, visibleLabelAt } from "./shared"
 
-export interface LineChartProps {
+export interface LineChartProps extends HTMLAttributes<HTMLDivElement> {
   data: ChartDataPoint[]
   height?: number
   color?: string
@@ -18,6 +18,7 @@ export interface LineChartProps {
   showXLabels?: boolean
   /** Max number of x-axis labels to show before thinning them out evenly. Default 8. */
   maxLabels?: number
+  ariaLabel?: string
 }
 
 export const LineChart = forwardRef<HTMLDivElement, LineChartProps>(function LineChart({
@@ -32,6 +33,9 @@ export const LineChart = forwardRef<HTMLDivElement, LineChartProps>(function Lin
   smooth = true,
   showXLabels = true,
   maxLabels = 8,
+  ariaLabel,
+  style,
+  ...props
 }, ref) {
   const [tooltip, setTooltip] = useState<TooltipState | null>(null)
   const uid = useId().replace(/:/g, "")
@@ -68,10 +72,13 @@ export const LineChart = forwardRef<HTMLDivElement, LineChartProps>(function Lin
     ? `${linePath} L${pts[pts.length - 1].x},92 L${pts[0].x},92 Z`
     : ""
   const isVisibleLabel = visibleLabelAt(n, maxLabels)
+  const svgLabel = ariaLabel ?? props["aria-label"] ?? "Line chart"
 
   return (
-    <div ref={ref} className={cn("relative w-full select-none", className)} style={{ height }}>
+    <div ref={ref} className={cn("relative w-full select-none", className)} style={{ height, ...style }} {...props}>
       <svg
+        role="img"
+        aria-label={svgLabel}
         viewBox="0 0 100 100"
         preserveAspectRatio="none"
         className="absolute inset-0 w-full h-full overflow-visible text-foreground"
@@ -112,39 +119,53 @@ export const LineChart = forwardRef<HTMLDivElement, LineChartProps>(function Lin
         )}
 
         {/* Dots */}
-        {dots && pts.map((p, i) => (
-          <g key={i}>
-            <motion.circle
-              cx={p.x}
-              cy={p.y}
-              r="1.2"
-              style={{ fill: color, pointerEvents: "none" }}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.6 + i * 0.03, duration: 0.2 }}
-            />
-            <circle
-              cx={p.x}
-              cy={p.y}
-              r="5"
-              fill="transparent"
-              className="cursor-pointer"
-              onMouseMove={(e) =>
-                setTooltip({
-                  x: e.clientX,
-                  y: e.clientY,
-                  content: (
-                    <span>
-                      <span className="text-muted-foreground mr-2">{p.d.label}</span>
-                      <span className="font-semibold text-foreground">{formatValue(p.d.value)}</span>
-                    </span>
-                  ),
-                })
-              }
-              onMouseLeave={() => setTooltip(null)}
-            />
-          </g>
-        ))}
+        {dots && pts.map((p, i) => {
+          const content = (
+            <span>
+              <span className="text-tooltip-foreground/75 mr-2">{p.d.label}</span>
+              <span className="font-semibold text-tooltip-foreground">{formatValue(p.d.value)}</span>
+            </span>
+          )
+          return (
+            <g key={i}>
+              <motion.circle
+                cx={p.x}
+                cy={p.y}
+                r="1.2"
+                style={{ fill: color, pointerEvents: "none" }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.6 + i * 0.03, duration: 0.2 }}
+              />
+              <circle
+                cx={p.x}
+                cy={p.y}
+                r="5"
+                fill="transparent"
+                tabIndex={0}
+                aria-label={`${p.d.label}: ${formatValue(p.d.value)}`}
+                className="cursor-pointer outline-none focus-visible:opacity-85"
+                onMouseMove={(e) =>
+                  setTooltip({
+                    x: e.clientX,
+                    y: e.clientY,
+                    content,
+                  })
+                }
+                onMouseLeave={() => setTooltip(null)}
+                onFocus={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect()
+                  setTooltip({
+                    x: rect.left + rect.width / 2,
+                    y: rect.top,
+                    content,
+                  })
+                }}
+                onBlur={() => setTooltip(null)}
+              />
+            </g>
+          )
+        })}
       </svg>
 
       {/* X-axis labels — absolutely positioned at each data-point's x%, thinned to maxLabels so they never overlap */}

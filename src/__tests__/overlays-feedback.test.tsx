@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event"
 import { hydrateRoot } from "react-dom/client"
 import { renderToString } from "react-dom/server"
 import { describe, expect, it, vi } from "vitest"
-import { CommandPalette, CommandProvider, ConfirmDialog, ContextMenu, Menubar, CopyButton, DatePicker, DateTimePicker, Drawer, DropdownMenu, HoverCard, InfoButton, Modal, NotificationCenter, Popover, PopoverContent, Select, Sheet, SnackbarProvider, ThemeProvider, TimePicker, Tooltip, Tour, useSnackbar } from "@/index"
+import { Button, CommandPalette, CommandProvider, ConfirmDialog, ContextMenu, Menubar, CopyButton, DatePicker, DateTimePicker, Drawer, DropdownMenu, HoverCard, InfoButton, Modal, NotificationCenter, Popover, PopoverContent, Select, Sheet, SnackbarProvider, ThemeProvider, TimePicker, Tooltip, Tour, useSnackbar } from "@/index"
 import { useState } from "react"
 
 describe("overlay and feedback components", () => {
@@ -467,6 +467,22 @@ describe("NotificationCenter", () => {
     expect(onItemsChange).toHaveBeenCalledWith(
       sampleNotifications.map((n) => ({ ...n, read: true })),
     )
+  })
+
+  it("clones a custom Button trigger without nesting button inside button", async () => {
+    const user = userEvent.setup()
+    const { container } = render(
+      <ThemeProvider defaultTheme="light" storageKey={false}>
+        <NotificationCenter
+          defaultItems={sampleNotifications}
+          trigger={<Button variant="secondary" size="sm">Inbox (2)</Button>}
+        />
+      </ThemeProvider>,
+    )
+    expect(container.querySelector("button button")).toBeNull()
+    const trigger = screen.getByRole("button", { name: /Notifications \(2 unread\)/i })
+    await user.click(trigger)
+    expect(screen.getByRole("dialog", { name: "Notifications" })).toBeInTheDocument()
   })
 })
 

@@ -1,11 +1,11 @@
 "use client"
 
 import { cn } from "@/lib/cn"
-import { type KeyboardEvent, type MouseEvent, forwardRef, useId, useRef, useState } from "react"
+import { type HTMLAttributes, type KeyboardEvent, type MouseEvent, forwardRef, useId, useRef, useState } from "react"
 import { ChartTooltip, type TooltipState, visibleLabelAt } from "./shared"
 import { ChartDataTable, ChartLegend, type ChartSeries, TooltipRows, niceTicks, seriesColor } from "./axis"
 
-export interface AreaChartProps {
+export interface AreaChartProps extends HTMLAttributes<HTMLElement> {
   labels: string[]
   series: ChartSeries[]
   /** Stacks series on top of each other (part-to-whole over time). */
@@ -56,6 +56,7 @@ export const AreaChart = forwardRef<HTMLDivElement, AreaChartProps>(function Are
   ariaLabel = "Area chart",
   showLegend = true,
   className,
+  ...props
 }, ref) {
   const [active, setActive] = useState<number | null>(null)
   const [tooltip, setTooltip] = useState<TooltipState | null>(null)
@@ -107,7 +108,7 @@ export const AreaChart = forwardRef<HTMLDivElement, AreaChartProps>(function Are
   }
 
   return (
-    <figure ref={ref} className={cn("grid w-full gap-3", className)}>
+    <figure ref={ref} className={cn("grid w-full gap-3", className)} {...props}>
       {showLegend && <ChartLegend series={series} />}
       <div className="flex w-full select-none" style={{ height }}>
         {/* Y axis */}

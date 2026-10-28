@@ -65,6 +65,7 @@ export interface AutocompletePropsSingle<V = string> extends AutocompletePropsBa
   /** Initially selected value when uncontrolled. */
   defaultValue?: V | null
   onSelect?: (option: AutocompleteOption<V>) => void
+  onValueChange?: (value: V) => void
   onDeselect?: never
 }
 
@@ -76,6 +77,10 @@ export interface AutocompletePropsMulti<V = string> extends AutocompletePropsBas
   defaultValue?: V[]
   onSelect?: (option: AutocompleteOption<V>, allSelected: AutocompleteOption<V>[]) => void
   onDeselect?: (option: AutocompleteOption<V>, allSelected: AutocompleteOption<V>[]) => void
+  onValueChange?: (value: V[]) => void
 }
+
+export type AutocompleteSingleProps<V = string> = AutocompletePropsSingle<V>
+export type AutocompleteMultiProps<V = string> = AutocompletePropsMulti<V>
 
 export type AutocompleteProps<V = string> = AutocompletePropsSingle<V> | AutocompletePropsMulti<V>

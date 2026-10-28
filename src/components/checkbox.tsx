@@ -1,18 +1,21 @@
 "use client"
 
 import { cn } from "@/lib/cn"
-import { fieldDescriptionStyles, fieldErrorStyles } from "@/lib/component-styles"
+import { fieldDescriptionStyles, fieldErrorStyles, peerFocusRingStyles } from "@/lib/component-styles"
 import { AnimatePresence } from "framer-motion"
 import { motion } from "@/lib/motion-components"
-import { InputHTMLAttributes, forwardRef, useEffect, useId, useRef, useState } from "react"
+import { InputHTMLAttributes, ReactNode, forwardRef, useEffect, useId, useRef, useState } from "react"
 
 export interface CheckboxProps
   extends Omit<InputHTMLAttributes<HTMLInputElement>, "type" | "size"> {
-  label?: string
-  description?: string
+  label?: ReactNode
+  description?: ReactNode
+  hint?: ReactNode
   size?: "sm" | "md" | "lg"
   indeterminate?: boolean
   error?: string
+  onCheckedChange?: (checked: boolean) => void
+  onValueChange?: (checked: boolean) => void
 }
 
 const sizes = {
@@ -27,11 +30,14 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
       className,
       label,
       description,
+      hint,
       size = "md",
       checked,
       defaultChecked,
       indeterminate = false,
       onChange,
+      onCheckedChange,
+      onValueChange,
       disabled,
       error,
       id,
@@ -50,6 +56,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
     const uid = useId()
     const checkboxId = id ?? uid
     const messageId = `${checkboxId}-message`
+    const helperText = description ?? hint
     const inputRef = useRef<HTMLInputElement | null>(null)
     const s = sizes[size]
     const isActive = isChecked || indeterminate
@@ -78,19 +85,22 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
               id={checkboxId}
               className="peer absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0 disabled:cursor-not-allowed"
               aria-invalid={error ? true : undefined}
-              aria-describedby={error || description ? messageId : undefined}
+              aria-describedby={error || helperText ? messageId : undefined}
               aria-checked={indeterminate ? "mixed" : isChecked}
               checked={isChecked}
               disabled={disabled}
               onChange={(e) => {
                 if (checked === undefined) setIsChecked(e.target.checked)
                 onChange?.(e)
+                onCheckedChange?.(e.target.checked)
+                onValueChange?.(e.target.checked)
               }}
               {...props}
             />
             <div
               className={cn(
-                "w-full h-full border-2 flex items-center justify-center transition-colors duration-[120ms] peer-focus-visible:ring-[3px] peer-focus-visible:ring-focus-ring/35 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-bg",
+                "w-full h-full border-2 flex items-center justify-center transition-colors duration-[120ms]",
+                peerFocusRingStyles,
                 s.box,
                 isActive
                   ? "bg-primary border-primary"
@@ -142,15 +152,15 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
             </div>
           </div>
 
-          {(label || description) && (
+          {(label || helperText) && (
             <div className="min-w-0">
               {label && (
                 <p className={cn("font-medium text-foreground leading-snug", s.label)}>
                   {label}
                 </p>
               )}
-              {description && (
-                <p id={!error ? messageId : undefined} className={cn("mt-0.5 text-muted-foreground", s.desc)}>{description}</p>
+              {helperText && (
+                <p id={!error ? messageId : undefined} className={cn("mt-0.5 text-muted-foreground", s.desc)}>{helperText}</p>
               )}
             </div>
           )}

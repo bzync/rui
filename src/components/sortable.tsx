@@ -2,8 +2,21 @@
 
 import { cn } from "@/lib/cn"
 import { focusRingStyles } from "@/lib/component-styles"
+import { mergeRefs } from "@/lib/merge-refs"
 import { useEventCallback } from "@/hooks/use-event-callback"
-import { type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent, type ReactNode, useEffect, useId, useRef, useState } from "react"
+import {
+  type ForwardedRef,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type PointerEvent as ReactPointerEvent,
+  type ReactElement,
+  type ReactNode,
+  type Ref,
+  forwardRef,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+} from "react"
 
 /* ------------------------------------------------------------------ */
 /* Shared drag engine                                                  */
@@ -259,20 +272,23 @@ export interface SortableListProps<T extends SortableItem> {
  * with the arrow keys and press Space again to drop (Escape cancels). Every
  * step is announced to screen readers.
  */
-export function SortableList<T extends SortableItem>({
-  items,
-  onReorder,
-  renderItem,
-  getLabel = (item) => item.id,
-  orientation = "vertical",
-  dragFromItem = false,
-  ariaLabel = "Sortable list",
-  className,
-  itemClassName,
-  handleClassName,
-  instructions = INSTRUCTIONS,
-  messages,
-}: SortableListProps<T>) {
+function SortableListInner<T extends SortableItem>(
+  {
+    items,
+    onReorder,
+    renderItem,
+    getLabel = (item) => item.id,
+    orientation = "vertical",
+    dragFromItem = false,
+    ariaLabel = "Sortable list",
+    className,
+    itemClassName,
+    handleClassName,
+    instructions = INSTRUCTIONS,
+    messages,
+  }: SortableListProps<T>,
+  ref: ForwardedRef<HTMLUListElement>,
+) {
   const instructionsId = useId()
   const engine = useSortableGroups<T>({
     groups: [{ id: "list", items }],
@@ -287,7 +303,7 @@ export function SortableList<T extends SortableItem>({
   return (
     <div className={cn("w-full", className)}>
       <ul
-        ref={(node) => { engine.rootRef.current = node }}
+        ref={mergeRefs((node: HTMLUListElement | null) => { engine.rootRef.current = node }, ref)}
         aria-label={ariaLabel}
         data-sortable-group="0"
         className={cn("flex gap-2", orientation === "vertical" ? "flex-col" : "flex-row flex-wrap")}
@@ -318,6 +334,11 @@ export function SortableList<T extends SortableItem>({
     </div>
   )
 }
+
+export const SortableList = forwardRef(SortableListInner) as (<T extends SortableItem>(
+  props: SortableListProps<T> & { ref?: Ref<HTMLUListElement> },
+) => ReactElement | null) & { displayName?: string }
+SortableList.displayName = "SortableList"
 
 /* ------------------------------------------------------------------ */
 /* Kanban                                                              */
@@ -354,20 +375,23 @@ export interface KanbanProps<T extends SortableItem> {
  * move between columns, then Space to drop. Columns scroll horizontally on
  * small screens.
  */
-export function Kanban<T extends SortableItem>({
-  columns,
-  onChange,
-  renderCard,
-  getLabel = (item) => item.id,
-  renderColumnFooter,
-  emptyLabel = "Drop cards here",
-  ariaLabel = "Board",
-  className,
-  columnClassName,
-  cardClassName,
-  instructions = INSTRUCTIONS.replace("use the arrow keys to move", "use Up and Down to reorder, Left and Right to change column"),
-  messages,
-}: KanbanProps<T>) {
+function KanbanInner<T extends SortableItem>(
+  {
+    columns,
+    onChange,
+    renderCard,
+    getLabel = (item) => item.id,
+    renderColumnFooter,
+    emptyLabel = "Drop cards here",
+    ariaLabel = "Board",
+    className,
+    columnClassName,
+    cardClassName,
+    instructions = INSTRUCTIONS.replace("use the arrow keys to move", "use Up and Down to reorder, Left and Right to change column"),
+    messages,
+  }: KanbanProps<T>,
+  ref: ForwardedRef<HTMLDivElement>,
+) {
   const instructionsId = useId()
   const engine = useSortableGroups<T>({
     groups: columns.map((column) => ({ id: column.id, items: column.items })),
@@ -382,7 +406,7 @@ export function Kanban<T extends SortableItem>({
   })
 
   return (
-    <div className={cn("w-full", className)}>
+    <div ref={ref} className={cn("w-full", className)}>
       <div
         ref={(node) => { engine.rootRef.current = node }}
         role="group"
@@ -438,3 +462,8 @@ export function Kanban<T extends SortableItem>({
     </div>
   )
 }
+
+export const Kanban = forwardRef(KanbanInner) as (<T extends SortableItem>(
+  props: KanbanProps<T> & { ref?: Ref<HTMLDivElement> },
+) => ReactElement | null) & { displayName?: string }
+Kanban.displayName = "Kanban"

@@ -1,13 +1,15 @@
 "use client"
 
 import { cn } from "@/lib/cn"
+import { mergeRefs } from "@/lib/merge-refs"
 import { AnimatePresence } from "framer-motion"
 import { motion } from "@/lib/motion-components"
 import { transitions } from "@/lib/motion"
-import { ReactNode, useEffect, useRef } from "react"
+import { ReactNode, forwardRef, useEffect, useRef } from "react"
 import { ThemePortal } from "@/components/theme-provider"
 import { useEventCallback } from "@/hooks/use-event-callback"
 import { useFocusTrap, useRestoreFocus } from "@/hooks/use-focus-trap"
+import { useHydrated } from "@/hooks/use-hydrated"
 
 /**
  * Overlay — shared primitive for Modal / Drawer / Dialog / Popover / Dropdown.
@@ -25,7 +27,8 @@ import { useFocusTrap, useRestoreFocus } from "@/hooks/use-focus-trap"
 
 export interface OverlayProps {
   open: boolean
-  onClose: () => void
+  onClose?: () => void
+  onOpenChange?: (open: boolean) => void
   children: ReactNode
   /** Render without portal (for non-portaled overlays like inline Modal) */
   portal?: boolean
@@ -52,9 +55,10 @@ export interface OverlayProps {
   role?: "dialog" | "menu" | "listbox"
 }
 
-export function Overlay({
+export const Overlay = forwardRef<HTMLDivElement, OverlayProps>(function Overlay({
   open,
   onClose,
+  onOpenChange,
   children,
   portal = true,
   disableScrollLock = false,
@@ -69,14 +73,18 @@ export function Overlay({
   ariaLabelledby,
   ariaDescribedby,
   role = "dialog",
-}: OverlayProps) {
+}, ref) {
   const panelRef = useRef<HTMLDivElement>(null)
-  const onCloseStable = useEventCallback(onClose)
+  const handleClose = useEventCallback(() => {
+    onClose?.()
+    onOpenChange?.(false)
+  })
   const { restoreNow } = useRestoreFocus(open)
+  const hydrated = useHydrated()
 
   useFocusTrap(panelRef, {
-    active: open,
-    onEscape: onCloseStable,
+    active: open && (hydrated || !portal),
+    onEscape: handleClose,
     closeOnEscape,
     disableScrollLock,
   })
@@ -86,12 +94,12 @@ export function Overlay({
     if (!open || !closeOnOutsideClick) return
     function onMouseDown(e: MouseEvent) {
       if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
-        onCloseStable()
+        handleClose()
       }
     }
     document.addEventListener("mousedown", onMouseDown)
     return () => document.removeEventListener("mousedown", onMouseDown)
-  }, [open, closeOnOutsideClick, onCloseStable])
+  }, [open, closeOnOutsideClick, handleClose])
 
   const content = (
     <AnimatePresence onExitComplete={restoreNow}>
@@ -103,11 +111,11 @@ export function Overlay({
             exit={{ opacity: 0 }}
             transition={transitions.overlay}
             className={cn("absolute inset-0 bg-overlay", backdropClassName)}
-            onClick={closeOnOutsideClick ? onCloseStable : undefined}
+            onClick={closeOnOutsideClick ? handleClose : undefined}
             aria-hidden="true"
           />
           <motion.div
-            ref={panelRef}
+            ref={mergeRefs(panelRef, ref)}
             initial={{ opacity: 0, scale: 0.98, y: 8 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.98, y: 8 }}
@@ -133,7 +141,8 @@ export function Overlay({
 
   if (!portal || typeof document === "undefined") return content
   return <ThemePortal>{content}</ThemePortal>
-}
+})
+Overlay.displayName = "Overlay"
 
 /**
  * OverlayBackdrop — standalone backdrop for Drawer/Popover that need custom positioning.

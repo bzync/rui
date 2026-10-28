@@ -15,6 +15,7 @@ export const SelectMulti = forwardRef<HTMLButtonElement, SelectPropsMulti>(
       value: controlledValue,
       defaultValue,
       onChange,
+      onValueChange,
       placeholder = "Select…",
       label,
       hint,
@@ -47,38 +48,45 @@ export const SelectMulti = forwardRef<HTMLButtonElement, SelectPropsMulti>(
     const [localValues, setLocalValues] = useState<string[]>(defaultValue ?? [])
     const [activeIdx, setActiveIdx] = useState(-1)
     const containerRef = useRef<HTMLDivElement>(null)
+    const triggerRef = useRef<HTMLElement | null>(null)
     const listRef = useRef<HTMLUListElement>(null)
 
     const values = controlledValue !== undefined ? controlledValue : localValues
     const flat = flatten(options)
     const selectedOpts = flat.filter((o) => values.includes(o.value))
 
+    function commit(next: string[]) {
+      if (controlledValue === undefined) setLocalValues(next)
+      onChange?.(next)
+      onValueChange?.(next)
+    }
+
     function toggle(opt: SelectOption) {
       const next = values.includes(opt.value)
         ? values.filter((v) => v !== opt.value)
         : [...values, opt.value]
-      if (controlledValue === undefined) setLocalValues(next)
-      onChange?.(next)
+      commit(next)
     }
 
     function removeAt(value: string, e: React.MouseEvent) {
       e.stopPropagation()
       const next = values.filter((v) => v !== value)
-      if (controlledValue === undefined) setLocalValues(next)
-      onChange?.(next)
+      commit(next)
     }
 
     function clearAll(e: React.MouseEvent) {
       e.stopPropagation()
-      if (controlledValue === undefined) setLocalValues([])
-      onChange?.([])
+      commit([])
     }
 
-    function handleKeyDown(e: KeyboardEvent<HTMLButtonElement>) {
+    function handleKeyDown(e: KeyboardEvent<HTMLElement>) {
+      if (disabled) return
       if (!open) {
         if (["Enter", " ", "ArrowDown", "ArrowUp"].includes(e.key)) {
           e.preventDefault()
           setOpen(true)
+          const enabled = flat.filter((o) => o.flatIdx >= 0)
+          setActiveIdx(e.key === "ArrowUp" ? (enabled[enabled.length - 1]?.flatIdx ?? -1) : (enabled[0]?.flatIdx ?? -1))
         }
         return
       }
@@ -137,17 +145,28 @@ export const SelectMulti = forwardRef<HTMLButtonElement, SelectPropsMulti>(
     return (
       <div ref={containerRef} className={cn("relative", fieldRootStyles, wrapperClassName, className)}>
         {label && (
-          <label htmlFor={triggerId} className={cn(fieldLabelStyles, labelClassName)}>
+          <label
+            id={`${triggerId}-label`}
+            htmlFor={triggerId}
+            onClick={() => { if (!disabled) triggerRef.current?.focus() }}
+            className={cn(fieldLabelStyles, labelClassName)}
+          >
             {label}
             {required && <><span aria-hidden="true" className="ml-1 text-destructive">*</span><span className="sr-only"> (required)</span></>}
           </label>
         )}
 
-        <button
-          ref={ref}
+        <div
+          ref={(node) => {
+            triggerRef.current = node
+            if (typeof ref === "function") ref(node as unknown as HTMLButtonElement)
+            else if (ref) (ref as React.MutableRefObject<HTMLButtonElement | null>).current = node as unknown as HTMLButtonElement
+          }}
           id={triggerId}
-          type="button"
           role="combobox"
+          tabIndex={disabled ? -1 : 0}
+          aria-disabled={disabled || undefined}
+          aria-labelledby={label ? `${triggerId}-label` : undefined}
           aria-haspopup="listbox"
           aria-expanded={open}
           aria-controls={listId}
@@ -155,7 +174,6 @@ export const SelectMulti = forwardRef<HTMLButtonElement, SelectPropsMulti>(
           aria-invalid={error ? true : undefined}
           aria-required={required || undefined}
           aria-describedby={error || hint ? messageId : undefined}
-          disabled={disabled}
           onKeyDown={handleKeyDown}
           onClick={() => {
             if (disabled) return
@@ -165,7 +183,6 @@ export const SelectMulti = forwardRef<HTMLButtonElement, SelectPropsMulti>(
             "flex w-full flex-wrap items-center gap-1.5 rounded-[var(--radius-md)] px-2.5 py-1 text-left outline-none",
             controlSizeStyles[size].minHeight,
             controlBaseStyles,
-            "focus:border-accent-500 focus:ring-[3px] focus:ring-focus-ring/25",
             error && controlInvalidStyles,
             disabled && "opacity-50 cursor-not-allowed",
             triggerClassName,
@@ -183,37 +200,37 @@ export const SelectMulti = forwardRef<HTMLButtonElement, SelectPropsMulti>(
                   <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", colorDot[opt.color])} />
                 )}
                 <span className="truncate">{opt.label}</span>
-                <span
-                  role="button"
-                  tabIndex={-1}
+                <button
+                  type="button"
+                  disabled={disabled}
                   onMouseDown={(e) => e.stopPropagation()}
                   onClick={(e) => removeAt(opt.value, e)}
                   className="shrink-0 text-muted-foreground hover:text-foreground transition-colors cursor-pointer ml-0.5"
                   aria-label={`Remove ${opt.label}`}
                 >
                   <XIcon />
-                </span>
+                </button>
               </span>
             ))
           )}
           <span className="ml-auto flex items-center gap-1.5 shrink-0 pl-1">
             {clearable && values.length > 0 && !disabled && (
-              <span
-                role="button"
-                tabIndex={-1}
+              <button
+                type="button"
+                disabled={disabled}
                 onClick={clearAll}
                 className="text-muted-foreground hover:text-foreground transition-colors"
                 aria-label="Clear all"
               >
                 <XIcon />
-              </span>
+              </button>
             )}
             {values.length > 0 && (
               <span className="text-[10px] font-medium text-muted-foreground tabular-nums">{values.length}</span>
             )}
             <ChevronIcon open={open} />
           </span>
-        </button>
+        </div>
 
         <SelectFormFields name={name} form={form} values={values} required={required} disabled={disabled} onReset={() => setLocalValues(defaultValue ?? [])} />
 

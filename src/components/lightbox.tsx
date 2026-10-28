@@ -3,11 +3,12 @@
 import { cn } from "@/lib/cn"
 import { focusRingStyles } from "@/lib/component-styles"
 import { CloseIcon } from "@/lib/icons"
+import { mergeRefs } from "@/lib/merge-refs"
 import { useControllableState } from "@/hooks/use-controllable-state"
 import { useEventCallback } from "@/hooks/use-event-callback"
 import { useFocusTrap, useRestoreFocus } from "@/hooks/use-focus-trap"
 import { useHydrated } from "@/hooks/use-hydrated"
-import { type PointerEvent as ReactPointerEvent, type ReactNode, useEffect, useId, useRef, useState } from "react"
+import { type PointerEvent as ReactPointerEvent, type ReactNode, forwardRef, useEffect, useId, useRef, useState } from "react"
 import { ThemePortal } from "./theme-provider"
 
 export interface LightboxImage {
@@ -21,7 +22,8 @@ export interface LightboxImage {
 export interface LightboxProps {
   images: LightboxImage[]
   open: boolean
-  onOpenChange: (open: boolean) => void
+  onOpenChange?: (open: boolean) => void
+  onClose?: () => void
   /** Controlled index of the shown image. */
   index?: number
   defaultIndex?: number
@@ -46,10 +48,11 @@ const controlStyles = cn("grid size-10 place-items-center rounded-full bg-black/
  * It is a modal dialog: focus is trapped inside and restored on close, the
  * page cannot scroll, and the position ("3 of 8") is announced.
  */
-export function Lightbox({
+export const Lightbox = forwardRef<HTMLDivElement, LightboxProps>(function Lightbox({
   images,
   open,
   onOpenChange,
+  onClose,
   index: indexProp,
   defaultIndex = 0,
   onIndexChange,
@@ -57,13 +60,16 @@ export function Lightbox({
   thumbnails,
   ariaLabel = "Image viewer",
   className,
-}: LightboxProps) {
+}, ref) {
   const [index, setIndex] = useControllableState({ value: indexProp, defaultValue: defaultIndex, onChange: onIndexChange })
   const [shown, setShown] = useState(false)
   const [dragX, setDragX] = useState(0)
   const panelRef = useRef<HTMLDivElement>(null)
   const hydrated = useHydrated()
-  const close = useEventCallback(() => onOpenChange(false))
+  const close = useEventCallback(() => {
+    onClose?.()
+    onOpenChange?.(false)
+  })
   const statusId = useId()
   useRestoreFocus(open)
   useFocusTrap(panelRef, { active: open && hydrated, onEscape: close })
@@ -73,11 +79,12 @@ export function Lightbox({
   const image = images[safe]
   const hasPrev = loop ? count > 1 : safe > 0
   const hasNext = loop ? count > 1 : safe < count - 1
-  const go = (delta: number) => {
+  const go = useEventCallback((delta: number) => {
     if (!count) return
     const next = loop ? (safe + delta + count) % count : Math.min(Math.max(safe + delta, 0), count - 1)
     if (next !== safe) setIndex(next)
-  }
+  })
+  const setIndexStable = useEventCallback((next: number) => setIndex(next))
 
   useEffect(() => {
     if (!open) { setShown(false); return }
@@ -99,12 +106,12 @@ export function Lightbox({
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "ArrowLeft") { event.preventDefault(); go(-1) }
       else if (event.key === "ArrowRight") { event.preventDefault(); go(1) }
-      else if (event.key === "Home") { event.preventDefault(); setIndex(0) }
-      else if (event.key === "End") { event.preventDefault(); setIndex(count - 1) }
+      else if (event.key === "Home") { event.preventDefault(); setIndexStable(0) }
+      else if (event.key === "End") { event.preventDefault(); setIndexStable(count - 1) }
     }
     document.addEventListener("keydown", onKey)
     return () => document.removeEventListener("keydown", onKey)
-  })
+  }, [open, go, setIndexStable, count])
 
   const onPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (event.pointerType === "mouse" || count < 2) return
@@ -131,7 +138,7 @@ export function Lightbox({
   return (
     <ThemePortal>
       <div
-        ref={panelRef}
+        ref={mergeRefs(panelRef, ref)}
         role="dialog"
         aria-modal="true"
         aria-label={ariaLabel}
@@ -202,4 +209,5 @@ export function Lightbox({
       </div>
     </ThemePortal>
   )
-}
+})
+Lightbox.displayName = "Lightbox"

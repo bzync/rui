@@ -5,7 +5,7 @@ import { focusRingStyles } from "@/lib/component-styles"
 import { AnimatePresence } from "framer-motion"
 import { motion } from "@/lib/motion-components"
 import { useControllableState } from "@/hooks/use-controllable-state"
-import { ReactNode } from "react"
+import { HTMLAttributes, ReactNode, Ref, forwardRef } from "react"
 
 export interface TreeNode {
   id: string
@@ -15,7 +15,7 @@ export interface TreeNode {
   disabled?: boolean
 }
 
-export interface TreeProps {
+export interface TreeProps extends Omit<HTMLAttributes<HTMLUListElement>, "onSelect"> {
   nodes: TreeNode[]
   /** Controlled selected node ID. */
   selected?: string
@@ -37,7 +37,7 @@ export interface TreeProps {
 
 const NO_IDS: string[] = []
 
-export function Tree({
+export const Tree = forwardRef<HTMLUListElement, TreeProps>(function Tree({
   nodes,
   selected: controlledSelected,
   defaultSelected,
@@ -48,7 +48,8 @@ export function Tree({
   disabled = false,
   className,
   nodeClassName,
-}: TreeProps) {
+  ...props
+}, ref) {
   const markDisabled = (list: TreeNode[]): TreeNode[] => list.map((node) => ({ ...node, disabled: true, children: node.children && markDisabled(node.children) }))
   const treeNodes = disabled ? markDisabled(nodes) : nodes
   const [selected, setSelected] = useControllableState<string | undefined>({ value: controlledSelected, defaultValue: defaultSelected, onChange: (id) => id && onSelect?.(id) })
@@ -70,11 +71,22 @@ export function Tree({
   const tabStop = selected && visible.includes(selected) ? selected : visible[0]
 
   return (
-    <div role="tree" className={cn("select-none", className)}>
-      <TreeNodes nodes={treeNodes} expanded={expanded} selected={selected} tabStop={tabStop} onToggle={toggle} onSelect={setSelected} nodeClassName={nodeClassName} depth={0} />
-    </div>
+    <TreeNodes
+      treeRef={ref}
+      nodes={treeNodes}
+      expanded={expanded}
+      selected={selected}
+      tabStop={tabStop}
+      onToggle={toggle}
+      onSelect={setSelected}
+      nodeClassName={nodeClassName}
+      depth={0}
+      className={cn("select-none", className)}
+      treeProps={props}
+    />
   )
-}
+})
+Tree.displayName = "Tree"
 
 /** Moves focus between the visible tree items (WAI-ARIA tree pattern). */
 function focusSibling(from: HTMLElement, key: "next" | "prev" | "first" | "last") {
@@ -85,6 +97,7 @@ function focusSibling(from: HTMLElement, key: "next" | "prev" | "first" | "last"
 }
 
 function TreeNodes({
+  treeRef,
   nodes,
   expanded,
   selected,
@@ -93,7 +106,10 @@ function TreeNodes({
   onToggle,
   onSelect,
   depth,
+  className,
+  treeProps,
 }: {
+  treeRef?: Ref<HTMLUListElement>
   nodes: TreeNode[]
   expanded: Set<string>
   selected?: string
@@ -102,9 +118,17 @@ function TreeNodes({
   onToggle: (id: string) => void
   onSelect?: (id: string) => void
   depth: number
+  className?: string
+  treeProps?: HTMLAttributes<HTMLUListElement>
 }) {
   return (
-    <ul role={depth === 0 ? "none" : "group"}>
+    <ul
+      ref={depth === 0 ? treeRef : undefined}
+      role={depth === 0 ? "tree" : "group"}
+      aria-label={depth === 0 ? (treeProps?.["aria-label"] ?? (treeProps?.["aria-labelledby"] ? undefined : "Tree")) : undefined}
+      className={depth === 0 ? className : undefined}
+      {...(depth === 0 ? treeProps : undefined)}
+    >
       {nodes.map((node) => {
         const isExpanded = expanded.has(node.id)
         const isSelected = selected === node.id
@@ -138,7 +162,17 @@ function TreeNodes({
                     if (hasChildren && !isExpanded) onToggle(node.id)
                     else if (hasChildren) focusSibling(event.currentTarget, "next")
                   },
-                  ArrowLeft: () => { if (hasChildren && isExpanded) onToggle(node.id) },
+                  ArrowLeft: () => {
+                    if (hasChildren && isExpanded) {
+                      onToggle(node.id)
+                    } else {
+                      const parentItem = (
+                        event.currentTarget.parentElement?.closest('[role="treeitem"]') ??
+                        event.currentTarget.closest('[role="group"]')?.closest("li")?.querySelector('[role="treeitem"]')
+                      ) as HTMLElement | null
+                      parentItem?.focus()
+                    }
+                  },
                 }
                 const action = keys[event.key]
                 if (!action) return

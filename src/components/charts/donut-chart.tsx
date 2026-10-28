@@ -2,15 +2,16 @@
 
 import { cn } from "@/lib/cn"
 import { motion } from "@/lib/motion-components"
-import { type ReactNode, useState, forwardRef } from "react"
+import { type HTMLAttributes, type ReactNode, useState, forwardRef } from "react"
 import { type ChartDataPoint, type TooltipState, ChartTooltip, CHART_SERIES } from "./shared"
 
-export interface DonutChartProps {
+export interface DonutChartProps extends HTMLAttributes<HTMLDivElement> {
   data: ChartDataPoint[]
   size?: number
   thickness?: number
   centerLabel?: ReactNode
   className?: string
+  ariaLabel?: string
 }
 
 const DONUT_COLORS = CHART_SERIES
@@ -21,6 +22,8 @@ export const DonutChart = forwardRef<HTMLDivElement, DonutChartProps>(function D
   thickness = 28,
   centerLabel,
   className,
+  ariaLabel,
+  ...props
 }, ref) {
   const [tooltip, setTooltip] = useState<TooltipState | null>(null)
   const [hovered, setHovered] = useState<number | null>(null)
@@ -44,10 +47,12 @@ export const DonutChart = forwardRef<HTMLDivElement, DonutChartProps>(function D
     }
   })
 
+  const svgLabel = ariaLabel ?? props["aria-label"] ?? "Donut chart"
+
   return (
-    <div ref={ref} className={cn("inline-flex flex-col items-center gap-5", className)}>
+    <div ref={ref} className={cn("inline-flex flex-col items-center gap-5", className)} {...props}>
       <div className="relative" style={{ width: size, height: size }}>
-        <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90 text-foreground">
+        <svg role="img" aria-label={svgLabel} viewBox="0 0 100 100" className="w-full h-full -rotate-90 text-foreground">
           {/* Track */}
           <circle
             cx={cx} cy={cy} r={r}
@@ -61,6 +66,14 @@ export const DonutChart = forwardRef<HTMLDivElement, DonutChartProps>(function D
             const dash = seg.frac * circumference
             const gap = circumference - dash
             const rotateOffset = seg.offset * 360
+            const pctText = `${(seg.frac * 100).toFixed(1)}%`
+            const content = (
+              <span>
+                <span className="text-tooltip-foreground/75 mr-2">{seg.label}</span>
+                <span className="font-semibold text-tooltip-foreground">{seg.value}</span>
+                <span className="text-tooltip-foreground/75 ml-1.5">({pctText})</span>
+              </span>
+            )
 
             return (
               <motion.circle
@@ -72,6 +85,8 @@ export const DonutChart = forwardRef<HTMLDivElement, DonutChartProps>(function D
                 strokeDasharray={`${dash} ${gap}`}
                 strokeDashoffset={0}
                 transform={`rotate(${rotateOffset} ${cx} ${cy})`}
+                tabIndex={0}
+                aria-label={`${seg.label}: ${seg.value} (${pctText})`}
                 style={{
                   strokeOpacity: hovered !== null && hovered !== i ? 0.35 : 0.9,
                   transition: "stroke-opacity 0.15s, stroke-width 0.15s",
@@ -84,17 +99,21 @@ export const DonutChart = forwardRef<HTMLDivElement, DonutChartProps>(function D
                   setHovered(i)
                   setTooltip({
                     x: e.clientX, y: e.clientY,
-                    content: (
-                      <span>
-                        <span className="text-muted-foreground mr-2">{seg.label}</span>
-                        <span className="font-semibold text-foreground">{seg.value}</span>
-                        <span className="text-muted-foreground ml-1.5">({(seg.frac * 100).toFixed(1)}%)</span>
-                      </span>
-                    ),
+                    content,
                   })
                 }}
                 onMouseLeave={() => { setHovered(null); setTooltip(null) }}
-                className="cursor-pointer"
+                onFocus={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect()
+                  setHovered(i)
+                  setTooltip({
+                    x: rect.left + rect.width / 2,
+                    y: rect.top,
+                    content,
+                  })
+                }}
+                onBlur={() => { setHovered(null); setTooltip(null) }}
+                className="cursor-pointer outline-none focus-visible:opacity-85"
               />
             )
           })}

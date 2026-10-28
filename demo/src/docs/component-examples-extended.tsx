@@ -2081,6 +2081,7 @@ export default function App() {
     {["design.fig", "budget.xlsx", "notes.md"].map((file) => (
       <ContextMenu
         key={file}
+        asChild
         items={[
           { label: "Share", icon: <Users size={14} /> },
           { label: "Move to…", icon: <Folder size={14} />, disabled: true },
@@ -2846,6 +2847,312 @@ export default function App() {
 }`,
       <DndHandleExample />),
   ],
+
+  "components/pano-tour": () => [
+    ex(
+      "studio",
+      "Resort & Property 360° Tour Management Studio",
+      "Multi-property resort studio with a searchable catalog of Villas, Private Houses, and Event Halls, live hotspot placement (Walk, Note, Media, Link, Button), arrival view camera picker, Copy Tour modal, and full-screen guest preview.",
+      `function PanoTourStudioExample() {
+  const initialTours: Record<string, PanoScene[]> = {
+    hermes: [
+      {
+        id: "hermes-room",
+        name: "Hermes Studio Villa",
+        description: "Air-conditioned studio-type villa sleeping 5 with queen bed, pull-out double, kitchen, and smart TV with Netflix.",
+        image: "/img/resort/360-villas.jpg",
+        preview: "/img/resort/360-villas-preview.jpg",
+        yaw: 0,
+        pitch: 0,
+        fov: 75,
+        hotspots: [
+          { id: "hm-1", type: "scene", yaw: 28, pitch: -4, target: "hermes-pool", label: "Step out to Poolside", icon: "waves", pulse: true },
+          { id: "hm-2", type: "info", yaw: -75, pitch: 5, label: "Queen bed + pull-out double & extra single bed (sleeps 5)", icon: "bed" },
+          { id: "hm-3", type: "media", yaw: 115, pitch: 8, icon: "image", media: { kind: "image", src: "/img/resort/card-villas.jpg", caption: "Hermes, Athena & Zeus Villa Row" } },
+          { id: "hm-4", type: "action", yaw: -140, pitch: -12, action: "book", label: "Book Hermes Villa · ₱4,500", icon: "calendar" },
+        ],
+      },
+      {
+        id: "hermes-pool",
+        name: "Shared Pool & Grill Station",
+        description: "Swimming pool, kids playground, basketball court, and grill station shared by villa guests.",
+        image: "/img/resort/360-pool.jpg",
+        preview: "/img/resort/360-pool-preview.jpg",
+        yaw: 15,
+        pitch: 0,
+        fov: 75,
+        hotspots: [
+          { id: "hm-5", type: "scene", yaw: -35, pitch: -4, target: "hermes-room", label: "Back to Hermes Villa", icon: "door-open" },
+        ],
+      },
+    ],
+    apollo: [
+      {
+        id: "apollo-house",
+        name: "Apollo Private House & 4ft Pool",
+        description: "Whole private house with its own 4-foot pool, 4 air-conditioned bedrooms (sleeps 13), kitchen, and soundproof videoke room.",
+        image: "/img/resort/360-apollo.jpg",
+        preview: "/img/resort/360-apollo-preview.jpg",
+        yaw: 0,
+        pitch: 0,
+        fov: 75,
+        hotspots: [
+          { id: "ap-1", type: "scene", yaw: 32, pitch: -4, target: "apollo-grounds", label: "Resort Grounds & Parking", icon: "trees" },
+          { id: "ap-2", type: "info", yaw: -70, pitch: 4, label: "4 AC rooms (13 pax) + soundproof videoke room & private 4ft pool", icon: "sparkles" },
+          { id: "ap-3", type: "action", yaw: 130, pitch: -10, action: "book", label: "Book Apollo House · ₱14,500 / 22h", icon: "calendar", pulse: true },
+        ],
+      },
+      {
+        id: "apollo-grounds",
+        name: "Private Carport & Grounds",
+        description: "2 to 3 private carports and direct access to the basketball court and resort grounds.",
+        image: "/img/resort/360-grounds.jpg",
+        preview: "/img/resort/360-grounds-preview.jpg",
+        yaw: 0,
+        pitch: 0,
+        fov: 75,
+        hotspots: [
+          { id: "ap-4", type: "scene", yaw: 0, pitch: -4, target: "apollo-house", label: "Apollo Private House", icon: "door-open" },
+        ],
+      },
+    ],
+    olympus: [
+      {
+        id: "olympus-hall",
+        name: "Olympus Function Hall",
+        description: "Air-conditioned function hall for 60 to 70 seated guests with small lobby, cold kitchen, and wireless mics.",
+        image: "/img/resort/360-olympus.jpg",
+        preview: "/img/resort/360-olympus-preview.jpg",
+        yaw: 0,
+        pitch: 0,
+        fov: 75,
+        hotspots: [
+          { id: "ol-1", type: "scene", yaw: 30, pitch: -4, target: "poseidon-pool", label: "Poseidon’s Realm Pool & Pavilions", icon: "waves", pulse: true },
+          { id: "ol-2", type: "info", yaw: -65, pitch: 6, label: "Includes 100 infinity chairs, 15–20 tables & 2-hr early catering ingress", icon: "utensils" },
+        ],
+      },
+      {
+        id: "poseidon-pool",
+        name: "Poseidon’s Realm & Pavilions",
+        description: "Complimentary access to the main pool and all four pavilions: Poseidon, Hestia, Nemea, and Selene.",
+        image: "/img/resort/360-poseidon.jpg",
+        preview: "/img/resort/360-poseidon-preview.jpg",
+        yaw: 0,
+        pitch: 0,
+        fov: 75,
+        hotspots: [
+          { id: "ol-3", type: "scene", yaw: -30, pitch: -4, target: "olympus-hall", label: "Inside Olympus Hall", icon: "door-open" },
+        ],
+      },
+    ],
+    artemis: [
+      {
+        id: "artemis-main",
+        name: "Artemis Private House",
+        description: "Whole private house with 4 AC rooms, private 4-foot pool, full kitchen, and videoke room.",
+        image: "/img/resort/360-artemis.jpg",
+        preview: "/img/resort/360-artemis-preview.jpg",
+        yaw: 0,
+        pitch: 0,
+        fov: 75,
+        hotspots: [],
+      },
+    ],
+    athena: [],
+    zeus: [],
+  }
+
+  const [toursByPlace, setToursByPlace] = useState<Record<string, PanoScene[]>>(initialTours)
+  const [placeId, setPlaceId] = useState("hermes")
+  const [featuredId, setFeaturedId] = useState<string | number | null>("hermes-room")
+
+  const places: PanoPlaceItem[] = [
+    { id: "hermes", name: "Hermes Villa", category: "Villas", scenesCount: (toursByPlace.hermes ?? []).length },
+    { id: "athena", name: "Athena Villa", category: "Villas", scenesCount: (toursByPlace.athena ?? []).length },
+    { id: "zeus", name: "Zeus Villa (Sleeps 8)", category: "Villas", scenesCount: (toursByPlace.zeus ?? []).length },
+    { id: "apollo", name: "Apollo Private House", category: "Private Houses", scenesCount: (toursByPlace.apollo ?? []).length },
+    { id: "artemis", name: "Artemis Private House", category: "Private Houses", scenesCount: (toursByPlace.artemis ?? []).length },
+    { id: "olympus", name: "Olympus Function Hall", category: "Events & Venues", scenesCount: (toursByPlace.olympus ?? []).length },
+  ]
+
+  const currentScenes = toursByPlace[placeId] ?? []
+
+  return (
+    <div className="w-full min-w-0">
+      <PanoTourEditor
+        places={places}
+        selectedPlaceId={placeId}
+        onSelectPlace={setPlaceId}
+        scenes={currentScenes}
+        onScenesChange={(next) => setToursByPlace((prev) => ({ ...prev, [placeId]: next }))}
+        featuredSceneId={featuredId}
+        onFeaturedSceneChange={setFeaturedId}
+        onCopyTour={(targetIds, mode) => {
+          setToursByPlace((prev) => {
+            const copy = { ...prev }
+            for (const id of targetIds) {
+              const cloned = currentScenes.map((s) => ({ ...s, id: \`\${id}-\${s.id}\` }))
+              copy[id] = mode === "replace" ? cloned : [...(copy[id] ?? []), ...cloned]
+            }
+            return copy
+          })
+        }}
+      />
+    </div>
+  )
+}`,
+      <PanoTourStudioExample />,
+    ),
+    ex(
+      "backdrop",
+      "Resort Hero 360° Backdrop & Property Listing Cards",
+      "Combines an interactive rotating 360° resort hero banner (PanoBackdrop) with property accommodation cards featuring live 360° previews and PanoTourButton triggers.",
+      `function PanoBackdropExample() {
+  const heroScene: PanoScene = {
+    id: "aerial-grounds",
+    name: "Resort Grounds & Pool Deck",
+    description: "Outdoor garden and poolside view of Happy Homes Candelaria in Quezon.",
+    image: "/img/resort/360-grounds.jpg",
+    preview: "/img/resort/360-grounds-preview.jpg",
+    yaw: 0,
+    pitch: -3,
+    fov: 65,
+    hotspots: [
+      { id: "g1", type: "info", yaw: 24, pitch: -6, label: "Ceremony & reception grounds for up to 150 guests", icon: "trees" },
+    ],
+  }
+
+  const properties = [
+    {
+      id: "hermes",
+      name: "Hermes Studio Villa",
+      kind: "Studio Villa · Sleeps 5",
+      price: "₱4,500 / day · ₱9,500 / 22 hrs",
+      photo: "/img/resort/card-villas.jpg",
+      blurb: "Queen bed with pull-out double & single bed, kitchen, heated bath, smart TV with Netflix, and shared pool.",
+      scenes: [
+        {
+          id: "v1",
+          name: "Hermes Studio Villa",
+          description: "Air-conditioned studio villa with kitchen, Netflix TV, and shared pool access.",
+          image: "/img/resort/360-villas.jpg",
+          preview: "/img/resort/360-villas-preview.jpg",
+          yaw: 0,
+          pitch: 0,
+          fov: 75,
+          hotspots: [
+            { id: "vh1", type: "info", yaw: -25, pitch: -6, label: "Queen bed + pull-out double & extra single", icon: "bed" },
+            { id: "vh2", type: "action", yaw: 35, pitch: -12, action: "book", label: "Book Hermes Villa", icon: "calendar" },
+          ],
+        },
+      ] as PanoScene[],
+    },
+    {
+      id: "apollo",
+      name: "Apollo Private House",
+      kind: "Private House · Sleeps 13",
+      price: "₱14,500 / 22 hrs (up to 20 pax)",
+      photo: "/img/resort/card-apollo.jpg",
+      blurb: "Whole house with its own private 4-ft swimming pool, 4 air-conditioned rooms, full kitchen, and soundproof videoke room.",
+      scenes: [
+        {
+          id: "a1",
+          name: "Apollo Private House & Pool",
+          description: "Private house with 4 AC bedrooms, 4-foot pool, and soundproof videoke room.",
+          image: "/img/resort/360-apollo.jpg",
+          preview: "/img/resort/360-apollo-preview.jpg",
+          yaw: 0,
+          pitch: 0,
+          fov: 75,
+          hotspots: [
+            { id: "ah1", type: "info", yaw: -20, pitch: -5, label: "Private 4-ft pool & 2–3 carports", icon: "waves" },
+          ],
+        },
+      ] as PanoScene[],
+    },
+    {
+      id: "olympus",
+      name: "Olympus Function Hall",
+      kind: "Function Hall · 60–70 Seated",
+      price: "₱14,500 Day · ₱15,500 Night",
+      photo: "/img/resort/card-olympus.jpg",
+      blurb: "Air-conditioned event hall with lobby, cold kitchen, 100 infinity chairs, Bluetooth sound system, and all 4 pool pavilions.",
+      scenes: [
+        {
+          id: "o1",
+          name: "Olympus Function Hall",
+          description: "Air-conditioned hall with 100 infinity chairs, tables, and complimentary pool & pavilions.",
+          image: "/img/resort/360-olympus.jpg",
+          preview: "/img/resort/360-olympus-preview.jpg",
+          yaw: 0,
+          pitch: 0,
+          fov: 75,
+          hotspots: [
+            { id: "oh1", type: "info", yaw: 18, pitch: -4, label: "60–70 seated capacity + cold kitchen", icon: "sparkles" },
+          ],
+        },
+      ] as PanoScene[],
+    },
+  ]
+
+  return (
+    <div className="w-full space-y-4">
+      <PanoBackdrop
+        scene={heroScene}
+        title="Happy Homes Candelaria"
+        fallbackPhoto="/img/resort/card-grounds.jpg"
+        triggerLabel="Look around: Resort Grounds, Happy Homes Candelaria"
+        className="h-64 w-full rounded-xl border border-border shadow-sm"
+      >
+        <div className="relative z-10 flex h-full flex-col justify-end bg-gradient-to-t from-black/80 via-black/25 to-transparent p-5 text-white">
+          <p className="text-xs font-semibold tracking-wider text-white/80 uppercase">Candelaria, Quezon · Villas, Private Houses & Event Halls</p>
+          <h4 className="text-xl font-bold">Happy Homes Candelaria Resort</h4>
+        </div>
+      </PanoBackdrop>
+
+      <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-3">
+        {properties.map((p) => (
+          <div key={p.id} className="flex flex-col overflow-hidden rounded-xl border border-border bg-surface shadow-xs">
+            <div className="relative aspect-[16/10] w-full overflow-hidden bg-surface">
+              <PanoViewer
+                scene={{ ...p.scenes[0], hotspots: [] }}
+                autoRotate={1.4}
+                showCompass={false}
+                className="size-full"
+              />
+              <PanoTourButton
+                title={p.name}
+                scenes={p.scenes}
+                variant="chip"
+                className="absolute top-2.5 right-2.5 z-20"
+              />
+            </div>
+            <div className="flex flex-1 flex-col justify-between gap-2 p-3.5">
+              <div className="space-y-1">
+                <span className="text-[11px] font-semibold text-accent-strong uppercase">{p.kind}</span>
+                <h5 className="text-sm font-semibold text-foreground">{p.name}</h5>
+                <p className="line-clamp-2 text-xs text-muted-foreground">{p.blurb}</p>
+              </div>
+              <div className="flex items-center justify-between border-t border-border pt-2.5">
+                <span className="text-xs font-semibold text-foreground">{p.price}</span>
+                <PanoTourButton
+                  title={p.name}
+                  scenes={p.scenes}
+                  variant="link"
+                  label="Virtual tour"
+                  className="text-xs"
+                />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}`,
+      <PanoBackdropExample />,
+    ),
+  ],
 }
 
 function ContextMenuTableExample() {
@@ -2854,7 +3161,7 @@ function ContextMenuTableExample() {
       <R.Table aria-label="Files">
         <R.TableBody>
           {["design.fig", "budget.xlsx", "notes.md"].map((file) => (
-            <R.ContextMenu key={file} items={[{ label: "Share", icon: <Users size={14} /> }, { label: "Move to…", icon: <Folder size={14} />, disabled: true }, { label: "Delete", destructive: true }]}>
+            <R.ContextMenu asChild key={file} items={[{ label: "Share", icon: <Users size={14} /> }, { label: "Move to…", icon: <Folder size={14} />, disabled: true }, { label: "Delete", destructive: true }]}>
               <R.TableRow tabIndex={0}>
                 <R.TableCell>{file}</R.TableCell>
                 <R.TableCell className="text-right text-muted-foreground">Right-click</R.TableCell>
@@ -3119,5 +3426,298 @@ function DndHandleExample() {
         </R.Droppable>
       </div>
     </R.DndContext>
+  )
+}
+
+function PanoTourStudioExample() {
+  const initialTours: Record<string, R.PanoScene[]> = {
+    hermes: [
+      {
+        id: "hermes-room",
+        name: "Hermes Studio Villa",
+        description: "Air-conditioned studio-type villa sleeping 5 with queen bed, pull-out double, kitchen, and smart TV with Netflix.",
+        image: "/img/resort/360-villas.jpg",
+        preview: "/img/resort/360-villas-preview.jpg",
+        yaw: 0,
+        pitch: 0,
+        fov: 75,
+        hotspots: [
+          { id: "hm-1", type: "scene", yaw: 28, pitch: -4, target: "hermes-pool", label: "Step out to Poolside", icon: "waves", pulse: true },
+          { id: "hm-2", type: "info", yaw: -75, pitch: 5, label: "Queen bed + pull-out double & extra single bed (sleeps 5)", icon: "bed" },
+          { id: "hm-3", type: "media", yaw: 115, pitch: 8, icon: "image", media: { kind: "image", src: "/img/resort/card-villas.jpg", caption: "Hermes, Athena & Zeus Villa Row" } },
+          { id: "hm-4", type: "action", yaw: -140, pitch: -12, action: "book", label: "Book Hermes Villa · ₱4,500", icon: "calendar" },
+        ],
+      },
+      {
+        id: "hermes-pool",
+        name: "Shared Pool & Grill Station",
+        description: "Swimming pool, kids playground, basketball court, and grill station shared by villa guests.",
+        image: "/img/resort/360-pool.jpg",
+        preview: "/img/resort/360-pool-preview.jpg",
+        yaw: 15,
+        pitch: 0,
+        fov: 75,
+        hotspots: [
+          { id: "hm-5", type: "scene", yaw: -35, pitch: -4, target: "hermes-room", label: "Back to Hermes Villa", icon: "door-open" },
+        ],
+      },
+    ],
+    apollo: [
+      {
+        id: "apollo-house",
+        name: "Apollo Private House & 4ft Pool",
+        description: "Whole private house with its own 4-foot pool, 4 air-conditioned bedrooms (sleeps 13), kitchen, and soundproof videoke room.",
+        image: "/img/resort/360-apollo.jpg",
+        preview: "/img/resort/360-apollo-preview.jpg",
+        yaw: 0,
+        pitch: 0,
+        fov: 75,
+        hotspots: [
+          { id: "ap-1", type: "scene", yaw: 32, pitch: -4, target: "apollo-grounds", label: "Resort Grounds & Parking", icon: "trees" },
+          { id: "ap-2", type: "info", yaw: -70, pitch: 4, label: "4 AC rooms (13 pax) + soundproof videoke room & private 4ft pool", icon: "sparkles" },
+          { id: "ap-3", type: "action", yaw: 130, pitch: -10, action: "book", label: "Book Apollo House · ₱14,500 / 22h", icon: "calendar", pulse: true },
+        ],
+      },
+      {
+        id: "apollo-grounds",
+        name: "Private Carport & Grounds",
+        description: "2 to 3 private carports and direct access to the basketball court and resort grounds.",
+        image: "/img/resort/360-grounds.jpg",
+        preview: "/img/resort/360-grounds-preview.jpg",
+        yaw: 0,
+        pitch: 0,
+        fov: 75,
+        hotspots: [
+          { id: "ap-4", type: "scene", yaw: 0, pitch: -4, target: "apollo-house", label: "Apollo Private House", icon: "door-open" },
+        ],
+      },
+    ],
+    olympus: [
+      {
+        id: "olympus-hall",
+        name: "Olympus Function Hall",
+        description: "Air-conditioned function hall for 60 to 70 seated guests with small lobby, cold kitchen, and wireless mics.",
+        image: "/img/resort/360-olympus.jpg",
+        preview: "/img/resort/360-olympus-preview.jpg",
+        yaw: 0,
+        pitch: 0,
+        fov: 75,
+        hotspots: [
+          { id: "ol-1", type: "scene", yaw: 30, pitch: -4, target: "poseidon-pool", label: "Poseidon’s Realm Pool & Pavilions", icon: "waves", pulse: true },
+          { id: "ol-2", type: "info", yaw: -65, pitch: 6, label: "Includes 100 infinity chairs, 15–20 tables & 2-hr early catering ingress", icon: "utensils" },
+        ],
+      },
+      {
+        id: "poseidon-pool",
+        name: "Poseidon’s Realm & Pavilions",
+        description: "Complimentary access to the main pool and all four pavilions: Poseidon, Hestia, Nemea, and Selene.",
+        image: "/img/resort/360-poseidon.jpg",
+        preview: "/img/resort/360-poseidon-preview.jpg",
+        yaw: 0,
+        pitch: 0,
+        fov: 75,
+        hotspots: [
+          { id: "ol-3", type: "scene", yaw: -30, pitch: -4, target: "olympus-hall", label: "Inside Olympus Hall", icon: "door-open" },
+        ],
+      },
+    ],
+    artemis: [
+      {
+        id: "artemis-main",
+        name: "Artemis Private House",
+        description: "Whole private house with 4 AC rooms, private 4-foot pool, full kitchen, and videoke room.",
+        image: "/img/resort/360-artemis.jpg",
+        preview: "/img/resort/360-artemis-preview.jpg",
+        yaw: 0,
+        pitch: 0,
+        fov: 75,
+        hotspots: [],
+      },
+    ],
+    athena: [],
+    zeus: [],
+  }
+
+  const [toursByPlace, setToursByPlace] = useState<Record<string, R.PanoScene[]>>(initialTours)
+  const [placeId, setPlaceId] = useState("hermes")
+  const [featuredId, setFeaturedId] = useState<string | number | null>("hermes-room")
+
+  const places: R.PanoPlaceItem[] = [
+    { id: "hermes", name: "Hermes Villa", category: "Villas", scenesCount: (toursByPlace.hermes ?? []).length },
+    { id: "athena", name: "Athena Villa", category: "Villas", scenesCount: (toursByPlace.athena ?? []).length },
+    { id: "zeus", name: "Zeus Villa (Sleeps 8)", category: "Villas", scenesCount: (toursByPlace.zeus ?? []).length },
+    { id: "apollo", name: "Apollo Private House", category: "Private Houses", scenesCount: (toursByPlace.apollo ?? []).length },
+    { id: "artemis", name: "Artemis Private House", category: "Private Houses", scenesCount: (toursByPlace.artemis ?? []).length },
+    { id: "olympus", name: "Olympus Function Hall", category: "Events & Venues", scenesCount: (toursByPlace.olympus ?? []).length },
+  ]
+
+  const currentScenes = toursByPlace[placeId] ?? []
+
+  return (
+    <div className="w-full min-w-0">
+      <R.PanoTourEditor
+        places={places}
+        selectedPlaceId={placeId}
+        onSelectPlace={setPlaceId}
+        scenes={currentScenes}
+        onScenesChange={(next) => setToursByPlace((prev) => ({ ...prev, [placeId]: next }))}
+        featuredSceneId={featuredId}
+        onFeaturedSceneChange={setFeaturedId}
+        onCopyTour={(targetIds, mode) => {
+          setToursByPlace((prev) => {
+            const copy = { ...prev }
+            for (const id of targetIds) {
+              const cloned = currentScenes.map((s) => ({ ...s, id: `${id}-${s.id}` }))
+              copy[id] = mode === "replace" ? cloned : [...(copy[id] ?? []), ...cloned]
+            }
+            return copy
+          })
+        }}
+      />
+    </div>
+  )
+}
+
+function PanoBackdropExample() {
+  const heroScene: R.PanoScene = {
+    id: "aerial-grounds",
+    name: "Resort Grounds & Pool Deck",
+    description: "Outdoor garden and poolside view of Happy Homes Candelaria in Quezon.",
+    image: "/img/resort/360-grounds.jpg",
+    preview: "/img/resort/360-grounds-preview.jpg",
+    yaw: 0,
+    pitch: -3,
+    fov: 65,
+    hotspots: [
+      { id: "g1", type: "info", yaw: 24, pitch: -6, label: "Ceremony & reception grounds for up to 150 guests", icon: "trees" },
+    ],
+  }
+
+  const properties = [
+    {
+      id: "hermes",
+      name: "Hermes Studio Villa",
+      kind: "Studio Villa · Sleeps 5",
+      price: "₱4,500 / day · ₱9,500 / 22 hrs",
+      photo: "/img/resort/card-villas.jpg",
+      blurb: "Queen bed with pull-out double & single bed, kitchen, heated bath, smart TV with Netflix, and shared pool.",
+      scenes: [
+        {
+          id: "v1",
+          name: "Hermes Studio Villa",
+          description: "Air-conditioned studio villa with kitchen, Netflix TV, and shared pool access.",
+          image: "/img/resort/360-villas.jpg",
+          preview: "/img/resort/360-villas-preview.jpg",
+          yaw: 0,
+          pitch: 0,
+          fov: 75,
+          hotspots: [
+            { id: "vh1", type: "info", yaw: -25, pitch: -6, label: "Queen bed + pull-out double & extra single", icon: "bed" },
+            { id: "vh2", type: "action", yaw: 35, pitch: -12, action: "book", label: "Book Hermes Villa", icon: "calendar" },
+          ],
+        },
+      ] as R.PanoScene[],
+    },
+    {
+      id: "apollo",
+      name: "Apollo Private House",
+      kind: "Private House · Sleeps 13",
+      price: "₱14,500 / 22 hrs (up to 20 pax)",
+      photo: "/img/resort/card-apollo.jpg",
+      blurb: "Whole house with its own private 4-ft swimming pool, 4 air-conditioned rooms, full kitchen, and soundproof videoke room.",
+      scenes: [
+        {
+          id: "a1",
+          name: "Apollo Private House & Pool",
+          description: "Private house with 4 AC bedrooms, 4-foot pool, and soundproof videoke room.",
+          image: "/img/resort/360-apollo.jpg",
+          preview: "/img/resort/360-apollo-preview.jpg",
+          yaw: 0,
+          pitch: 0,
+          fov: 75,
+          hotspots: [
+            { id: "ah1", type: "info", yaw: -20, pitch: -5, label: "Private 4-ft pool & 2–3 carports", icon: "waves" },
+          ],
+        },
+      ] as R.PanoScene[],
+    },
+    {
+      id: "olympus",
+      name: "Olympus Function Hall",
+      kind: "Function Hall · 60–70 Seated",
+      price: "₱14,500 Day · ₱15,500 Night",
+      photo: "/img/resort/card-olympus.jpg",
+      blurb: "Air-conditioned event hall with lobby, cold kitchen, 100 infinity chairs, Bluetooth sound system, and all 4 pool pavilions.",
+      scenes: [
+        {
+          id: "o1",
+          name: "Olympus Function Hall",
+          description: "Air-conditioned hall with 100 infinity chairs, tables, and complimentary pool & pavilions.",
+          image: "/img/resort/360-olympus.jpg",
+          preview: "/img/resort/360-olympus-preview.jpg",
+          yaw: 0,
+          pitch: 0,
+          fov: 75,
+          hotspots: [
+            { id: "oh1", type: "info", yaw: 18, pitch: -4, label: "60–70 seated capacity + cold kitchen", icon: "sparkles" },
+          ],
+        },
+      ] as R.PanoScene[],
+    },
+  ]
+
+  return (
+    <div className="w-full space-y-4">
+      <R.PanoBackdrop
+        scene={heroScene}
+        title="Happy Homes Candelaria"
+        fallbackPhoto="/img/resort/card-grounds.jpg"
+        triggerLabel="Look around: Resort Grounds, Happy Homes Candelaria"
+        className="h-64 w-full rounded-xl border border-border shadow-sm"
+      >
+        <div className="relative z-10 flex h-full flex-col justify-end bg-gradient-to-t from-black/80 via-black/25 to-transparent p-5 text-white">
+          <p className="text-xs font-semibold tracking-wider text-white/80 uppercase">Candelaria, Quezon · Villas, Private Houses & Event Halls</p>
+          <h4 className="text-xl font-bold">Happy Homes Candelaria Resort</h4>
+        </div>
+      </R.PanoBackdrop>
+
+      <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-3">
+        {properties.map((p) => (
+          <div key={p.id} className="flex flex-col overflow-hidden rounded-xl border border-border bg-surface shadow-xs">
+            <div className="relative aspect-[16/10] w-full overflow-hidden bg-surface">
+              <R.PanoViewer
+                scene={{ ...p.scenes[0], hotspots: [] }}
+                autoRotate={1.4}
+                showCompass={false}
+                className="size-full"
+              />
+              <R.PanoTourButton
+                title={p.name}
+                scenes={p.scenes}
+                variant="chip"
+                className="absolute top-2.5 right-2.5 z-20"
+              />
+            </div>
+            <div className="flex flex-1 flex-col justify-between gap-2 p-3.5">
+              <div className="space-y-1">
+                <span className="text-[11px] font-semibold text-accent-strong uppercase">{p.kind}</span>
+                <h5 className="text-sm font-semibold text-foreground">{p.name}</h5>
+                <p className="line-clamp-2 text-xs text-muted-foreground">{p.blurb}</p>
+              </div>
+              <div className="flex items-center justify-between border-t border-border pt-2.5">
+                <span className="text-xs font-semibold text-foreground">{p.price}</span>
+                <R.PanoTourButton
+                  title={p.name}
+                  scenes={p.scenes}
+                  variant="link"
+                  label="Virtual tour"
+                  className="text-xs"
+                />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   )
 }

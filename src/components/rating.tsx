@@ -1,7 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/cn"
-import { fieldLabelStyles } from "@/lib/component-styles"
+import { fieldLabelStyles, peerFocusRingStyles } from "@/lib/component-styles"
 import { FieldsetHTMLAttributes, forwardRef, useId, useState } from "react"
 
 export type RatingSize = "sm" | "md" | "lg"
@@ -22,6 +22,7 @@ export interface RatingProps extends Omit<FieldsetHTMLAttributes<HTMLFieldSetEle
   label: string
   value?: number
   defaultValue?: number
+  onChange?: (value: number) => void
   onValueChange?: (value: number) => void
   max?: number
   name?: string
@@ -35,6 +36,7 @@ export const Rating = forwardRef<HTMLFieldSetElement, RatingProps>(({
   label,
   value: controlledValue,
   defaultValue = 0,
+  onChange,
   onValueChange,
   max = 5,
   name: externalName,
@@ -53,9 +55,10 @@ export const Rating = forwardRef<HTMLFieldSetElement, RatingProps>(({
   const [localValue, setLocalValue] = useState(() => normalizeValue(defaultValue))
   const value = normalizeValue(controlledValue ?? localValue)
 
-  function select(next: number) {
+  function commit(next: number) {
     if (disabled || readOnly) return
     if (controlledValue === undefined) setLocalValue(next)
+    onChange?.(next)
     onValueChange?.(next)
   }
 
@@ -90,10 +93,10 @@ export const Rating = forwardRef<HTMLFieldSetElement, RatingProps>(({
                 disabled={disabled}
                 readOnly={readOnly}
                 aria-label={`${itemValue} ${itemValue === 1 ? "star" : "stars"}`}
-                onChange={() => select(itemValue)}
+                onChange={() => commit(itemValue)}
                 className="peer sr-only"
               />
-              <span className="block rounded-sm peer-focus-visible:ring-[3px] peer-focus-visible:ring-focus-ring/35 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-bg">
+              <span className={cn("block rounded-sm", peerFocusRingStyles)}>
                 <svg
                   viewBox="0 0 24 24"
                   aria-hidden="true"

@@ -149,6 +149,32 @@ export const ThemeSwitcher = forwardRef<HTMLDivElement, ThemeSwitcherProps>(func
     context?.setTheme(next)
   }
 
+  const activeOption = options.find((o) => o.value === currentTheme) ?? options[0]
+
+  const handleRadioKeyDown = (e: React.KeyboardEvent<HTMLElement>, index: number) => {
+    let nextIdx: number | null = null
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+      nextIdx = (index + 1) % options.length
+    } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+      nextIdx = (index - 1 + options.length) % options.length
+    } else if (e.key === "Home") {
+      nextIdx = 0
+    } else if (e.key === "End") {
+      nextIdx = options.length - 1
+    } else if (e.key === " " || e.key === "Enter") {
+      e.preventDefault()
+      handleSelect(options[index].value)
+      return
+    }
+    if (nextIdx !== null) {
+      e.preventDefault()
+      handleSelect(options[nextIdx].value)
+      const group = e.currentTarget.closest('[role="radiogroup"]')
+      const radios = group?.querySelectorAll<HTMLElement>('[role="radio"]')
+      radios?.[nextIdx]?.focus()
+    }
+  }
+
   // --- Variant 1: Segmented Pill Track ---
   if (variant === "segmented") {
     return (
@@ -163,7 +189,7 @@ export const ThemeSwitcher = forwardRef<HTMLDivElement, ThemeSwitcherProps>(func
         )}
         {...props}
       >
-        {options.map((opt) => {
+        {options.map((opt, idx) => {
           const isSelected = currentTheme === opt.value
           return (
             <button
@@ -172,7 +198,9 @@ export const ThemeSwitcher = forwardRef<HTMLDivElement, ThemeSwitcherProps>(func
               role="radio"
               aria-checked={isSelected}
               aria-label={opt.label}
+              tabIndex={activeOption.value === opt.value ? 0 : -1}
               onClick={() => handleSelect(opt.value)}
+              onKeyDown={(e) => handleRadioKeyDown(e, idx)}
               className={cn(
                 "inline-flex items-center justify-center rounded-[var(--radius-md)] font-medium transition-[background-color,color,box-shadow]",
                 focusRingStyles,
@@ -269,21 +297,16 @@ export const ThemeSwitcher = forwardRef<HTMLDivElement, ThemeSwitcherProps>(func
         className={cn("grid gap-3 sm:grid-cols-3", className)}
         {...props}
       >
-        {options.map((opt) => {
+        {options.map((opt, idx) => {
           const isSelected = currentTheme === opt.value
           return (
             <div
               key={opt.value}
               role="radio"
               aria-checked={isSelected}
-              tabIndex={0}
+              tabIndex={activeOption.value === opt.value ? 0 : -1}
               onClick={() => handleSelect(opt.value)}
-              onKeyDown={(e) => {
-                if (e.key === " " || e.key === "Enter") {
-                  e.preventDefault()
-                  handleSelect(opt.value)
-                }
-              }}
+              onKeyDown={(e) => handleRadioKeyDown(e, idx)}
               className={cn(
                 "group relative flex cursor-pointer flex-col justify-between rounded-[var(--radius-lg)] border p-3.5 transition-all outline-none",
                 focusRingStyles,
@@ -351,7 +374,6 @@ export const ThemeSwitcher = forwardRef<HTMLDivElement, ThemeSwitcherProps>(func
   }
 
   // --- Variant 5: Icon Button Cycle ---
-  const activeOption = options.find((o) => o.value === currentTheme) ?? options[0]
   const cycleNext = () => {
     const idx = options.findIndex((o) => o.value === currentTheme)
     const nextIdx = (idx + 1) % options.length

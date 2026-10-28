@@ -1,11 +1,11 @@
 "use client"
-import { forwardRef } from "react"
+import { HTMLAttributes, forwardRef } from "react"
 
 import { cn } from "@/lib/cn"
 import { focusRingStyles } from "@/lib/component-styles"
 import { useControllableState } from "@/hooks/use-controllable-state"
 
-export interface PaginationProps {
+export interface PaginationProps extends HTMLAttributes<HTMLElement> {
   /** Controlled one-based page. */
   page?: number
   /** Initial page when uncontrolled. */
@@ -75,6 +75,7 @@ export const Pagination = forwardRef<HTMLElement, PaginationProps>(function Pagi
   className,
   itemClassName,
   activeItemClassName,
+  ...props
 }, ref) {
   const [page, onPageChange] = useControllableState({ value: controlledPage, defaultValue: defaultPage, onChange: onPageChangeProp })
   if (totalPages <= 1) return null
@@ -109,7 +110,7 @@ export const Pagination = forwardRef<HTMLElement, PaginationProps>(function Pagi
   }
 
   return (
-    <nav ref={ref} className={cn("flex flex-wrap items-center gap-1", className)} aria-label="Pagination" aria-disabled={allDisabled || undefined}>
+    <nav ref={ref} className={cn("flex flex-wrap items-center gap-1", className)} aria-label="Pagination" aria-disabled={allDisabled || undefined} {...props}>
       {btn(chevronLeft, page - 1, page <= 1)}
       {pages.map((p, i) =>
         p === "…" ? (

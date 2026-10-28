@@ -10,8 +10,11 @@ import {
   fieldRootStyles,
   focusRingStyles,
 } from "@/lib/component-styles"
+import { useAnchoredPosition } from "@/hooks/use-anchored-position"
+import { useMediaQuery } from "@/hooks/use-media-query"
+import { mergeRefs } from "@/lib/merge-refs"
 import { ThemePortal } from "./theme-provider"
-import { CSSProperties, HTMLAttributes, KeyboardEvent, forwardRef, useEffect, useId, useImperativeHandle, useLayoutEffect, useRef, useState } from "react"
+import { HTMLAttributes, KeyboardEvent, forwardRef, useEffect, useId, useImperativeHandle, useRef, useState } from "react"
 
 export type TimePickerSize = "sm" | "md" | "lg"
 export type TimePickerFormat = "12" | "24"
@@ -162,6 +165,7 @@ export interface TimePickerProps extends Omit<HTMLAttributes<HTMLDivElement>, "d
   error?: string
   value?: string
   defaultValue?: string
+  onChange?: (value: string) => void
   onValueChange?: (value: string) => void
   format?: TimePickerFormat
   minuteStep?: number
@@ -188,6 +192,7 @@ export const TimePicker = forwardRef<HTMLButtonElement, TimePickerProps>(({
   error,
   value: controlledValue,
   defaultValue = "",
+  onChange,
   onValueChange,
   format = "12",
   minuteStep = 5,
@@ -229,8 +234,15 @@ export const TimePicker = forwardRef<HTMLButtonElement, TimePickerProps>(({
   const [localValue, setLocalValue] = useState(() => normalize(defaultValue))
   const value = normalize(controlledValue ?? localValue)
   const [open, setOpen] = useState(false)
-  const [panelPosition, setPanelPosition] = useState<CSSProperties>({ visibility: "hidden" })
   const [draft, setDraft] = useState<TimeParts>(() => alignMinuteStep(parseTime(value) ?? nowParts(normalizedMinuteStep), normalizedMinuteStep, showSeconds))
+  const isPhone = useMediaQuery("(max-width: 639px)")
+  const { setFloating, style } = useAnchoredPosition({
+    open: open && !isPhone,
+    anchorRef: triggerRef,
+    side,
+    align,
+    gap: 6,
+  })
 
   const hours24 = Array.from({ length: 24 }, (_, hour) => ({ value: hour, label: twoDigits(hour) }))
   const hours12 = Array.from({ length: 12 }, (_, index) => ({ value: index + 1, label: twoDigits(index + 1) }))
@@ -251,7 +263,6 @@ export const TimePicker = forwardRef<HTMLButtonElement, TimePickerProps>(({
   function openPicker() {
     if (disabled) return
     setDraft(alignMinuteStep(parseTime(value) ?? nowParts(normalizedMinuteStep), normalizedMinuteStep, showSeconds))
-    setPanelPosition({ visibility: "hidden" })
     setOpen(true)
   }
 
@@ -262,6 +273,7 @@ export const TimePicker = forwardRef<HTMLButtonElement, TimePickerProps>(({
 
   function commit(next: string) {
     if (controlledValue === undefined) setLocalValue(next)
+    onChange?.(next)
     onValueChange?.(next)
     closePicker(true)
   }
@@ -277,55 +289,12 @@ export const TimePicker = forwardRef<HTMLButtonElement, TimePickerProps>(({
     return () => document.removeEventListener("mousedown", onPointerDown)
   }, [open])
 
-  useLayoutEffect(() => {
-    if (!open) return
-
-    const updatePosition = () => {
-      const trigger = triggerRef.current
-      const panel = panelRef.current
-      if (!trigger || !panel) return
-
-      if (window.innerWidth < 640) {
-        setPanelPosition({ insetInline: 8, bottom: 8, top: "auto", width: "auto", visibility: "visible" })
-        return
-      }
-
-      const viewportPadding = 16
-      const gap = 6
-      const triggerRect = trigger.getBoundingClientRect()
-      const panelRect = panel.getBoundingClientRect()
-      const preferredLeft = align === "start" ? triggerRect.left : triggerRect.right - panelRect.width
-      const maximumLeft = Math.max(viewportPadding, window.innerWidth - panelRect.width - viewportPadding)
-      const left = Math.min(Math.max(preferredLeft, viewportPadding), maximumLeft)
-
-      const below = triggerRect.bottom + gap
-      const above = triggerRect.top - panelRect.height - gap
-      const fitsBelow = below + panelRect.height <= window.innerHeight - viewportPadding
-      const fitsAbove = above >= viewportPadding
-      const preferredTop = side === "bottom"
-        ? fitsBelow || !fitsAbove ? below : above
-        : fitsAbove || !fitsBelow ? above : below
-      const maximumTop = Math.max(viewportPadding, window.innerHeight - panelRect.height - viewportPadding)
-      const top = Math.min(Math.max(preferredTop, viewportPadding), maximumTop)
-
-      setPanelPosition({ left, top, visibility: "visible" })
-    }
-
-    updatePosition()
-    window.addEventListener("resize", updatePosition)
-    document.addEventListener("scroll", updatePosition, true)
-    return () => {
-      window.removeEventListener("resize", updatePosition)
-      document.removeEventListener("scroll", updatePosition, true)
-    }
-  }, [align, open, side])
-
   useEffect(() => {
-    if (!open || window.innerWidth >= 640) return
+    if (!open || !isPhone) return
     const previousOverflow = document.body.style.overflow
     document.body.style.overflow = "hidden"
     return () => { document.body.style.overflow = previousOverflow }
-  }, [open])
+  }, [open, isPhone])
 
   useEffect(() => {
     if (!open) return
@@ -405,13 +374,13 @@ export const TimePicker = forwardRef<HTMLButtonElement, TimePickerProps>(({
         <>
         <div aria-hidden="true" className="fixed inset-0 z-(--z-popover) bg-overlay sm:hidden" onMouseDown={() => closePicker(true)} />
         <div
-          ref={panelRef}
+          ref={mergeRefs(panelRef, setFloating)}
           id={panelId}
           role="dialog"
           aria-label={label ? `Choose ${label.toLowerCase()}` : "Choose time"}
           data-side={side}
           data-align={align}
-          style={panelPosition}
+          style={isPhone ? { insetInline: 8, bottom: 8, top: "auto", width: "auto" } : style}
           className={cn(
             "fixed z-(--z-popover) w-[min(22rem,calc(100vw-2rem))] max-h-[calc(100dvh-1rem)] overflow-y-auto rounded-[var(--radius-lg)] border border-border bg-surface-raised p-3 shadow-floating",
             panelClassName,

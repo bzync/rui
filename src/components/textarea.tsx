@@ -20,10 +20,11 @@ export interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElemen
   wrapperClassName?: string
   labelClassName?: string
   messageClassName?: string
+  onValueChange?: (value: string) => void
 }
 
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
-  ({ className, wrapperClassName, labelClassName, messageClassName, label, hint, error, size = "md", id, autoComplete = "on", required, ...props }, ref) => {
+  ({ className, wrapperClassName, labelClassName, messageClassName, label, hint, error, size = "md", id, autoComplete = "on", required, onChange, onValueChange, ...props }, ref) => {
     const uid = useId()
     const textareaId = id ?? uid
     const messageId = `${textareaId}-message`
@@ -46,11 +47,14 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           aria-invalid={error ? true : undefined}
           aria-describedby={error || hint ? messageId : undefined}
           autoComplete={autoComplete}
+          onChange={(e) => {
+            onChange?.(e)
+            onValueChange?.(e.target.value)
+          }}
           className={cn(
             "w-full rounded-[var(--radius-md)] text-foreground placeholder:text-muted-foreground outline-none resize-y",
             controlBaseStyles,
             textareaSizes[size],
-            "focus:border-accent-500 focus:ring-[3px] focus:ring-focus-ring/25",
             error && controlInvalidStyles,
             "disabled:cursor-not-allowed disabled:opacity-50",
             className,

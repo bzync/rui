@@ -2,16 +2,19 @@
 
 import { cn } from "@/lib/cn"
 import { focusRingStyles } from "@/lib/component-styles"
-import { getFocusable } from "@/utils/focus"
+import { mergeRefs } from "@/lib/merge-refs"
 import { AnimatePresence } from "framer-motion"
 import { motion } from "@/lib/motion-components"
 import { transitions } from "@/lib/motion"
 import { ThemePortal } from "./theme-provider"
 import { useControllableState } from "@/hooks/use-controllable-state"
+import { useFocusTrap, useRestoreFocus } from "@/hooks/use-focus-trap"
+import { useHydrated } from "@/hooks/use-hydrated"
 import {
   KeyboardEvent,
   ReactNode,
   createContext,
+  forwardRef,
   useContext,
   useEffect,
   useMemo,
@@ -90,7 +93,7 @@ export interface CommandPaletteProps {
   emptyClassName?: string
 }
 
-export function CommandPalette({
+export const CommandPalette = forwardRef<HTMLDivElement, CommandPaletteProps>(function CommandPalette({
   items,
   placeholder = "Search commands…",
   emptyText = "No results found.",
@@ -102,7 +105,7 @@ export function CommandPalette({
   listClassName,
   itemClassName,
   emptyClassName,
-}: CommandPaletteProps) {
+}, ref) {
   const { open, setOpen } = useCommand()
   const [query, setQuery] = useState("")
   const [activeIdx, setActiveIdx] = useState(0)
@@ -110,41 +113,19 @@ export function CommandPalette({
   const listRef = useRef<HTMLDivElement>(null)
   const dialogRef = useRef<HTMLDivElement>(null)
   const listId = useId()
+  const hydrated = useHydrated()
+  const { restoreNow } = useRestoreFocus(open)
+
+  useFocusTrap(dialogRef, {
+    active: open && hydrated,
+    onEscape: () => setOpen(false),
+  })
 
   useEffect(() => {
     if (!open) return
-    const previouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null
-    const previousOverflow = document.body.style.overflow
-    const focusTimer = window.setTimeout(() => inputRef.current?.focus(), 0)
-    const handleDocumentKeyDown = (event: globalThis.KeyboardEvent) => {
-      if (event.key === "Escape") {
-        event.preventDefault()
-        setOpen(false)
-        return
-      }
-      if (event.key !== "Tab" || !dialogRef.current) return
-      const focusable = getFocusable(dialogRef.current)
-      if (focusable.length === 0) {
-        event.preventDefault()
-        dialogRef.current.focus()
-        return
-      }
-      const first = focusable[0]
-      const last = focusable[focusable.length - 1]
-      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus() }
-      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus() }
-    }
     setQuery("")
     setActiveIdx(0)
-    document.body.style.overflow = "hidden"
-    document.addEventListener("keydown", handleDocumentKeyDown)
-    return () => {
-      window.clearTimeout(focusTimer)
-      document.body.style.overflow = previousOverflow
-      document.removeEventListener("keydown", handleDocumentKeyDown)
-      previouslyFocused?.focus()
-    }
-  }, [open, setOpen])
+  }, [open])
 
   const filtered = useMemo(() => {
     if (!query) return items
@@ -196,7 +177,7 @@ export function CommandPalette({
   // ancestor would trap the fixed overlay in its own box and stacking context.
   return (
     <ThemePortal>
-    <AnimatePresence>
+    <AnimatePresence onExitComplete={restoreNow}>
       {open && (
         <div className="fixed inset-0 z-(--z-modal) flex items-start justify-center pt-[15vh] p-4">
           <motion.div
@@ -209,7 +190,7 @@ export function CommandPalette({
             aria-hidden="true"
           />
           <motion.div
-            ref={dialogRef}
+            ref={mergeRefs(dialogRef, ref)}
             tabIndex={-1}
             role="dialog"
             aria-modal="true"
@@ -309,4 +290,5 @@ export function CommandPalette({
     </AnimatePresence>
     </ThemePortal>
   )
-}
+})
+CommandPalette.displayName = "CommandPalette"

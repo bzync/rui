@@ -187,6 +187,104 @@ function DndUsagePreview() {
   )
 }
 
+function PanoTourUsagePreview() {
+  const scenes: R.PanoScene[] = [
+    {
+      id: "poseidon",
+      name: "Poseidon’s Realm (Pool & Pavilions)",
+      description: "Main resort swimming pool surrounded by Poseidon, Hestia, Nemea, and Selene pavilions with grill station.",
+      image: "/img/resort/360-poseidon.jpg",
+      preview: "/img/resort/360-poseidon-preview.jpg",
+      yaw: 0,
+      pitch: -2,
+      fov: 75,
+      hotspots: [
+        { id: "h1", type: "scene", yaw: 32, pitch: -6, target: "hermes", label: "Hermes Villa", badge: "₱4,500", icon: "footprints", pulse: true },
+        { id: "h2", type: "scene", yaw: -75, pitch: -4, target: "olympus", label: "Olympus Function Hall", icon: "door-open" },
+        { id: "h3", type: "info", yaw: -18, pitch: -14, label: "Heated Main Pool & 4 Pavilions", description: "Includes 40 infinity chairs, 6 tables, grill station & poolside lounge.", badge: "Included", icon: "waves" },
+        { id: "h4", type: "media", yaw: 115, pitch: 4, icon: "image", media: { kind: "image", src: "/img/resort/card-pool.jpg", caption: "Thatch pavilion & poolside lounge" } },
+      ],
+    },
+    {
+      id: "hermes",
+      name: "Hermes Studio Villa",
+      description: "Air-conditioned studio-type villa sleeping up to 5 guests with queen bed, pull-out double, kitchen, and smart TV with Netflix.",
+      image: "/img/resort/360-villas.jpg",
+      preview: "/img/resort/360-villas-preview.jpg",
+      yaw: 10,
+      pitch: 0,
+      fov: 75,
+      hotspots: [
+        { id: "h5", type: "scene", yaw: -65, pitch: -5, target: "poseidon", label: "Back to Pool & Pavilions", icon: "waves" },
+        { id: "h6", type: "scene", yaw: 95, pitch: -4, target: "grounds", label: "Ceremony Grounds", icon: "trees" },
+        { id: "h7", type: "info", yaw: -12, pitch: -8, label: "Studio Suite (Sleeps 5)", description: "Queen bed + pull-out double & single bed, kitchen, heated bath, and smart TV.", icon: "bed" },
+        { id: "h8", type: "action", yaw: 28, pitch: -14, action: "book", label: "Book Hermes Villa", badge: "₱4,500", icon: "calendar", pulse: true },
+      ],
+    },
+    {
+      id: "olympus",
+      name: "Olympus Function Hall",
+      description: "Air-conditioned function hall seating 60 to 70 guests comfortably, complete with lobby, cold kitchen, and wireless sound system.",
+      image: "/img/resort/360-olympus.jpg",
+      preview: "/img/resort/360-olympus-preview.jpg",
+      yaw: 0,
+      pitch: 0,
+      fov: 75,
+      hotspots: [
+        { id: "h9", type: "scene", yaw: -55, pitch: -4, target: "grounds", label: "Step out to Grounds", icon: "trees" },
+        { id: "h10", type: "scene", yaw: 75, pitch: -4, target: "poseidon", label: "Pool & Pavilions", icon: "waves" },
+        { id: "h11", type: "info", yaw: 8, pitch: 4, label: "60–70 Seated Event Hall", description: "Includes 100 infinity chairs, 15–20 tables & Bluetooth sound system.", icon: "sparkles" },
+      ],
+    },
+    {
+      id: "grounds",
+      name: "Resort Ceremony Grounds",
+      description: "Open landscaped grounds ideal for outdoor garden weddings, receptions, and full-resort exclusive events.",
+      image: "/img/resort/360-grounds.jpg",
+      preview: "/img/resort/360-grounds-preview.jpg",
+      yaw: 0,
+      pitch: 0,
+      fov: 75,
+      hotspots: [
+        { id: "h12", type: "scene", yaw: -45, pitch: -4, target: "hermes", label: "Hermes Villa", icon: "bed" },
+        { id: "h13", type: "scene", yaw: 50, pitch: -4, target: "olympus", label: "Olympus Hall", icon: "door-open" },
+      ],
+    },
+  ]
+  const [sceneId, setSceneId] = useState<string | number>("poseidon")
+  const active = scenes.find((s) => s.id === sceneId) ?? scenes[0]
+
+  return (
+    <div className="w-full max-w-3xl">
+      <div className="relative overflow-hidden rounded-xl border border-border shadow-sm">
+        <R.PanoViewer
+          scenes={scenes}
+          sceneId={sceneId}
+          onSceneChange={(s) => setSceneId(s.id)}
+          autoRotate={1.8}
+          showControls
+          showFilmstrip
+          className="aspect-[16/9] w-full"
+        />
+        <div className="pointer-events-none absolute inset-x-0 top-0 flex items-center justify-between bg-gradient-to-b from-black/65 to-transparent p-3 text-white">
+          <div>
+            <p className="text-[11px] font-medium text-white/75">Happy Homes Candelaria</p>
+            <p className="text-sm font-semibold">{active.name}</p>
+          </div>
+          <div className="pointer-events-auto">
+            <R.PanoTourButton
+              title="Happy Homes Candelaria"
+              scenes={scenes}
+              startScene={active.id}
+              label="Full-screen 360° tour"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function InfoButtonPreview() {
   const [open, setOpen] = useState(false)
   return <>
@@ -2195,5 +2293,114 @@ const columns: ColumnDef<(typeof services)[number]>[] = [
       ["useDroppable({ id }) / useDraggable({ id })", "hooks", "Primitive hooks for custom draggable/droppable elements."],
     ),
     "Full keyboard accessible drag-and-drop: Draggables and DragHandles are keyboard focusable buttons with aria-grabbed / aria-roledescription='draggable'. Press Space or Enter to pick up, Arrow keys to navigate between droppable targets, Space or Enter to drop, and Escape to cancel. Position updates are announced politely via aria-live.",
+  ),
+  "components/pano-tour": () => detail(
+    `function PanoTourUsagePreview() {
+  const scenes: PanoScene[] = [
+    {
+      id: "poseidon",
+      name: "Poseidon’s Realm (Pool & Pavilions)",
+      description: "Main resort swimming pool surrounded by Poseidon, Hestia, Nemea, and Selene pavilions with grill station.",
+      image: "/img/resort/360-poseidon.jpg",
+      preview: "/img/resort/360-poseidon-preview.jpg",
+      yaw: 0,
+      pitch: -2,
+      fov: 75,
+      hotspots: [
+        { id: "h1", type: "scene", yaw: 32, pitch: -6, target: "hermes", label: "Hermes Villa", badge: "₱4,500", icon: "footprints", pulse: true },
+        { id: "h2", type: "scene", yaw: -75, pitch: -4, target: "olympus", label: "Olympus Function Hall", icon: "door-open" },
+        { id: "h3", type: "info", yaw: -18, pitch: -14, label: "Heated Main Pool & 4 Pavilions", description: "Includes 40 infinity chairs, 6 tables, grill station & poolside lounge.", badge: "Included", icon: "waves" },
+        { id: "h4", type: "media", yaw: 115, pitch: 4, icon: "image", media: { kind: "image", src: "/img/resort/card-pool.jpg", caption: "Thatch pavilion & poolside lounge" } },
+      ],
+    },
+    {
+      id: "hermes",
+      name: "Hermes Studio Villa",
+      description: "Air-conditioned studio-type villa sleeping up to 5 guests with queen bed, pull-out double, kitchen, and smart TV with Netflix.",
+      image: "/img/resort/360-villas.jpg",
+      preview: "/img/resort/360-villas-preview.jpg",
+      yaw: 10,
+      pitch: 0,
+      fov: 75,
+      hotspots: [
+        { id: "h5", type: "scene", yaw: -65, pitch: -5, target: "poseidon", label: "Back to Pool & Pavilions", icon: "waves" },
+        { id: "h6", type: "scene", yaw: 95, pitch: -4, target: "grounds", label: "Ceremony Grounds", icon: "trees" },
+        { id: "h7", type: "info", yaw: -12, pitch: -8, label: "Studio Suite (Sleeps 5)", description: "Queen bed + pull-out double & single bed, kitchen, heated bath, and smart TV.", icon: "bed" },
+        { id: "h8", type: "action", yaw: 28, pitch: -14, action: "book", label: "Book Hermes Villa", badge: "₱4,500", icon: "calendar", pulse: true },
+      ],
+    },
+    {
+      id: "olympus",
+      name: "Olympus Function Hall",
+      description: "Air-conditioned function hall seating 60 to 70 guests comfortably, complete with lobby, cold kitchen, and wireless sound system.",
+      image: "/img/resort/360-olympus.jpg",
+      preview: "/img/resort/360-olympus-preview.jpg",
+      yaw: 0,
+      pitch: 0,
+      fov: 75,
+      hotspots: [
+        { id: "h9", type: "scene", yaw: -55, pitch: -4, target: "grounds", label: "Step out to Grounds", icon: "trees" },
+        { id: "h10", type: "scene", yaw: 75, pitch: -4, target: "poseidon", label: "Pool & Pavilions", icon: "waves" },
+        { id: "h11", type: "info", yaw: 8, pitch: 4, label: "60–70 Seated Event Hall", description: "Includes 100 infinity chairs, 15–20 tables & Bluetooth sound system.", icon: "sparkles" },
+      ],
+    },
+    {
+      id: "grounds",
+      name: "Resort Ceremony Grounds",
+      description: "Open landscaped grounds ideal for outdoor garden weddings, receptions, and full-resort exclusive events.",
+      image: "/img/resort/360-grounds.jpg",
+      preview: "/img/resort/360-grounds-preview.jpg",
+      yaw: 0,
+      pitch: 0,
+      fov: 75,
+      hotspots: [
+        { id: "h12", type: "scene", yaw: -45, pitch: -4, target: "hermes", label: "Hermes Villa", icon: "bed" },
+        { id: "h13", type: "scene", yaw: 50, pitch: -4, target: "olympus", label: "Olympus Hall", icon: "door-open" },
+      ],
+    },
+  ]
+  const [sceneId, setSceneId] = useState<string | number>("poseidon")
+  const active = scenes.find((s) => s.id === sceneId) ?? scenes[0]
+
+  return (
+    <div className="w-full max-w-3xl">
+      <div className="relative overflow-hidden rounded-xl border border-border shadow-sm">
+        <PanoViewer
+          scenes={scenes}
+          sceneId={sceneId}
+          onSceneChange={(s) => setSceneId(s.id)}
+          autoRotate={1.8}
+          showControls
+          showFilmstrip
+          className="aspect-[16/9] w-full"
+        />
+        <div className="pointer-events-none absolute inset-x-0 top-0 flex items-center justify-between bg-gradient-to-b from-black/65 to-transparent p-3 text-white">
+          <div>
+            <p className="text-[11px] font-medium text-white/75">Happy Homes Candelaria</p>
+            <p className="text-sm font-semibold">{active.name}</p>
+          </div>
+          <div className="pointer-events-auto">
+            <PanoTourButton
+              title="Happy Homes Candelaria"
+              scenes={scenes}
+              startScene={active.id}
+              label="Full-screen 360° tour"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}`,
+    <PanoTourUsagePreview />,
+    api(
+      ["<PanoViewer scenes sceneId showControls showFilmstrip />", "component", "WebGL2/WebGL1 360° equirectangular panorama viewport with single- or multi-scene navigation, 360° compass radar, hotspot stepper, zoom/spin/fullscreen controls, and custom renderHotspot/renderOverlay slots."],
+      ["<PanoTourDialog open onOpenChange title scenes loadScenes />", "component", "Full-screen modal 360° tour player with Walk transitions, filmstrip, gyroscope, fullscreen, and TTS narration captions."],
+      ["<PanoTourButton title scenes variant label />", "component", "Chip, link, or solid trigger button that opens PanoTourDialog."],
+      ["<PanoTourEditor scenes onScenesChange places allowJsonExport />", "component", "Complete 360° tour management studio with collapsible places catalog, one-click center placement, arrival view picker, drag-reorder scene strip, rich hotspot styler, and JSON export/import."],
+      ["<PanoBackdrop scene fallbackPhoto spinSpeed interactive />", "component", "Interactive 360° hero background that respects reduced-motion and pauses when scrolled out of view."],
+      ["preparePanorama(file) / PanoEngine", "utilities", "Client-side 2:1 equirectangular validator/resizer and standalone WebGL renderer."],
+    ),
+    "The 360° viewport exposes role='application' with aria-roledescription='360 degree panorama' and supports full keyboard navigation (Arrow keys to pan/tilt, + and - to zoom). Hotspots are native buttons with aria-expanded for inline notes; PanoTourDialog traps focus, supports Escape dismissal, and provides synchronized spoken descriptions and live captions.",
   ),
 }

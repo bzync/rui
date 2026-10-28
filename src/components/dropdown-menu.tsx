@@ -69,6 +69,7 @@ export const DropdownMenu = forwardRef<HTMLDivElement, DropdownMenuProps>(functi
   // Latches true on the first open so the lazy panel stays mounted for exit
   // animations and instant re-opens.
   const [panelMounted, setPanelMounted] = useState(false)
+  const [menuEl, setMenuEl] = useState<HTMLDivElement | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const menuRef = useRef<HTMLDivElement | null>(null)
   // Portalled + fixed: a menu opened from a table row or overflow-hidden card
@@ -91,9 +92,9 @@ export const DropdownMenu = forwardRef<HTMLDivElement, DropdownMenuProps>(functi
   }, [open, setOpen])
 
   useEffect(() => {
-    if (!open) return
-    menuRef.current?.querySelector<HTMLButtonElement>('[role="menuitem"]:not(:disabled)')?.focus()
-  }, [open, panelMounted])
+    if (!open || !menuEl) return
+    menuEl.querySelector<HTMLButtonElement>('[role="menuitem"]:not(:disabled)')?.focus()
+  }, [open, menuEl])
 
   function closeAndRestoreFocus() {
     setOpen(false)
@@ -134,7 +135,7 @@ export const DropdownMenu = forwardRef<HTMLDivElement, DropdownMenuProps>(functi
         <Suspense fallback={null}>
           <DropdownMenuPanel
             open={open}
-            menuRef={(element) => { menuRef.current = element; setFloating(element) }}
+            menuRef={(element) => { menuRef.current = element; setMenuEl(element); setFloating(element) }}
             items={items}
             side={placement === "top" ? "top" : "bottom"}
             style={style}
@@ -144,7 +145,7 @@ export const DropdownMenu = forwardRef<HTMLDivElement, DropdownMenuProps>(functi
             separatorClassName={separatorClassName}
             ariaLabel={ariaLabel}
             onKeyDown={handleMenuKeyDown}
-            onSelect={() => setOpen(false)}
+            onSelect={closeAndRestoreFocus}
           />
         </Suspense>
       )}

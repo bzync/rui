@@ -4,6 +4,7 @@ import { cn } from "@/lib/cn"
 import { focusRingStyles } from "@/lib/component-styles"
 import { useControllableState } from "@/hooks/use-controllable-state"
 import { useEventCallback } from "@/hooks/use-event-callback"
+import { useFocusTrap, useRestoreFocus } from "@/hooks/use-focus-trap"
 import { useHydrated } from "@/hooks/use-hydrated"
 import { ThemePortal } from "./theme-provider"
 import {
@@ -115,10 +116,16 @@ export const Tour = forwardRef<HTMLDivElement, TourProps>(function Tour(
   const hydrated = useHydrated()
   const [targetRect, setTargetRect] = useState<Rect | null>(null)
   const cardRef = useRef<HTMLDivElement | null>(null)
-  const previousFocused = useRef<HTMLElement | null>(null)
   const maskId = useId()
   const titleId = useId()
   const descId = useId()
+
+  useRestoreFocus(open)
+  useFocusTrap(cardRef, {
+    active: open && hydrated,
+    closeOnEscape: false,
+    disableScrollLock: true,
+  })
 
   const currentStep = steps[currentStepIndex]
   const isFirst = currentStepIndex === 0
@@ -165,35 +172,6 @@ export const Tour = forwardRef<HTMLDivElement, TourProps>(function Tour(
     }
   }, [open, currentStepIndex, currentStep, updateRect])
 
-  // Focus management & keyboard shortcuts
-  useEffect(() => {
-    if (!open) return
-
-    previousFocused.current = document.activeElement as HTMLElement | null
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (!keyboard) return
-      if (e.key === "Escape") {
-        e.preventDefault()
-        handleClose(true)
-      } else if (e.key === "ArrowRight" && !isLast) {
-        e.preventDefault()
-        handleNext()
-      } else if (e.key === "ArrowLeft" && !isFirst) {
-        e.preventDefault()
-        handlePrev()
-      }
-    }
-
-    document.addEventListener("keydown", handleKeyDown)
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown)
-      if (previousFocused.current && typeof previousFocused.current.focus === "function") {
-        previousFocused.current.focus()
-      }
-    }
-  }, [open, keyboard, isFirst, isLast])
-
   const handleClose = useEventCallback((skip = false) => {
     setOpen(false)
     if (skip) {
@@ -217,6 +195,29 @@ export const Tour = forwardRef<HTMLDivElement, TourProps>(function Tour(
     }
   })
 
+  // Keyboard shortcuts
+  useEffect(() => {
+    if (!open || !keyboard) return
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault()
+        handleClose(true)
+      } else if (e.key === "ArrowRight" && !isLast) {
+        e.preventDefault()
+        handleNext()
+      } else if (e.key === "ArrowLeft" && !isFirst) {
+        e.preventDefault()
+        handlePrev()
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown)
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown)
+    }
+  }, [open, keyboard, isFirst, isLast, handleClose, handleNext, handlePrev])
+
   if (!hydrated || !open || !currentStep) return null
 
   const radius = currentStep.spotlightRadius ?? 8
@@ -224,17 +225,31 @@ export const Tour = forwardRef<HTMLDivElement, TourProps>(function Tour(
   // Calculate card position
   let cardStyle: React.CSSProperties = {}
   if (targetRect) {
-    const placement = currentStep.placement ?? "bottom"
+    const rawPlacement = currentStep.placement ?? "bottom"
     const gap = 12
-    const cardWidth = 340
+    const measuredRect = cardRef.current?.getBoundingClientRect()
+    const cardWidth = measuredRect?.width || 340
+    const cardHeight = measuredRect?.height || 180
     const vw = typeof window !== "undefined" ? window.innerWidth : 1000
     const vh = typeof window !== "undefined" ? window.innerHeight : 800
+
+    let placement: Exclude<TourPlacement, "auto"> = rawPlacement === "auto" ? "bottom" : rawPlacement
+    if (rawPlacement === "auto") {
+      const spaces: Array<{ side: Exclude<TourPlacement, "auto">; space: number }> = [
+        { side: "bottom", space: vh - (targetRect.top + targetRect.height) },
+        { side: "top", space: targetRect.top },
+        { side: "right", space: vw - (targetRect.left + targetRect.width) },
+        { side: "left", space: targetRect.left },
+      ]
+      spaces.sort((a, b) => b.space - a.space)
+      placement = spaces[0].side
+    }
 
     let top = targetRect.top + targetRect.height + gap
     let left = targetRect.left + targetRect.width / 2 - cardWidth / 2
 
     if (placement === "top") {
-      top = targetRect.top - gap - 180
+      top = targetRect.top - gap - cardHeight
     } else if (placement === "left") {
       left = targetRect.left - gap - cardWidth
       top = targetRect.top
@@ -245,13 +260,13 @@ export const Tour = forwardRef<HTMLDivElement, TourProps>(function Tour(
 
     // Clamp inside viewport
     left = Math.max(16, Math.min(left, vw - cardWidth - 16))
-    top = Math.max(16, Math.min(top, vh - 220 - 16))
+    top = Math.max(16, Math.min(top, vh - cardHeight - 16))
 
     cardStyle = {
       position: "fixed",
       top: `${top}px`,
       left: `${left}px`,
-      width: `${cardWidth}px`,
+      width: "340px",
     }
   } else {
     // Center card

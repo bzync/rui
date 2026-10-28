@@ -16,6 +16,7 @@ export const SelectSingle = forwardRef<HTMLButtonElement, SelectPropsSingle>(
       value: controlledValue,
       defaultValue,
       onChange,
+      onValueChange,
       placeholder = "Select…",
       label,
       hint,
@@ -48,8 +49,12 @@ export const SelectSingle = forwardRef<HTMLButtonElement, SelectPropsSingle>(
     const [localValue, setLocalValue] = useState(defaultValue ?? "")
     const [activeIdx, setActiveIdx] = useState(-1)
     const containerRef = useRef<HTMLDivElement>(null)
+    const triggerRef = useRef<HTMLButtonElement | null>(null)
     const listRef = useRef<HTMLUListElement>(null)
-    const onChangeStable = useEventCallback((v: string) => onChange?.(v))
+    const commit = useEventCallback((v: string) => {
+      onChange?.(v)
+      onValueChange?.(v)
+    })
 
     const value = controlledValue !== undefined ? controlledValue : localValue
     const flat = useMemo(() => flatten(options), [options])
@@ -57,16 +62,17 @@ export const SelectSingle = forwardRef<HTMLButtonElement, SelectPropsSingle>(
 
     const handleSelect = useCallback((opt: SelectOption) => {
       if (controlledValue === undefined) setLocalValue(opt.value)
-      onChangeStable(opt.value)
+      commit(opt.value)
       setOpen(false)
       setActiveIdx(-1)
-    }, [controlledValue, onChangeStable])
+    }, [controlledValue, commit])
 
     const handleClear = useCallback((e: React.MouseEvent) => {
       e.stopPropagation()
       if (controlledValue === undefined) setLocalValue("")
-      onChangeStable("")
-    }, [controlledValue, onChangeStable])
+      commit("")
+      triggerRef.current?.focus()
+    }, [controlledValue, commit])
 
     const handleKeyDown = useCallback((e: KeyboardEvent<HTMLButtonElement>) => {
       if (!open) {
@@ -141,7 +147,11 @@ export const SelectSingle = forwardRef<HTMLButtonElement, SelectPropsSingle>(
         )}
 
         <button
-          ref={ref}
+          ref={(node) => {
+            triggerRef.current = node
+            if (typeof ref === "function") ref(node)
+            else if (ref) (ref as React.MutableRefObject<HTMLButtonElement | null>).current = node
+          }}
           id={triggerId}
           type="button"
           role="combobox"
@@ -164,7 +174,6 @@ export const SelectSingle = forwardRef<HTMLButtonElement, SelectPropsSingle>(
             controlSizeStyles[size].height,
             controlSizeStyles[size].padding,
             controlBaseStyles,
-            "focus:border-accent-500 focus:ring-[3px] focus:ring-focus-ring/25",
             error && controlInvalidStyles,
             disabled && "opacity-50 cursor-not-allowed",
             triggerClassName,
@@ -180,12 +189,25 @@ export const SelectSingle = forwardRef<HTMLButtonElement, SelectPropsSingle>(
             {selectedOpt?.label ?? placeholder}
           </span>
           {clearable && value && !disabled && (
-            <span role="button" tabIndex={-1} onClick={handleClear} className="shrink-0 text-muted-foreground hover:text-foreground transition-colors">
-              <XIcon />
-            </span>
+            <span aria-hidden="true" className="w-4 shrink-0" />
           )}
           <ChevronIcon open={open} />
         </button>
+
+        {clearable && value && !disabled && (
+          <button
+            type="button"
+            aria-label="Clear selection"
+            onClick={handleClear}
+            className={cn(
+              "absolute right-7 flex items-center justify-center shrink-0 text-muted-foreground hover:text-foreground transition-colors",
+              controlSizeStyles[size].height,
+              label ? "top-[1.625rem]" : "top-0",
+            )}
+          >
+            <XIcon />
+          </button>
+        )}
 
         <SelectFormFields name={name} form={form} values={value ? [value] : []} required={required} disabled={disabled} onReset={() => setLocalValue(defaultValue ?? "")} />
 

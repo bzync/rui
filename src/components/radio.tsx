@@ -1,10 +1,10 @@
 "use client"
 
 import { cn } from "@/lib/cn"
-import { fieldDescriptionStyles, fieldErrorStyles, fieldLabelStyles, fieldRootStyles } from "@/lib/component-styles"
+import { fieldDescriptionStyles, fieldErrorStyles, fieldLabelStyles, fieldRootStyles, peerFocusRingStyles } from "@/lib/component-styles"
 import { motion } from "@/lib/motion-components"
 import { useControllableState } from "@/hooks/use-controllable-state"
-import { createContext, useContext, useId, ReactNode, forwardRef } from "react"
+import { HTMLAttributes, InputHTMLAttributes, ReactNode, createContext, forwardRef, useContext, useId } from "react"
 
 interface RadioContextValue {
   name: string
@@ -31,13 +31,14 @@ function useRadioCtx() {
   return ctx
 }
 
-export interface RadioGroupProps {
+export interface RadioGroupProps extends Omit<HTMLAttributes<HTMLDivElement>, "onChange"> {
   name?: string
   /** Controlled selected value. */
   value?: string
   /** Initially selected value when uncontrolled. */
   defaultValue?: string
   onChange?: (value: string) => void
+  onValueChange?: (value: string) => void
   disabled?: boolean
   label?: string
   hint?: string
@@ -53,7 +54,8 @@ export const RadioGroup = forwardRef<HTMLDivElement, RadioGroupProps>(function R
   name: externalName,
   value: controlledValue,
   defaultValue = "",
-  onChange: onValueChange,
+  onChange: onChangeProp,
+  onValueChange,
   disabled,
   label,
   hint,
@@ -62,17 +64,25 @@ export const RadioGroup = forwardRef<HTMLDivElement, RadioGroupProps>(function R
   size = "md",
   className,
   children,
+  ...props
 }, ref) {
-  const [value, onChange] = useControllableState({ value: controlledValue, defaultValue, onChange: onValueChange })
+  const [value, onChange] = useControllableState({
+    value: controlledValue,
+    defaultValue,
+    onChange: (v) => {
+      onChangeProp?.(v)
+      onValueChange?.(v)
+    },
+  })
   const uid = useId()
   const name = externalName ?? uid
   const labelId = `${name}-label`
   const messageId = `${name}-message`
 
   return (
-    <div ref={ref} className={cn(fieldRootStyles, className)}>
+    <div ref={ref} className={cn(fieldRootStyles, className)} {...props}>
       {label && (
-        <p id={labelId} className={fieldLabelStyles}>{label}</p>
+        <span id={labelId} className={fieldLabelStyles}>{label}</span>
       )}
       <RadioContext.Provider value={{ name, value, onChange, disabled, size }}>
         <div
@@ -95,20 +105,28 @@ export const RadioGroup = forwardRef<HTMLDivElement, RadioGroupProps>(function R
 })
 RadioGroup.displayName = "RadioGroup"
 
-export interface RadioProps {
+export interface RadioProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "size" | "type" | "value"> {
   value: string
-  label?: string
-  description?: string
+  label?: ReactNode
+  description?: ReactNode
+  hint?: ReactNode
   disabled?: boolean
   className?: string
 }
 
-export const Radio = forwardRef<HTMLLabelElement, RadioProps>(function Radio({ value, label, description, disabled: localDisabled, className }, ref) {
+export const Radio = forwardRef<HTMLLabelElement, RadioProps>(function Radio(
+  { value, label, description, hint, disabled: localDisabled, className, id: externalId, ...props },
+  ref,
+) {
   const { name, value: groupValue, onChange, disabled: groupDisabled, size } = useRadioCtx()
   const s = radioSizes[size]
-  const id = useId()
+  const uid = useId()
+  const id = externalId ?? uid
+  const helperText = description ?? hint
+  const hintId = `${id}-hint`
   const isChecked = groupValue === value
   const isDisabled = localDisabled ?? groupDisabled
+  const describedBy = [props["aria-describedby"], helperText ? hintId : undefined].filter(Boolean).join(" ") || undefined
 
   return (
     <label ref={ref}
@@ -121,18 +139,21 @@ export const Radio = forwardRef<HTMLLabelElement, RadioProps>(function Radio({ v
     >
       <div className={cn("relative mt-0.5 shrink-0", s.circle)}>
         <input
+          {...props}
           type="radio"
           id={id}
           name={name}
           value={value}
           checked={isChecked}
           disabled={isDisabled}
+          aria-describedby={describedBy}
           onChange={() => onChange(value)}
           className="peer absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0 disabled:cursor-not-allowed"
         />
         <div
           className={cn(
-            "size-full rounded-full border-2 flex items-center justify-center transition-colors duration-[120ms] peer-focus-visible:ring-[3px] peer-focus-visible:ring-focus-ring/35 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-bg",
+            "size-full rounded-full border-2 flex items-center justify-center transition-colors duration-[120ms]",
+            peerFocusRingStyles,
             isChecked
               ? "bg-primary border-primary"
               : "bg-transparent border-foreground/25",
@@ -148,13 +169,13 @@ export const Radio = forwardRef<HTMLLabelElement, RadioProps>(function Radio({ v
           )}
         </div>
       </div>
-      {(label || description) && (
+      {(label || helperText) && (
         <div className="min-w-0">
           {label && (
             <p className={cn("font-medium text-foreground leading-snug", s.label)}>{label}</p>
           )}
-          {description && (
-            <p className={cn("mt-0.5 text-muted-foreground", s.desc)}>{description}</p>
+          {helperText && (
+            <p id={hintId} className={cn("mt-0.5 text-muted-foreground", s.desc)}>{helperText}</p>
           )}
         </div>
       )}

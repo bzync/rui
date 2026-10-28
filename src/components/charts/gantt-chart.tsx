@@ -1,7 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/cn"
-import { useEffect, useState, forwardRef } from "react"
+import { type HTMLAttributes, useEffect, useState, forwardRef } from "react"
 import { type TooltipState, ChartTooltip, CHART_SERIES } from "./shared"
 
 export interface GanttTask {
@@ -12,12 +12,13 @@ export interface GanttTask {
   color?: string
 }
 
-export interface GanttChartProps {
+export interface GanttChartProps extends HTMLAttributes<HTMLDivElement> {
   tasks: GanttTask[]
   total?: number
   xLabels?: string[]
   rowHeight?: number
   className?: string
+  ariaLabel?: string
 }
 
 const GANTT_COLORS = CHART_SERIES
@@ -28,6 +29,8 @@ export const GanttChart = forwardRef<HTMLDivElement, GanttChartProps>(function G
   xLabels,
   rowHeight = 42,
   className,
+  ariaLabel,
+  ...props
 }, ref) {
   const [tooltip, setTooltip] = useState<TooltipState | null>(null)
   const [hovered, setHovered] = useState<string | null>(null)
@@ -42,7 +45,13 @@ export const GanttChart = forwardRef<HTMLDivElement, GanttChartProps>(function G
   const totalHeight = tasks.length * rowHeight + 28
 
   return (
-    <div ref={ref} className={cn("relative w-full select-none overflow-x-auto", className)}>
+    <div
+      ref={ref}
+      role="img"
+      aria-label={ariaLabel ?? props["aria-label"] ?? "Gantt chart"}
+      className={cn("relative w-full select-none overflow-x-auto", className)}
+      {...props}
+    >
       <div style={{ height: totalHeight, minWidth: 360 }} className="relative">
         <div className="absolute inset-0 flex pointer-events-none" style={{ bottom: 28 }}>
           {Array.from({ length: total + 1 }).map((_, i) => (
@@ -56,11 +65,19 @@ export const GanttChart = forwardRef<HTMLDivElement, GanttChartProps>(function G
           const left = (task.start / total) * 100
           const width = ((task.end - task.start) / total) * 100
           const isHov = hovered === task.id
+          const content = (
+            <span>
+              <span className="font-semibold text-tooltip-foreground mr-2">{task.label}</span>
+              <span className="text-tooltip-foreground/75">{task.start}–{task.end}</span>
+            </span>
+          )
           return (
             <div key={task.id} className="absolute left-0 right-0 flex items-center"
               style={{ top: i * rowHeight, height: rowHeight }}>
               <div
-                className="absolute rounded-md flex items-center px-2.5 cursor-pointer"
+                tabIndex={0}
+                aria-label={`${task.label}: ${task.start}–${task.end}`}
+                className="absolute rounded-md flex items-center px-2.5 cursor-pointer outline-none focus-visible:opacity-85"
                 style={{
                   left: `${left}%`,
                   width: ready ? `${width}%` : 0,
@@ -77,15 +94,20 @@ export const GanttChart = forwardRef<HTMLDivElement, GanttChartProps>(function G
                 onMouseMove={(e) =>
                   setTooltip({
                     x: e.clientX, y: e.clientY,
-                    content: (
-                      <span>
-                        <span className="font-semibold text-foreground mr-2">{task.label}</span>
-                        <span className="text-muted-foreground">{task.start}–{task.end}</span>
-                      </span>
-                    ),
+                    content,
                   })
                 }
                 onMouseLeave={() => { setHovered(null); setTooltip(null) }}
+                onFocus={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect()
+                  setHovered(task.id)
+                  setTooltip({
+                    x: rect.left + rect.width / 2,
+                    y: rect.top,
+                    content,
+                  })
+                }}
+                onBlur={() => { setHovered(null); setTooltip(null) }}
               >
                 <span className="text-xs font-medium text-foreground truncate leading-none select-none">
                   {task.label}

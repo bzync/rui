@@ -15,6 +15,7 @@ export interface NumberInputProps extends Omit<InputHTMLAttributes<HTMLInputElem
   value?: number
   defaultValue?: number
   onChange?: (value: number) => void
+  onValueChange?: (value: number) => void
   formatDisplay?: (v: number) => string
   fullWidth?: boolean
 }
@@ -39,6 +40,7 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
       value: controlledValue,
       defaultValue = 0,
       onChange,
+      onValueChange,
       disabled,
       id,
       autoComplete = "on",
@@ -67,6 +69,7 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
       const clamped = clamp(round(next))
       if (controlledValue === undefined) setLocalValue(clamped)
       onChange?.(clamped)
+      onValueChange?.(clamped)
       setText(String(clamped))
     }
 
@@ -86,12 +89,17 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
        
     }, [v])
 
-    // onChange only fires on commit (blur / Enter / the +/- buttons), not on
-    // every keystroke — consumers that wire onChange to a network save
-    // (e.g. the compute node hosting row) would otherwise fire a request
-    // per character and disable the input mid-typing while it's in flight.
     function handleTextChange(raw: string) {
       setText(raw)
+      if (raw.trim() !== "" && raw !== "-" && !raw.endsWith(".")) {
+        const parsed = Number(raw)
+        if (Number.isFinite(parsed)) {
+          const clamped = clamp(round(parsed))
+          if (controlledValue === undefined) setLocalValue(clamped)
+          onChange?.(clamped)
+          onValueChange?.(clamped)
+        }
+      }
     }
 
     function handleBlur(e: React.FocusEvent<HTMLInputElement>) {

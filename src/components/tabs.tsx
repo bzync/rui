@@ -38,7 +38,7 @@ function useTabsCtx() {
   return ctx
 }
 
-export interface TabsProps {
+export interface TabsProps extends Omit<HTMLAttributes<HTMLDivElement>, "defaultValue" | "onChange"> {
   /** Initially active tab when uncontrolled. */
   defaultValue?: string
   /** Controlled active tab. */
@@ -63,6 +63,7 @@ export const Tabs = forwardRef<HTMLDivElement, TabsProps>(function Tabs({
   size = "md",
   onValueChange,
   onChange,
+  ...props
 }, ref) {
   const [localActive, setLocalActive] = useState(defaultValue ?? "")
   const active = value ?? localActive
@@ -84,6 +85,7 @@ export const Tabs = forwardRef<HTMLDivElement, TabsProps>(function Tabs({
             : "flex flex-col",
           className,
         )}
+        {...props}
       >
         {children}
       </div>
@@ -109,6 +111,7 @@ export const TabsList = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement
         className,
       )}
       role="tablist"
+      aria-orientation={orientation}
       {...props}
     >
       {children}

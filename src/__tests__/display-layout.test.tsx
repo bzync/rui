@@ -438,6 +438,16 @@ describe("ref forwarding", () => {
       ["Collapsible", (ref) => <R.Collapsible ref={ref} trigger="More">Body</R.Collapsible>, HTMLDivElement],
       ["BarChart", (ref) => <R.BarChart ref={ref} data={[{ label: "a", value: 1 }]} />, HTMLDivElement],
       ["ThemeToggle", (ref) => <R.ThemeProvider storageKey={false}><R.ThemeToggle ref={ref} /></R.ThemeProvider>, HTMLButtonElement],
+      ["Modal", (ref) => <R.Modal ref={ref} open onClose={() => {}} title="Modal">Body</R.Modal>, HTMLDivElement],
+      ["Drawer", (ref) => <R.Drawer ref={ref} open onClose={() => {}} title="Drawer">Body</R.Drawer>, HTMLDivElement],
+      ["Sheet", (ref) => <R.Sheet ref={ref} open onOpenChange={() => {}} title="Sheet">Body</R.Sheet>, HTMLDivElement],
+      ["ConfirmDialog", (ref) => <R.ConfirmDialog ref={ref} open onClose={() => {}} onConfirm={() => {}} title="Confirm" />, HTMLDivElement],
+      ["Overlay", (ref) => <R.Overlay ref={ref} open onClose={() => {}}>Body</R.Overlay>, HTMLDivElement],
+      ["Lightbox", (ref) => <R.Lightbox ref={ref} open images={[{ src: "/1.jpg", alt: "One" }]} />, HTMLDivElement],
+      ["Timeline", (ref) => <R.Timeline ref={ref} events={[{ id: "1", title: "Step" }]} />, HTMLOListElement],
+      ["Tree", (ref) => <R.Tree ref={ref} nodes={[{ id: "1", label: "Root" }]} />, HTMLUListElement],
+      ["SortableList", (ref) => <R.SortableList ref={ref} items={[{ id: "1" }]} onReorder={() => {}} renderItem={(i) => i.id} />, HTMLUListElement],
+      ["Kanban", (ref) => <R.Kanban ref={ref} columns={[{ id: "todo", title: "To do", items: [{ id: "1" }] }]} onChange={() => {}} renderCard={(i) => i.id} />, HTMLDivElement],
     ]
     for (const [name, element, type] of cases) {
       const ref = createRef<never>()

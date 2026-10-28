@@ -217,13 +217,13 @@ export function DndContext({
         }
 
         if (foundDroppableId !== overDroppableIdRef.current || foundDraggableId !== overIdRef.current) {
+          if (foundDroppableId && foundDroppableId !== overDroppableIdRef.current) {
+            setAnnouncement(msg.moved(id, foundDroppableId))
+          }
           setOverDroppableId(foundDroppableId)
           setOverId(foundDraggableId)
           overDroppableIdRef.current = foundDroppableId
           overIdRef.current = foundDraggableId
-          if (foundDroppableId && foundDroppableId !== overDroppableIdRef.current) {
-            setAnnouncement(msg.moved(id, foundDroppableId))
-          }
         }
       }
 

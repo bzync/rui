@@ -240,3 +240,4 @@ function FormInner<T extends FormValues>({ form, onSubmit, onInvalid, errorSumma
 }
 
 export const Form = forwardRef(FormInner) as <T extends FormValues>(props: FormProps<T> & { ref?: React.Ref<HTMLFormElement> }) => React.ReactElement
+;(Form as { displayName?: string }).displayName = "Form"

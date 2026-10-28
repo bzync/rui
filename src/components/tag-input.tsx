@@ -1,7 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/cn"
-import { controlBaseStyles, controlInvalidStyles, controlSizeStyles, fieldDescriptionStyles, fieldErrorStyles, fieldLabelStyles, fieldRootStyles, type ControlSize } from "@/lib/component-styles"
+import { controlBaseStyles, controlInvalidStyles, controlSizeStyles, fieldDescriptionStyles, fieldErrorStyles, fieldLabelStyles, fieldRootStyles, focusRingStyles, type ControlSize } from "@/lib/component-styles"
 import { useControllableState } from "@/hooks/use-controllable-state"
 import { type ClipboardEvent, type HTMLAttributes, type KeyboardEvent, forwardRef, useId, useRef, useState } from "react"
 
@@ -11,6 +11,7 @@ export interface TagInputProps extends Omit<HTMLAttributes<HTMLDivElement>, "onC
   /** Initial tags when uncontrolled. */
   defaultValue?: string[]
   onChange?: (tags: string[]) => void
+  onValueChange?: (tags: string[]) => void
   label?: string
   hint?: string
   error?: string
@@ -37,6 +38,7 @@ export const TagInput = forwardRef<HTMLDivElement, TagInputProps>(function TagIn
   value,
   defaultValue = NO_TAGS,
   onChange,
+  onValueChange,
   label,
   hint,
   error,
@@ -53,7 +55,14 @@ export const TagInput = forwardRef<HTMLDivElement, TagInputProps>(function TagIn
   className,
   ...props
 }, ref) {
-  const [tags, setTags] = useControllableState({ value, defaultValue, onChange })
+  const [tags, setTags] = useControllableState({
+    value,
+    defaultValue,
+    onChange: (next) => {
+      onChange?.(next)
+      onValueChange?.(next)
+    },
+  })
   const [text, setText] = useState("")
   const [rejection, setRejection] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -128,7 +137,10 @@ export const TagInput = forwardRef<HTMLDivElement, TagInputProps>(function TagIn
                   type="button"
                   aria-label={`Remove ${tag}`}
                   onClick={(event) => { event.stopPropagation(); remove(index) }}
-                  className="grid size-4 shrink-0 place-items-center rounded-sm text-muted-foreground hover:bg-foreground/10 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring/50"
+                  className={cn(
+                    "grid size-4 shrink-0 place-items-center rounded-sm text-muted-foreground hover:bg-foreground/10 hover:text-foreground",
+                    focusRingStyles,
+                  )}
                 >
                   <svg aria-hidden="true" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
                 </button>

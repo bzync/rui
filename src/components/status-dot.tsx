@@ -1,4 +1,4 @@
-import { forwardRef } from "react"
+import { type HTMLAttributes, forwardRef } from "react"
 import { cn } from "@/lib/cn"
 import { statusSolidStyles, type Tone } from "@/lib/status-styles"
 
@@ -6,7 +6,7 @@ export type StatusDotPresence = "online" | "offline" | "idle" | "busy" | "error"
 /** A presence state, or any of the shared tones (`success`, `danger`, …) a Badge takes. */
 export type StatusDotStatus = StatusDotPresence | Tone
 
-export interface StatusDotProps {
+export interface StatusDotProps extends HTMLAttributes<HTMLSpanElement> {
   status: StatusDotStatus
   label?: string
   pulse?: boolean
@@ -52,10 +52,11 @@ export const StatusDot = forwardRef<HTMLSpanElement, StatusDotProps>(function St
   dotClassName,
   labelClassName,
   variants,
+  ...props
 }, ref) {
   const dotCls = variants?.[status] ?? statusDotVariants[status]
   return (
-    <span ref={ref} className={cn("inline-flex items-center gap-1.5", className)}>
+    <span ref={ref} className={cn("inline-flex items-center gap-1.5", className)} {...props}>
       <span className="relative flex items-center justify-center">
         {pulse && pulsing.has(status) && (
           <span

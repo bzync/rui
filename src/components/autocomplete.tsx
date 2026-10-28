@@ -30,6 +30,8 @@ export type {
   AutocompleteProps,
   AutocompletePropsSingle,
   AutocompletePropsMulti,
+  AutocompleteSingleProps,
+  AutocompleteMultiProps,
 } from "./autocomplete/types"
 
 const NO_OPTIONS: AutocompleteOption<unknown>[] = []
@@ -78,6 +80,7 @@ function AutocompleteInner<V = string>(
     defaultValue: defaultSelection,
     onSelect: selectionHandler,
     onDeselect: deselectionHandler,
+    onValueChange: valueChangeHandler,
     // Form participation belongs to the selection, not the typed text.
     name,
     form,
@@ -88,6 +91,7 @@ function AutocompleteInner<V = string>(
   void defaultSelection
   void selectionHandler
   void deselectionHandler
+  void valueChangeHandler
   const nativeInputProps = { ...textInputProps, "aria-required": required || undefined }
 
   const uid = useId()
@@ -177,6 +181,7 @@ function AutocompleteInner<V = string>(
   const handleSelectSingle = useCallback((opt: AutocompleteOption<V>) => {
     const singleProps = props as AutocompletePropsSingle<V>
     singleProps.onSelect?.(opt)
+    singleProps.onValueChange?.(opt.value)
     setLocalSingle(opt)
     setInput(opt.label)
     setOpen(false)
@@ -188,6 +193,7 @@ function AutocompleteInner<V = string>(
     const next = [...selected, opt]
     if (multiProps.value === undefined) setLocalSelected(next)
     multiProps.onSelect?.(opt, next)
+    multiProps.onValueChange?.(next.map((o) => o.value))
     setInput("")
     setActiveIdx(-1)
     internalInputRef.current?.focus()
@@ -198,6 +204,7 @@ function AutocompleteInner<V = string>(
     const next = selected.filter((o) => o.value !== opt.value)
     if (multiProps.value === undefined) setLocalSelected(next)
     multiProps.onDeselect?.(opt, next)
+    multiProps.onValueChange?.(next.map((o) => o.value))
   }, [selected, props])
 
   const toggleMulti = useCallback((opt: AutocompleteOption<V>) => {
@@ -209,6 +216,7 @@ function AutocompleteInner<V = string>(
     setInput("")
     const singleProps = props as AutocompletePropsSingle<V>
     singleProps.onSelect?.({ value: "" as V, label: "" })
+    singleProps.onValueChange?.("" as V)
     setLocalSingle(null)
     setOpen(false)
   }, [props, setInput])
@@ -216,6 +224,7 @@ function AutocompleteInner<V = string>(
   const handleClearMulti = useCallback(() => {
     const multiProps = props as AutocompletePropsMulti<V>
     if (multiProps.value === undefined) setLocalSelected([])
+    multiProps.onValueChange?.([])
     setInput("")
   }, [props, setInput])
 
@@ -415,3 +424,5 @@ function AutocompleteInner<V = string>(
 export const Autocomplete = forwardRef(AutocompleteInner) as <V = string>(
   props: AutocompleteProps<V> & { ref?: React.Ref<HTMLInputElement> }
 ) => React.ReactElement
+
+;(Autocomplete as { displayName?: string }).displayName = "Autocomplete"

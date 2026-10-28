@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/cn"
 import { iconButtonStyles } from "@/lib/component-styles"
+import { mergeRefs } from "@/lib/merge-refs"
 import { AnimatePresence } from "framer-motion"
 import { motion } from "@/lib/motion-components"
 import { transitions } from "@/lib/motion"
@@ -13,7 +14,8 @@ import { ThemePortal } from "./theme-provider"
 
 export interface ModalProps {
   open: boolean
-  onClose: () => void
+  onClose?: () => void
+  onOpenChange?: (open: boolean) => void
   children: ReactNode
   className?: string
   overlayClassName?: string
@@ -55,9 +57,10 @@ const sizes = {
   full: "max-w-[calc(100vw-2rem)]",
 }
 
-export function Modal({
+export const Modal = forwardRef<HTMLDivElement, ModalProps>(function Modal({
   open,
   onClose,
+  onOpenChange,
   children,
   className,
   overlayClassName,
@@ -81,25 +84,28 @@ export function Modal({
   closeOnEscape = true,
   closeOnOverlayClick = true,
   portalled = true,
-}: ModalProps) {
+}, ref) {
   const panelRef = useRef<HTMLDivElement>(null)
   const titleId = useId()
   const descriptionId = useId()
-  const onCloseStable = useEventCallback(onClose)
+  const handleClose = useEventCallback(() => {
+    onClose?.()
+    onOpenChange?.(false)
+  })
   const { restoreNow } = useRestoreFocus(open)
   // A portalled panel does not exist until after hydration; arm the trap then.
   const hydrated = useHydrated()
 
   useFocusTrap(panelRef, {
     active: open && (hydrated || !portalled),
-    onEscape: onCloseStable,
+    onEscape: handleClose,
     closeOnEscape,
   })
 
   const portal = (content: ReactNode) => (portalled ? <ThemePortal>{content}</ThemePortal> : content)
 
   if (unstyled) {
-    return open ? portal(<div ref={panelRef} role="dialog" aria-modal="true" className={cn(className, panelClassName)}>{children}</div>) : null
+    return open ? portal(<div ref={mergeRefs(panelRef, ref)} role="dialog" aria-modal="true" className={cn(className, panelClassName)}>{children}</div>) : null
   }
 
   return portal(
@@ -112,10 +118,10 @@ export function Modal({
             exit={{ opacity: 0 }}
             transition={transitions.overlay}
             className={cn("absolute inset-0 bg-overlay", overlayClassName)}
-            onClick={closeOnOverlayClick ? onCloseStable : undefined}
+            onClick={closeOnOverlayClick ? handleClose : undefined}
           />
           <motion.div
-            ref={panelRef}
+            ref={mergeRefs(panelRef, ref)}
             initial={{ opacity: 0, scale: 0.98, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.98, y: 10 }}
@@ -149,7 +155,7 @@ export function Modal({
                     type="button"
                     data-modal-close
                     aria-label={closeAriaLabel}
-                    onClick={onCloseStable}
+                    onClick={handleClose}
                     className={cn(iconButtonStyles, closeButtonClassName)}
                   >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
@@ -162,7 +168,7 @@ export function Modal({
                 type="button"
                 data-modal-close
                 aria-label={closeAriaLabel}
-                onClick={onCloseStable}
+                onClick={handleClose}
                 className={cn("absolute right-4 top-4 z-10", iconButtonStyles, closeButtonClassName)}
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
@@ -176,7 +182,8 @@ export function Modal({
       )}
     </AnimatePresence>,
   )
-}
+})
+Modal.displayName = "Modal"
 
 export const ModalHeader = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(function ModalHeader({ className, children, ...props }, ref) {
   return <div ref={ref} className={cn("px-5 pt-4 pb-3 sm:px-6 border-b border-border shrink-0", className)} {...props}>{children}</div>

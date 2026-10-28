@@ -3,7 +3,7 @@
 import { cn } from "@/lib/cn"
 import { focusRingStyles } from "@/lib/component-styles"
 import { Slot } from "@/components/slot"
-import { ButtonHTMLAttributes, ReactNode, forwardRef, memo } from "react"
+import { ButtonHTMLAttributes, ReactElement, ReactNode, cloneElement, forwardRef, isValidElement, memo } from "react"
 
 /** `destructive` is a deprecated alias of `danger`. */
 export type ButtonVariant = "primary" | "secondary" | "ghost" | "outline" | "danger" | "destructive" | "link"
@@ -98,7 +98,7 @@ const ButtonInner = forwardRef<HTMLButtonElement, ButtonProps>(
     const buttonClassName = cn(
       "inline-flex items-center justify-center cursor-pointer select-none whitespace-nowrap",
       "transition-[color,background-color,border-color,box-shadow] duration-150",
-      "disabled:opacity-40 disabled:cursor-not-allowed",
+      "disabled:opacity-40 disabled:cursor-not-allowed aria-disabled:opacity-40 aria-disabled:cursor-not-allowed",
       focusRingStyles,
       buttonVariants[variant],
       variantClassName,
@@ -108,6 +108,7 @@ const ButtonInner = forwardRef<HTMLButtonElement, ButtonProps>(
     )
 
     if (asChild) {
+      const childOnClick = isValidElement(children) ? (children.props as { onClick?: React.MouseEventHandler }).onClick : undefined
       return (
         <Slot
           ref={ref as any}
@@ -116,8 +117,24 @@ const ButtonInner = forwardRef<HTMLButtonElement, ButtonProps>(
           aria-busy={loading || undefined}
           aria-disabled={isDisabled || undefined}
           {...(props as any)}
+          tabIndex={isDisabled ? -1 : props.tabIndex}
+          onClick={
+            isDisabled
+              ? (e: React.MouseEvent<HTMLButtonElement>) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                }
+              : props.onClick
+          }
         >
-          {children as any}
+          {isDisabled && isValidElement(children) && childOnClick
+            ? cloneElement(children as ReactElement<any>, {
+                onClick: (e: React.MouseEvent) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                },
+              })
+            : (children as any)}
         </Slot>
       )
     }

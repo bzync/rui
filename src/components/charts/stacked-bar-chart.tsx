@@ -1,11 +1,11 @@
 "use client"
 
 import { cn } from "@/lib/cn"
-import { type KeyboardEvent, forwardRef, useRef, useState } from "react"
+import { type HTMLAttributes, type KeyboardEvent, forwardRef, useRef, useState } from "react"
 import { ChartTooltip, type TooltipState, visibleLabelAt } from "./shared"
 import { ChartDataTable, ChartLegend, type ChartSeries, TooltipRows, niceTicks, seriesColor } from "./axis"
 
-export interface StackedBarChartProps {
+export interface StackedBarChartProps extends HTMLAttributes<HTMLElement> {
   labels: string[]
   series: ChartSeries[]
   /** `stacked` sums series, `percent` normalizes each column to 100%, `grouped` places bars side by side. */
@@ -35,6 +35,7 @@ export const StackedBarChart = forwardRef<HTMLDivElement, StackedBarChartProps>(
   ariaLabel = "Bar chart",
   showLegend = true,
   className,
+  ...props
 }, ref) {
   const [active, setActive] = useState<number | null>(null)
   const [tooltip, setTooltip] = useState<TooltipState | null>(null)
@@ -81,7 +82,7 @@ export const StackedBarChart = forwardRef<HTMLDivElement, StackedBarChartProps>(
   }
 
   return (
-    <figure ref={ref} className={cn("grid w-full gap-3", className)}>
+    <figure ref={ref} className={cn("grid w-full gap-3", className)} {...props}>
       {showLegend && <ChartLegend series={series} />}
       <div className="flex w-full select-none" style={{ height }}>
         <div aria-hidden="true" className="relative mr-2 w-10 shrink-0 pb-6">

@@ -25,8 +25,8 @@ describe("form controls", () => {
     }
     render(<Example />)
 
-    await user.click(screen.getByRole("checkbox", { name: "Auto deploy" }))
-    expect(screen.getByRole("checkbox", { name: "Auto deploy" })).toBeChecked()
+    await user.click(screen.getByRole("switch", { name: "Auto deploy" }))
+    expect(screen.getByRole("switch", { name: "Auto deploy" })).toBeChecked()
     expect(changed).toHaveBeenCalledWith(true)
   })
 
@@ -453,5 +453,65 @@ describe("masked inputs", () => {
     await user.selectOptions(screen.getByRole("combobox", { name: "Country code" }), "PH")
     expect(input).toHaveValue("555 123 4567")
     expect(onValueChange).toHaveBeenLastCalledWith("5551234567", "+635551234567", true)
+  })
+})
+
+describe("standardized form control ergonomics & a11y", () => {
+  it("FormField auto-associates label, error, and required state with its child input", () => {
+    render(
+      <R.FormField label="Workspace slug" error="Slug is already taken" required>
+        <input type="text" />
+      </R.FormField>,
+    )
+    const input = screen.getByRole("textbox", { name: /Workspace slug/ })
+    expect(input).toBeRequired()
+    expect(input).toHaveAttribute("aria-invalid", "true")
+    expect(input).toHaveAccessibleDescription("Slug is already taken")
+  })
+
+  it("Switch exposes role=switch, hint/error descriptions, and onValueChange", async () => {
+    const user = userEvent.setup()
+    const onValueChange = vi.fn()
+    render(<Switch label="Strict mode" hint="Enforces schema validation" error="Cannot enable yet" onValueChange={onValueChange} />)
+    const sw = screen.getByRole("switch", { name: "Strict mode" })
+    expect(sw).toHaveAttribute("aria-invalid", "true")
+    expect(sw).toHaveAccessibleDescription(/Enforces schema validation/)
+    expect(sw).toHaveAccessibleDescription(/Cannot enable yet/)
+    await user.click(sw)
+    expect(onValueChange).toHaveBeenCalledWith(true)
+  })
+
+  it("OtpInput labels each digit input, links errors, and renders a hidden form input", () => {
+    render(
+      <form data-testid="otp-form">
+        <R.OtpInput label="Verification code" name="code" defaultValue="1234" length={4} error="Expired code" required />
+      </form>,
+    )
+    const digit2 = screen.getByRole("textbox", { name: "Digit 2 of 4" })
+    expect(digit2).toHaveAttribute("aria-invalid", "true")
+    expect(digit2).toHaveAccessibleDescription("Expired code")
+    expect(new FormData(screen.getByTestId("otp-form") as HTMLFormElement).get("code")).toBe("1234")
+  })
+
+  it("ColorPicker supports showAlpha opacity slider, a11y error association, and hidden form input", async () => {
+    const user = userEvent.setup()
+    const onValueChange = vi.fn()
+    render(
+      <form data-testid="color-form">
+        <R.ColorPicker label="Brand color" name="brandColor" defaultValue="#3b82f6" showAlpha error="Low contrast" onValueChange={onValueChange} />
+      </form>,
+    )
+    const trigger = screen.getByRole("button", { name: /Brand color/i })
+    expect(trigger).toHaveAttribute("aria-invalid", "true")
+    expect(trigger).toHaveAccessibleDescription("Low contrast")
+    expect(new FormData(screen.getByTestId("color-form") as HTMLFormElement).get("brandColor")).toBe("#3b82f6")
+
+    await user.click(trigger)
+    const opacitySlider = screen.getByRole("slider", { name: "Opacity" })
+    expect(opacitySlider).toHaveAttribute("aria-valuenow", "100")
+    opacitySlider.focus()
+    await user.keyboard("{ArrowLeft}")
+    expect(opacitySlider).toHaveAttribute("aria-valuenow", "99")
+    expect(onValueChange).toHaveBeenCalledWith(expect.stringMatching(/^#3b82f[56]fc$/))
   })
 })

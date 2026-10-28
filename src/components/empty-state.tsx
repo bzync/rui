@@ -1,7 +1,7 @@
 import { cn } from "@/lib/cn";
-import { ReactNode, forwardRef } from "react";
+import { type HTMLAttributes, type ReactNode, forwardRef } from "react";
 
-export interface EmptyStateProps {
+export interface EmptyStateProps extends Omit<HTMLAttributes<HTMLDivElement>, "title"> {
   icon?: ReactNode;
   title: string;
   description?: string;
@@ -62,6 +62,7 @@ export const EmptyState = forwardRef<HTMLDivElement, EmptyStateProps>(function E
   size = "md",
   density,
   variant,
+  ...props
 }, ref) {
   const resolvedDensity = density ?? (variant === "compact" ? "compact" : "comfortable")
   const s = sizes[size];
@@ -73,6 +74,7 @@ export const EmptyState = forwardRef<HTMLDivElement, EmptyStateProps>(function E
         densityWrap,
         className,
       )}
+      {...props}
     >
       <div
         className={cn(

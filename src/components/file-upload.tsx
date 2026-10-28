@@ -6,13 +6,16 @@ import { AnimatePresence } from "framer-motion"
 import { motion } from "@/lib/motion-components"
 import { DragEvent, InputHTMLAttributes, forwardRef, useId, useRef, useState } from "react"
 
-export interface FileUploadProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "type"> {
+export interface FileUploadProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "type" | "value" | "defaultValue"> {
   label?: string
   hint?: string
   error?: string
   accept?: string
   maxSizeMB?: number
+  value?: File[]
+  defaultValue?: File[]
   onFilesChange?: (files: File[]) => void
+  onValueChange?: (files: File[]) => void
 }
 
 export const FileUpload = forwardRef<HTMLInputElement, FileUploadProps>(
@@ -24,7 +27,11 @@ export const FileUpload = forwardRef<HTMLInputElement, FileUploadProps>(
       error,
       accept,
       maxSizeMB,
+      value: controlledFiles,
+      defaultValue,
       onFilesChange,
+      onValueChange,
+      onChange,
       disabled,
       multiple,
       id,
@@ -33,7 +40,8 @@ export const FileUpload = forwardRef<HTMLInputElement, FileUploadProps>(
     ref,
   ) => {
     const [dragging, setDragging] = useState(false)
-    const [files, setFiles] = useState<File[]>([])
+    const [localFiles, setLocalFiles] = useState<File[]>(() => defaultValue ?? [])
+    const files = controlledFiles ?? localFiles
     const [sizeError, setSizeError] = useState("")
     const inputRef = useRef<HTMLInputElement | null>(null)
     const uid = useId()
@@ -41,6 +49,12 @@ export const FileUpload = forwardRef<HTMLInputElement, FileUploadProps>(
     const messageId = `${inputId}-message`
 
     const maxSizeLabel = maxSizeMB && (maxSizeMB >= 1024 ? `${maxSizeMB / 1024}GB` : `${maxSizeMB}MB`)
+
+    function updateFiles(next: File[]) {
+      if (controlledFiles === undefined) setLocalFiles(next)
+      onFilesChange?.(next)
+      onValueChange?.(next)
+    }
 
     function processFiles(incoming: FileList | null) {
       if (!incoming) return
@@ -54,14 +68,13 @@ export const FileUpload = forwardRef<HTMLInputElement, FileUploadProps>(
       }
       setSizeError("")
       const next = multiple ? [...files, ...arr] : arr
-      setFiles(next)
-      onFilesChange?.(next)
+      updateFiles(next)
     }
 
     function removeFile(idx: number) {
       const next = files.filter((_, i) => i !== idx)
-      setFiles(next)
-      onFilesChange?.(next)
+      updateFiles(next)
+      if (inputRef.current) inputRef.current.value = ""
     }
 
     function onDrop(e: DragEvent) {
@@ -107,7 +120,11 @@ export const FileUpload = forwardRef<HTMLInputElement, FileUploadProps>(
             aria-invalid={displayError ? true : undefined}
             aria-describedby={displayError || hint ? messageId : undefined}
             className="sr-only"
-            onChange={(e) => processFiles(e.target.files)}
+            onChange={(e) => {
+              processFiles(e.target.files)
+              onChange?.(e)
+              if (inputRef.current) inputRef.current.value = ""
+            }}
             {...props}
           />
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground">

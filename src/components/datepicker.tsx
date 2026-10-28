@@ -2,10 +2,13 @@
 
 import { cn } from "@/lib/cn"
 import { controlBaseStyles, controlInvalidStyles, fieldDescriptionStyles, fieldErrorStyles, fieldLabelStyles, fieldRootStyles, iconButtonStyles } from "@/lib/component-styles"
+import { useAnchoredPosition } from "@/hooks/use-anchored-position"
+import { useMediaQuery } from "@/hooks/use-media-query"
+import { mergeRefs } from "@/lib/merge-refs"
 import { AnimatePresence } from "framer-motion"
 import { motion } from "@/lib/motion-components"
 import { ThemePortal } from "./theme-provider"
-import { type CSSProperties, type HTMLAttributes, type KeyboardEvent as ReactKeyboardEvent, forwardRef, useEffect, useId, useImperativeHandle, useLayoutEffect, useRef, useState } from "react"
+import { type HTMLAttributes, type KeyboardEvent as ReactKeyboardEvent, forwardRef, useEffect, useId, useImperativeHandle, useRef, useState } from "react"
 
 const DAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]
 const MONTHS = [
@@ -47,6 +50,9 @@ export interface DatePickerProps extends Omit<HTMLAttributes<HTMLDivElement>, "o
   /** Initially selected date when uncontrolled. */
   defaultValue?: Date | null
   onChange?: (date: Date | null) => void
+  onValueChange?: (date: Date | null) => void
+  name?: string
+  required?: boolean
   label?: string
   hint?: string
   error?: string
@@ -63,6 +69,9 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(({
   value: controlledValue,
   defaultValue = null,
   onChange,
+  onValueChange,
+  name,
+  required,
   label,
   hint,
   error,
@@ -83,7 +92,6 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(({
   const [viewYear, setViewYear] = useState((value ?? today).getFullYear())
   const [viewMonth, setViewMonth] = useState((value ?? today).getMonth())
   const [focusDate, setFocusDate] = useState(value ?? today)
-  const [panelPosition, setPanelPosition] = useState<CSSProperties>({ visibility: "hidden" })
   const containerRef = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
@@ -91,6 +99,14 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(({
   const triggerId = useId()
   const dialogId = `${triggerId}-dialog`
   const messageId = `${triggerId}-message`
+  const isPhone = useMediaQuery("(max-width: 639px)")
+  const { setFloating, style } = useAnchoredPosition({
+    open: open && !isPhone,
+    anchorRef: triggerRef,
+    side: "bottom",
+    align: "start",
+    gap: 6,
+  })
 
   function isUnavailable(date: Date) {
     return Boolean((minDate && date < minDate) || (maxDate && date > maxDate))
@@ -123,7 +139,6 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(({
     setFocusDate(initial)
     setViewYear(initial.getFullYear())
     setViewMonth(initial.getMonth())
-    setPanelPosition({ visibility: "hidden" })
     setOpen(true)
     requestAnimationFrame(() => requestAnimationFrame(() => {
       panelRef.current?.querySelector<HTMLButtonElement>(`[data-date="${dateKey(initial)}"]`)?.focus({ preventScroll: true })
@@ -138,12 +153,14 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(({
   function select(date: Date) {
     if (controlledValue === undefined) setLocalValue(date)
     onChange?.(date)
+    onValueChange?.(date)
     closeCalendar(true)
   }
 
   function clear() {
     if (controlledValue === undefined) setLocalValue(null)
     onChange?.(null)
+    onValueChange?.(null)
   }
 
   function monthHasAvailableDates(year: number, month: number) {
@@ -185,41 +202,12 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(({
     }
   }, [open])
 
-  useLayoutEffect(() => {
-    if (!open) return
-    const updatePosition = () => {
-      const trigger = triggerRef.current
-      const panel = panelRef.current
-      if (!trigger || !panel) return
-      const viewportPadding = 16
-      const gap = 6
-      const panelRect = panel.getBoundingClientRect()
-      if (window.innerWidth < 640) {
-        setPanelPosition({ insetInline: 8, bottom: 8, top: "auto", width: "auto", visibility: "visible" })
-        return
-      }
-      const triggerRect = trigger.getBoundingClientRect()
-      const left = Math.min(Math.max(triggerRect.left, viewportPadding), Math.max(viewportPadding, window.innerWidth - panelRect.width - viewportPadding))
-      const below = triggerRect.bottom + gap
-      const above = triggerRect.top - panelRect.height - gap
-      const top = below + panelRect.height <= window.innerHeight - viewportPadding || above < viewportPadding ? below : above
-      setPanelPosition({ left, top: Math.min(Math.max(top, viewportPadding), Math.max(viewportPadding, window.innerHeight - panelRect.height - viewportPadding)), visibility: "visible" })
-    }
-    updatePosition()
-    window.addEventListener("resize", updatePosition)
-    document.addEventListener("scroll", updatePosition, true)
-    return () => {
-      window.removeEventListener("resize", updatePosition)
-      document.removeEventListener("scroll", updatePosition, true)
-    }
-  }, [open])
-
   useEffect(() => {
-    if (!open || window.innerWidth >= 640) return
+    if (!open || !isPhone) return
     const previousOverflow = document.body.style.overflow
     document.body.style.overflow = "hidden"
     return () => { document.body.style.overflow = previousOverflow }
-  }, [open])
+  }, [open, isPhone])
 
   function handleDayKeyDown(event: ReactKeyboardEvent<HTMLButtonElement>, date: Date) {
     let next: Date | undefined
@@ -248,6 +236,7 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(({
       {label && (
         <label htmlFor={triggerId} className={fieldLabelStyles}>{label}</label>
       )}
+      {name && !disabled && <input type="hidden" name={name} value={value ? dateKey(value) : ""} required={required} />}
       <div className={cn("flex w-full items-center rounded-[var(--radius-md)]", triggerSizes[size].height, controlBaseStyles, error && controlInvalidStyles, disabled && "cursor-not-allowed opacity-50")}>
       <button
         ref={triggerRef}
@@ -282,7 +271,7 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(({
           <>
           <motion.div aria-hidden="true" className="fixed inset-0 z-(--z-popover) bg-overlay sm:hidden" onMouseDown={() => closeCalendar(true)} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} />
           <motion.div
-            ref={panelRef}
+            ref={mergeRefs(panelRef, setFloating)}
             id={dialogId}
             initial={{ opacity: 0, y: -4, scaleY: 0.97 }}
             animate={{ opacity: 1, y: 0, scaleY: 1 }}
@@ -291,7 +280,7 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(({
             role="dialog"
             aria-label={label ? `Choose ${label.toLowerCase()}` : "Choose date"}
             className="fixed z-(--z-popover) w-[min(18rem,calc(100vw-2rem))] max-h-[calc(100dvh-1rem)] overflow-y-auto rounded-[var(--radius-lg)] border border-border bg-surface-raised p-3 shadow-floating"
-            style={{ ...panelPosition, originY: 0 }}
+            style={isPhone ? { insetInline: 8, bottom: 8, top: "auto", width: "auto", originY: 0 } : { ...style, originY: 0 }}
           >
             <div className="mb-2 flex items-center justify-between gap-3 sm:hidden"><strong className="text-sm text-foreground">{label ? `Choose ${label.toLowerCase()}` : "Choose date"}</strong><button type="button" onClick={() => closeCalendar(true)} className={cn(iconButtonStyles, "size-11")} aria-label="Close date picker"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12" /></svg></button></div>
             <div className="flex items-center justify-between mb-3">
@@ -354,7 +343,7 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(({
                       isSelected
                         ? "bg-primary text-primary-foreground font-medium"
                         : isToday
-                        ? "border border-accent-500/40 text-accent-400 hover:bg-accent-500/10"
+                        ? "border border-accent-500/40 text-accent-strong hover:bg-accent-500/10"
                         : "text-foreground hover:bg-foreground/6",
                       isDisabled && "opacity-30 cursor-not-allowed",
                     )}

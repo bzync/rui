@@ -3,6 +3,8 @@
 import { cn } from "@/lib/cn"
 import { useAnchoredPosition } from "@/hooks/use-anchored-position"
 import { mergeRefs } from "@/lib/merge-refs"
+import { Slot } from "./slot"
+import { ThemePortal } from "./theme-provider"
 import { type HTMLAttributes, type KeyboardEvent as ReactKeyboardEvent, type MouseEvent as ReactMouseEvent, type ReactNode, Suspense, forwardRef, lazy, useEffect, useRef, useState } from "react"
 import type { DropdownMenuSection } from "./dropdown-menu"
 
@@ -18,6 +20,8 @@ export interface ContextMenuProps extends Omit<HTMLAttributes<HTMLDivElement>, "
   disabled?: boolean
   menuClassName?: string
   onOpenChange?: (open: boolean) => void
+  /** Merges trigger props directly onto a single child element (e.g. TableRow). */
+  asChild?: boolean
 }
 
 /**
@@ -33,6 +37,7 @@ export const ContextMenu = forwardRef<HTMLDivElement, ContextMenuProps>(function
   className,
   menuClassName,
   onOpenChange,
+  asChild = false,
   ...props
 }, ref) {
   const [open, setOpenState] = useState(false)
@@ -119,34 +124,42 @@ export const ContextMenu = forwardRef<HTMLDivElement, ContextMenuProps>(function
     }
   }
 
+  const Comp = asChild ? Slot : "div"
+
   return (
-    <div
-      ref={mergeRefs(regionRef, ref)}
-      {...props}
-      aria-haspopup={disabled ? undefined : "menu"}
-      onContextMenu={onContextMenu}
-      onKeyDown={onKeyDown}
-      className={cn(className)}
-    >
-      {children}
-      {/* Zero-size anchor at the pointer: the menu positions against it. */}
-      <span ref={anchorRef} aria-hidden="true" style={{ position: "fixed", left: point.x, top: point.y, width: 0, height: 0, pointerEvents: "none" }} />
+    <>
+      <Comp
+        ref={mergeRefs(regionRef, ref)}
+        {...props}
+        aria-haspopup={disabled ? undefined : "menu"}
+        onContextMenu={onContextMenu}
+        onKeyDown={onKeyDown}
+        className={cn(className)}
+      >
+        {children}
+      </Comp>
       {mounted && (
-        <Suspense fallback={null}>
-          <DropdownMenuPanel
-            open={open}
-            menuRef={(element) => { menuRef.current = element; setFloating(element); setMenuEl(element) }}
-            items={items}
-            side={placement === "top" ? "top" : "bottom"}
-            style={style}
-            className={menuClassName}
-            ariaLabel={ariaLabel}
-            onKeyDown={onMenuKeyDown}
-            onSelect={() => close(true)}
-          />
-        </Suspense>
+        <>
+          <ThemePortal>
+            {/* Zero-size anchor at the pointer: portalled so it never disrupts table row / list item DOM nesting */}
+            <span ref={anchorRef} aria-hidden="true" style={{ position: "fixed", left: point.x, top: point.y, width: 0, height: 0, pointerEvents: "none" }} />
+          </ThemePortal>
+          <Suspense fallback={null}>
+            <DropdownMenuPanel
+              open={open}
+              menuRef={(element) => { menuRef.current = element; setFloating(element); setMenuEl(element) }}
+              items={items}
+              side={placement === "top" ? "top" : "bottom"}
+              style={style}
+              className={menuClassName}
+              ariaLabel={ariaLabel}
+              onKeyDown={onMenuKeyDown}
+              onSelect={() => close(true)}
+            />
+          </Suspense>
+        </>
       )}
-    </div>
+    </>
   )
 })
 ContextMenu.displayName = "ContextMenu"

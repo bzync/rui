@@ -53,6 +53,7 @@ export interface SelectPropsSingle extends SelectPropsBase {
   value?: string
   defaultValue?: string
   onChange?: (value: string) => void
+  onValueChange?: (value: string) => void
 }
 
 export interface SelectPropsMulti extends SelectPropsBase {
@@ -60,7 +61,11 @@ export interface SelectPropsMulti extends SelectPropsBase {
   value?: string[]
   defaultValue?: string[]
   onChange?: (value: string[]) => void
+  onValueChange?: (value: string[]) => void
 }
+
+export type SelectSingleProps = SelectPropsSingle
+export type SelectMultiProps = SelectPropsMulti
 
 export type SelectProps = SelectPropsSingle | SelectPropsMulti
 

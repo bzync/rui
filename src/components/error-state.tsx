@@ -1,8 +1,8 @@
 import { cn } from "@/lib/cn"
-import { ReactNode, forwardRef } from "react"
+import { type HTMLAttributes, type ReactNode, forwardRef } from "react"
 import { Button } from "./button"
 
-export interface ErrorStateProps {
+export interface ErrorStateProps extends Omit<HTMLAttributes<HTMLDivElement>, "title"> {
   title?: string
   description?: string
   error?: string | Error
@@ -18,11 +18,12 @@ export const ErrorState = forwardRef<HTMLDivElement, ErrorStateProps>(function E
   onRetry,
   action,
   className,
+  ...props
 }, ref) {
   const message = error instanceof Error ? error.message : error
 
   return (
-    <div ref={ref} role="alert" className={cn("flex flex-col items-center justify-center text-center px-4 py-10", className)}>
+    <div ref={ref} role="alert" className={cn("flex flex-col items-center justify-center text-center px-4 py-10", className)} {...props}>
       <div className="mb-3 flex size-9 items-center justify-center text-destructive">
         <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />

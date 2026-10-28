@@ -1,19 +1,21 @@
 "use client"
 
 import { cn } from "@/lib/cn"
-import { iconButtonStyles } from "@/lib/component-styles"
+import { focusRingStyles, iconButtonStyles } from "@/lib/component-styles"
 import { CloseIcon } from "@/lib/icons"
+import { mergeRefs } from "@/lib/merge-refs"
 import { useControllableState } from "@/hooks/use-controllable-state"
 import { useEventCallback } from "@/hooks/use-event-callback"
 import { useFocusTrap, useRestoreFocus } from "@/hooks/use-focus-trap"
 import { useHydrated } from "@/hooks/use-hydrated"
 import { useIsomorphicLayoutEffect } from "@/hooks/use-isomorphic-layout-effect"
-import { type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent, type ReactNode, useEffect, useId, useRef, useState } from "react"
+import { type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent, type ReactNode, forwardRef, useEffect, useId, useRef, useState } from "react"
 import { ThemePortal } from "./theme-provider"
 
 export interface SheetProps {
   open: boolean
-  onOpenChange: (open: boolean) => void
+  onOpenChange?: (open: boolean) => void
+  onClose?: () => void
   /**
    * Heights the sheet rests at, smallest first. Values up to 1 are fractions
    * of the viewport height; larger values are pixels. Default `[0.5, 0.92]`.
@@ -52,9 +54,10 @@ const toPx = (point: number, viewport: number) => (point <= 1 ? point * viewport
  * dismisses. The handle is a button: click or Enter cycles the snap points
  * and Arrow Up/Down step through them.
  */
-export function Sheet({
+export const Sheet = forwardRef<HTMLDivElement, SheetProps>(function Sheet({
   open,
   onOpenChange,
+  onClose,
   snapPoints = DEFAULT_SNAPS,
   snap: snapProp,
   defaultSnap = 0,
@@ -72,7 +75,7 @@ export function Sheet({
   headerClassName,
   contentClassName,
   handleClassName,
-}: SheetProps) {
+}, ref) {
   const [snap, setSnap] = useControllableState({ value: snapProp, defaultValue: defaultSnap, onChange: onSnapChange })
   const [rendered, setRendered] = useState(open)
   const [shown, setShown] = useState(false)
@@ -84,7 +87,10 @@ export function Sheet({
   const titleId = useId()
   const descriptionId = useId()
   const hydrated = useHydrated()
-  const close = useEventCallback(() => onOpenChange(false))
+  const close = useEventCallback(() => {
+    onClose?.()
+    onOpenChange?.(false)
+  })
   const { restoreNow } = useRestoreFocus(open)
 
   useFocusTrap(panelRef, { active: open && modal && hydrated && rendered, onEscape: close, closeOnEscape: dismissible })
@@ -190,7 +196,7 @@ export function Sheet({
         />
       )}
       <div
-        ref={panelRef}
+        ref={mergeRefs(panelRef, ref)}
         role="dialog"
         aria-modal={modal || undefined}
         aria-labelledby={title ? titleId : undefined}
@@ -215,7 +221,7 @@ export function Sheet({
               aria-label={expanded ? "Collapse sheet" : "Expand sheet"}
               onClick={() => goTo(expanded ? 0 : index + 1)}
               onKeyDown={onHandleKeyDown}
-              className="grid h-5 w-12 place-items-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-focus-ring/50"
+              className={cn("grid h-5 w-12 place-items-center rounded-full", focusRingStyles)}
             >
               <span aria-hidden="true" className={cn("h-1 w-9 rounded-full bg-border-strong", handleClassName)} />
             </button>
@@ -241,4 +247,5 @@ export function Sheet({
       </div>
     </ThemePortal>
   )
-}
+})
+Sheet.displayName = "Sheet"

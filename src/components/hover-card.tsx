@@ -103,6 +103,10 @@ export const HoverCard = forwardRef<HTMLDivElement, HoverCardProps>(function Hov
               transition={transitions.fade}
               onMouseEnter={cancel}
               onMouseLeave={() => schedule(false)}
+              onFocusCapture={cancel}
+              onBlurCapture={(e) => {
+                if (!e.currentTarget.contains(e.relatedTarget as Node | null)) schedule(false)
+              }}
               style={{ ...style, width: typeof width === "number" ? `${width}px` : width, maxWidth: "calc(100vw - 1rem)" }}
               className={cn("z-(--z-popover) rounded-[var(--radius-lg)] border border-border bg-surface-raised p-4 text-sm text-foreground shadow-floating", className)}
             >

@@ -138,9 +138,13 @@ export const Resizable = forwardRef<HTMLDivElement, ResizableProps>(function Res
       document.body.style.cursor = ""
       handle.removeEventListener("pointermove", onMove)
       handle.removeEventListener("pointerup", onUp)
+      handle.removeEventListener("pointercancel", onUp)
+      document.removeEventListener("pointercancel", onUp)
     }
     handle.addEventListener("pointermove", onMove)
     handle.addEventListener("pointerup", onUp)
+    handle.addEventListener("pointercancel", onUp)
+    document.addEventListener("pointercancel", onUp)
   }
 
   const onHandleKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>, i: number) => {

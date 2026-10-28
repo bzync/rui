@@ -1,22 +1,26 @@
 "use client"
 
 import { cn } from "@/lib/cn"
-import { useEffect, useState, forwardRef } from "react"
+import { type HTMLAttributes, useEffect, useState, forwardRef } from "react"
 import { type ChartDataPoint, type TooltipState, ChartTooltip, CHART_SEQUENTIAL } from "./shared"
 
-export interface FunnelChartProps {
+export interface FunnelChartProps extends HTMLAttributes<HTMLDivElement> {
   data: ChartDataPoint[]
   height?: number
   className?: string
   formatValue?: (v: number) => string
+  ariaLabel?: string
 }
 
 const FUNNEL_COLORS = CHART_SEQUENTIAL
 
 export const FunnelChart = forwardRef<HTMLDivElement, FunnelChartProps>(function FunnelChart({
   data,
+  height: _height,
   className,
   formatValue = String,
+  ariaLabel,
+  ...props
 }, ref) {
   const [tooltip, setTooltip] = useState<TooltipState | null>(null)
   const [hovered, setHovered] = useState<number | null>(null)
@@ -31,13 +35,28 @@ export const FunnelChart = forwardRef<HTMLDivElement, FunnelChartProps>(function
   const MIN_W_PCT = 18  // narrowest bar as % of container
 
   return (
-    <div ref={ref} className={cn("w-full select-none flex flex-col gap-2", className)}>
+    <div
+      ref={ref}
+      role="img"
+      aria-label={ariaLabel ?? props["aria-label"] ?? "Funnel chart"}
+      className={cn("w-full select-none flex flex-col gap-2", className)}
+      {...props}
+    >
       {data.map((d, i) => {
         const pct = d.value / max
         const barW = MIN_W_PCT + pct * (100 - MIN_W_PCT)  // % of container
         const c = d.color ?? FUNNEL_COLORS[i % FUNNEL_COLORS.length]
         const isHov = hovered === i
         const dropPct = i > 0 ? ((d.value / data[0].value) * 100).toFixed(0) : null
+        const content = (
+          <span>
+            <span className="text-tooltip-foreground/75 mr-2">{d.label}</span>
+            <span className="font-semibold text-tooltip-foreground">{formatValue(d.value)}</span>
+            {dropPct && (
+              <span className="text-tooltip-foreground/75 ml-2">{dropPct}% of total</span>
+            )}
+          </span>
+        )
 
         return (
           <div key={i} className="flex items-center gap-3">
@@ -49,7 +68,9 @@ export const FunnelChart = forwardRef<HTMLDivElement, FunnelChartProps>(function
             {/* Bar — centred, width proportional to value */}
             <div className="flex-1 flex justify-center">
               <div
-                className="relative h-10 rounded-md flex items-center justify-center cursor-pointer"
+                tabIndex={0}
+                aria-label={`${d.label}: ${formatValue(d.value)}${dropPct ? ` (${dropPct}% of total)` : ""}`}
+                className="relative h-10 rounded-md flex items-center justify-center cursor-pointer outline-none focus-visible:opacity-85"
                 style={{
                   width: ready ? `${barW}%` : `${MIN_W_PCT}%`,
                   backgroundColor: c,
@@ -63,18 +84,20 @@ export const FunnelChart = forwardRef<HTMLDivElement, FunnelChartProps>(function
                 onMouseMove={(e) =>
                   setTooltip({
                     x: e.clientX, y: e.clientY,
-                    content: (
-                      <span>
-                        <span className="text-muted-foreground mr-2">{d.label}</span>
-                        <span className="font-semibold text-foreground">{formatValue(d.value)}</span>
-                        {dropPct && (
-                          <span className="text-muted-foreground ml-2">{dropPct}% of total</span>
-                        )}
-                      </span>
-                    ),
+                    content,
                   })
                 }
                 onMouseLeave={() => { setHovered(null); setTooltip(null) }}
+                onFocus={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect()
+                  setHovered(i)
+                  setTooltip({
+                    x: rect.left + rect.width / 2,
+                    y: rect.top,
+                    content,
+                  })
+                }}
+                onBlur={() => { setHovered(null); setTooltip(null) }}
               />
             </div>
 
