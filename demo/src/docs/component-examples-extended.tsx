@@ -3153,6 +3153,162 @@ export default function App() {
       <PanoBackdropExample />,
     ),
   ],
+
+  "components/icon": () => [
+    ex(
+      "sizes",
+      "Size scale & custom dimensions",
+      "Icons scale smoothly through presets ('xs'=14px, 'sm'=16px, 'md'=20px, 'lg'=24px, 'xl'=32px) or explicit numeric pixel values.",
+      `<div className="flex flex-wrap items-end gap-6 text-foreground">
+  <div className="flex flex-col items-center gap-1.5">
+    <Icon name="star" size="xs" />
+    <span className="text-[11px] text-muted-foreground">xs (14px)</span>
+  </div>
+  <div className="flex flex-col items-center gap-1.5">
+    <Icon name="star" size="sm" />
+    <span className="text-[11px] text-muted-foreground">sm (16px)</span>
+  </div>
+  <div className="flex flex-col items-center gap-1.5">
+    <Icon name="star" size="md" />
+    <span className="text-[11px] text-muted-foreground">md (20px)</span>
+  </div>
+  <div className="flex flex-col items-center gap-1.5">
+    <Icon name="star" size="lg" />
+    <span className="text-[11px] text-muted-foreground">lg (24px)</span>
+  </div>
+  <div className="flex flex-col items-center gap-1.5">
+    <Icon name="star" size="xl" />
+    <span className="text-[11px] text-muted-foreground">xl (32px)</span>
+  </div>
+  <div className="flex flex-col items-center gap-1.5">
+    <Icon name="star" size={40} />
+    <span className="text-[11px] text-muted-foreground">40px</span>
+  </div>
+</div>`,
+      <div className="flex flex-wrap items-end gap-6 text-foreground">
+        <div className="flex flex-col items-center gap-1.5">
+          <R.Icon name="star" size="xs" />
+          <span className="text-[11px] text-muted-foreground">xs (14px)</span>
+        </div>
+        <div className="flex flex-col items-center gap-1.5">
+          <R.Icon name="star" size="sm" />
+          <span className="text-[11px] text-muted-foreground">sm (16px)</span>
+        </div>
+        <div className="flex flex-col items-center gap-1.5">
+          <R.Icon name="star" size="md" />
+          <span className="text-[11px] text-muted-foreground">md (20px)</span>
+        </div>
+        <div className="flex flex-col items-center gap-1.5">
+          <R.Icon name="star" size="lg" />
+          <span className="text-[11px] text-muted-foreground">lg (24px)</span>
+        </div>
+        <div className="flex flex-col items-center gap-1.5">
+          <R.Icon name="star" size="xl" />
+          <span className="text-[11px] text-muted-foreground">xl (32px)</span>
+        </div>
+        <div className="flex flex-col items-center gap-1.5">
+          <R.Icon name="star" size={40} />
+          <span className="text-[11px] text-muted-foreground">40px</span>
+        </div>
+      </div>,
+    ),
+    ex(
+      "tones",
+      "Semantic tones",
+      "Tones map to theme status and accent tokens without raw palette dependencies.",
+      `<div className="flex flex-wrap items-center gap-4">
+  <Icon name="check-circle" tone="success" size="lg" />
+  <Icon name="alert-triangle" tone="warning" size="lg" />
+  <Icon name="alert-circle" tone="danger" size="lg" />
+  <Icon name="info" tone="info" size="lg" />
+  <Icon name="sparkles" tone="accent" size="lg" />
+  <Icon name="clock" tone="muted" size="lg" />
+  <Icon name="bell" tone="default" size="lg" />
+</div>`,
+      <div className="flex flex-wrap items-center gap-4">
+        <R.Icon name="check-circle" tone="success" size="lg" />
+        <R.Icon name="alert-triangle" tone="warning" size="lg" />
+        <R.Icon name="alert-circle" tone="danger" size="lg" />
+        <R.Icon name="info" tone="info" size="lg" />
+        <R.Icon name="sparkles" tone="accent" size="lg" />
+        <R.Icon name="clock" tone="muted" size="lg" />
+        <R.Icon name="bell" tone="default" size="lg" />
+      </div>,
+    ),
+    ex(
+      "dictionary",
+      "Icon dictionary & actions",
+      "Import named icon components directly via the Icons namespace for cleaner JSX and strong typing.",
+      `<div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+  <div className="flex items-center gap-2 rounded-lg border border-border p-2.5 text-xs text-foreground">
+    <Icons.Search className="text-muted-foreground" />
+    <span>Icons.Search</span>
+  </div>
+  <div className="flex items-center gap-2 rounded-lg border border-border p-2.5 text-xs text-foreground">
+    <Icons.Copy className="text-muted-foreground" />
+    <span>Icons.Copy</span>
+  </div>
+  <div className="flex items-center gap-2 rounded-lg border border-border p-2.5 text-xs text-foreground">
+    <Icons.Download className="text-muted-foreground" />
+    <span>Icons.Download</span>
+  </div>
+  <div className="flex items-center gap-2 rounded-lg border border-border p-2.5 text-xs text-foreground">
+    <Icons.Trash className="text-danger-strong" />
+    <span>Icons.Trash</span>
+  </div>
+  <div className="flex items-center gap-2 rounded-lg border border-border p-2.5 text-xs text-foreground">
+    <Icons.Sun className="text-warning-strong" />
+    <span>Icons.Sun</span>
+  </div>
+  <div className="flex items-center gap-2 rounded-lg border border-border p-2.5 text-xs text-foreground">
+    <Icons.Moon className="text-muted-foreground" />
+    <span>Icons.Moon</span>
+  </div>
+  <div className="flex items-center gap-2 rounded-lg border border-border p-2.5 text-xs text-foreground">
+    <Icons.Terminal className="text-accent-strong" />
+    <span>Icons.Terminal</span>
+  </div>
+  <div className="flex items-center gap-2 rounded-lg border border-border p-2.5 text-xs text-foreground">
+    <Icons.Loader spin className="text-accent-strong" />
+    <span>Icons.Loader (spin)</span>
+  </div>
+</div>`,
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="flex items-center gap-2 rounded-lg border border-border p-2.5 text-xs text-foreground">
+          <R.Icons.Search className="text-muted-foreground" />
+          <span>Icons.Search</span>
+        </div>
+        <div className="flex items-center gap-2 rounded-lg border border-border p-2.5 text-xs text-foreground">
+          <R.Icons.Copy className="text-muted-foreground" />
+          <span>Icons.Copy</span>
+        </div>
+        <div className="flex items-center gap-2 rounded-lg border border-border p-2.5 text-xs text-foreground">
+          <R.Icons.Download className="text-muted-foreground" />
+          <span>Icons.Download</span>
+        </div>
+        <div className="flex items-center gap-2 rounded-lg border border-border p-2.5 text-xs text-foreground">
+          <R.Icons.Trash className="text-danger-strong" />
+          <span>Icons.Trash</span>
+        </div>
+        <div className="flex items-center gap-2 rounded-lg border border-border p-2.5 text-xs text-foreground">
+          <R.Icons.Sun className="text-warning-strong" />
+          <span>Icons.Sun</span>
+        </div>
+        <div className="flex items-center gap-2 rounded-lg border border-border p-2.5 text-xs text-foreground">
+          <R.Icons.Moon className="text-muted-foreground" />
+          <span>Icons.Moon</span>
+        </div>
+        <div className="flex items-center gap-2 rounded-lg border border-border p-2.5 text-xs text-foreground">
+          <R.Icons.Terminal className="text-accent-strong" />
+          <span>Icons.Terminal</span>
+        </div>
+        <div className="flex items-center gap-2 rounded-lg border border-border p-2.5 text-xs text-foreground">
+          <R.Icons.Loader spin className="text-accent-strong" />
+          <span>Icons.Loader (spin)</span>
+        </div>
+      </div>,
+    ),
+  ],
 }
 
 function ContextMenuTableExample() {

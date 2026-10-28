@@ -102,6 +102,7 @@ const display = [
   component("Tag", "Displays removable or static taxonomy values.", "Display", ["chip"]),
   component("Kbd", "Displays keyboard shortcuts and key sequences.", "Display", ["keyboard"]),
   component("Status Dot", "Communicates presence or operational status.", "Display", [], "StatusDot"),
+  component("Icon", "General-purpose vector icons with responsive sizing, tone coloring, and accessible semantics.", "Display", ["icons", "svg", "glyph", "symbol"]),
   component("Stat", "Displays a labeled value and optional trend.", "Display", ["metric"]),
   component("Link", "Provides styled inline navigation.", "Display", ["anchor"]),
   component("List", "Renders structured lists with consistent density.", "Display"),

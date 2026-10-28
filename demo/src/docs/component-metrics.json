@@ -1,9 +1,9 @@
 {
   "version": "0.0.13",
   "stylesheet": {
-    "raw": 149103,
-    "gzip": 22502,
-    "brotli": 17677
+    "raw": 149330,
+    "gzip": 22520,
+    "brotli": 17688
   },
   "sharedRuntime": {
     "raw": 37642,
@@ -1427,6 +1427,38 @@
       "peers": [
         "framer-motion"
       ]
+    },
+    "Icon": {
+      "entry": "components/icon.js",
+      "total": {
+        "raw": 58794,
+        "gzip": 14728,
+        "brotli": 12616
+      },
+      "specific": {
+        "raw": 21152,
+        "gzip": 5098,
+        "brotli": 4336
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
+    },
+    "Icons": {
+      "entry": "components/icon.js",
+      "total": {
+        "raw": 58794,
+        "gzip": 14728,
+        "brotli": 12616
+      },
+      "specific": {
+        "raw": 21152,
+        "gzip": 5098,
+        "brotli": 4336
+      },
+      "lazy": null,
+      "modules": 3,
+      "peers": []
     },
     "Image": {
       "entry": "components/image.js",

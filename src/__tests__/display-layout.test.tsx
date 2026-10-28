@@ -448,6 +448,8 @@ describe("ref forwarding", () => {
       ["Tree", (ref) => <R.Tree ref={ref} nodes={[{ id: "1", label: "Root" }]} />, HTMLUListElement],
       ["SortableList", (ref) => <R.SortableList ref={ref} items={[{ id: "1" }]} onReorder={() => {}} renderItem={(i) => i.id} />, HTMLUListElement],
       ["Kanban", (ref) => <R.Kanban ref={ref} columns={[{ id: "todo", title: "To do", items: [{ id: "1" }] }]} onChange={() => {}} renderCard={(i) => i.id} />, HTMLDivElement],
+      ["Icon", (ref) => <R.Icon ref={ref} name="check" />, SVGSVGElement],
+      ["Icons.Check", (ref) => <R.Icons.Check ref={ref} />, SVGSVGElement],
     ]
     for (const [name, element, type] of cases) {
       const ref = createRef<never>()
@@ -577,5 +579,95 @@ describe("Lightbox", () => {
     expect(screen.getAllByRole("button", { name: "Next image" })[0]).toBeDisabled()
     await user.keyboard("{Escape}")
     expect(onOpenChange).toHaveBeenCalledWith(false)
+  })
+})
+
+describe("Icon and Icons", () => {
+  it("renders by name and supports aliases and case-insensitivity", () => {
+    const { container: c1 } = render(<R.Icon name="check" data-testid="icon-check" />)
+    const { container: c2 } = render(<R.Icon name="Check" data-testid="icon-pascal" />)
+    const { container: c3 } = render(<R.Icon name="close" data-testid="icon-alias-close" />)
+    const { container: c4 } = render(<R.Icon name="spinner" data-testid="icon-alias-spinner" />)
+
+    expect(c1.querySelector("svg")).toBeInTheDocument()
+    expect(c2.querySelector("svg")).toBeInTheDocument()
+    // "close" maps to "x"
+    expect(c3.querySelector("svg")).toHaveAttribute("data-icon", "x")
+    // "spinner" maps to "loader"
+    expect(c4.querySelector("svg")).toHaveAttribute("data-icon", "loader")
+  })
+
+  it("renders through the Icons.* component dictionary", () => {
+    render(
+      <div>
+        <R.Icons.Check data-testid="dict-check" />
+        <R.Icons.Copy data-testid="dict-copy" />
+        <R.Icons.Search data-testid="dict-search" />
+        <R.Icons.Loader spin data-testid="dict-loader" />
+      </div>,
+    )
+
+    expect(screen.getByTestId("dict-check")).toHaveAttribute("data-icon", "check")
+    expect(screen.getByTestId("dict-copy")).toHaveAttribute("data-icon", "copy")
+    expect(screen.getByTestId("dict-search")).toHaveAttribute("data-icon", "search")
+    expect(screen.getByTestId("dict-loader")).toHaveClass("animate-spin")
+  })
+
+  it("applies size scale classes and numeric pixel styles", () => {
+    const { rerender } = render(<R.Icon name="star" size="xs" data-testid="size-test" />)
+    expect(screen.getByTestId("size-test")).toHaveClass("size-3.5")
+
+    rerender(<R.Icon name="star" size="sm" data-testid="size-test" />)
+    expect(screen.getByTestId("size-test")).toHaveClass("size-4")
+
+    rerender(<R.Icon name="star" size="md" data-testid="size-test" />)
+    expect(screen.getByTestId("size-test")).toHaveClass("size-5")
+
+    rerender(<R.Icon name="star" size="lg" data-testid="size-test" />)
+    expect(screen.getByTestId("size-test")).toHaveClass("size-6")
+
+    rerender(<R.Icon name="star" size="xl" data-testid="size-test" />)
+    expect(screen.getByTestId("size-test")).toHaveClass("size-8")
+
+    rerender(<R.Icon name="star" size={42} data-testid="size-test" />)
+    const svg = screen.getByTestId("size-test")
+    expect(svg.style.width).toBe("42px")
+    expect(svg.style.height).toBe("42px")
+  })
+
+  it("applies semantic status and accent tones", () => {
+    const { rerender } = render(<R.Icon name="alert-triangle" tone="warning" data-testid="tone-test" />)
+    expect(screen.getByTestId("tone-test")).toHaveClass("text-warning-strong")
+
+    rerender(<R.Icon name="alert-triangle" tone="danger" data-testid="tone-test" />)
+    expect(screen.getByTestId("tone-test")).toHaveClass("text-danger-strong")
+
+    rerender(<R.Icon name="alert-triangle" tone="success" data-testid="tone-test" />)
+    expect(screen.getByTestId("tone-test")).toHaveClass("text-success-strong")
+
+    rerender(<R.Icon name="alert-triangle" tone="accent" data-testid="tone-test" />)
+    expect(screen.getByTestId("tone-test")).toHaveClass("text-accent-strong")
+
+    rerender(<R.Icon name="alert-triangle" tone="muted" data-testid="tone-test" />)
+    expect(screen.getByTestId("tone-test")).toHaveClass("text-muted-foreground")
+  })
+
+  it("handles accessibility via label or aria-hidden by default", () => {
+    const { rerender } = render(<R.Icon name="search" data-testid="a11y-test" />)
+    const hiddenSvg = screen.getByTestId("a11y-test")
+    expect(hiddenSvg).toHaveAttribute("aria-hidden", "true")
+    expect(hiddenSvg).not.toHaveAttribute("role", "img")
+
+    rerender(<R.Icon name="search" label="Search repository" data-testid="a11y-test" />)
+    const accessibleSvg = screen.getByRole("img", { name: "Search repository" })
+    expect(accessibleSvg).toBeInTheDocument()
+    expect(accessibleSvg).not.toHaveAttribute("aria-hidden")
+  })
+
+  it("supports strokeWidth override and custom className", () => {
+    render(<R.Icon name="circle" strokeWidth={3} className="custom-icon-class" data-testid="custom-svg" />)
+    const svg = screen.getByTestId("custom-svg")
+    expect(svg).toHaveAttribute("stroke-width", "3")
+    expect(svg).toHaveClass("custom-icon-class")
   })
 })

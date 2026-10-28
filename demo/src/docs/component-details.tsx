@@ -1196,6 +1196,36 @@ function InviteForm() {
     api(["status", "Status", "Operational state."], ["label", "string", "Visible state label."], ["pulse", "boolean", "Animates live states.", "false"], ["size", '"sm" | "md" | "lg"', "Indicator size.", '"md"']),
     "Provide a label or adjacent text so status is not conveyed by color alone.",
   ),
+  "components/icon": () => detail(
+    `<div className="flex flex-wrap items-center justify-center gap-4">
+  <Icon name="search" />
+  <Icon name="check" tone="success" />
+  <Icon name="alert-triangle" tone="warning" />
+  <Icon name="x" tone="danger" />
+  <Icon name="loader" spin tone="accent" />
+  <Icons.Copy className="cursor-pointer hover:text-accent-strong" />
+  <Icons.Heart tone="danger" size="lg" />
+</div>`,
+    <div className="flex flex-wrap items-center justify-center gap-4">
+      <R.Icon name="search" />
+      <R.Icon name="check" tone="success" />
+      <R.Icon name="alert-triangle" tone="warning" />
+      <R.Icon name="x" tone="danger" />
+      <R.Icon name="loader" spin tone="accent" />
+      <R.Icons.Copy className="cursor-pointer hover:text-accent-strong" />
+      <R.Icons.Heart tone="danger" size="lg" />
+    </div>,
+    api(
+      ["name", "IconName", "Name of the icon to render (kebab-case or PascalCase)."],
+      ["size", '"xs" | "sm" | "md" | "lg" | "xl" | number', "Pre-configured size scale or exact pixel dimension.", '"md"'],
+      ["tone", '"default" | "muted" | "accent" | "success" | "warning" | "danger" | "info"', "Semantic status or brand color tone.", '"default"'],
+      ["spin", "boolean", "Continuously animates icon rotation (e.g. for spinners).", "false"],
+      ["strokeWidth", "number", "SVG stroke line width.", "2"],
+      ["label", "string", "Accessible screen-reader label (sets role='img' and aria-label)."],
+      ["className", "string", "Composes SVG classes."],
+    ),
+    "Icons are hidden from screen readers with aria-hidden='true' by default. If an icon conveys standalone meaning without visible accompanying text, pass a label prop to set role='img' and aria-label.",
+  ),
   "components/stat": () => detail(
     `<div className="grid w-full max-w-lg gap-3 sm:grid-cols-2"><Stat label="Requests" value="1.2M" trend="up" trendValue="+14%" description="vs last month" /><Stat label="Latency" value="38" unit="ms" trend="down" trendValue="-4ms" /></div>`,
     <div className="grid w-full max-w-lg gap-3 sm:grid-cols-2"><R.Stat label="Requests" value="1.2M" trend="up" trendValue="+14%" description="vs last month" /><R.Stat label="Latency" value="38" unit="ms" trend="down" trendValue="-4ms" /></div>,
