@@ -18,6 +18,7 @@ import { nameFromFile, prepareMediaImage, preparePanorama, type PreparedPanorama
 import { canSpeak, speakText } from "./pano-speech"
 import { PanoTourDialog } from "./pano-tour-dialog"
 import { PanoViewer, type PanoHandle } from "./pano-viewer"
+import { safeImageSrc, safeExternalUrl, sanitizePanoScenes } from "./pano-security"
 import type {
   PanoActionDefinition,
   PanoHotspot,
@@ -1155,7 +1156,7 @@ export function PanoSceneStrip({
               )}
             >
               <img
-                src={s.preview ?? s.image}
+                src={safeImageSrc(s.preview ?? s.image)}
                 alt=""
                 className="size-full object-cover"
                 loading="lazy"
@@ -1180,7 +1181,7 @@ export function PanoSceneStrip({
 
         {uploads.map((u) => (
           <li key={u.key} className={cn(tile, "border border-border bg-surface")}>
-            {u.thumb && <img src={u.thumb} alt="" className="absolute inset-0 size-full object-cover opacity-60" />}
+            {u.thumb && <img src={safeImageSrc(u.thumb)} alt="" className="absolute inset-0 size-full object-cover opacity-60" />}
             <div className="relative flex h-full flex-col justify-end p-2 text-xs">
               {u.error ? (
                 <>
@@ -1681,7 +1682,7 @@ export function PanoHotspotEditor({
               <span className="text-xs font-medium text-foreground">Photo</span>
               <div className="flex items-center gap-2">
                 {h.media?.kind === "image" && h.media.src && (
-                  <img src={h.media.src} alt="" className="h-12 w-16 rounded object-cover" />
+                  <img src={safeImageSrc(h.media.src)} alt="" className="h-12 w-16 rounded object-cover" />
                 )}
                 <label className={btnCls("secondary", "sm", "cursor-pointer")}>
                   <PanoIcons.Upload /> {h.media?.kind === "image" && h.media.src ? "Replace" : "Upload"}
@@ -2090,7 +2091,7 @@ function PanoJsonDialog({
     try {
       const parsed = JSON.parse(raw)
       if (!Array.isArray(parsed)) throw new Error("JSON must be an array of PanoScene objects.")
-      onImport(parsed as PanoScene[])
+      onImport(sanitizePanoScenes(parsed as PanoScene[]))
     } catch (e) {
       setError(e instanceof Error ? e.message : "Invalid JSON.")
     }

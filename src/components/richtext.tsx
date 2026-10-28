@@ -119,6 +119,26 @@ function sanitizeHtml(html: string, sanitize?: boolean | ((html: string) => stri
   return defaultSanitize(html)
 }
 
+function hasVisibleContent(html: string): boolean {
+  if (!html) return false
+  if (typeof document !== "undefined") {
+    const template = document.createElement("template")
+    template.innerHTML = html
+    return Boolean(
+      template.content.textContent?.trim() ||
+      template.content.querySelector("img, svg, video, audio, iframe, hr, table, input"),
+    )
+  }
+  let inTag = false
+  for (let i = 0; i < html.length; i++) {
+    const ch = html[i]
+    if (ch === "<") inTag = true
+    else if (ch === ">") inTag = false
+    else if (!inTag && ch > " ") return true
+  }
+  return false
+}
+
 // ─── RichTextEditor ───────────────────────────────────────────────────────────
 
 export const RichTextEditor = forwardRef<HTMLDivElement, RichTextEditorProps>(function RichTextEditor({
@@ -148,7 +168,7 @@ export const RichTextEditor = forwardRef<HTMLDivElement, RichTextEditorProps>(fu
   const lastHtml = useRef(value ?? defaultValue)
   const seeded = useRef(false)
   const [currentHtml, setCurrentHtml] = useState(() => sanitize ? sanitizeHtml(value ?? defaultValue, sanitize) : (value ?? defaultValue))
-  const [hasContent, setHasContent] = useState(() => Boolean((value ?? defaultValue ?? "").replace(/<[^>]*>/g, "").trim()))
+  const [hasContent, setHasContent] = useState(() => hasVisibleContent(value ?? defaultValue ?? ""))
 
   useEffect(() => {
     // Uncontrolled: seed defaultValue once, then the DOM owns the content.
@@ -160,13 +180,17 @@ export const RichTextEditor = forwardRef<HTMLDivElement, RichTextEditorProps>(fu
       lastHtml.current = safe
     }
     setCurrentHtml(safe)
-    setHasContent(Boolean(safe.replace(/<[^>]*>/g, "").trim()))
+    setHasContent(hasVisibleContent(safe))
   }, [value, defaultValue, sanitize])
 
   const emitChange = useCallback(() => {
     const raw = editorRef.current?.innerHTML ?? ""
     const html = sanitize ? sanitizeHtml(raw, sanitize) : raw
-    setHasContent(Boolean(html.replace(/<[^>]*>/g, "").trim()))
+    const hasText = Boolean(
+      editorRef.current?.textContent?.trim() ||
+      editorRef.current?.querySelector("img, svg, video, audio, iframe, hr, table, input"),
+    )
+    setHasContent(hasText)
     if (html !== lastHtml.current) {
       lastHtml.current = html
       setCurrentHtml(html)

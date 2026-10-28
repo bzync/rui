@@ -10,6 +10,7 @@ import {
   RangeSlider, SortableList, Tabs, TabsContent, TabsList, TabsTrigger, Tag, Toggle,
   ToggleGroup, ToggleGroupItem, Tree,
   PanoEngine, PanoViewer, PanoTourButton, PanoTourDialog, PanoTourEditor, createEquirectangularDemoUrl, nameFromFile,
+  safeImageSrc, safeExternalUrl, videoEmbed, sanitizePanoScenes,
   type PanoScene,
 } from "@/index"
 
@@ -768,6 +769,55 @@ describe("PanoTour 360° viewer, dialog, and editor", () => {
     }
 
     engine.destroy()
+  })
+
+  it("sanitizes URLs and embeds to prevent script injection and domain spoofing", () => {
+    // safeImageSrc
+    expect(safeImageSrc("https://example.com/photo.jpg")).toBe("https://example.com/photo.jpg")
+    expect(safeImageSrc("/img/grounds.jpg")).toBe("/img/grounds.jpg")
+    expect(safeImageSrc("./thumb.png")).toBe("./thumb.png")
+    expect(safeImageSrc("data:image/png;base64,iVBORw0KGgo=")).toBe("data:image/png;base64,iVBORw0KGgo=")
+    expect(safeImageSrc("javascript:alert(1)")).toBe("")
+    expect(safeImageSrc("vbscript:msgbox(1)")).toBe("")
+    expect(safeImageSrc("data:text/html,<script>alert(1)</script>")).toBe("")
+
+    // safeExternalUrl
+    expect(safeExternalUrl("https://example.com/page")).toBe("https://example.com/page")
+    expect(safeExternalUrl("mailto:info@example.com")).toBe("mailto:info@example.com")
+    expect(safeExternalUrl("tel:+1234567890")).toBe("tel:+1234567890")
+    expect(safeExternalUrl("javascript:alert(1)")).toBeNull()
+    expect(safeExternalUrl("data:text/html;base64,...")).toBeNull()
+
+    // videoEmbed
+    expect(videoEmbed("https://www.youtube.com/watch?v=dQw4w9WgXcQ")).toBe("https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ")
+    expect(videoEmbed("https://youtu.be/dQw4w9WgXcQ")).toBe("https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ")
+    expect(videoEmbed("https://vimeo.com/123456789")).toBe("https://player.vimeo.com/video/123456789")
+    // Rejects spoofed domains (alerts #5, #6)
+    expect(videoEmbed("https://evil-youtube.com/watch?v=123")).toBeNull()
+    expect(videoEmbed("https://notyoutube.com/watch?v=123")).toBeNull()
+    expect(videoEmbed("https://evilvimeo.com/123")).toBeNull()
+    expect(videoEmbed("javascript:alert(1)")).toBeNull()
+
+    // sanitizePanoScenes
+    const sanitized = sanitizePanoScenes([
+      {
+        id: "x",
+        name: "Test",
+        image: "javascript:alert(1)",
+        preview: "https://example.com/p.jpg",
+        yaw: 0,
+        pitch: 0,
+        fov: 75,
+        hotspots: [
+          { id: "h1", type: "link", yaw: 0, pitch: 0, url: "javascript:alert(1)" },
+          { id: "h2", type: "link", yaw: 0, pitch: 0, url: "https://example.com" },
+        ],
+      },
+    ])
+    expect(sanitized[0].image).toBe("")
+    expect(sanitized[0].preview).toBe("https://example.com/p.jpg")
+    expect(sanitized[0].hotspots[0].url).toBeUndefined()
+    expect(sanitized[0].hotspots[1].url).toBe("https://example.com")
   })
 })
 

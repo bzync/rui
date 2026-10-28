@@ -2173,14 +2173,14 @@
     "DEFAULT_PANO_ACTIONS": {
       "entry": "components/pano-tour.js",
       "total": {
-        "raw": 211805,
-        "gzip": 54434,
-        "brotli": 45949
+        "raw": 213686,
+        "gzip": 54911,
+        "brotli": 46255
       },
       "specific": {
-        "raw": 174163,
-        "gzip": 44713,
-        "brotli": 37938
+        "raw": 176044,
+        "gzip": 45190,
+        "brotli": 38266
       },
       "lazy": null,
       "modules": 13,
@@ -2191,14 +2191,14 @@
     "DEFAULT_PANO_ACTION_LABELS": {
       "entry": "components/pano-tour.js",
       "total": {
-        "raw": 211805,
-        "gzip": 54434,
-        "brotli": 45949
+        "raw": 213686,
+        "gzip": 54911,
+        "brotli": 46255
       },
       "specific": {
-        "raw": 174163,
-        "gzip": 44713,
-        "brotli": 37938
+        "raw": 176044,
+        "gzip": 45190,
+        "brotli": 38266
       },
       "lazy": null,
       "modules": 13,
@@ -2209,14 +2209,14 @@
     "HOTSPOT_ICONS": {
       "entry": "components/pano-tour.js",
       "total": {
-        "raw": 211805,
-        "gzip": 54434,
-        "brotli": 45949
+        "raw": 213686,
+        "gzip": 54911,
+        "brotli": 46255
       },
       "specific": {
-        "raw": 174163,
-        "gzip": 44713,
-        "brotli": 37938
+        "raw": 176044,
+        "gzip": 45190,
+        "brotli": 38266
       },
       "lazy": null,
       "modules": 13,
@@ -2227,14 +2227,14 @@
     "HeroBackdrop": {
       "entry": "components/pano-tour.js",
       "total": {
-        "raw": 211805,
-        "gzip": 54434,
-        "brotli": 45949
+        "raw": 213686,
+        "gzip": 54911,
+        "brotli": 46255
       },
       "specific": {
-        "raw": 174163,
-        "gzip": 44713,
-        "brotli": 37938
+        "raw": 176044,
+        "gzip": 45190,
+        "brotli": 38266
       },
       "lazy": null,
       "modules": 13,
@@ -2245,14 +2245,14 @@
     "PANO_HOTSPOT_ICONS": {
       "entry": "components/pano-tour.js",
       "total": {
-        "raw": 211805,
-        "gzip": 54434,
-        "brotli": 45949
+        "raw": 213686,
+        "gzip": 54911,
+        "brotli": 46255
       },
       "specific": {
-        "raw": 174163,
-        "gzip": 44713,
-        "brotli": 37938
+        "raw": 176044,
+        "gzip": 45190,
+        "brotli": 38266
       },
       "lazy": null,
       "modules": 13,
@@ -2263,14 +2263,14 @@
     "PANO_HOTSPOT_KINDS": {
       "entry": "components/pano-tour.js",
       "total": {
-        "raw": 211805,
-        "gzip": 54434,
-        "brotli": 45949
+        "raw": 213686,
+        "gzip": 54911,
+        "brotli": 46255
       },
       "specific": {
-        "raw": 174163,
-        "gzip": 44713,
-        "brotli": 37938
+        "raw": 176044,
+        "gzip": 45190,
+        "brotli": 38266
       },
       "lazy": null,
       "modules": 13,
@@ -2281,14 +2281,14 @@
     "PanoBackdrop": {
       "entry": "components/pano-tour.js",
       "total": {
-        "raw": 211805,
-        "gzip": 54434,
-        "brotli": 45949
+        "raw": 213686,
+        "gzip": 54911,
+        "brotli": 46255
       },
       "specific": {
-        "raw": 174163,
-        "gzip": 44713,
-        "brotli": 37938
+        "raw": 176044,
+        "gzip": 45190,
+        "brotli": 38266
       },
       "lazy": null,
       "modules": 13,
@@ -2299,14 +2299,14 @@
     "PanoEngine": {
       "entry": "components/pano-tour.js",
       "total": {
-        "raw": 211805,
-        "gzip": 54434,
-        "brotli": 45949
+        "raw": 213686,
+        "gzip": 54911,
+        "brotli": 46255
       },
       "specific": {
-        "raw": 174163,
-        "gzip": 44713,
-        "brotli": 37938
+        "raw": 176044,
+        "gzip": 45190,
+        "brotli": 38266
       },
       "lazy": null,
       "modules": 13,
@@ -2317,14 +2317,14 @@
     "PanoHotspotEditor": {
       "entry": "components/pano-tour.js",
       "total": {
-        "raw": 211805,
-        "gzip": 54434,
-        "brotli": 45949
+        "raw": 213686,
+        "gzip": 54911,
+        "brotli": 46255
       },
       "specific": {
-        "raw": 174163,
-        "gzip": 44713,
-        "brotli": 37938
+        "raw": 176044,
+        "gzip": 45190,
+        "brotli": 38266
       },
       "lazy": null,
       "modules": 13,
@@ -2335,14 +2335,14 @@
     "PanoIcons": {
       "entry": "components/pano-tour.js",
       "total": {
-        "raw": 211805,
-        "gzip": 54434,
-        "brotli": 45949
+        "raw": 213686,
+        "gzip": 54911,
+        "brotli": 46255
       },
       "specific": {
-        "raw": 174163,
-        "gzip": 44713,
-        "brotli": 37938
+        "raw": 176044,
+        "gzip": 45190,
+        "brotli": 38266
       },
       "lazy": null,
       "modules": 13,
@@ -2353,14 +2353,14 @@
     "PanoPlaceList": {
       "entry": "components/pano-tour.js",
       "total": {
-        "raw": 211805,
-        "gzip": 54434,
-        "brotli": 45949
+        "raw": 213686,
+        "gzip": 54911,
+        "brotli": 46255
       },
       "specific": {
-        "raw": 174163,
-        "gzip": 44713,
-        "brotli": 37938
+        "raw": 176044,
+        "gzip": 45190,
+        "brotli": 38266
       },
       "lazy": null,
       "modules": 13,
@@ -2371,14 +2371,14 @@
     "PanoScenePanel": {
       "entry": "components/pano-tour.js",
       "total": {
-        "raw": 211805,
-        "gzip": 54434,
-        "brotli": 45949
+        "raw": 213686,
+        "gzip": 54911,
+        "brotli": 46255
       },
       "specific": {
-        "raw": 174163,
-        "gzip": 44713,
-        "brotli": 37938
+        "raw": 176044,
+        "gzip": 45190,
+        "brotli": 38266
       },
       "lazy": null,
       "modules": 13,
@@ -2389,14 +2389,14 @@
     "PanoSceneStrip": {
       "entry": "components/pano-tour.js",
       "total": {
-        "raw": 211805,
-        "gzip": 54434,
-        "brotli": 45949
+        "raw": 213686,
+        "gzip": 54911,
+        "brotli": 46255
       },
       "specific": {
-        "raw": 174163,
-        "gzip": 44713,
-        "brotli": 37938
+        "raw": 176044,
+        "gzip": 45190,
+        "brotli": 38266
       },
       "lazy": null,
       "modules": 13,
@@ -2407,14 +2407,14 @@
     "PanoToolbar": {
       "entry": "components/pano-tour.js",
       "total": {
-        "raw": 211805,
-        "gzip": 54434,
-        "brotli": 45949
+        "raw": 213686,
+        "gzip": 54911,
+        "brotli": 46255
       },
       "specific": {
-        "raw": 174163,
-        "gzip": 44713,
-        "brotli": 37938
+        "raw": 176044,
+        "gzip": 45190,
+        "brotli": 38266
       },
       "lazy": null,
       "modules": 13,
@@ -2425,14 +2425,14 @@
     "PanoTourButton": {
       "entry": "components/pano-tour.js",
       "total": {
-        "raw": 211805,
-        "gzip": 54434,
-        "brotli": 45949
+        "raw": 213686,
+        "gzip": 54911,
+        "brotli": 46255
       },
       "specific": {
-        "raw": 174163,
-        "gzip": 44713,
-        "brotli": 37938
+        "raw": 176044,
+        "gzip": 45190,
+        "brotli": 38266
       },
       "lazy": null,
       "modules": 13,
@@ -2443,14 +2443,14 @@
     "PanoTourDialog": {
       "entry": "components/pano-tour.js",
       "total": {
-        "raw": 211805,
-        "gzip": 54434,
-        "brotli": 45949
+        "raw": 213686,
+        "gzip": 54911,
+        "brotli": 46255
       },
       "specific": {
-        "raw": 174163,
-        "gzip": 44713,
-        "brotli": 37938
+        "raw": 176044,
+        "gzip": 45190,
+        "brotli": 38266
       },
       "lazy": null,
       "modules": 13,
@@ -2461,14 +2461,14 @@
     "PanoTourEditor": {
       "entry": "components/pano-tour.js",
       "total": {
-        "raw": 211805,
-        "gzip": 54434,
-        "brotli": 45949
+        "raw": 213686,
+        "gzip": 54911,
+        "brotli": 46255
       },
       "specific": {
-        "raw": 174163,
-        "gzip": 44713,
-        "brotli": 37938
+        "raw": 176044,
+        "gzip": 45190,
+        "brotli": 38266
       },
       "lazy": null,
       "modules": 13,
@@ -2479,14 +2479,14 @@
     "PanoTourModal": {
       "entry": "components/pano-tour.js",
       "total": {
-        "raw": 211805,
-        "gzip": 54434,
-        "brotli": 45949
+        "raw": 213686,
+        "gzip": 54911,
+        "brotli": 46255
       },
       "specific": {
-        "raw": 174163,
-        "gzip": 44713,
-        "brotli": 37938
+        "raw": 176044,
+        "gzip": 45190,
+        "brotli": 38266
       },
       "lazy": null,
       "modules": 13,
@@ -2497,14 +2497,14 @@
     "PanoTourTrigger": {
       "entry": "components/pano-tour.js",
       "total": {
-        "raw": 211805,
-        "gzip": 54434,
-        "brotli": 45949
+        "raw": 213686,
+        "gzip": 54911,
+        "brotli": 46255
       },
       "specific": {
-        "raw": 174163,
-        "gzip": 44713,
-        "brotli": 37938
+        "raw": 176044,
+        "gzip": 45190,
+        "brotli": 38266
       },
       "lazy": null,
       "modules": 13,
@@ -2515,14 +2515,14 @@
     "PanoViewer": {
       "entry": "components/pano-tour.js",
       "total": {
-        "raw": 211805,
-        "gzip": 54434,
-        "brotli": 45949
+        "raw": 213686,
+        "gzip": 54911,
+        "brotli": 46255
       },
       "specific": {
-        "raw": 174163,
-        "gzip": 44713,
-        "brotli": 37938
+        "raw": 176044,
+        "gzip": 45190,
+        "brotli": 38266
       },
       "lazy": null,
       "modules": 13,
@@ -2533,14 +2533,14 @@
     "TourButton": {
       "entry": "components/pano-tour.js",
       "total": {
-        "raw": 211805,
-        "gzip": 54434,
-        "brotli": 45949
+        "raw": 213686,
+        "gzip": 54911,
+        "brotli": 46255
       },
       "specific": {
-        "raw": 174163,
-        "gzip": 44713,
-        "brotli": 37938
+        "raw": 176044,
+        "gzip": 45190,
+        "brotli": 38266
       },
       "lazy": null,
       "modules": 13,
@@ -2551,14 +2551,14 @@
     "TourDialog": {
       "entry": "components/pano-tour.js",
       "total": {
-        "raw": 211805,
-        "gzip": 54434,
-        "brotli": 45949
+        "raw": 213686,
+        "gzip": 54911,
+        "brotli": 46255
       },
       "specific": {
-        "raw": 174163,
-        "gzip": 44713,
-        "brotli": 37938
+        "raw": 176044,
+        "gzip": 45190,
+        "brotli": 38266
       },
       "lazy": null,
       "modules": 13,
@@ -2569,14 +2569,14 @@
     "TourEditor": {
       "entry": "components/pano-tour.js",
       "total": {
-        "raw": 211805,
-        "gzip": 54434,
-        "brotli": 45949
+        "raw": 213686,
+        "gzip": 54911,
+        "brotli": 46255
       },
       "specific": {
-        "raw": 174163,
-        "gzip": 44713,
-        "brotli": 37938
+        "raw": 176044,
+        "gzip": 45190,
+        "brotli": 38266
       },
       "lazy": null,
       "modules": 13,
@@ -2919,14 +2919,14 @@
     "RichTextEditor": {
       "entry": "components/richtext.js",
       "total": {
-        "raw": 53399,
-        "gzip": 13494,
-        "brotli": 11519
+        "raw": 53855,
+        "gzip": 13621,
+        "brotli": 11568
       },
       "specific": {
-        "raw": 15757,
-        "gzip": 3846,
-        "brotli": 3313
+        "raw": 16213,
+        "gzip": 3985,
+        "brotli": 3447
       },
       "lazy": null,
       "modules": 3,

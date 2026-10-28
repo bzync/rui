@@ -8,6 +8,7 @@ import { PanoIcons } from "./hotspot-icons"
 import { prefetchPanorama } from "./pano-engine"
 import { canSpeak, primeSpeech, speakText } from "./pano-speech"
 import { PanoViewer, type PanoHandle } from "./pano-viewer"
+import { safeExternalUrl, safeImageSrc, sanitizePanoScenes, videoEmbed } from "./pano-security"
 import type { PanoHotspot, PanoHotspotMedia, PanoScene, PanoView } from "./types"
 
 export interface PanoTourContactInfo {
@@ -62,7 +63,7 @@ export function PanoTourDialog({
   const titleId = useId()
   const tourTitle = title ?? placeName ?? "360° Tour"
 
-  const [loadedScenes, setLoadedScenes] = useState<PanoScene[] | null>(scenesProp ?? null)
+  const [loadedScenes, setLoadedScenes] = useState<PanoScene[] | null>(() => scenesProp ? sanitizePanoScenes(scenesProp) : null)
   const [failed, setFailed] = useState(false)
   const [index, setIndex] = useState(0)
   const [arrival, setArrival] = useState<Partial<PanoView> | null>(null)
@@ -86,7 +87,7 @@ export function PanoTourDialog({
 
   useEffect(() => {
     if (scenesProp) {
-      setLoadedScenes(scenesProp)
+      setLoadedScenes(sanitizePanoScenes(scenesProp))
       setFailed(false)
       if (startScene !== undefined) {
         const i = scenesProp.findIndex((s) => s.id === startScene)
@@ -102,7 +103,7 @@ export function PanoTourDialog({
       .then((res) => {
         if (!alive) return
         const list = Array.isArray(res) ? res : res.scenes
-        setLoadedScenes(list)
+        setLoadedScenes(sanitizePanoScenes(list))
         if (startScene !== undefined) {
           const i = list.findIndex((s) => s.id === startScene)
           if (i >= 0) setIndex(i)
@@ -211,11 +212,16 @@ export function PanoTourDialog({
     } else if (h.type === "link" && h.url) {
       if (onNavigate) {
         onNavigate(h.url, h)
-      } else if (/^https?:\/\//i.test(h.url)) {
-        window.open(h.url, "_blank", "noopener,noreferrer")
       } else {
-        close()
-        window.location.assign(h.url)
+        const safe = safeExternalUrl(h.url)
+        if (safe) {
+          if (/^https?:\/\//i.test(safe)) {
+            window.open(safe, "_blank", "noopener,noreferrer")
+          } else {
+            close()
+            window.location.assign(safe)
+          }
+        }
       }
     } else if (h.type === "action") {
       const act = h.action ?? "book"
@@ -224,8 +230,11 @@ export function PanoTourDialog({
         return
       }
       if (act === "book" && contactInfo?.bookUrl) {
-        close()
-        window.location.assign(contactInfo.bookUrl)
+        const safe = safeExternalUrl(contactInfo.bookUrl)
+        if (safe) {
+          close()
+          window.location.assign(safe)
+        }
       } else if (act === "call" && contactInfo?.phone) {
         window.location.href = `tel:${contactInfo.phone.replace(/[^\d+]/g, "")}`
       } else if (act === "directions" && contactInfo?.address) {
@@ -235,7 +244,8 @@ export function PanoTourDialog({
           "noopener,noreferrer",
         )
       } else if (act === "message" && contactInfo?.messageUrl) {
-        window.open(contactInfo.messageUrl, "_blank", "noopener,noreferrer")
+        const safe = safeExternalUrl(contactInfo.messageUrl)
+        if (safe) window.open(safe, "_blank", "noopener,noreferrer")
       } else {
         setNotice(`Triggered action: ${h.label || act}`)
       }
@@ -448,7 +458,7 @@ export function PanoTourDialog({
                     )}
                   >
                     <img
-                      src={s.preview ?? s.image}
+                      src={safeImageSrc(s.preview ?? s.image)}
                       alt=""
                       className="size-full object-cover"
                       loading="lazy"
@@ -506,7 +516,7 @@ function PanoMediaPopup({ media, onClose }: { media: PanoHotspotMedia; onClose: 
           <PanoIcons.X className="size-4" />
         </button>
         {media.kind === "image" && media.src && (
-          <img src={media.src} alt={media.caption ?? ""} className="max-h-[75dvh] w-full bg-black object-contain" />
+          <img src={safeImageSrc(media.src)} alt={media.caption ?? ""} className="max-h-[75dvh] w-full bg-black object-contain" />
         )}
         {media.kind === "video" &&
           (embed ? (
@@ -524,27 +534,6 @@ function PanoMediaPopup({ media, onClose }: { media: PanoHotspotMedia; onClose: 
       </figure>
     </div>
   )
-}
-
-function videoEmbed(url: string): string | null {
-  try {
-    const u = new URL(url)
-    if (u.hostname === "youtu.be") {
-      const id = u.pathname.slice(1).split("/")[0]
-      return id ? `https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}` : null
-    }
-    if (u.hostname.endsWith("youtube.com")) {
-      const id = u.searchParams.get("v") || u.pathname.match(/\/(embed|shorts)\/([^/?]+)/)?.[2]
-      return id ? `https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}` : null
-    }
-    if (u.hostname.endsWith("vimeo.com")) {
-      const id = u.pathname.match(/\/(\d+)/)?.[1]
-      return id ? `https://player.vimeo.com/video/${id}` : null
-    }
-  } catch {
-    /* invalid URL */
-  }
-  return null
 }
 
 /* ---------------- PanoTourButton ---------------- */
@@ -692,7 +681,7 @@ export const PanoBackdrop = forwardRef<HTMLDivElement, PanoBackdropProps>(
         className={cn("relative overflow-hidden", className)}
         {...props}
       >
-        <img src={fallbackPhoto} alt={fallbackAlt} className="pointer-events-none absolute inset-0 size-full object-cover" />
+        <img src={safeImageSrc(fallbackPhoto)} alt={fallbackAlt} className="pointer-events-none absolute inset-0 size-full object-cover" />
         {scene && on && (
           <PanoViewer
             background={!interactive}

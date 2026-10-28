@@ -16,6 +16,7 @@ import {
 } from "react"
 import { getHotspotIcon, PanoIcons } from "./hotspot-icons"
 import { PanoEngine, prefetchPanorama } from "./pano-engine"
+import { safeExternalUrl, safeImageSrc } from "./pano-security"
 import type {
   PanoEditorState,
   PanoHandle,
@@ -345,7 +346,8 @@ export const PanoViewer = forwardRef<HTMLDivElement, PanoViewerProps>(
         return
       }
       if (h.type === "link" && h.url && !onHotspot) {
-        window.open(h.url, "_blank", "noopener,noreferrer")
+        const safe = safeExternalUrl(h.url)
+        if (safe) window.open(safe, "_blank", "noopener,noreferrer")
         return
       }
       if (h.type === "action") {
@@ -802,7 +804,7 @@ export const PanoViewer = forwardRef<HTMLDivElement, PanoViewerProps>(
                 >
                   {(s.preview || s.image) && (
                     <img
-                      src={s.preview ?? s.image}
+                      src={safeImageSrc(s.preview ?? s.image)}
                       alt=""
                       className="size-4.5 sm:size-4 rounded-full object-cover"
                       loading="lazy"
@@ -836,7 +838,7 @@ export const PanoViewer = forwardRef<HTMLDivElement, PanoViewerProps>(
               </button>
               {inlineMedia.kind === "image" && inlineMedia.src && (
                 <img
-                  src={inlineMedia.src}
+                  src={safeImageSrc(inlineMedia.src)}
                   alt={inlineMedia.caption ?? ""}
                   className="max-h-64 w-full rounded-lg object-contain"
                 />
