@@ -649,7 +649,7 @@ export const PanoTourEditor = forwardRef<HTMLDivElement, PanoTourEditorProps>(
                     scene={{ ...arrivalScene, hotspots: [] }}
                     arrival={arrivalSpot.arrival ?? null}
                     names={names}
-                    className="aspect-[16/10] w-full sm:aspect-[16/9]"
+                    className="h-[360px] w-full sm:h-[460px] md:h-[500px]"
                   >
                     <div className="absolute inset-x-3 top-3 flex flex-wrap items-center justify-between gap-2 rounded-lg bg-black/75 px-3 py-2 text-xs text-white backdrop-blur-sm">
                       <span>
@@ -686,7 +686,7 @@ export const PanoTourEditor = forwardRef<HTMLDivElement, PanoTourEditorProps>(
                       onMove: moveHotspot,
                       onSelect: (id) => setSpot(id),
                     }}
-                    className="aspect-[16/10] w-full sm:aspect-[16/9]"
+                    className="h-[360px] w-full sm:h-[460px] md:h-[500px]"
                   >
                     <div className="pointer-events-none absolute inset-x-2.5 top-2.5 z-10 flex flex-wrap items-start justify-between gap-1.5 sm:inset-x-3 sm:top-3">
                       <div className="pointer-events-auto max-w-full">

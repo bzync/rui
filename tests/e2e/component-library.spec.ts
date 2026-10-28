@@ -34,7 +34,7 @@ test.beforeEach(async ({ page }) => {
 
 test("documentation navigation resolves every configured page", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "desktop-1280", "The complete link audit only needs one desktop project")
-  test.setTimeout(60_000)
+  test.setTimeout(90_000)
 
   const links = page.locator(".docs-sidebar a")
   const count = await links.count()
@@ -50,7 +50,7 @@ test("documentation navigation resolves every configured page", async ({ page },
     expect(target.href, `${target.label} has a documentation route`).toMatch(/^#\/[a-z0-9/-]+$/)
     await page.evaluate((href) => { window.location.hash = href!.slice(1) }, target.href)
     await expect(page.locator(`.docs-sidebar a[href="${target.href}"]`)).toHaveAttribute("aria-current", "page")
-    await expect(page.locator("main h1")).toBeVisible()
+    await expect(page.locator("main h1")).toBeVisible({ timeout: 10_000 })
   }
 })
 

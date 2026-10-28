@@ -264,7 +264,7 @@ function PanoTourUsagePreview() {
           autoRotate={1.8}
           showControls
           showFilmstrip
-          className="aspect-[16/9] w-full"
+          className="h-[380px] w-full sm:h-[480px] lg:h-[540px]"
         />
         <div className="pointer-events-none absolute inset-x-0 top-0 flex items-center justify-between gap-2 bg-gradient-to-b from-black/65 to-transparent p-2.5 text-white sm:p-3">
           <div className="min-w-0 flex-1">
@@ -2373,7 +2373,7 @@ const columns: ColumnDef<(typeof services)[number]>[] = [
           autoRotate={1.8}
           showControls
           showFilmstrip
-          className="aspect-[16/9] w-full"
+          className="h-[380px] w-full sm:h-[480px] lg:h-[540px]"
         />
         <div className="pointer-events-none absolute inset-x-0 top-0 flex items-center justify-between gap-2 bg-gradient-to-b from-black/65 to-transparent p-2.5 text-white sm:p-3">
           <div className="min-w-0 flex-1">

@@ -3102,7 +3102,7 @@ export default function App() {
         title="Happy Homes Candelaria"
         fallbackPhoto="/img/resort/card-grounds.jpg"
         triggerLabel="Look around: Resort Grounds, Happy Homes Candelaria"
-        className="h-64 w-full rounded-xl border border-border shadow-sm"
+        className="h-72 w-full rounded-xl border border-border shadow-sm sm:h-80 md:h-96"
       >
         <div className="relative z-10 flex h-full flex-col justify-end bg-gradient-to-t from-black/80 via-black/25 to-transparent p-5 text-white">
           <p className="text-xs font-semibold tracking-wider text-white/80 uppercase">Candelaria, Quezon · Villas, Private Houses & Event Halls</p>
@@ -3673,7 +3673,7 @@ function PanoBackdropExample() {
         title="Happy Homes Candelaria"
         fallbackPhoto="/img/resort/card-grounds.jpg"
         triggerLabel="Look around: Resort Grounds, Happy Homes Candelaria"
-        className="h-64 w-full rounded-xl border border-border shadow-sm"
+        className="h-72 w-full rounded-xl border border-border shadow-sm sm:h-80 md:h-96"
       >
         <div className="relative z-10 flex h-full flex-col justify-end bg-gradient-to-t from-black/80 via-black/25 to-transparent p-5 text-white">
           <p className="text-xs font-semibold tracking-wider text-white/80 uppercase">Candelaria, Quezon · Villas, Private Houses & Event Halls</p>
