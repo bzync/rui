@@ -49,7 +49,9 @@ jobs:
         run: npm --prefix demo ci
 
       - name: Install Playwright browser
-        run: npx playwright install --with-deps chromium
+        run: |
+          npx playwright install --with-deps chromium
+          npm --prefix demo exec -- playwright install --with-deps chromium
 
       # package.json's prepublishOnly script runs the complete release:check
       # before npm uploads the package.
