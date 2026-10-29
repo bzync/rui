@@ -1,5 +1,6 @@
-import { Alert, Badge, Button, Checkbox, DataTable, EmptyState, Input, Select } from "@bzync/rui"
-import { Database, Plus } from "lucide-react"
+import { Alert, Badge, Button, Checkbox, DataTable, EmptyState, Input, Select, Icons } from "@bzync/rui"
+
+const { Database, Plus } = Icons
 import { useState } from "react"
 import type { DocsPage } from "../catalog"
 import { ComponentPreview, DocsSection, PageIntro } from "../primitives"

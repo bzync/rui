@@ -1,5 +1,5 @@
-import { Badge, Modal } from "@bzync/rui"
-import { Search } from "lucide-react"
+import { Badge, Modal, Icons } from "@bzync/rui"
+const Search = Icons.Search
 import { useMemo, useRef, useState } from "react"
 import { allPages, type DocsPage } from "../docs/catalog"
 

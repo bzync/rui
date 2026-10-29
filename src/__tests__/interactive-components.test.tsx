@@ -16,9 +16,17 @@ import {
 
 describe("interactive component contracts", () => {
   it("handles button loading and icon-button accessibility", () => {
-    render(<><Button loading>Save</Button><IconButton label="Menu">☰</IconButton></>)
+    render(
+      <>
+        <Button loading>Save</Button>
+        <IconButton label="Menu">☰</IconButton>
+        <Button data-testid="icon-child-btn"><span data-testid="icon">✨</span><span>Magic Clean</span></Button>
+      </>
+    )
     expect(screen.getByRole("button", { name: "Save" })).toBeDisabled()
     expect(screen.getByRole("button", { name: "Menu" })).toBeInTheDocument()
+    const iconBtn = screen.getByTestId("icon-child-btn")
+    expect(iconBtn.querySelector(".inline-flex.items-center")).toBeInTheDocument()
   })
 
   it("opens accordion and collapsible content", async () => {

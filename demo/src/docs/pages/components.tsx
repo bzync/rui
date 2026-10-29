@@ -27,8 +27,10 @@ import {
   TabsTrigger,
   Textarea,
   Tooltip,
+  Icons,
 } from "@bzync/rui"
-import { ChevronRight, CircleHelp, Layers3, MoreHorizontal, Search } from "lucide-react"
+
+const { ChevronRight, CircleHelp, Layers3, MoreHorizontal, Search } = Icons
 import { type ReactNode, useCallback, useLayoutEffect, useMemo, useRef, useState } from "react"
 import componentMetrics from "../component-metrics.json"
 import { componentGroups, hrefFor, type DocsPage } from "../catalog"

@@ -514,4 +514,186 @@ describe("standardized form control ergonomics & a11y", () => {
     expect(opacitySlider).toHaveAttribute("aria-valuenow", "99")
     expect(onValueChange).toHaveBeenCalledWith(expect.stringMatching(/^#3b82f[56]fc$/))
   })
+
+  it("Signature and SignaturePad provide multi-mode signing, form integration, and imperative controls", async () => {
+    const user = userEvent.setup()
+    const onChange = vi.fn()
+    const sigRef = { current: null as any }
+
+    const { rerender } = render(
+      <form data-testid="sig-form">
+        <R.Signature
+          label="Legal Signature"
+          hint="Please sign above the dotted guide"
+          error="Signature is required"
+          name="agreementSignature"
+          defaultValue="data:image/png;base64,sample"
+          required
+          signatureRef={sigRef}
+          onChange={onChange}
+        />
+      </form>,
+    )
+
+    // A11y & Form integration
+    const canvas = screen.getByRole("img", { name: "Legal Signature" })
+    expect(canvas).toHaveAttribute("aria-invalid", "true")
+    expect(canvas).toHaveAccessibleDescription("Signature is required")
+    expect(screen.getByText("Sign above this line")).toBeInTheDocument()
+
+    const form = screen.getByTestId("sig-form") as HTMLFormElement
+    expect(new FormData(form).get("agreementSignature")).toBe("data:image/png;base64,sample")
+
+    // Imperative ref check
+    expect(sigRef.current).toBeDefined()
+    expect(typeof sigRef.current.clear).toBe("function")
+    expect(typeof sigRef.current.undo).toBe("function")
+    expect(typeof sigRef.current.toSVG).toBe("function")
+    expect(sigRef.current.toSVG()).toContain("<svg")
+
+    // Clear interaction
+    await user.click(screen.getByRole("button", { name: "Clear signature" }))
+    expect(onChange).toHaveBeenCalledWith(null)
+    expect(sigRef.current.isEmpty()).toBe(true)
+
+    // Mode switching to Upload mode
+    await user.click(screen.getByRole("button", { name: /upload/i }))
+    expect(screen.getByText(/Click to browse or drag and drop signature image/i)).toBeInTheDocument()
+
+    // Imperative openEditor check
+    expect(typeof sigRef.current.openEditor).toBe("function")
+
+    // Readonly / Disabled state
+    rerender(
+      <R.SignaturePad
+        label="Signed Agreement"
+        readOnly
+        defaultValue="data:image/png;base64,sample"
+      />,
+    )
+    expect(screen.queryByRole("button", { name: "Clear signature" })).not.toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: /draw/i })).not.toBeInTheDocument()
+  })
+
+  it("SignatureImageEditor supports background removal, crop, zoom, and before/after comparisons", async () => {
+    const user = userEvent.setup()
+    const onSave = vi.fn()
+    const onCancel = vi.fn()
+
+    const sampleDataUrl = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+
+    const { rerender } = render(
+      <R.SignatureImageEditor
+        image={sampleDataUrl}
+        onSave={onSave}
+        onCancel={onCancel}
+      />,
+    )
+
+    // Header & Modes
+    expect(screen.getByText("Enhance & Clean Signature")).toBeInTheDocument()
+    expect(screen.getByText("Crop & Edit")).toBeInTheDocument()
+    expect(screen.getByText("Compare Split")).toBeInTheDocument()
+    expect(screen.getByText("Side by Side")).toBeInTheDocument()
+
+    // Zoom controls
+    expect(screen.getByText("100%")).toBeInTheDocument()
+    await user.click(screen.getByRole("button", { name: "Zoom in" }))
+    expect(screen.getByText("125%")).toBeInTheDocument()
+    await user.click(screen.getByRole("button", { name: "Reset zoom" }))
+    expect(screen.getByText("100%")).toBeInTheDocument()
+
+    // Crop buttons
+    expect(screen.getByRole("button", { name: /auto crop/i })).toBeInTheDocument()
+    await user.click(screen.getByRole("button", { name: /auto crop/i }))
+    await user.click(screen.getByRole("button", { name: "Reset" }))
+
+    // Switch to Split Compare view
+    await user.click(screen.getByText("Compare Split"))
+    expect(screen.getByText("Before (Original)")).toBeInTheDocument()
+    expect(screen.getByText("After (Cleaned)")).toBeInTheDocument()
+
+    // Switch to Side by Side view
+    await user.click(screen.getByText("Side by Side"))
+    expect(screen.getByText("Original (Before)")).toBeInTheDocument()
+    expect(screen.getByText("Cleaned (After)")).toBeInTheDocument()
+
+    // Background removal toggle
+    const removeBgCheckbox = screen.getByLabelText(/remove background/i) as HTMLInputElement
+    expect(removeBgCheckbox.checked).toBe(true)
+    await user.click(removeBgCheckbox)
+    expect(removeBgCheckbox.checked).toBe(false)
+    await user.click(removeBgCheckbox)
+    expect(removeBgCheckbox.checked).toBe(true)
+
+    // Footer actions
+    await user.click(screen.getByRole("button", { name: "Cancel" }))
+    expect(onCancel).toHaveBeenCalledTimes(1)
+
+    await user.click(screen.getByRole("button", { name: /apply signature/i }))
+    expect(onSave).toHaveBeenCalled()
+
+    // Test SignatureEditorModal
+    const onModalOpenChange = vi.fn()
+    rerender(
+      <R.SignatureEditorModal
+        open={true}
+        onOpenChange={onModalOpenChange}
+        image={sampleDataUrl}
+        onSave={onSave}
+      />,
+    )
+    expect(screen.getAllByText("Enhance & Clean Signature").length).toBeGreaterThan(0)
+  })
+
+  it("Signature image-processor utilities perform pure pixel manipulation and bound detection", () => {
+    // hexToRgb
+    expect(R.autoDetectSignatureBounds).toBeDefined()
+    expect(R.processSignatureImageData).toBeDefined()
+
+    // Create 10x10 mock ImageData (transparent white paper background with dark ink in center)
+    const width = 10
+    const height = 10
+    const data = new Uint8ClampedArray(width * height * 4)
+
+    // Fill all with paper white (240, 240, 240, 255)
+    for (let i = 0; i < data.length; i += 4) {
+      data[i] = 240
+      data[i + 1] = 240
+      data[i + 2] = 240
+      data[i + 3] = 255
+    }
+
+    // Put dark ink at pixel (4, 4) and (5, 5)
+    const idx1 = (4 * width + 4) * 4
+    data[idx1] = 20
+    data[idx1 + 1] = 20
+    data[idx1 + 2] = 20
+    data[idx1 + 3] = 255
+
+    const idx2 = (5 * width + 5) * 4
+    data[idx2] = 20
+    data[idx2 + 1] = 20
+    data[idx2 + 2] = 20
+    data[idx2 + 3] = 255
+
+    const mockImgData = { width, height, data } as ImageData
+
+    // Auto-detect bounds
+    const bounds = R.autoDetectSignatureBounds(mockImgData, 200, 0)
+    expect(bounds.x).toBeCloseTo(0.4, 1)
+    expect(bounds.y).toBeCloseTo(0.4, 1)
+
+    // Process image data (remove background)
+    R.processSignatureImageData(mockImgData, {
+      removeBackground: true,
+      threshold: 200,
+      smoothness: 10,
+    })
+
+    // White paper pixel should have alpha = 0 (transparent)
+    expect(data[3]).toBe(0)
+    // Dark ink pixel should remain opaque
+    expect(data[idx1 + 3]).toBe(255)
+  })
 })
