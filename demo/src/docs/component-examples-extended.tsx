@@ -11,7 +11,8 @@
 */
 
 import * as R from "@bzync/rui"
-import {
+
+const {
   Activity,
   BarChart3,
   Box,
@@ -29,8 +30,8 @@ import {
   WifiOff,
   Bell,
   User,
-} from "lucide-react"
-import { type ReactNode, useEffect, useState } from "react"
+} = R.Icons
+import { type ReactNode, useEffect, useMemo, useRef, useState } from "react"
 import { RuiBrandMark } from "../_shared/brand"
 import type { ComponentExample } from "./component-examples"
 
@@ -2751,6 +2752,167 @@ export default function App() {
       <ColorPickerEyeDropperExample />),
   ],
 
+  "components/signature": () => [
+    ex("modes", "Draw & upload modes with auto-cleaning", "Switch seamlessly between freehand stylus drawing and paper signature image upload with background transparentizing.",
+      `function SignatureModes() {
+  const [sig, setSig] = useState<string | null>(null)
+  return (
+    <div className="flex w-full max-w-md flex-col gap-3">
+      <Signature
+        label="Employee Agreement"
+        hint="Switch between drawing or uploading a paper signature photo."
+        modes={["draw", "upload"]}
+        defaultMode="draw"
+        value={sig}
+        onChange={setSig}
+      />
+      {sig && (
+        <div className="flex items-center gap-1.5 text-xs text-success-strong">
+          <Icons.CheckCircle2 size="xs" className="shrink-0" />
+          <span>Signature confirmed &amp; ready.</span>
+        </div>
+      )}
+    </div>
+  )
+}`,
+      <SignatureModesExample />),
+    ex("editor", "Background removal, crop, zoom & compare studio", "Standalone reusable SignatureImageEditor with luminance thresholding, auto-crop, zoom pan, and split before/after comparison.",
+      `function SignatureEditorDemo() {
+  const [activeSample, setActiveSample] = useState<"parchment" | "notebook">("parchment")
+  const [cleaned, setCleaned] = useState<string | null>(null)
+
+  return (
+    <div className="flex w-full max-w-2xl flex-col gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-surface-muted/30 px-3 py-2 text-xs">
+        <span className="text-muted-foreground">Select a raw scan to clean:</span>
+        <div className="flex flex-wrap items-center gap-1.5">
+          <Button
+            variant={activeSample === "parchment" ? "primary" : "secondary"}
+            size="sm"
+            icon={<Icons.Scroll size="xs" className="shrink-0" />}
+            onClick={() => setActiveSample("parchment")}
+            className="h-7 gap-1.5 text-xs"
+          >
+            Parchment Scan
+          </Button>
+          <Button
+            variant={activeSample === "notebook" ? "primary" : "secondary"}
+            size="sm"
+            icon={<Icons.Book size="xs" className="shrink-0" />}
+            onClick={() => setActiveSample("notebook")}
+            className="h-7 gap-1.5 text-xs"
+          >
+            Notebook Scan
+          </Button>
+        </div>
+      </div>
+
+      <SignatureImageEditor
+        key={activeSample}
+        image={createSampleSignature(activeSample)}
+        title="Background Removal & Auto-Crop Studio"
+        onSave={setCleaned}
+      />
+
+      {cleaned && (
+        <div className="flex flex-col gap-2 rounded-xl border border-success/30 bg-success/5 p-3 text-xs">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5 font-semibold text-success-strong">
+              <Icons.CheckCircle2 size="xs" className="shrink-0" />
+              <span>Cleaned Signature Ready for Documents</span>
+            </div>
+            <span className="text-muted-foreground text-[11px]">100% Transparent PNG</span>
+          </div>
+          <div
+            className="flex h-20 w-full items-center justify-center rounded-lg border border-border/80 bg-surface p-2"
+            style={{
+              backgroundImage:
+                "repeating-conic-gradient(rgba(128,128,128,0.12) 0% 25%, transparent 0% 50%)",
+              backgroundSize: "12px 12px",
+            }}
+          >
+            <img src={cleaned} alt="Cleaned signature result" className="max-h-full max-w-full object-contain" />
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}`,
+      <SignatureEditorDemoExample />),
+    ex("colors", "Ink colors & stroke weights", "Customizable pen colors including fountain pen blue, classic black, and crimson seal.",
+      `function SignatureColors() {
+  const [sig, setSig] = useState<string | null>(null)
+  return (
+    <div className="w-full max-w-md">
+      <Signature
+        label="Executive Authorization"
+        hint="Sign in fountain pen blue or crimson seal ink."
+        strokeColor="#1d4ed8"
+        strokeWidth="bold"
+        colors={["#1d4ed8", "#0f172a", "#b91c1c", "#047857"]}
+        value={sig}
+        onChange={setSig}
+      />
+    </div>
+  )
+}`,
+      <SignatureColorsExample />),
+    ex("imperative", "External imperative controls & vector SVG export", "Control the signature pad from parent components, open editor dialog, and extract scalable SVG vectors.",
+      `function SignatureImperative() {
+  const sigRef = useRef<SignatureRef>(null)
+  const [svgOutput, setSvgOutput] = useState<string | null>(null)
+
+  return (
+    <div className="flex w-full max-w-md flex-col gap-3">
+      <Signature
+        signatureRef={sigRef}
+        label="Sign Document"
+        hint="Draw a signature then test the external control buttons below."
+      />
+      <div className="flex flex-wrap items-center gap-2">
+        <Button
+          variant="secondary"
+          size="sm"
+          icon={<Icons.RotateCcw size="xs" className="shrink-0" />}
+          onClick={() => sigRef.current?.undo()}
+          className="gap-1.5"
+        >
+          Undo Stroke
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          icon={<Icons.Sparkles size="xs" className="shrink-0" />}
+          onClick={() => sigRef.current?.openEditor()}
+          className="gap-1.5"
+        >
+          Open Editor
+        </Button>
+        <Button
+          variant="primary"
+          size="sm"
+          icon={<Icons.Download size="xs" className="shrink-0" />}
+          onClick={() => {
+            const svg = sigRef.current?.toSVG()
+            setSvgOutput(svg || null)
+          }}
+          className="gap-1.5"
+        >
+          Export Vector SVG
+        </Button>
+      </div>
+      {svgOutput && (
+        <div className="rounded-lg border border-border bg-surface-muted/40 p-3 text-xs">
+          <p className="font-semibold text-foreground mb-1">Generated Scalable SVG:</p>
+          <pre className="overflow-x-auto font-mono text-[11px] text-muted-foreground">{svgOutput.slice(0, 140)}…</pre>
+        </div>
+      )}
+    </div>
+  )
+}`,
+      <SignatureImperativeExample />),
+  ],
+
   "components/responsive-dialog": () => [
     ex("form", "Form inside responsive dialog", "Maintains form state and keyboard accessibility across desktop modal and mobile bottom sheet.",
       `function ResponsiveDialogForm() {
@@ -3156,6 +3318,302 @@ export default function App() {
 
   "components/icon": () => [
     ex(
+      "explorer",
+      "Full icon library explorer",
+      "Browse and search over 2,100 vector icons across 20 domains including Tech Stack, Developer workflows, and brand icons. Click any card to inspect its group, copy its JSX component, or test tones.",
+      `function IconExplorer() {
+  const [query, setQuery] = useState("")
+  const [category, setCategory] = useState("All")
+  const [size, setSize] = useState<IconSize>("md")
+  const [tone, setTone] = useState<IconTone>("default")
+  const [copied, setCopied] = useState<string | null>(null)
+  const [visibleCount, setVisibleCount] = useState(48)
+  const [selectedIcon, setSelectedIcon] = useState<IconItem | null>(null)
+
+  const categories = [
+    "All", "Tech Stack", "Developer", "Social", "Navigation", "Actions", "Feedback", "Media", "Files",
+    "Communication", "Devices", "Commerce", "Time", "Weather", "Charts", "Shapes", "Editor", "Health", "Travel", "Nature", "Food"
+  ]
+
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = { All: iconCatalog.length }
+    for (const item of iconCatalog) {
+      counts[item.category] = (counts[item.category] || 0) + 1
+    }
+    return counts
+  }, [])
+
+  const items = iconCatalog.filter((item) => {
+    const matchesCategory = category === "All" || item.category === category
+    const q = query.trim().toLowerCase()
+    const matchesQuery = !q || item.name.includes(q) || item.pascal.toLowerCase().includes(q) || item.category.toLowerCase().includes(q)
+    return matchesCategory && matchesQuery
+  })
+
+  const visibleItems = items.slice(0, visibleCount)
+
+  const copyToClipboard = (pascal: string) => {
+    navigator.clipboard?.writeText(\`<Icons.\${pascal} />\`)
+    setCopied(pascal)
+    setTimeout(() => setCopied(null), 1500)
+  }
+
+  const copyNameOnly = (name: string) => {
+    navigator.clipboard?.writeText(name)
+    setCopied(name)
+    setTimeout(() => setCopied(null), 1500)
+  }
+
+  return (
+    <div className="flex w-full flex-col gap-4">
+      <div className="flex flex-col gap-3 rounded-xl border border-border bg-surface p-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="relative flex-1">
+          <Icon name="search" size="sm" tone="muted" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => { setQuery(e.target.value); setVisibleCount(48) }}
+            placeholder={\`Search \${iconCatalog.length} icons across \${categories.length - 1} groups...\`}
+            className="w-full rounded-lg border border-border bg-bg py-1.5 pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent-strong focus:outline-none"
+          />
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center rounded-lg border border-border bg-bg p-0.5">
+            {(["sm", "md", "lg", "xl"] as const).map((s) => (
+              <button
+                key={s}
+                type="button"
+                onClick={() => setSize(s)}
+                className={\`rounded px-2 py-0.5 text-xs font-medium transition-colors \${
+                  size === s ? "bg-accent text-accent-foreground font-semibold shadow-xs" : "text-muted-foreground hover:text-foreground"
+                }\`}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-1 rounded-lg border border-border bg-bg p-1">
+            {(["default", "accent", "success", "warning", "danger", "info", "muted"] as const).map((t) => (
+              <button
+                key={t}
+                type="button"
+                onClick={() => setTone(t)}
+                title={\`Tone: \${t}\`}
+                className={\`flex size-5 items-center justify-center rounded-full border transition-transform \${
+                  tone === t ? "scale-110 border-foreground" : "border-transparent opacity-80 hover:opacity-100"
+                }\`}
+              >
+                <span
+                  className={\`size-3 rounded-full \${
+                    t === "default"
+                      ? "bg-foreground"
+                      : t === "accent"
+                      ? "bg-accent-strong"
+                      : t === "success"
+                      ? "bg-emerald-500"
+                      : t === "warning"
+                      ? "bg-amber-500"
+                      : t === "danger"
+                      ? "bg-red-500"
+                      : t === "info"
+                      ? "bg-sky-500"
+                      : "bg-muted-foreground"
+                  }\`}
+                />
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-1.5">
+        {categories.map((cat) => {
+          const count = categoryCounts[cat] ?? 0
+          const isSelected = category === cat
+          return (
+            <button
+              key={cat}
+              type="button"
+              onClick={() => { setCategory(cat); setVisibleCount(48) }}
+              aria-pressed={isSelected}
+              className={\`shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-colors \${
+                isSelected
+                  ? "bg-accent text-accent-foreground font-semibold shadow-xs"
+                  : "border border-border bg-surface text-muted-foreground hover:bg-surface-muted hover:text-foreground"
+              }\`}
+            >
+              {cat} <span className={\`text-[10px] \${isSelected ? "opacity-90" : "opacity-60"}\`}>({count})</span>
+            </button>
+          )
+        })}
+      </div>
+
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/70 pb-2 text-xs">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-muted-foreground">Selected Group:</span>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-accent/15 px-2.5 py-0.5 font-medium text-accent-strong">
+            {category}
+            <span className="text-[11px] opacity-75">({items.length} {items.length === 1 ? "icon" : "icons"})</span>
+          </span>
+          {category !== "All" && (
+            <button
+              type="button"
+              onClick={() => { setCategory("All"); setVisibleCount(48) }}
+              className="text-[11px] text-muted-foreground underline hover:text-foreground"
+            >
+              Reset to All
+            </button>
+          )}
+        </div>
+        {copied && (
+          <span className="font-medium text-success-strong">
+            Copied &lt;Icons.{copied} /&gt; to clipboard!
+          </span>
+        )}
+      </div>
+
+      {selectedIcon && (
+        <div className="flex flex-col gap-4 rounded-xl border border-accent/40 bg-accent/5 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-4">
+            <div className="flex size-14 items-center justify-center rounded-xl border border-border bg-surface text-foreground shadow-xs">
+              <Icon name={selectedIcon.name as any} size="xl" tone={tone} />
+            </div>
+            <div className="space-y-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="font-semibold text-foreground">Icons.{selectedIcon.pascal}</span>
+                <span className="rounded-full bg-accent/20 px-2 py-0.5 text-[11px] font-medium text-accent-strong">
+                  {selectedIcon.category}
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Canonical: <code className="font-mono text-foreground">&quot;{selectedIcon.name}&quot;</code>
+                {selectedIcon.aliases && selectedIcon.aliases.length > 0 && (
+                  <span className="ml-2 opacity-75">
+                    · Aliases: {selectedIcon.aliases.map((a) => \`"\${a}"\`).join(", ")}
+                  </span>
+                )}
+              </p>
+              <div className="flex items-center gap-3 pt-1 text-xs text-muted-foreground">
+                <span>Sizes:</span>
+                <span className="flex items-center gap-2">
+                  <span className="inline-flex items-center gap-1"><Icon name={selectedIcon.name as any} size="xs" tone={tone} /> xs</span>
+                  <span className="inline-flex items-center gap-1"><Icon name={selectedIcon.name as any} size="sm" tone={tone} /> sm</span>
+                  <span className="inline-flex items-center gap-1"><Icon name={selectedIcon.name as any} size="md" tone={tone} /> md</span>
+                  <span className="inline-flex items-center gap-1"><Icon name={selectedIcon.name as any} size="lg" tone={tone} /> lg</span>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => copyToClipboard(selectedIcon.pascal)}
+            >
+              Copy JSX (&lt;Icons.{selectedIcon.pascal} /&gt;)
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => copyNameOnly(selectedIcon.name)}
+            >
+              Copy Name
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setSelectedIcon(null)}
+            >
+              Dismiss
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {items.length === 0 ? (
+        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-surface/50 py-12 text-center">
+          <div className="mb-3 flex size-12 items-center justify-center rounded-full bg-surface-muted text-muted-foreground">
+            <Icon name="search" size="lg" tone="muted" />
+          </div>
+          <p className="text-sm font-semibold text-foreground">No icons found</p>
+          <p className="mt-1 max-w-sm text-xs text-muted-foreground">
+            No matching icons for &quot;{query}&quot; {category !== "All" ? \`in group "\${category}"\` : ""}. Try a different keyword or reset filters.
+          </p>
+          <Button
+            variant="secondary"
+            size="sm"
+            className="mt-4"
+            onClick={() => { setQuery(""); setCategory("All"); setVisibleCount(48) }}
+          >
+            Reset search &amp; filters
+          </Button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8">
+          {visibleItems.map((item) => {
+            const isSelected = selectedIcon?.key === item.key
+            const isCopied = copied === item.pascal
+            return (
+              <button
+                key={item.key}
+                type="button"
+                onClick={() => {
+                  copyToClipboard(item.pascal)
+                  setSelectedIcon(item)
+                }}
+                title={\`Icons.\${item.pascal} (\${item.category} group) — click to copy & inspect\`}
+                aria-label={\`Icons.\${item.pascal} (\${item.category} group)\`}
+                className={\`group relative flex flex-col items-center justify-center gap-1.5 rounded-xl border bg-surface p-2.5 text-center transition-all hover:border-accent-strong hover:bg-surface-muted/60 hover:shadow-xs \${
+                  isCopied
+                    ? "border-success ring-2 ring-success/30 bg-success/5"
+                    : isSelected
+                    ? "border-accent ring-2 ring-accent/30"
+                    : "border-border"
+                }\`}
+              >
+                <div
+                  className={\`flex w-full items-center justify-center rounded-lg bg-bg/60 transition-colors group-hover:bg-bg \${
+                    size === "xl" ? "h-12" : size === "lg" ? "h-10" : "h-9"
+                  }\`}
+                >
+                  <Icon name={item.name as any} size={size} tone={tone} />
+                </div>
+                <span className="w-full truncate text-[11px] font-medium text-foreground group-hover:text-accent-strong">
+                  {item.pascal}
+                </span>
+                {isCopied ? (
+                  <span className="inline-flex items-center gap-1 rounded bg-success/20 px-1.5 py-0.5 text-[9px] font-semibold text-success-strong">
+                    <Icon name="check" size="xs" /> Copied!
+                  </span>
+                ) : (
+                  <span className="rounded bg-muted/60 px-1.5 py-0.5 text-[9px] font-normal text-muted-foreground">
+                    {item.category}
+                  </span>
+                )}
+              </button>
+            )
+          })}
+        </div>
+      )}
+
+      {visibleCount < items.length && (
+        <div className="flex justify-center pt-2">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => setVisibleCount((prev) => prev + 48)}
+          >
+            Load more icons ({items.length - visibleCount} remaining)
+          </Button>
+        </div>
+      )}
+    </div>
+  )
+}`,
+      <IconExplorerExample />,
+    ),
+    ex(
       "sizes",
       "Size scale & custom dimensions",
       "Icons scale smoothly through presets ('xs'=14px, 'sm'=16px, 'md'=20px, 'lg'=24px, 'xl'=32px) or explicit numeric pixel values.",
@@ -3305,6 +3763,189 @@ export default function App() {
         <div className="flex items-center gap-2 rounded-lg border border-border p-2.5 text-xs text-foreground">
           <R.Icons.Loader spin className="text-accent-strong" />
           <span>Icons.Loader (spin)</span>
+        </div>
+      </div>,
+    ),
+    ex(
+      "semantics",
+      "Accessible semantics & titles",
+      "Icons are decorative (aria-hidden='true') by default. Pass label to convey meaning to screen readers (role='img' and aria-label), or title to render an SVG <title> tooltip.",
+      `<div className="flex flex-wrap items-center gap-6">
+  <div className="flex items-center gap-2">
+    <Icon name="trash-2" tone="danger" label="Delete database record" />
+    <span className="text-xs text-muted-foreground">Screen reader accessible (role="img", aria-label)</span>
+  </div>
+  <div className="flex items-center gap-2">
+    <Icon name="shield-check" tone="success" title="Verified HTTPS Connection" />
+    <span className="text-xs text-muted-foreground">Hover for native SVG &lt;title&gt; tooltip</span>
+  </div>
+  <div className="flex items-center gap-2">
+    <Icon name="heart" tone="danger" aria-hidden="true" />
+    <span className="text-xs text-muted-foreground">Decorative glyph (aria-hidden="true")</span>
+  </div>
+</div>`,
+      <div className="flex flex-wrap items-center gap-6">
+        <div className="flex items-center gap-2">
+          <R.Icon name="trash-2" tone="danger" label="Delete database record" />
+          <span className="text-xs text-muted-foreground">Screen reader accessible (role="img", aria-label)</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <R.Icon name="shield-check" tone="success" title="Verified HTTPS Connection" />
+          <span className="text-xs text-muted-foreground">Hover for native SVG &lt;title&gt; tooltip</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <R.Icon name="heart" tone="danger" aria-hidden="true" />
+          <span className="text-xs text-muted-foreground">Decorative glyph (aria-hidden="true")</span>
+        </div>
+      </div>,
+    ),
+    ex(
+      "create-icon",
+      "Custom vector icons via createIcon",
+      "Author bespoke, brand-specific icons with createIcon to inherit the library's responsive sizing, semantic tone colors, and accessibility contracts.",
+      `const CustomCompass = createIcon(
+  "CustomCompass",
+  <>
+    <circle cx="12" cy="12" r="10" />
+    <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
+  </>,
+)
+
+export function Example() {
+  return (
+    <div className="flex flex-wrap items-center gap-4">
+      <CustomCompass size="sm" tone="muted" />
+      <CustomCompass size="md" tone="accent" />
+      <CustomCompass size="lg" tone="success" />
+      <CustomCompass size="xl" tone="danger" />
+    </div>
+  )
+}`,
+      <CustomCompassExample />,
+    ),
+    ex(
+      "tech-stack",
+      "Tech stack, languages & cloud icons",
+      "Native vector glyphs for major frameworks (React, Next.js, Vue, Svelte, Angular, Astro), languages (TypeScript, Python, Rust, Go, Node.js), and infrastructure (Docker, Kubernetes, PostgreSQL, Redis, Vercel, Supabase).",
+      `<div className="flex flex-col gap-4">
+  <div className="flex flex-wrap items-center gap-3">
+    <span className="w-24 text-xs font-semibold text-muted-foreground">Frameworks:</span>
+    <Icons.React className="text-sky-500" title="React" />
+    <Icons.Nextjs className="text-foreground" title="Next.js" />
+    <Icons.Vue className="text-emerald-500" title="Vue.js" />
+    <Icons.Svelte className="text-orange-500" title="Svelte" />
+    <Icons.Angular className="text-red-500" title="Angular" />
+    <Icons.Astro className="text-purple-500" title="Astro" />
+    <Icons.Tailwind className="text-sky-400" title="Tailwind CSS" />
+  </div>
+  <div className="flex flex-wrap items-center gap-3">
+    <span className="w-24 text-xs font-semibold text-muted-foreground">Languages:</span>
+    <Icons.Typescript className="text-blue-500" title="TypeScript" />
+    <Icons.Javascript className="text-amber-400" title="JavaScript" />
+    <Icons.Python className="text-yellow-500" title="Python" />
+    <Icons.Rust className="text-amber-700" title="Rust" />
+    <Icons.Golang className="text-cyan-500" title="Go" />
+    <Icons.Nodejs className="text-emerald-600" title="Node.js" />
+    <Icons.Bun className="text-amber-200" title="Bun" />
+  </div>
+  <div className="flex flex-wrap items-center gap-3">
+    <span className="w-24 text-xs font-semibold text-muted-foreground">Cloud & DB:</span>
+    <Icons.Docker className="text-blue-500" title="Docker" />
+    <Icons.Kubernetes className="text-blue-600" title="Kubernetes" />
+    <Icons.Postgres className="text-sky-600" title="PostgreSQL" />
+    <Icons.Mongodb className="text-emerald-500" title="MongoDB" />
+    <Icons.Redis className="text-red-600" title="Redis" />
+    <Icons.Supabase className="text-emerald-400" title="Supabase" />
+    <Icons.Vercel className="text-foreground" title="Vercel" />
+    <Icons.Graphql className="text-pink-500" title="GraphQL" />
+  </div>
+</div>`,
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="w-24 text-xs font-semibold text-muted-foreground">Frameworks:</span>
+          <R.Icons.React className="text-sky-500" title="React" />
+          <R.Icons.Nextjs className="text-foreground" title="Next.js" />
+          <R.Icons.Vue className="text-emerald-500" title="Vue.js" />
+          <R.Icons.Svelte className="text-orange-500" title="Svelte" />
+          <R.Icons.Angular className="text-red-500" title="Angular" />
+          <R.Icons.Astro className="text-purple-500" title="Astro" />
+          <R.Icons.Tailwind className="text-sky-400" title="Tailwind CSS" />
+        </div>
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="w-24 text-xs font-semibold text-muted-foreground">Languages:</span>
+          <R.Icons.Typescript className="text-blue-500" title="TypeScript" />
+          <R.Icons.Javascript className="text-amber-400" title="JavaScript" />
+          <R.Icons.Python className="text-yellow-500" title="Python" />
+          <R.Icons.Rust className="text-amber-700" title="Rust" />
+          <R.Icons.Golang className="text-cyan-500" title="Go" />
+          <R.Icons.Nodejs className="text-emerald-600" title="Node.js" />
+          <R.Icons.Bun className="text-amber-200" title="Bun" />
+        </div>
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="w-24 text-xs font-semibold text-muted-foreground">Cloud & DB:</span>
+          <R.Icons.Docker className="text-blue-500" title="Docker" />
+          <R.Icons.Kubernetes className="text-blue-600" title="Kubernetes" />
+          <R.Icons.Postgres className="text-sky-600" title="PostgreSQL" />
+          <R.Icons.Mongodb className="text-emerald-500" title="MongoDB" />
+          <R.Icons.Redis className="text-red-600" title="Redis" />
+          <R.Icons.Supabase className="text-emerald-400" title="Supabase" />
+          <R.Icons.Vercel className="text-foreground" title="Vercel" />
+          <R.Icons.Graphql className="text-pink-500" title="GraphQL" />
+        </div>
+      </div>,
+    ),
+    ex(
+      "social-developer",
+      "Social media & developer icons",
+      "Native vector glyphs for major developer workflows (Git branches, commits, PRs, terminals, databases) and social media platforms.",
+      `<div className="flex flex-col gap-4">
+  <div className="flex flex-wrap items-center gap-3">
+    <span className="w-20 text-xs font-semibold text-muted-foreground">Developer:</span>
+    <Icons.GitBranch className="text-accent-strong" title="Git Branch" />
+    <Icons.GitCommit className="text-foreground" title="Git Commit" />
+    <Icons.GitPullRequest className="text-success-strong" title="Pull Request" />
+    <Icons.Terminal className="text-foreground" title="Terminal" />
+    <Icons.Code className="text-info-strong" title="Code" />
+    <Icons.Cpu className="text-warning-strong" title="CPU" />
+    <Icons.Database className="text-accent-strong" title="Database" />
+    <Icons.Webhook className="text-danger-strong" title="Webhook" />
+    <Icons.Braces className="text-muted-foreground" title="Braces" />
+  </div>
+  <div className="flex flex-wrap items-center gap-3">
+    <span className="w-20 text-xs font-semibold text-muted-foreground">Social:</span>
+    <Icons.Github className="text-muted-foreground transition-colors hover:text-foreground" title="GitHub" />
+    <Icons.Twitter className="text-muted-foreground transition-colors hover:text-sky-500" title="Twitter / X" />
+    <Icons.Linkedin className="text-muted-foreground transition-colors hover:text-sky-600" title="LinkedIn" />
+    <Icons.Discord className="text-muted-foreground transition-colors hover:text-indigo-500" title="Discord" />
+    <Icons.Youtube className="text-muted-foreground transition-colors hover:text-red-500" title="YouTube" />
+    <Icons.Slack className="text-muted-foreground transition-colors hover:text-amber-500" title="Slack" />
+    <Icons.Figma className="text-muted-foreground transition-colors hover:text-purple-500" title="Figma" />
+    <Icons.Gitlab className="text-muted-foreground transition-colors hover:text-orange-500" title="GitLab" />
+  </div>
+</div>`,
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="w-20 text-xs font-semibold text-muted-foreground">Developer:</span>
+          <R.Icons.GitBranch className="text-accent-strong" title="Git Branch" />
+          <R.Icons.GitCommit className="text-foreground" title="Git Commit" />
+          <R.Icons.GitPullRequest className="text-success-strong" title="Pull Request" />
+          <R.Icons.Terminal className="text-foreground" title="Terminal" />
+          <R.Icons.Code className="text-info-strong" title="Code" />
+          <R.Icons.Cpu className="text-warning-strong" title="CPU" />
+          <R.Icons.Database className="text-accent-strong" title="Database" />
+          <R.Icons.Webhook className="text-danger-strong" title="Webhook" />
+          <R.Icons.Braces className="text-muted-foreground" title="Braces" />
+        </div>
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="w-20 text-xs font-semibold text-muted-foreground">Social:</span>
+          <R.Icons.Github className="text-muted-foreground transition-colors hover:text-foreground" title="GitHub" />
+          <R.Icons.Twitter className="text-muted-foreground transition-colors hover:text-sky-500" title="Twitter / X" />
+          <R.Icons.Linkedin className="text-muted-foreground transition-colors hover:text-sky-600" title="LinkedIn" />
+          <R.Icons.Discord className="text-muted-foreground transition-colors hover:text-indigo-500" title="Discord" />
+          <R.Icons.Youtube className="text-muted-foreground transition-colors hover:text-red-500" title="YouTube" />
+          <R.Icons.Slack className="text-muted-foreground transition-colors hover:text-amber-500" title="Slack" />
+          <R.Icons.Figma className="text-muted-foreground transition-colors hover:text-purple-500" title="Figma" />
+          <R.Icons.Gitlab className="text-muted-foreground transition-colors hover:text-orange-500" title="GitLab" />
         </div>
       </div>,
     ),
@@ -3496,6 +4137,160 @@ function ColorPickerEyeDropperExample() {
         onChange={setColor}
         showEyeDropper
       />
+    </div>
+  )
+}
+
+function SignatureModesExample() {
+  const [sig, setSig] = useState<string | null>(null)
+  return (
+    <div className="flex w-full max-w-md flex-col gap-3">
+      <R.Signature
+        label="Employee Agreement"
+        hint="Switch between drawing or uploading a paper signature photo."
+        modes={["draw", "upload"]}
+        defaultMode="draw"
+        value={sig}
+        onChange={setSig}
+      />
+      {sig && (
+        <div className="flex items-center gap-1.5 text-xs text-success-strong">
+          <R.Icons.CheckCircle2 size="xs" className="shrink-0" />
+          <span>Signature confirmed &amp; ready.</span>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function SignatureEditorDemoExample() {
+  const [activeSample, setActiveSample] = useState<"parchment" | "notebook">("parchment")
+  const [cleaned, setCleaned] = useState<string | null>(null)
+
+  return (
+    <div className="flex w-full max-w-2xl flex-col gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-surface-muted/30 px-3 py-2 text-xs">
+        <span className="text-muted-foreground">Select a raw scan to clean:</span>
+        <div className="flex flex-wrap items-center gap-1.5">
+          <R.Button
+            variant={activeSample === "parchment" ? "primary" : "secondary"}
+            size="sm"
+            icon={<R.Icons.Scroll size="xs" className="shrink-0" />}
+            onClick={() => setActiveSample("parchment")}
+            className="h-7 gap-1.5 text-xs"
+          >
+            Parchment Scan
+          </R.Button>
+          <R.Button
+            variant={activeSample === "notebook" ? "primary" : "secondary"}
+            size="sm"
+            icon={<R.Icons.Book size="xs" className="shrink-0" />}
+            onClick={() => setActiveSample("notebook")}
+            className="h-7 gap-1.5 text-xs"
+          >
+            Notebook Scan
+          </R.Button>
+        </div>
+      </div>
+
+      <R.SignatureImageEditor
+        key={activeSample}
+        image={R.createSampleSignature(activeSample)}
+        title="Background Removal & Auto-Crop Studio"
+        onSave={setCleaned}
+      />
+
+      {cleaned && (
+        <div className="flex flex-col gap-2 rounded-xl border border-success/30 bg-success/5 p-3 text-xs">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5 font-semibold text-success-strong">
+              <R.Icons.CheckCircle2 size="xs" className="shrink-0" />
+              <span>Cleaned Signature Ready for Documents</span>
+            </div>
+            <span className="text-muted-foreground text-[11px]">100% Transparent PNG</span>
+          </div>
+          <div
+            className="flex h-20 w-full items-center justify-center rounded-lg border border-border/80 bg-surface p-2"
+            style={{
+              backgroundImage:
+                "repeating-conic-gradient(rgba(128,128,128,0.12) 0% 25%, transparent 0% 50%)",
+              backgroundSize: "12px 12px",
+            }}
+          >
+            <img src={cleaned} alt="Cleaned signature result" className="max-h-full max-w-full object-contain" />
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function SignatureColorsExample() {
+  const [sig, setSig] = useState<string | null>(null)
+  return (
+    <div className="w-full max-w-md">
+      <R.Signature
+        label="Executive Authorization"
+        hint="Sign in fountain pen blue or crimson seal ink."
+        strokeColor="#1d4ed8"
+        strokeWidth="bold"
+        colors={["#1d4ed8", "#0f172a", "#b91c1c", "#047857"]}
+        value={sig}
+        onChange={setSig}
+      />
+    </div>
+  )
+}
+
+function SignatureImperativeExample() {
+  const sigRef = useRef<R.SignatureRef>(null)
+  const [svgOutput, setSvgOutput] = useState<string | null>(null)
+
+  return (
+    <div className="flex w-full max-w-md flex-col gap-3">
+      <R.Signature
+        signatureRef={sigRef}
+        label="Sign Document"
+        hint="Draw a signature then test the external control buttons below."
+      />
+      <div className="flex flex-wrap items-center gap-2">
+        <R.Button
+          variant="secondary"
+          size="sm"
+          icon={<R.Icons.RotateCcw size="xs" className="shrink-0" />}
+          onClick={() => sigRef.current?.undo()}
+          className="gap-1.5"
+        >
+          Undo Stroke
+        </R.Button>
+        <R.Button
+          variant="outline"
+          size="sm"
+          icon={<R.Icons.Sparkles size="xs" className="shrink-0" />}
+          onClick={() => sigRef.current?.openEditor()}
+          className="gap-1.5"
+        >
+          Open Editor
+        </R.Button>
+        <R.Button
+          variant="primary"
+          size="sm"
+          icon={<R.Icons.Download size="xs" className="shrink-0" />}
+          onClick={() => {
+            const svg = sigRef.current?.toSVG()
+            setSvgOutput(svg || null)
+          }}
+          className="gap-1.5"
+        >
+          Export Vector SVG
+        </R.Button>
+      </div>
+      {svgOutput && (
+        <div className="rounded-lg border border-border bg-surface-muted/40 p-3 text-xs">
+          <p className="mb-1 font-semibold text-foreground">Generated Scalable SVG:</p>
+          <pre className="overflow-x-auto font-mono text-[11px] text-muted-foreground">{svgOutput.slice(0, 140)}…</pre>
+        </div>
+      )}
     </div>
   )
 }
@@ -3874,6 +4669,316 @@ function PanoBackdropExample() {
           </div>
         ))}
       </div>
+    </div>
+  )
+}
+
+function IconExplorerExample() {
+  const [query, setQuery] = useState("")
+  const [category, setCategory] = useState("All")
+  const [size, setSize] = useState<R.IconSize>("md")
+  const [tone, setTone] = useState<R.IconTone>("default")
+  const [copied, setCopied] = useState<string | null>(null)
+  const [visibleCount, setVisibleCount] = useState(48)
+  const [selectedIcon, setSelectedIcon] = useState<R.IconItem | null>(null)
+
+  const categories = [
+    "All", "Tech Stack", "Developer", "Social", "Navigation", "Actions", "Feedback", "Media", "Files",
+    "Communication", "Devices", "Commerce", "Time", "Weather", "Charts", "Shapes", "Editor", "Health", "Travel", "Nature", "Food"
+  ]
+
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = { All: R.iconCatalog.length }
+    for (const item of R.iconCatalog) {
+      counts[item.category] = (counts[item.category] || 0) + 1
+    }
+    return counts
+  }, [])
+
+  const items = R.iconCatalog.filter((item) => {
+    const matchesCategory = category === "All" || item.category === category
+    const q = query.trim().toLowerCase()
+    const matchesQuery = !q || item.name.includes(q) || item.pascal.toLowerCase().includes(q) || item.category.toLowerCase().includes(q)
+    return matchesCategory && matchesQuery
+  })
+
+  const visibleItems = items.slice(0, visibleCount)
+
+  const copyToClipboard = (pascal: string) => {
+    navigator.clipboard?.writeText(`<Icons.${pascal} />`)
+    setCopied(pascal)
+    setTimeout(() => setCopied(null), 1500)
+  }
+
+  const copyNameOnly = (name: string) => {
+    navigator.clipboard?.writeText(name)
+    setCopied(name)
+    setTimeout(() => setCopied(null), 1500)
+  }
+
+  return (
+    <div className="flex w-full flex-col gap-4">
+      <div className="flex flex-col gap-3 rounded-xl border border-border bg-surface p-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="relative flex-1">
+          <R.Icon name="search" size="sm" tone="muted" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => { setQuery(e.target.value); setVisibleCount(48) }}
+            placeholder={`Search ${R.iconCatalog.length} icons across ${categories.length - 1} groups...`}
+            className="w-full rounded-lg border border-border bg-bg py-1.5 pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent-strong focus:outline-none"
+          />
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center rounded-lg border border-border bg-bg p-0.5">
+            {(["sm", "md", "lg", "xl"] as const).map((s) => (
+              <button
+                key={s}
+                type="button"
+                onClick={() => setSize(s)}
+                className={`rounded px-2 py-0.5 text-xs font-medium transition-colors ${
+                  size === s ? "bg-accent text-accent-foreground font-semibold shadow-xs" : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-1 rounded-lg border border-border bg-bg p-1">
+            {(["default", "accent", "success", "warning", "danger", "info", "muted"] as const).map((t) => (
+              <button
+                key={t}
+                type="button"
+                onClick={() => setTone(t)}
+                title={`Tone: ${t}`}
+                className={`flex size-5 items-center justify-center rounded-full border transition-transform ${
+                  tone === t ? "scale-110 border-foreground" : "border-transparent opacity-80 hover:opacity-100"
+                }`}
+              >
+                <span
+                  className={`size-3 rounded-full ${
+                    t === "default"
+                      ? "bg-foreground"
+                      : t === "accent"
+                      ? "bg-accent-strong"
+                      : t === "success"
+                      ? "bg-emerald-500"
+                      : t === "warning"
+                      ? "bg-amber-500"
+                      : t === "danger"
+                      ? "bg-red-500"
+                      : t === "info"
+                      ? "bg-sky-500"
+                      : "bg-muted-foreground"
+                  }`}
+                />
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-1.5">
+        {categories.map((cat) => {
+          const count = categoryCounts[cat] ?? 0
+          const isSelected = category === cat
+          return (
+            <button
+              key={cat}
+              type="button"
+              onClick={() => { setCategory(cat); setVisibleCount(48) }}
+              aria-pressed={isSelected}
+              className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+                isSelected
+                  ? "bg-accent text-accent-foreground font-semibold shadow-xs"
+                  : "border border-border bg-surface text-muted-foreground hover:bg-surface-muted hover:text-foreground"
+              }`}
+            >
+              {cat} <span className={`text-[10px] ${isSelected ? "opacity-90" : "opacity-60"}`}>({count})</span>
+            </button>
+          )
+        })}
+      </div>
+
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/70 pb-2 text-xs">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-muted-foreground">Selected Group:</span>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-accent/15 px-2.5 py-0.5 font-medium text-accent-strong">
+            {category}
+            <span className="text-[11px] opacity-75">({items.length} {items.length === 1 ? "icon" : "icons"})</span>
+          </span>
+          {category !== "All" && (
+            <button
+              type="button"
+              onClick={() => { setCategory("All"); setVisibleCount(48) }}
+              className="text-[11px] text-muted-foreground underline hover:text-foreground"
+            >
+              Reset to All
+            </button>
+          )}
+        </div>
+        {copied && (
+          <span className="font-medium text-success-strong">
+            Copied &lt;Icons.{copied} /&gt; to clipboard!
+          </span>
+        )}
+      </div>
+
+      {selectedIcon && (
+        <div className="flex flex-col gap-4 rounded-xl border border-accent/40 bg-accent/5 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-4">
+            <div className="flex size-14 items-center justify-center rounded-xl border border-border bg-surface text-foreground shadow-xs">
+              <R.Icon name={selectedIcon.name as any} size="xl" tone={tone} />
+            </div>
+            <div className="space-y-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="font-semibold text-foreground">Icons.{selectedIcon.pascal}</span>
+                <span className="rounded-full bg-accent/20 px-2 py-0.5 text-[11px] font-medium text-accent-strong">
+                  {selectedIcon.category}
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Canonical: <code className="font-mono text-foreground">&quot;{selectedIcon.name}&quot;</code>
+                {selectedIcon.aliases && selectedIcon.aliases.length > 0 && (
+                  <span className="ml-2 opacity-75">
+                    · Aliases: {selectedIcon.aliases.map((a) => `"${a}"`).join(", ")}
+                  </span>
+                )}
+              </p>
+              <div className="flex items-center gap-3 pt-1 text-xs text-muted-foreground">
+                <span>Sizes:</span>
+                <span className="flex items-center gap-2">
+                  <span className="inline-flex items-center gap-1"><R.Icon name={selectedIcon.name as any} size="xs" tone={tone} /> xs</span>
+                  <span className="inline-flex items-center gap-1"><R.Icon name={selectedIcon.name as any} size="sm" tone={tone} /> sm</span>
+                  <span className="inline-flex items-center gap-1"><R.Icon name={selectedIcon.name as any} size="md" tone={tone} /> md</span>
+                  <span className="inline-flex items-center gap-1"><R.Icon name={selectedIcon.name as any} size="lg" tone={tone} /> lg</span>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <R.Button
+              variant="secondary"
+              size="sm"
+              onClick={() => copyToClipboard(selectedIcon.pascal)}
+            >
+              Copy JSX (&lt;Icons.{selectedIcon.pascal} /&gt;)
+            </R.Button>
+            <R.Button
+              variant="outline"
+              size="sm"
+              onClick={() => copyNameOnly(selectedIcon.name)}
+            >
+              Copy Name
+            </R.Button>
+            <R.Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setSelectedIcon(null)}
+            >
+              Dismiss
+            </R.Button>
+          </div>
+        </div>
+      )}
+
+      {items.length === 0 ? (
+        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-surface/50 py-12 text-center">
+          <div className="mb-3 flex size-12 items-center justify-center rounded-full bg-surface-muted text-muted-foreground">
+            <R.Icon name="search" size="lg" tone="muted" />
+          </div>
+          <p className="text-sm font-semibold text-foreground">No icons found</p>
+          <p className="mt-1 max-w-sm text-xs text-muted-foreground">
+            No matching icons for &quot;{query}&quot; {category !== "All" ? `in group "${category}"` : ""}. Try a different keyword or reset filters.
+          </p>
+          <R.Button
+            variant="secondary"
+            size="sm"
+            className="mt-4"
+            onClick={() => { setQuery(""); setCategory("All"); setVisibleCount(48) }}
+          >
+            Reset search &amp; filters
+          </R.Button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8">
+          {visibleItems.map((item) => {
+            const isSelected = selectedIcon?.key === item.key
+            const isCopied = copied === item.pascal
+            return (
+              <button
+                key={item.key}
+                type="button"
+                onClick={() => {
+                  copyToClipboard(item.pascal)
+                  setSelectedIcon(item)
+                }}
+                title={`Icons.${item.pascal} (${item.category} group) — click to copy & inspect`}
+                aria-label={`Icons.${item.pascal} (${item.category} group)`}
+                className={`group relative flex flex-col items-center justify-center gap-1.5 rounded-xl border bg-surface p-2.5 text-center transition-all hover:border-accent-strong hover:bg-surface-muted/60 hover:shadow-xs ${
+                  isCopied
+                    ? "border-success ring-2 ring-success/30 bg-success/5"
+                    : isSelected
+                    ? "border-accent ring-2 ring-accent/30"
+                    : "border-border"
+                }`}
+              >
+                <div
+                  className={`flex w-full items-center justify-center rounded-lg bg-bg/60 transition-colors group-hover:bg-bg ${
+                    size === "xl" ? "h-12" : size === "lg" ? "h-10" : "h-9"
+                  }`}
+                >
+                  <R.Icon name={item.name as any} size={size} tone={tone} />
+                </div>
+                <span className="w-full truncate text-[11px] font-medium text-foreground group-hover:text-accent-strong">
+                  {item.pascal}
+                </span>
+                {isCopied ? (
+                  <span className="inline-flex items-center gap-1 rounded bg-success/20 px-1.5 py-0.5 text-[9px] font-semibold text-success-strong">
+                    <R.Icon name="check" size="xs" /> Copied!
+                  </span>
+                ) : (
+                  <span className="rounded bg-muted/60 px-1.5 py-0.5 text-[9px] font-normal text-muted-foreground">
+                    {item.category}
+                  </span>
+                )}
+              </button>
+            )
+          })}
+        </div>
+      )}
+
+      {visibleCount < items.length && (
+        <div className="flex justify-center pt-2">
+          <R.Button
+            variant="secondary"
+            size="sm"
+            onClick={() => setVisibleCount((prev) => prev + 48)}
+          >
+            Load more icons ({items.length - visibleCount} remaining)
+          </R.Button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+const CustomCompass = R.createIcon(
+  "CustomCompass",
+  <>
+    <circle cx="12" cy="12" r="10" />
+    <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
+  </>,
+)
+
+function CustomCompassExample() {
+  return (
+    <div className="flex flex-wrap items-center gap-4">
+      <CustomCompass size="sm" tone="muted" />
+      <CustomCompass size="md" tone="accent" />
+      <CustomCompass size="lg" tone="success" />
+      <CustomCompass size="xl" tone="danger" />
     </div>
   )
 }

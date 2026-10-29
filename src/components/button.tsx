@@ -153,7 +153,7 @@ const ButtonInner = forwardRef<HTMLButtonElement, ButtonProps>(
           <>
             <span className="invisible inline-flex items-center gap-2">
               {icon && iconPosition === "left" && <span className="shrink-0 w-3.5 h-3.5" />}
-              <span>{children}</span>
+              <span className="inline-flex items-center gap-[inherit] min-w-0">{children}</span>
               {icon && iconPosition === "right" && <span className="shrink-0 w-3.5 h-3.5" />}
             </span>
             <span className="absolute inset-0 inline-flex items-center justify-center">
@@ -172,7 +172,7 @@ const ButtonInner = forwardRef<HTMLButtonElement, ButtonProps>(
               </svg>
             )}
             {!loading && icon && iconPosition === "left" && <span className="shrink-0">{icon}</span>}
-            {children && <span>{children}</span>}
+            {children && <span className="inline-flex items-center gap-[inherit] min-w-0">{children}</span>}
             {!loading && icon && iconPosition === "right" && <span className="shrink-0">{icon}</span>}
           </>
         )}

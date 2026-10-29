@@ -80,6 +80,7 @@ const forms = [
   component("Date Time Picker", "Selects both date and time in an integrated popover.", "Forms", ["datetime", "schedule", "calendar"], "DateTimePicker"),
   component("Time Picker", "Selects a time through a responsive custom picker.", "Forms", ["time"], "TimePicker"),
   component("Color Picker", "Selects colors from canvas, hue slider, and preset swatches.", "Forms", ["palette", "hex", "eyedropper"], "ColorPicker"),
+  component("Signature", "Captures electronic signatures with smooth freehand drawing, paper photo upload, auto-background removal, cropping, and zoom.", "Forms", ["e-signature", "sign", "signature pad", "signature-editor", "contract", "crop", "transparent"], "Signature"),
   component("Calendar", "Displays selectable month and week calendar views.", "Forms"),
   component("Label", "Provides an accessible label for a form control.", "Forms"),
   component("Form", "Validates and submits forms with useForm, schemas and accessible errors.", "Forms", ["validation", "useForm", "zod", "schema"], "Form"),

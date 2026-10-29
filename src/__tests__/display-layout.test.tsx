@@ -450,6 +450,9 @@ describe("ref forwarding", () => {
       ["Kanban", (ref) => <R.Kanban ref={ref} columns={[{ id: "todo", title: "To do", items: [{ id: "1" }] }]} onChange={() => {}} renderCard={(i) => i.id} />, HTMLDivElement],
       ["Icon", (ref) => <R.Icon ref={ref} name="check" />, SVGSVGElement],
       ["Icons.Check", (ref) => <R.Icons.Check ref={ref} />, SVGSVGElement],
+      ["Signature", (ref) => <R.Signature ref={ref} />, HTMLDivElement],
+      ["SignaturePad", (ref) => <R.SignaturePad ref={ref} />, HTMLDivElement],
+      ["SignatureImageEditor", (ref) => <R.SignatureImageEditor ref={ref} image="data:image/png;base64,sample" />, HTMLDivElement],
     ]
     for (const [name, element, type] of cases) {
       const ref = createRef<never>()
@@ -669,5 +672,196 @@ describe("Icon and Icons", () => {
     const svg = screen.getByTestId("custom-svg")
     expect(svg).toHaveAttribute("stroke-width", "3")
     expect(svg).toHaveClass("custom-icon-class")
+  })
+
+  it("renders rich icons across diverse categories in the full icon library", () => {
+    const { container } = render(
+      <div>
+        <R.Icon name="arrow-right" data-testid="cat-nav" />
+        <R.Icon name="file-text" data-testid="cat-file" />
+        <R.Icon name="database" data-testid="cat-dev" />
+        <R.Icon name="credit-card" data-testid="cat-commerce" />
+        <R.Icon name="calendar-check" data-testid="cat-time" />
+        <R.Icon name="cloud-rain" data-testid="cat-weather" />
+        <R.Icon name="bar-chart-3" data-testid="cat-chart" />
+        <R.Icons.ArrowRight data-testid="comp-arrow" />
+        <R.Icons.Database data-testid="comp-db" />
+        <R.Icons.CreditCard data-testid="comp-cc" />
+      </div>,
+    )
+
+    expect(screen.getByTestId("cat-nav")).toBeInTheDocument()
+    expect(screen.getByTestId("cat-file")).toBeInTheDocument()
+    expect(screen.getByTestId("cat-dev")).toBeInTheDocument()
+    expect(screen.getByTestId("cat-commerce")).toBeInTheDocument()
+    expect(screen.getByTestId("cat-time")).toBeInTheDocument()
+    expect(screen.getByTestId("cat-weather")).toBeInTheDocument()
+    expect(screen.getByTestId("cat-chart")).toBeInTheDocument()
+    expect(screen.getByTestId("comp-arrow")).toBeInTheDocument()
+    expect(screen.getByTestId("comp-db")).toBeInTheDocument()
+    expect(screen.getByTestId("comp-cc")).toBeInTheDocument()
+  })
+
+  it("renders developer and social media brand icons with proper attributes and categories", () => {
+    render(
+      <div>
+        <R.Icons.Github data-testid="icon-github" />
+        <R.Icons.Twitter data-testid="icon-twitter" />
+        <R.Icons.Linkedin data-testid="icon-linkedin" />
+        <R.Icons.Discord data-testid="icon-discord" />
+        <R.Icons.Youtube data-testid="icon-youtube" />
+        <R.Icons.Slack data-testid="icon-slack" />
+        <R.Icons.GitBranch data-testid="icon-branch" />
+        <R.Icons.GitCommit data-testid="icon-commit" />
+        <R.Icons.GitPullRequest data-testid="icon-pr" />
+        <R.Icons.Terminal data-testid="icon-terminal" />
+        <R.Icons.Code data-testid="icon-code" />
+        <R.Icons.Cpu data-testid="icon-cpu" />
+        <R.Icons.Webhook data-testid="icon-webhook" />
+      </div>,
+    )
+
+    expect(screen.getByTestId("icon-github")).toHaveAttribute("data-icon", "github")
+    expect(screen.getByTestId("icon-twitter")).toHaveAttribute("data-icon", "twitter")
+    expect(screen.getByTestId("icon-linkedin")).toHaveAttribute("data-icon", "linkedin")
+    expect(screen.getByTestId("icon-discord")).toHaveAttribute("data-icon", "discord")
+    expect(screen.getByTestId("icon-youtube")).toHaveAttribute("data-icon", "youtube")
+    expect(screen.getByTestId("icon-slack")).toHaveAttribute("data-icon", "slack")
+    expect(screen.getByTestId("icon-branch")).toHaveAttribute("data-icon", "gitbranch")
+    expect(screen.getByTestId("icon-commit")).toHaveAttribute("data-icon", "gitcommit")
+    expect(screen.getByTestId("icon-pr")).toHaveAttribute("data-icon", "gitpullrequest")
+    expect(screen.getByTestId("icon-terminal")).toHaveAttribute("data-icon", "terminal")
+    expect(screen.getByTestId("icon-code")).toHaveAttribute("data-icon", "code")
+    expect(screen.getByTestId("icon-cpu")).toHaveAttribute("data-icon", "cpu")
+    expect(screen.getByTestId("icon-webhook")).toHaveAttribute("data-icon", "webhook")
+
+    const categories = new Set(R.iconCatalog.map((item) => item.category))
+    expect(categories.has("Developer")).toBe(true)
+    expect(categories.has("Social")).toBe(true)
+    expect(categories.has("Tech Stack")).toBe(true)
+    expect(R.iconCategories).toContain("Tech Stack")
+    expect(R.iconCategories).toContain("Developer")
+    expect(R.iconCategories).toContain("Social")
+  })
+
+  it("renders tech stack framework, language and cloud icons with canonical names and aliases", () => {
+    render(
+      <div>
+        <R.Icons.React data-testid="icon-react" />
+        <R.Icons.Nextjs data-testid="icon-next" />
+        <R.Icons.Vue data-testid="icon-vue" />
+        <R.Icons.Svelte data-testid="icon-svelte" />
+        <R.Icons.Angular data-testid="icon-angular" />
+        <R.Icons.Typescript data-testid="icon-ts" />
+        <R.Icons.Javascript data-testid="icon-js" />
+        <R.Icons.Python data-testid="icon-python" />
+        <R.Icons.Rust data-testid="icon-rust" />
+        <R.Icons.Docker data-testid="icon-docker" />
+        <R.Icons.Kubernetes data-testid="icon-k8s" />
+        <R.Icons.Postgres data-testid="icon-postgres" />
+        <R.Icons.Redis data-testid="icon-redis" />
+        <R.Icon name="ts" data-testid="alias-ts" />
+        <R.Icon name="reactjs" data-testid="alias-reactjs" />
+        <R.Icon name="k8s" data-testid="alias-k8s" />
+      </div>,
+    )
+
+    expect(screen.getByTestId("icon-react")).toHaveAttribute("data-icon", "react")
+    expect(screen.getByTestId("icon-next")).toHaveAttribute("data-icon", "nextjs")
+    expect(screen.getByTestId("icon-vue")).toHaveAttribute("data-icon", "vue")
+    expect(screen.getByTestId("icon-svelte")).toHaveAttribute("data-icon", "svelte")
+    expect(screen.getByTestId("icon-angular")).toHaveAttribute("data-icon", "angular")
+    expect(screen.getByTestId("icon-ts")).toHaveAttribute("data-icon", "typescript")
+    expect(screen.getByTestId("icon-js")).toHaveAttribute("data-icon", "javascript")
+    expect(screen.getByTestId("icon-python")).toHaveAttribute("data-icon", "python")
+    expect(screen.getByTestId("icon-rust")).toHaveAttribute("data-icon", "rust")
+    expect(screen.getByTestId("icon-docker")).toHaveAttribute("data-icon", "docker")
+    expect(screen.getByTestId("icon-k8s")).toHaveAttribute("data-icon", "kubernetes")
+    expect(screen.getByTestId("icon-postgres")).toHaveAttribute("data-icon", "postgres")
+    expect(screen.getByTestId("icon-redis")).toHaveAttribute("data-icon", "redis")
+
+    expect(screen.getByTestId("alias-ts")).toHaveAttribute("data-icon", "typescript")
+    expect(screen.getByTestId("alias-reactjs")).toHaveAttribute("data-icon", "react")
+    expect(screen.getByTestId("alias-k8s")).toHaveAttribute("data-icon", "kubernetes")
+  })
+
+  it("supports title tooltip and custom SVG children", () => {
+    render(
+      <div>
+        <R.Icon name="shield-check" title="Encrypted Connection" data-testid="title-test" />
+        <R.Icon size="lg" tone="accent" data-testid="custom-child-icon">
+          <circle cx="12" cy="12" r="8" />
+        </R.Icon>
+      </div>,
+    )
+
+    const titleSvg = screen.getByTestId("title-test")
+    expect(titleSvg.querySelector("title")).toHaveTextContent("Encrypted Connection")
+
+    const customSvg = screen.getByTestId("custom-child-icon")
+    expect(customSvg.querySelector("circle")).toBeInTheDocument()
+  })
+
+  it("creates custom reusable icons with createIcon", () => {
+    const CustomPin = R.createIcon("CustomPin", <path d="M12 2v20" />)
+    expect(CustomPin.displayName).toBe("Icons.CustomPin")
+
+    render(<CustomPin size="sm" tone="info" data-testid="custom-pin" />)
+    const pinSvg = screen.getByTestId("custom-pin")
+    expect(pinSvg).toHaveClass("size-4")
+    expect(pinSvg).toHaveClass("text-info-strong")
+    expect(pinSvg.querySelector("path")).toBeInTheDocument()
+  })
+
+  it("provides comprehensive search icon support with multiple aliases and custom properties", () => {
+    const { container } = render(
+      <div>
+        <R.Icon name="search" data-testid="search-canonical" />
+        <R.Icon name="magnifier" data-testid="search-magnifier" />
+        <R.Icon name="magnifying-glass" data-testid="search-glass" />
+        <R.Icon name="find" data-testid="search-find" />
+        <R.Icons.Search size="lg" strokeWidth={1.5} tone="accent" data-testid="search-component" />
+      </div>,
+    )
+
+    expect(screen.getByTestId("search-canonical")).toHaveAttribute("data-icon", "search")
+    expect(screen.getByTestId("search-magnifier")).toHaveAttribute("data-icon", "search")
+    expect(screen.getByTestId("search-glass")).toHaveAttribute("data-icon", "search")
+    expect(screen.getByTestId("search-find")).toHaveAttribute("data-icon", "search")
+
+    const compSvg = screen.getByTestId("search-component")
+    expect(compSvg).toHaveAttribute("data-icon", "search")
+    expect(compSvg).toHaveAttribute("stroke-width", "1.5")
+    expect(compSvg).toHaveClass("size-6")
+    expect(compSvg).toHaveClass("text-accent-strong")
+  })
+
+  it("supports deep visual customization (color, fill, rotate, flip, pulse, description)", () => {
+    render(
+      <div>
+        <R.Icon
+          name="heart"
+          color="#ec4899"
+          fill="currentColor"
+          rotate={45}
+          flip="horizontal"
+          pulse
+          description="A pulsing customized heart"
+          strokeLinecap="square"
+          strokeLinejoin="bevel"
+          data-testid="customized-icon"
+        />
+      </div>,
+    )
+
+    const svg = screen.getByTestId("customized-icon")
+    expect(svg.style.color).toBe("rgb(236, 72, 153)")
+    expect(svg).toHaveAttribute("fill", "currentColor")
+    expect(svg.style.transform).toContain("rotate(45deg)")
+    expect(svg.style.transform).toContain("scaleX(-1)")
+    expect(svg).toHaveClass("animate-pulse")
+    expect(svg).toHaveAttribute("stroke-linecap", "square")
+    expect(svg).toHaveAttribute("stroke-linejoin", "bevel")
+    expect(svg.querySelector("desc")).toHaveTextContent("A pulsing customized heart")
   })
 })

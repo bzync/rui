@@ -4,8 +4,10 @@
 /* eslint-disable react-refresh/only-export-components */
 
 import * as R from "@bzync/rui"
-import { Activity, BarChart3, Box, FileText, ChevronRight, Database, Home, Rocket, Settings, Trash2, Wrench } from "lucide-react"
-import { Fragment, type ReactNode, useState } from "react"
+
+const { Activity, BarChart3, Box, FileText, ChevronRight, Database, Home, Rocket, Settings, Trash2, Wrench } = R.Icons
+const cn = R.cn
+import { Fragment, type ReactNode, useRef, useState } from "react"
 import { RuiBrandMark } from "../_shared/brand"
 import type { ApiProp } from "./primitives"
 
@@ -93,6 +95,386 @@ function ColorPickerUsagePreview() {
   return (
     <div className="w-full max-w-xs">
       <R.ColorPicker label="Brand Accent Color" value={color} onChange={setColor} />
+    </div>
+  )
+}
+
+function SignatureUsagePreview() {
+  const [activeTab, setActiveTab] = useState<"pad" | "editor" | "contract">("pad")
+  const [signature, setSignature] = useState<string | null>(null)
+  const [activeSample, setActiveSample] = useState<"parchment" | "notebook">("parchment")
+  const [previewBg, setPreviewBg] = useState<"white" | "checkers" | "dark">("white")
+  const [agreed, setAgreed] = useState(false)
+  const [isContractSigned, setIsContractSigned] = useState(false)
+  const sigRef = useRef<R.SignatureRef>(null)
+
+  return (
+    <div className="flex w-full max-w-2xl flex-col gap-4">
+      {/* Mode Switcher Tabs */}
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/80 pb-3">
+        <div className="flex items-center rounded-lg border border-border bg-surface-muted/40 p-1 text-xs w-full sm:w-auto justify-between sm:justify-start">
+          <button
+            type="button"
+            onClick={() => setActiveTab("pad")}
+            className={cn(
+              "inline-flex flex-1 sm:flex-initial items-center justify-center gap-1.5 rounded-md px-2.5 sm:px-3 py-1.5 font-medium transition-colors text-xs",
+              activeTab === "pad"
+                ? "bg-accent font-semibold text-accent-foreground shadow-xs"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            <R.Icons.PenLine size="xs" className="shrink-0" />
+            <span>Draw<span className="hidden sm:inline"> &amp; Sign Pad</span></span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("editor")}
+            className={cn(
+              "inline-flex flex-1 sm:flex-initial items-center justify-center gap-1.5 rounded-md px-2.5 sm:px-3 py-1.5 font-medium transition-colors text-xs",
+              activeTab === "editor"
+                ? "bg-accent font-semibold text-accent-foreground shadow-xs"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            <R.Icons.Sparkles size="xs" className="shrink-0" />
+            <span>Remover<span className="hidden sm:inline"> Studio</span></span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("contract")}
+            className={cn(
+              "inline-flex flex-1 sm:flex-initial items-center justify-center gap-1.5 rounded-md px-2.5 sm:px-3 py-1.5 font-medium transition-colors text-xs",
+              activeTab === "contract"
+                ? "bg-accent font-semibold text-accent-foreground shadow-xs"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            <R.Icons.FileCheck size="xs" className="shrink-0" />
+            <span>Document<span className="hidden sm:inline"> Flow</span></span>
+          </button>
+        </div>
+
+        {activeTab === "editor" && (
+          <div className="flex items-center gap-1.5 text-xs">
+            <span className="text-[11px] text-muted-foreground">Sample:</span>
+            <R.Button
+              variant={activeSample === "parchment" ? "primary" : "secondary"}
+              size="sm"
+              icon={<R.Icons.Scroll size="xs" className="shrink-0" />}
+              onClick={() => setActiveSample("parchment")}
+              className="h-7 gap-1.5 text-xs"
+            >
+              Parchment
+            </R.Button>
+            <R.Button
+              variant={activeSample === "notebook" ? "primary" : "secondary"}
+              size="sm"
+              icon={<R.Icons.Book size="xs" className="shrink-0" />}
+              onClick={() => setActiveSample("notebook")}
+              className="h-7 gap-1.5 text-xs"
+            >
+              Notebook
+            </R.Button>
+          </div>
+        )}
+      </div>
+
+      {/* Tab 1: Draw & Sign Pad */}
+      {activeTab === "pad" && (
+        <div className="space-y-3.5">
+          {/* Quick-test Action Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border/70 bg-surface-muted/20 px-3 py-2 text-xs">
+            <span className="text-[11px] font-medium text-muted-foreground">Try demo signature:</span>
+            <div className="flex flex-wrap items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => {
+                  sigRef.current?.fromDataURL(R.createSampleSignature("digital"))
+                }}
+                className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-2.5 py-1 text-xs font-medium text-foreground hover:bg-surface-muted transition-colors shadow-2xs min-h-[28px]"
+              >
+                <R.Icons.PenLine size="xs" className="shrink-0 text-accent-strong" />
+                <span>Digital Ink</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  sigRef.current?.fromDataURL(R.createSampleSignature("parchment"))
+                }}
+                className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-2.5 py-1 text-xs font-medium text-foreground hover:bg-surface-muted transition-colors shadow-2xs min-h-[28px]"
+              >
+                <R.Icons.Scroll size="xs" className="shrink-0 text-muted-foreground" />
+                <span>Parchment</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  sigRef.current?.fromDataURL(R.createSampleSignature("notebook"))
+                }}
+                className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-2.5 py-1 text-xs font-medium text-foreground hover:bg-surface-muted transition-colors shadow-2xs min-h-[28px]"
+              >
+                <R.Icons.Book size="xs" className="shrink-0 text-muted-foreground" />
+                <span>Notebook</span>
+              </button>
+              {signature && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    sigRef.current?.clear()
+                  }}
+                  className="inline-flex items-center justify-center rounded-md border border-border bg-surface px-2 py-1 text-xs text-muted-foreground hover:text-danger transition-colors shadow-2xs min-h-[28px]"
+                  title="Clear pad"
+                >
+                  <R.Icons.Eraser size="xs" className="shrink-0" />
+                </button>
+              )}
+            </div>
+          </div>
+
+          <R.Signature
+            signatureRef={sigRef}
+            label="Authorized E-Signature"
+            hint="Draw with stylus/mouse or switch to Upload mode to clean paper scans."
+            value={signature}
+            onChange={setSignature}
+          />
+
+          {/* Live Document & Transparency Verification Card */}
+          {signature ? (
+            <div className="flex flex-col gap-3 rounded-xl border border-success/30 bg-success/5 p-3.5 text-xs">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-success/20 pb-2.5">
+                <div className="flex items-center gap-1.5 font-semibold text-success-strong">
+                  <R.Icons.CheckCircle2 size="xs" className="shrink-0" />
+                  <span>Verified E-Signature Ready</span>
+                </div>
+
+                <div className="flex items-center gap-1 text-[11px]">
+                  <span className="text-muted-foreground mr-1">Preview BG:</span>
+                  {(["white", "checkers", "dark"] as const).map((bg) => (
+                    <button
+                      key={bg}
+                      type="button"
+                      onClick={() => setPreviewBg(bg)}
+                      className={cn(
+                        "inline-flex items-center justify-center rounded px-2 py-0.5 capitalize transition-colors min-h-[24px]",
+                        previewBg === bg
+                          ? "bg-accent font-semibold text-accent-foreground shadow-2xs"
+                          : "text-muted-foreground hover:text-foreground",
+                      )}
+                    >
+                      {bg === "checkers" ? "Transparent" : bg}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Signature Stamped Document Preview */}
+              <div
+                className={cn(
+                  "flex h-24 w-full items-center justify-center rounded-lg border border-border/80 p-3 transition-colors",
+                  previewBg === "white" && "bg-white text-slate-900 shadow-xs",
+                  previewBg === "dark" && "bg-slate-950 text-white shadow-xs",
+                )}
+                style={
+                  previewBg === "checkers"
+                    ? {
+                        backgroundImage:
+                          "repeating-conic-gradient(rgba(128,128,128,0.12) 0% 25%, transparent 0% 50%)",
+                        backgroundSize: "12px 12px",
+                      }
+                    : undefined
+                }
+              >
+                <img
+                  src={signature}
+                  alt="Live signature preview"
+                  className="max-h-full max-w-full object-contain"
+                />
+              </div>
+
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-0.5 text-[11px] text-muted-foreground">
+                <span className="font-mono text-[10px]">SHA-256: 7f8b9…c42e • Verified Seal</span>
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
+                  <R.Button
+                    variant="outline"
+                    size="sm"
+                    icon={<R.Icons.Sparkles size="xs" className="shrink-0" />}
+                    onClick={() => sigRef.current?.openEditor()}
+                    className="h-8 sm:h-7 gap-1.5 text-xs font-semibold text-accent-strong w-full sm:w-auto justify-center"
+                  >
+                    Clean &amp; Crop Studio
+                  </R.Button>
+                  <R.Button
+                    variant="primary"
+                    size="sm"
+                    icon={<R.Icons.FileCheck size="xs" className="shrink-0" />}
+                    onClick={() => setActiveTab("contract")}
+                    className="h-8 sm:h-7 gap-1.5 text-xs font-semibold w-full sm:w-auto justify-center"
+                  >
+                    Use in Contract →
+                  </R.Button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 rounded-lg border border-dashed border-border p-3 text-xs text-muted-foreground">
+              <R.Icons.Sparkles size="xs" className="text-accent-strong shrink-0" />
+              <span>
+                Draw your signature above or click <strong>“Digital Ink”</strong> to see live document stamping and transparency verification.
+              </span>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Tab 2: Live Background Remover & Auto-Crop Studio */}
+      {activeTab === "editor" && (
+        <div className="space-y-3">
+          <div className="rounded-lg border border-border/70 bg-surface-muted/30 p-3 text-xs text-muted-foreground leading-relaxed">
+            <p className="font-medium text-foreground mb-0.5">Background Removal &amp; Auto-Crop Studio</p>
+            <p>
+              Remove paper texture, shadows, and ruled lines from phone photos or paper scans. Use the 1-Click Magic Clean button, drag the split comparison slider, or tune sensitivity.
+            </p>
+          </div>
+
+          <R.SignatureImageEditor
+            key={activeSample}
+            image={R.createSampleSignature(activeSample)}
+            title="Background Removal &amp; Auto-Crop Studio"
+            onSave={(cleaned) => {
+              setSignature(cleaned)
+              setActiveTab("contract")
+            }}
+          />
+
+          {signature && (
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 rounded-lg border border-success/30 bg-success/5 p-3 text-xs">
+              <div className="flex items-center gap-1.5 text-success-strong font-semibold">
+                <R.Icons.CheckCircle2 size="xs" className="shrink-0" />
+                <span>Extracted Signature Ready</span>
+              </div>
+              <R.Button
+                variant="primary"
+                size="sm"
+                onClick={() => setActiveTab("contract")}
+                className="h-8 sm:h-7 gap-1.5 text-xs font-semibold w-full sm:w-auto justify-center"
+              >
+                <span>Continue to NDA Contract →</span>
+              </R.Button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Tab 3: Real Contract Signing Workflow */}
+      {activeTab === "contract" && (
+        <div className="space-y-4 rounded-xl border border-border bg-surface p-4 text-xs shadow-xs">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/80 pb-3">
+            <div>
+              <h4 className="text-sm font-semibold text-foreground">Mutual Non-Disclosure Agreement</h4>
+              <p className="text-[11px] text-muted-foreground">Doc ID: NDA-2026-904 • Parties: Acme Corp &amp; Contractor</p>
+            </div>
+            <span className={cn(
+              "inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-semibold self-start sm:self-auto",
+              isContractSigned
+                ? "bg-success/15 text-success-strong"
+                : "bg-accent/15 text-accent-strong"
+            )}>
+              {isContractSigned && <R.Icons.Check size="xs" className="shrink-0" />}
+              <span>{isContractSigned ? "Legally Executed" : "Execution Ready"}</span>
+            </span>
+          </div>
+
+          <p className="text-[11px] text-muted-foreground leading-relaxed">
+            By executing this electronic signature below, the parties agree to be bound by all terms, confidentiality covenants, and non-disclosure obligations of this Agreement.
+          </p>
+
+          {/* Signature Block */}
+          {isContractSigned ? (
+            <div className="flex flex-col gap-2 rounded-lg border border-success/30 bg-success/5 p-4 text-center">
+              <div className="flex items-center justify-center gap-1.5 text-sm font-semibold text-success-strong">
+                <R.Icons.CheckCircle2 size="sm" className="shrink-0" />
+                <span>Agreement Certified &amp; Executed</span>
+              </div>
+              <div className="mx-auto flex h-20 w-full max-w-xs items-center justify-center rounded border border-border/80 bg-surface p-2 shadow-2xs">
+                {signature ? (
+                  <img src={signature} alt="Adopted signature" className="max-h-full max-w-full object-contain" />
+                ) : (
+                  <span className="font-serif italic text-muted-foreground">Signed electronically</span>
+                )}
+              </div>
+              <p className="text-[10px] font-mono text-muted-foreground">
+                Signer: Alex Morgan (CEO) • Certificate: RUI-E-SIG-904 • Hash: 7f8b9c42e…
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <div className="rounded-lg border border-border/80 bg-surface-muted/20 p-3">
+                <R.Signature
+                  label="Signer: Alex Morgan (CEO)"
+                  value={signature}
+                  onChange={setSignature}
+                  height={140}
+                  hint={signature ? "Signature imported. You can adjust or re-sign above." : "Draw above or import from the Draw & Sign Pad."}
+                />
+              </div>
+
+              <label className="flex items-start gap-2 cursor-pointer text-muted-foreground hover:text-foreground">
+                <input
+                  type="checkbox"
+                  checked={agreed}
+                  onChange={(e) => setAgreed(e.target.checked)}
+                  className="mt-0.5 size-3.5 rounded border-border text-accent focus:ring-accent"
+                />
+                <span className="leading-tight">I confirm that I am legally authorized to execute this agreement electronically.</span>
+              </label>
+            </div>
+          )}
+
+          <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-2.5 border-t border-border/80 pt-3">
+            <R.Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setSignature(null)
+                setAgreed(false)
+                setIsContractSigned(false)
+              }}
+              disabled={!signature && !agreed && !isContractSigned}
+              className="w-full sm:w-auto justify-center"
+            >
+              Reset Contract
+            </R.Button>
+
+            {!isContractSigned ? (
+              <R.Button
+                variant="primary"
+                size="sm"
+                icon={<R.Icons.CheckCircle2 size="xs" className="shrink-0" />}
+                disabled={!signature || !agreed}
+                onClick={() => setIsContractSigned(true)}
+                className="gap-1.5 font-semibold w-full sm:w-auto justify-center"
+              >
+                Complete &amp; Seal Agreement
+              </R.Button>
+            ) : (
+              <R.Button
+                variant="secondary"
+                size="sm"
+                onClick={() => {
+                  setIsContractSigned(false)
+                  setActiveTab("pad")
+                }}
+                className="w-full sm:w-auto justify-center"
+              >
+                <span>Sign Another Document</span>
+              </R.Button>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -1216,15 +1598,17 @@ function InviteForm() {
       <R.Icons.Heart tone="danger" size="lg" />
     </div>,
     api(
-      ["name", "IconName", "Name of the icon to render (kebab-case or PascalCase)."],
+      ["name", "IconName", "Name of a built-in vector icon (kebab-case, camelCase, or PascalCase). Over 500 icons supported."],
       ["size", '"xs" | "sm" | "md" | "lg" | "xl" | number', "Pre-configured size scale or exact pixel dimension.", '"md"'],
       ["tone", '"default" | "muted" | "accent" | "success" | "warning" | "danger" | "info"', "Semantic status or brand color tone.", '"default"'],
-      ["spin", "boolean", "Continuously animates icon rotation (e.g. for spinners).", "false"],
-      ["strokeWidth", "number", "SVG stroke line width.", "2"],
       ["label", "string", "Accessible screen-reader label (sets role='img' and aria-label)."],
-      ["className", "string", "Composes SVG classes."],
+      ["title", "string", "Accessible SVG title element for browser tooltips."],
+      ["spin", "boolean", "Continuously animates icon rotation (e.g. for spinners). Automatically active for 'loader'.", "false"],
+      ["strokeWidth", "number | string", "SVG stroke line width in user units.", "2"],
+      ["children", "ReactNode", "Custom SVG elements when augmenting or authoring bespoke glyphs."],
+      ["className", "string", "Composes SVG classes merged via cn()."],
     ),
-    "Icons are hidden from screen readers with aria-hidden='true' by default. If an icon conveys standalone meaning without visible accompanying text, pass a label prop to set role='img' and aria-label.",
+    "Icons are hidden from screen readers with aria-hidden='true' by default. If an icon conveys standalone meaning without visible accompanying text, pass a label prop to set role='img' and aria-label, or pass title to render an accessible SVG tooltip.",
   ),
   "components/stat": () => detail(
     `<div className="grid w-full max-w-lg gap-3 sm:grid-cols-2"><Stat label="Requests" value="1.2M" trend="up" trendValue="+14%" description="vs last month" /><Stat label="Latency" value="38" unit="ms" trend="down" trendValue="-4ms" /></div>`,
@@ -2189,6 +2573,406 @@ const columns: ColumnDef<(typeof services)[number]>[] = [
       ["disabled", "boolean", "Disables color interaction.", "false"],
     ),
     "Color swatch buttons have accessible labels indicating their color name or hex value. Hue slider and canvas support keyboard adjustments, and text inputs allow direct hex entry.",
+  ),
+  "components/signature": () => detail(
+    `function SignatureShowcase() {
+  const [activeTab, setActiveTab] = useState<"pad" | "editor" | "contract">("pad")
+  const [signature, setSignature] = useState<string | null>(null)
+  const [activeSample, setActiveSample] = useState<"parchment" | "notebook">("parchment")
+  const [previewBg, setPreviewBg] = useState<"white" | "checkers" | "dark">("white")
+  const [agreed, setAgreed] = useState(false)
+  const [isContractSigned, setIsContractSigned] = useState(false)
+  const sigRef = useRef<SignatureRef>(null)
+
+  return (
+    <div className="flex w-full max-w-2xl flex-col gap-4">
+      {/* Mode Switcher Tabs */}
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/80 pb-3">
+        <div className="flex items-center rounded-lg border border-border bg-surface-muted/40 p-1 text-xs w-full sm:w-auto justify-between sm:justify-start">
+          <button
+            type="button"
+            onClick={() => setActiveTab("pad")}
+            className={cn(
+              "inline-flex flex-1 sm:flex-initial items-center justify-center gap-1.5 rounded-md px-2.5 sm:px-3 py-1.5 font-medium transition-colors text-xs",
+              activeTab === "pad"
+                ? "bg-accent font-semibold text-accent-foreground shadow-xs"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            <Icons.PenLine size="xs" className="shrink-0" />
+            <span>Draw<span className="hidden sm:inline"> &amp; Sign Pad</span></span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("editor")}
+            className={cn(
+              "inline-flex flex-1 sm:flex-initial items-center justify-center gap-1.5 rounded-md px-2.5 sm:px-3 py-1.5 font-medium transition-colors text-xs",
+              activeTab === "editor"
+                ? "bg-accent font-semibold text-accent-foreground shadow-xs"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            <Icons.Sparkles size="xs" className="shrink-0" />
+            <span>Remover<span className="hidden sm:inline"> Studio</span></span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("contract")}
+            className={cn(
+              "inline-flex flex-1 sm:flex-initial items-center justify-center gap-1.5 rounded-md px-2.5 sm:px-3 py-1.5 font-medium transition-colors text-xs",
+              activeTab === "contract"
+                ? "bg-accent font-semibold text-accent-foreground shadow-xs"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            <Icons.FileCheck size="xs" className="shrink-0" />
+            <span>Document<span className="hidden sm:inline"> Flow</span></span>
+          </button>
+        </div>
+
+        {activeTab === "editor" && (
+          <div className="flex items-center gap-1.5 text-xs">
+            <span className="text-[11px] text-muted-foreground">Sample:</span>
+            <Button
+              variant={activeSample === "parchment" ? "primary" : "secondary"}
+              size="sm"
+              icon={<Icons.Scroll size="xs" className="shrink-0" />}
+              onClick={() => setActiveSample("parchment")}
+              className="h-7 gap-1.5 text-xs"
+            >
+              Parchment
+            </Button>
+            <Button
+              variant={activeSample === "notebook" ? "primary" : "secondary"}
+              size="sm"
+              icon={<Icons.Book size="xs" className="shrink-0" />}
+              onClick={() => setActiveSample("notebook")}
+              className="h-7 gap-1.5 text-xs"
+            >
+              Notebook
+            </Button>
+          </div>
+        )}
+      </div>
+
+      {/* Tab 1: Draw & Sign Pad */}
+      {activeTab === "pad" && (
+        <div className="space-y-3.5">
+          {/* Quick-test Action Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border/70 bg-surface-muted/20 px-3 py-2 text-xs">
+            <span className="text-[11px] font-medium text-muted-foreground">Try demo signature:</span>
+            <div className="flex flex-wrap items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => {
+                  sigRef.current?.fromDataURL(createSampleSignature("digital"))
+                }}
+                className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-2.5 py-1 text-xs font-medium text-foreground hover:bg-surface-muted transition-colors shadow-2xs min-h-[28px]"
+              >
+                <Icons.PenLine size="xs" className="shrink-0 text-accent-strong" />
+                <span>Digital Ink</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  sigRef.current?.fromDataURL(createSampleSignature("parchment"))
+                }}
+                className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-2.5 py-1 text-xs font-medium text-foreground hover:bg-surface-muted transition-colors shadow-2xs min-h-[28px]"
+              >
+                <Icons.Scroll size="xs" className="shrink-0 text-muted-foreground" />
+                <span>Parchment</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  sigRef.current?.fromDataURL(createSampleSignature("notebook"))
+                }}
+                className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-2.5 py-1 text-xs font-medium text-foreground hover:bg-surface-muted transition-colors shadow-2xs min-h-[28px]"
+              >
+                <Icons.Book size="xs" className="shrink-0 text-muted-foreground" />
+                <span>Notebook</span>
+              </button>
+              {signature && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    sigRef.current?.clear()
+                  }}
+                  className="inline-flex items-center justify-center rounded-md border border-border bg-surface px-2 py-1 text-xs text-muted-foreground hover:text-danger transition-colors shadow-2xs min-h-[28px]"
+                  title="Clear pad"
+                >
+                  <Icons.Eraser size="xs" className="shrink-0" />
+                </button>
+              )}
+            </div>
+          </div>
+
+          <Signature
+            signatureRef={sigRef}
+            label="Authorized E-Signature"
+            hint="Draw with stylus/mouse or switch to Upload mode to clean paper scans."
+            value={signature}
+            onChange={setSignature}
+          />
+
+          {/* Live Document & Transparency Verification Card */}
+          {signature ? (
+            <div className="flex flex-col gap-3 rounded-xl border border-success/30 bg-success/5 p-3.5 text-xs">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-success/20 pb-2.5">
+                <div className="flex items-center gap-1.5 font-semibold text-success-strong">
+                  <Icons.CheckCircle2 size="xs" className="shrink-0" />
+                  <span>Verified E-Signature Ready</span>
+                </div>
+
+                <div className="flex items-center gap-1 text-[11px]">
+                  <span className="text-muted-foreground mr-1">Preview BG:</span>
+                  {(["white", "checkers", "dark"] as const).map((bg) => (
+                    <button
+                      key={bg}
+                      type="button"
+                      onClick={() => setPreviewBg(bg)}
+                      className={cn(
+                        "inline-flex items-center justify-center rounded px-2 py-0.5 capitalize transition-colors min-h-[24px]",
+                        previewBg === bg
+                          ? "bg-accent font-semibold text-accent-foreground shadow-2xs"
+                          : "text-muted-foreground hover:text-foreground",
+                      )}
+                    >
+                      {bg === "checkers" ? "Transparent" : bg}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Signature Stamped Document Preview */}
+              <div
+                className={cn(
+                  "flex h-24 w-full items-center justify-center rounded-lg border border-border/80 p-3 transition-colors",
+                  previewBg === "white" && "bg-white text-slate-900 shadow-xs",
+                  previewBg === "dark" && "bg-slate-950 text-white shadow-xs",
+                )}
+                style={
+                  previewBg === "checkers"
+                    ? {
+                        backgroundImage:
+                          "repeating-conic-gradient(rgba(128,128,128,0.12) 0% 25%, transparent 0% 50%)",
+                        backgroundSize: "12px 12px",
+                      }
+                    : undefined
+                }
+              >
+                <img
+                  src={signature}
+                  alt="Live signature preview"
+                  className="max-h-full max-w-full object-contain"
+                />
+              </div>
+
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-0.5 text-[11px] text-muted-foreground">
+                <span className="font-mono text-[10px]">SHA-256: 7f8b9…c42e • Verified Seal</span>
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    icon={<Icons.Sparkles size="xs" className="shrink-0" />}
+                    onClick={() => sigRef.current?.openEditor()}
+                    className="h-8 sm:h-7 gap-1.5 text-xs font-semibold text-accent-strong w-full sm:w-auto justify-center"
+                  >
+                    Clean &amp; Crop Studio
+                  </Button>
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    icon={<Icons.FileCheck size="xs" className="shrink-0" />}
+                    onClick={() => setActiveTab("contract")}
+                    className="h-8 sm:h-7 gap-1.5 text-xs font-semibold w-full sm:w-auto justify-center"
+                  >
+                    Use in Contract →
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 rounded-lg border border-dashed border-border p-3 text-xs text-muted-foreground">
+              <Icons.Sparkles size="xs" className="text-accent-strong shrink-0" />
+              <span>
+                Draw your signature above or click <strong>“Digital Ink”</strong> to see live document stamping and transparency verification.
+              </span>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Tab 2: Live Background Remover & Auto-Crop Studio */}
+      {activeTab === "editor" && (
+        <div className="space-y-3">
+          <div className="rounded-lg border border-border/70 bg-surface-muted/30 p-3 text-xs text-muted-foreground leading-relaxed">
+            <p className="font-medium text-foreground mb-0.5">Background Removal &amp; Auto-Crop Studio</p>
+            <p>
+              Remove paper texture, shadows, and ruled lines from phone photos or paper scans. Use the 1-Click Magic Clean button, drag the split comparison slider, or tune sensitivity.
+            </p>
+          </div>
+
+          <SignatureImageEditor
+            key={activeSample}
+            image={createSampleSignature(activeSample)}
+            title="Background Removal &amp; Auto-Crop Studio"
+            onSave={(cleaned) => {
+              setSignature(cleaned)
+              setActiveTab("contract")
+            }}
+          />
+
+          {signature && (
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 rounded-lg border border-success/30 bg-success/5 p-3 text-xs">
+              <div className="flex items-center gap-1.5 text-success-strong font-semibold">
+                <Icons.CheckCircle2 size="xs" className="shrink-0" />
+                <span>Extracted Signature Ready</span>
+              </div>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => setActiveTab("contract")}
+                className="h-8 sm:h-7 gap-1.5 text-xs font-semibold w-full sm:w-auto justify-center"
+              >
+                <span>Continue to NDA Contract →</span>
+              </Button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Tab 3: Real Contract Signing Workflow */}
+      {activeTab === "contract" && (
+        <div className="space-y-4 rounded-xl border border-border bg-surface p-4 text-xs shadow-xs">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/80 pb-3">
+            <div>
+              <h4 className="text-sm font-semibold text-foreground">Mutual Non-Disclosure Agreement</h4>
+              <p className="text-[11px] text-muted-foreground">Doc ID: NDA-2026-904 • Parties: Acme Corp &amp; Contractor</p>
+            </div>
+            <span className={cn(
+              "inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-semibold self-start sm:self-auto",
+              isContractSigned
+                ? "bg-success/15 text-success-strong"
+                : "bg-accent/15 text-accent-strong"
+            )}>
+              {isContractSigned && <Icons.Check size="xs" className="shrink-0" />}
+              <span>{isContractSigned ? "Legally Executed" : "Execution Ready"}</span>
+            </span>
+          </div>
+
+          <p className="text-[11px] text-muted-foreground leading-relaxed">
+            By executing this electronic signature below, the parties agree to be bound by all terms, confidentiality covenants, and non-disclosure obligations of this Agreement.
+          </p>
+
+          {/* Signature Block */}
+          {isContractSigned ? (
+            <div className="flex flex-col gap-2 rounded-lg border border-success/30 bg-success/5 p-4 text-center">
+              <div className="flex items-center justify-center gap-1.5 text-sm font-semibold text-success-strong">
+                <Icons.CheckCircle2 size="sm" className="shrink-0" />
+                <span>Agreement Certified &amp; Executed</span>
+              </div>
+              <div className="mx-auto flex h-20 w-full max-w-xs items-center justify-center rounded border border-border/80 bg-surface p-2 shadow-2xs">
+                {signature ? (
+                  <img src={signature} alt="Adopted signature" className="max-h-full max-w-full object-contain" />
+                ) : (
+                  <span className="font-serif italic text-muted-foreground">Signed electronically</span>
+                )}
+              </div>
+              <p className="text-[10px] font-mono text-muted-foreground">
+                Signer: Alex Morgan (CEO) • Certificate: RUI-E-SIG-904 • Hash: 7f8b9c42e…
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <div className="rounded-lg border border-border/80 bg-surface-muted/20 p-3">
+                <Signature
+                  label="Signer: Alex Morgan (CEO)"
+                  value={signature}
+                  onChange={setSignature}
+                  height={140}
+                  hint={signature ? "Signature imported. You can adjust or re-sign above." : "Draw above or import from the Draw & Sign Pad."}
+                />
+              </div>
+
+              <label className="flex items-start gap-2 cursor-pointer text-muted-foreground hover:text-foreground">
+                <input
+                  type="checkbox"
+                  checked={agreed}
+                  onChange={(e) => setAgreed(e.target.checked)}
+                  className="mt-0.5 size-3.5 rounded border-border text-accent focus:ring-accent"
+                />
+                <span className="leading-tight">I confirm that I am legally authorized to execute this agreement electronically.</span>
+              </label>
+            </div>
+          )}
+
+          <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-2.5 border-t border-border/80 pt-3">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setSignature(null)
+                setAgreed(false)
+                setIsContractSigned(false)
+              }}
+              disabled={!signature && !agreed && !isContractSigned}
+              className="w-full sm:w-auto justify-center"
+            >
+              Reset Contract
+            </Button>
+
+            {!isContractSigned ? (
+              <Button
+                variant="primary"
+                size="sm"
+                icon={<Icons.CheckCircle2 size="xs" className="shrink-0" />}
+                disabled={!signature || !agreed}
+                onClick={() => setIsContractSigned(true)}
+                className="gap-1.5 font-semibold w-full sm:w-auto justify-center"
+              >
+                Complete &amp; Seal Agreement
+              </Button>
+            ) : (
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => {
+                  setIsContractSigned(false)
+                  setActiveTab("pad")
+                }}
+                className="w-full sm:w-auto justify-center"
+              >
+                <span>Sign Another Document</span>
+              </Button>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}`,
+    <SignatureUsagePreview />,
+    api(
+      ["value / defaultValue", "string | null", "Controlled or uncontrolled signature image Data URL."],
+      ["onChange / onValueChange", "(dataUrl: string | null) => void", "Triggered when signature is drawn, uploaded, edited, or cleared."],
+      ["modes", '("draw" | "upload")[]', "Enabled signing methods (freehand draw and file upload).", '["draw", "upload"]'],
+      ["defaultMode", '"draw" | "upload"', "Initial active signing mode.", '"draw"'],
+      ["enableEditor", "boolean", "Enables the built-in background removal, crop, and zoom editor.", "true"],
+      ["autoEditOnUpload", "boolean", "Automatically opens editor modal when an image is uploaded or dropped.", "true"],
+      ["strokeColor", "string", "Default pen stroke color in draw mode.", '"#0f172a"'],
+      ["strokeWidth", '"fine" | "regular" | "bold" | number', "Stroke line width preset or pixel value.", '"regular"'],
+      ["colors", "string[]", "Array of selectable ink color swatches in draw toolbar."],
+      ["guideLine", "boolean", "Displays baseline signing guide with '✕' marker.", "true"],
+      ["guideText", "string", "Text displayed next to the baseline marker.", '"Sign above this line"'],
+      ["showToolbar", "boolean", "Displays top toolbar with mode tabs, colors, enhance, undo, and clear.", "true"],
+      ["signatureRef", "Ref<SignatureRef>", "Imperative ref exposing clear(), undo(), isEmpty(), toDataURL(), toSVG(), fromDataURL(), openEditor()."],
+      ["label / hint / error", "string", "Accessible field label and validation messages."],
+      ["disabled / readOnly", "boolean", "Disables editing or locks signature into display-only mode.", "false"],
+    ),
+    "Canvas element has role='img' with accessible aria-label, aria-invalid, and aria-describedby associations for hint and error messaging. Toolbar actions, mode tabs, and the crop/background removal editor provide clear button semantics, keyboard focus traps, and accessible contrast.",
   ),
   "components/inline-edit": () => detail(
     `function RenameProject() {

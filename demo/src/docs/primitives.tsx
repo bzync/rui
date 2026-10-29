@@ -10,8 +10,10 @@ import {
   TabsList,
   TabsTrigger,
   cn,
+  Icons,
 } from "@bzync/rui"
-import { Check, Copy, ExternalLink } from "lucide-react"
+
+const { Check, Copy, ExternalLink } = Icons
 import { type ReactNode, useEffect, useState } from "react"
 import { hrefFor } from "./catalog"
 import { formatCode } from "./format-code"

@@ -9,8 +9,10 @@ import {
   ThemeProvider,
   useTheme,
   cn,
+  Icons,
 } from "@bzync/rui"
-import {
+
+const {
   ArrowLeft,
   ArrowRight,
   ArrowUp,
@@ -21,7 +23,7 @@ import {
   Moon,
   Search,
   Sun,
-} from "lucide-react"
+} = Icons
 import { Suspense, lazy, useEffect, useState } from "react"
 import packageMetadata from "../../package.json"
 import { RuiBrandMark } from "./_shared/brand"

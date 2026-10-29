@@ -1,5 +1,6 @@
-import { Badge, Button, Input, Switch } from "@bzync/rui"
-import { ChevronRight, FileCheck2, Plus } from "lucide-react"
+import { Badge, Button, Input, Switch, Icons } from "@bzync/rui"
+
+const { ChevronRight, FileCheck2, Plus } = Icons
 import { useState } from "react"
 import { componentGroups, hrefFor, type DocsPage } from "../catalog"
 import { HooksPage } from "./hooks"

@@ -10,7 +10,8 @@
 */
 
 import * as R from "@bzync/rui"
-import {
+
+const {
   Archive,
   ArrowRight,
   Bell,
@@ -30,7 +31,7 @@ import {
   Trash2,
   Underline,
   User,
-} from "lucide-react"
+} = R.Icons
 import { type ReactNode, useEffect, useState } from "react"
 
 export interface ComponentExample {

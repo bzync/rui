@@ -1,5 +1,6 @@
-import { Avatar, Badge, Button, type ColumnDef } from "@bzync/rui"
-import { MoreHorizontal } from "lucide-react"
+import { Avatar, Badge, Button, type ColumnDef, Icons } from "@bzync/rui"
+
+const { MoreHorizontal } = Icons
 
 export type Member = {
   id: number
