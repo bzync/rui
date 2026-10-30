@@ -557,8 +557,13 @@ describe("standardized form control ergonomics & a11y", () => {
     expect(sigRef.current.isEmpty()).toBe(true)
 
     // Mode switching to Upload mode
-    await user.click(screen.getByRole("button", { name: /upload/i }))
-    expect(screen.getByText(/Click to browse or drag and drop signature image/i)).toBeInTheDocument()
+    await user.click(screen.getByRole("button", { name: /^upload$/i }))
+    const browse = screen.getByRole("button", { name: /Click to browse or drag and drop signature image/i })
+    const fileInput = document.querySelector<HTMLInputElement>('input[type="file"]')!
+    const pickFile = vi.spyOn(fileInput, "click")
+    browse.focus()
+    await user.keyboard("{Enter}")
+    expect(pickFile).toHaveBeenCalledTimes(1)
 
     // Imperative openEditor check
     expect(typeof sigRef.current.openEditor).toBe("function")

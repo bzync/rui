@@ -779,7 +779,7 @@ export const Signature = forwardRef<HTMLDivElement, SignatureProps>(function Sig
 
         {/* Canvas & Interactive Viewport */}
         <div
-          className="relative w-full select-none overflow-hidden bg-bg/40 touch-none"
+          className="rui-light relative w-full select-none overflow-hidden bg-surface text-foreground touch-none"
           style={{ height }}
           onDragOver={(e) => {
             e.preventDefault()
@@ -798,8 +798,8 @@ export const Signature = forwardRef<HTMLDivElement, SignatureProps>(function Sig
 
           {/* Empty state hint */}
           {activeMode === "draw" && isEmpty() && (
-            <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center p-4 text-muted-foreground/45 select-none">
-              <Icons.PenLine size="md" className="mb-1 opacity-60" />
+            <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center p-4 text-muted-foreground select-none">
+              <Icons.PenLine size="md" className="mb-1 opacity-40" />
               <p className="text-xs font-medium">Draw your signature smoothly with mouse, pen, or touch</p>
             </div>
           )}
@@ -836,7 +836,10 @@ export const Signature = forwardRef<HTMLDivElement, SignatureProps>(function Sig
           {/* Upload mode overlay */}
           {activeMode === "upload" && (
             <div
-              onClick={() => fileInputRef.current?.click()}
+              onClick={(e) => {
+                // input.click() dispatches a click that bubbles back here; don't re-open
+                if (e.target !== fileInputRef.current) fileInputRef.current?.click()
+              }}
               className={cn(
                 "flex size-full cursor-pointer flex-col items-center justify-center gap-1.5 sm:gap-2 p-3 sm:p-6 text-center transition-colors",
                 isDragging ? "bg-accent/10 border-2 border-dashed border-accent-strong" : "hover:bg-surface-muted/50",
@@ -849,12 +852,18 @@ export const Signature = forwardRef<HTMLDivElement, SignatureProps>(function Sig
                 onChange={handleFileChange}
                 className="hidden"
               />
-              <div className="flex size-9 sm:size-10 items-center justify-center rounded-full bg-surface-muted text-muted-foreground shadow-xs">
-                <Icons.Upload size="sm" />
-              </div>
-              <p className="text-xs font-semibold text-foreground px-2">
-                Click to browse or drag and drop signature image
-              </p>
+              {/* Real button so keyboard users can reach the file dialog; its click bubbles to the zone above */}
+              <button
+                type="button"
+                className={cn("flex flex-col items-center gap-1.5 sm:gap-2 rounded-lg px-2 py-1", focusRingStyles)}
+              >
+                <span className="flex size-9 sm:size-10 items-center justify-center rounded-full bg-surface-muted text-muted-foreground shadow-xs">
+                  <Icons.Upload size="sm" />
+                </span>
+                <span className="text-xs font-semibold text-foreground">
+                  Click to browse or drag and drop signature image
+                </span>
+              </button>
               <p className="text-[11px] text-muted-foreground px-2 hidden xs:block">
                 Auto-removes paper background, crops signature, and enhances ink
               </p>
