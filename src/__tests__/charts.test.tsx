@@ -31,6 +31,13 @@ describe("chart components", () => {
     expect(cells[0].style.opacity).toBe("0.08")
     expect(cells[1].style.opacity).toBe("0.96")
   })
+
+  it("fills horizontal bars when the color is a CSS variable, not only hex", () => {
+    render(<BarChart orientation="horizontal" data={[{ label: "API", value: 4 }]} />)
+    const bar = screen.getByLabelText("API: 4")
+    // `${c}70` hex-alpha turned var(--chart-1) into an invalid background
+    expect(bar.getAttribute("style")).toContain("color-mix(in srgb, var(--chart-1) 44%, transparent)")
+  })
 })
 
 describe("new charts", () => {

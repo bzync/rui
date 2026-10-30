@@ -75,7 +75,7 @@ export const FunnelChart = forwardRef<HTMLDivElement, FunnelChartProps>(function
                   width: ready ? `${barW}%` : `${MIN_W_PCT}%`,
                   backgroundColor: c,
                   opacity: hovered !== null && !isHov ? 0.3 : isHov ? 1 : 0.78,
-                  boxShadow: isHov ? `0 0 0 2px ${c}88` : "none",
+                  boxShadow: isHov ? `0 0 0 2px color-mix(in srgb, ${c} 53%, transparent)` : "none",
                   transition: ready
                     ? `width 0.45s ${i * 0.06}s cubic-bezier(0.25,0.46,0.45,0.94), opacity 0.12s, box-shadow 0.12s`
                     : "none",
