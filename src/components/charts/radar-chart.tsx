@@ -1,7 +1,8 @@
 "use client"
 
 import { cn } from "@/lib/cn"
-import { type HTMLAttributes, useState, forwardRef } from "react"
+import { useIsomorphicLayoutEffect } from "@/hooks/use-isomorphic-layout-effect"
+import { type HTMLAttributes, useRef, useState, forwardRef } from "react"
 import { type TooltipState, ChartTooltip, CHART_SERIES } from "./shared"
 
 export interface RadarSeries {
@@ -31,6 +32,24 @@ export const RadarChart = forwardRef<HTMLDivElement, RadarChartProps>(function R
   ...props
 }, ref) {
   const [tooltip, setTooltip] = useState<TooltipState | null>(null)
+  const svgRef = useRef<SVGSVGElement>(null)
+  // Axis labels are anchored outward, so long ones run past the 100×100 plot; grow the box to fit them.
+  const [box, setBox] = useState({ x: 0, y: 0, w: 100, h: 100 })
+
+  useIsomorphicLayoutEffect(() => {
+    const svg = svgRef.current
+    if (!svg || typeof svg.getBBox !== "function") return
+    const b = svg.getBBox()
+    const x = Math.floor(Math.min(0, b.x - 1))
+    const y = Math.floor(Math.min(0, b.y - 1))
+    const next = {
+      x,
+      y,
+      w: Math.ceil(Math.max(100, b.x + b.width + 1)) - x,
+      h: Math.ceil(Math.max(100, b.y + b.height + 1)) - y,
+    }
+    setBox((prev) => (prev.x === next.x && prev.y === next.y && prev.w === next.w && prev.h === next.h ? prev : next))
+  }, [axes])
 
   const n = axes.length
   const cx = 50
@@ -56,7 +75,7 @@ export const RadarChart = forwardRef<HTMLDivElement, RadarChartProps>(function R
 
   return (
     <div ref={ref} className={cn("inline-flex flex-col items-center gap-4", className)} {...props}>
-      <svg role="img" aria-label={svgLabel} viewBox="0 0 100 100" style={{ width: size, height: size }} className="text-foreground">
+      <svg ref={svgRef} role="img" aria-label={svgLabel} viewBox={`${box.x} ${box.y} ${box.w} ${box.h}`} style={{ width: (size * box.w) / 100, height: (size * box.h) / 100 }} className="max-w-full text-foreground">
         {Array.from({ length: gridLines }).map((_, gi) => {
           const r = R * ((gi + 1) / gridLines)
           const pts = Array.from({ length: n }, (_, i) => point(r, i))

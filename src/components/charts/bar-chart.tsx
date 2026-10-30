@@ -1,7 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/cn"
-import { type HTMLAttributes, useState, useId, useEffect, forwardRef } from "react"
+import { Fragment, type HTMLAttributes, useState, useId, useEffect, forwardRef } from "react"
 import { type ChartDataPoint, type TooltipState, ChartTooltip } from "./shared"
 
 // ─── BarChart ─────────────────────────────────────────────────────────────────
@@ -237,7 +237,7 @@ const HorizontalBarChart = forwardRef<HTMLDivElement, Omit<BarChartProps, "orien
       ref={ref}
       role="img"
       aria-label={ariaLabel ?? props["aria-label"] ?? "Bar chart"}
-      className={cn("w-full select-none flex flex-col gap-2.5", className)}
+      className={cn("grid w-full select-none grid-cols-[auto_minmax(0,1fr)] items-center gap-x-3 gap-y-2.5", className)}
       {...props}
     >
       {data.map((d, i) => {
@@ -251,9 +251,9 @@ const HorizontalBarChart = forwardRef<HTMLDivElement, Omit<BarChartProps, "orien
           </span>
         )
         return (
-          <div key={i} className="flex items-center gap-3">
-            {/* Label — fixed width so bars all start at the same x */}
-            <span className="text-xs text-foreground/80 text-right shrink-0 leading-none" style={{ width: 64 }}>
+          <Fragment key={i}>
+            {/* Label — the grid's auto column sizes to the longest label so bars all start at the same x */}
+            <span className="max-w-40 break-words text-right text-xs leading-tight text-foreground/80">
               {d.label}
             </span>
 
@@ -265,7 +265,7 @@ const HorizontalBarChart = forwardRef<HTMLDivElement, Omit<BarChartProps, "orien
                 className="absolute left-0 top-0 bottom-0 rounded-md cursor-pointer outline-none focus-visible:opacity-85"
                 style={{
                   width: ready ? `${pct}%` : 0,
-                  background: `linear-gradient(90deg, ${c}70, ${c})`,
+                  background: `linear-gradient(90deg, color-mix(in srgb, ${c} 44%, transparent), ${c})`,
                   opacity: hovered !== null && !isHov ? 0.35 : 1,
                   outline: isHov ? `1.5px solid ${c}` : "none",
                   outlineOffset: -1,
@@ -293,19 +293,19 @@ const HorizontalBarChart = forwardRef<HTMLDivElement, Omit<BarChartProps, "orien
                 onBlur={() => { setHovered(null); setTooltip(null) }}
               />
 
-              {/* Value label — sits to the right of the bar end */}
+              {/* Value label — right of the bar end, or inside it when the bar nearly fills the track */}
               {showValues && (
                 <div
                   className="absolute top-0 bottom-0 flex items-center pointer-events-none"
-                  style={{ left: `${pct}%`, paddingLeft: 8 }}
+                  style={pct > 80 ? { right: `${100 - pct}%`, paddingRight: 8 } : { left: `${pct}%`, paddingLeft: 8 }}
                 >
-                  <span className="text-xs font-semibold text-foreground/80 tabular-nums whitespace-nowrap">
+                  <span className={cn("text-xs font-semibold tabular-nums whitespace-nowrap", pct > 80 ? "text-accent-foreground" : "text-foreground/80")}>
                     {formatValue(d.value)}
                   </span>
                 </div>
               )}
             </div>
-          </div>
+          </Fragment>
         )
       })}
 
