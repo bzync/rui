@@ -253,6 +253,8 @@ function paletteCss(
     [[scope], base],
     [lightSel, light],
     [darkSel, dark],
+    // `.rui-light` subtrees stay light in dark mode; doubled class outranks the globals.css default.
+    [[`${scope} .rui-light.rui-light`], { ...lightAliases, ...light }],
   ]
   if (applyToRoot) {
     rules.push(
