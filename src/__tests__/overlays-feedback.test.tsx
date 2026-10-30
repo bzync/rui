@@ -469,6 +469,23 @@ describe("NotificationCenter", () => {
     )
   })
 
+  it("opens an item from the keyboard and marks it read", async () => {
+    const user = userEvent.setup()
+    const onItemClick = vi.fn()
+    const onItemsChange = vi.fn()
+    render(
+      <ThemeProvider defaultTheme="light" storageKey={false}>
+        <NotificationCenter defaultItems={sampleNotifications} onItemClick={onItemClick} onItemsChange={onItemsChange} defaultOpen />
+      </ThemeProvider>,
+    )
+
+    screen.getByRole("button", { name: "New release v1.4" }).focus()
+    await user.keyboard("{Enter}")
+    expect(onItemClick).toHaveBeenCalledTimes(1)
+    expect(onItemClick).toHaveBeenCalledWith(sampleNotifications[0])
+    expect(onItemsChange).toHaveBeenCalledWith(sampleNotifications.map((n) => (n.id === "1" ? { ...n, read: true } : n)))
+  })
+
   it("clones a custom Button trigger without nesting button inside button", async () => {
     const user = userEvent.setup()
     const { container } = render(

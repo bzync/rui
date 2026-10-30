@@ -406,9 +406,17 @@ export const NotificationCenter = forwardRef<HTMLDivElement, NotificationCenterP
                       {/* Content */}
                       <div className="min-w-0 flex-1">
                         <div className="flex items-start justify-between gap-2">
-                          <p className={cn("text-xs font-medium", item.read ? "text-foreground" : "font-semibold text-foreground")}>
+                          {/* Keyboard target for the row; its click bubbles to the row's onClick */}
+                          <button
+                            type="button"
+                            className={cn(
+                              "rounded text-left text-xs font-medium text-foreground",
+                              !item.read && "font-semibold",
+                              focusRingStyles,
+                            )}
+                          >
                             {item.title}
-                          </p>
+                          </button>
                           {item.timestamp && (
                             <span className="shrink-0 text-[11px] text-muted-foreground tabular-nums">
                               {formatTime(item.timestamp)}
