@@ -244,10 +244,10 @@ export const RangeSlider = forwardRef<HTMLDivElement, RangeSliderProps>(function
         )}
       >
         {/* Rail background */}
-        <div className={cn("w-full rounded-full bg-surface-muted border border-border/40", cfg.track)}>
+        <div className={cn("relative w-full rounded-full bg-muted", cfg.track)}>
           {/* Highlighted Range Bar */}
           <div
-            className="absolute h-full rounded-full bg-accent"
+            className="absolute inset-y-0 rounded-full bg-accent"
             style={{
               left: `${minPercent}%`,
               width: `${Math.max(0, maxPercent - minPercent)}%`,
@@ -260,6 +260,8 @@ export const RangeSlider = forwardRef<HTMLDivElement, RangeSliderProps>(function
           role="slider"
           tabIndex={disabled ? -1 : 0}
           aria-label={minAriaLabel}
+          id={`${inputId}-thumb-0`}
+          aria-labelledby={label ? `${labelId} ${inputId}-thumb-0` : undefined}
           aria-valuemin={min}
           aria-valuemax={valMax - minStepsBetweenThumbs * step}
           aria-valuenow={valMin}
@@ -299,6 +301,8 @@ export const RangeSlider = forwardRef<HTMLDivElement, RangeSliderProps>(function
           role="slider"
           tabIndex={disabled ? -1 : 0}
           aria-label={maxAriaLabel}
+          id={`${inputId}-thumb-1`}
+          aria-labelledby={label ? `${labelId} ${inputId}-thumb-1` : undefined}
           aria-valuemin={valMin + minStepsBetweenThumbs * step}
           aria-valuemax={max}
           aria-valuenow={valMax}
