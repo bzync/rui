@@ -293,7 +293,7 @@ export const Calendar = forwardRef<HTMLDivElement, CalendarProps>(function Calen
       })()}
       {/* Body */}
       <div className="relative flex-1 overflow-x-auto">
-        <div className="min-w-[42rem]">
+        <div className="min-w-[32rem]">
         <AnimatePresence mode="popLayout" initial={false} custom={dir}>
           {viewKey !== null && viewDate !== null && (
             <motion.div key={viewKey} custom={dir} variants={variants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.18, ease: "easeInOut" }}>
