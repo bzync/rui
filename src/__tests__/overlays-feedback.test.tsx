@@ -198,10 +198,12 @@ describe("overlay and feedback components", () => {
 
   it("handles async operations with snackbar.promise", async () => {
     const user = userEvent.setup()
+    // Resolved by the test once the loading state is asserted; a timer raced the assertion on slow CI.
+    let resolveOp!: (value: string) => void
     function Trigger() {
       const { promise } = useSnackbar()
       const run = () => {
-        const asyncOp = new Promise<string>((resolve) => setTimeout(() => resolve("Success data"), 10))
+        const asyncOp = new Promise<string>((resolve) => { resolveOp = resolve })
         promise(asyncOp, {
           loading: "Saving changes…",
           success: (data) => `Done: ${data}`,
@@ -214,6 +216,7 @@ describe("overlay and feedback components", () => {
     render(<SnackbarProvider><Trigger /></SnackbarProvider>)
     await user.click(screen.getByRole("button", { name: "Run Promise" }))
     expect(await screen.findByText("Saving changes…")).toBeInTheDocument()
+    await act(async () => resolveOp("Success data"))
     expect(await screen.findByText("Done: Success data")).toBeInTheDocument()
   })
 })
