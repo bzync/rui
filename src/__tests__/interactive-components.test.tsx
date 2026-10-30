@@ -502,6 +502,12 @@ describe("SortableList and Kanban", () => {
     expect(onChange).toHaveBeenCalledWith([25, 75])
   })
 
+  it("names RangeSlider thumbs after the field label", () => {
+    render(<RangeSlider label="Price Range" defaultValue={[20, 80]} />)
+    expect(screen.getByRole("slider", { name: "Price Range Minimum value" })).toBeInTheDocument()
+    expect(screen.getByRole("slider", { name: "Price Range Maximum value" })).toBeInTheDocument()
+  })
+
   it("edits text in-place with InlineEdit", async () => {
     const user = userEvent.setup()
     const onSave = vi.fn()
