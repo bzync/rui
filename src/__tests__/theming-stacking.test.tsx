@@ -217,6 +217,17 @@ describe("theme scope", () => {
     }
   })
 
+  it("re-applies lightPalette inside .rui-light subtrees", () => {
+    const { container } = render(
+      <ThemeProvider storageKey={false} defaultTheme="dark" lightPalette={{ tokens: { "--color-surface": "#fefefe" } }} darkPalette={{ tokens: { "--color-surface": "#111111" } }}>
+        <div className="rui-light" data-testid="paper" />
+      </ThemeProvider>,
+    )
+    const scope = container.querySelector<HTMLElement>("[data-rui-scope]")!
+    expect(getComputedStyle(scope).getPropertyValue("--color-surface")).toBe("#111111")
+    expect(getComputedStyle(screen.getByTestId("paper")).getPropertyValue("--color-surface")).toBe("#fefefe")
+  })
+
   it("drops palette values that would escape the generated rule", () => {
     const { container } = render(<ThemeProvider storageKey={false} palette={{ tokens: { "--ok": "1", "--bad": "x}</style><script>", "--also-bad": "}body{" } }}>x</ThemeProvider>)
     const css = container.querySelector("style")!.textContent ?? ""

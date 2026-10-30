@@ -287,6 +287,24 @@
     0 28px 72px -24px rgb(0 0 0 / 0.86), 0 10px 24px -12px rgb(0 0 0 / 0.7);
 }
 
+/* `.rui-light` keeps a subtree on the light tokens in dark mode, e.g. the
+   Signature pad's paper: the canvas exports ink exactly as drawn, so dark ink
+   must stay legible on screen too. ThemeProvider re-applies `lightPalette`. */
+.dark .rui-light {
+  color-scheme: light;
+  --color-bg: #f7f8fb;
+  --color-foreground: #141a26;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f3f5f9;
+  --color-border: #dce2ec;
+  --color-border-strong: #b4becd;
+  --color-muted: #eef1f6;
+  --color-muted-foreground: #64708a;
+  --color-accent-strong: var(--color-accent-700);
+  --color-success-strong: color-mix(in oklab, var(--color-success) 78%, black);
+  --color-danger-strong: color-mix(in oklab, var(--color-danger) 78%, black);
+}
+
 /* ─── Base ────────────────────────────────────────────────────────────────── */
 
 /* Layered so component utilities (text-sm on Button, text-xs on Kbd …) and a
