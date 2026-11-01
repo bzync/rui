@@ -9,7 +9,7 @@ Composable React UI components with scoped, fully customizable light and dark th
 [![license](https://img.shields.io/npm/l/@bzync/rui.svg)](./LICENSE)
 
 `@bzync/rui` (**r**eact **ui**) is the component library behind [Bzync](https://www.bzync.com).
-It ships 79 components plus a small SVG chart set, a token-driven theming system, and
+It ships 100+ components plus a small SVG chart set, a token-driven theming system, and
 production-grade lifecycle primitives — with **zero runtime dependencies**.
 
 - **Zero runtime dependencies.** `dependencies` is empty. `react`, `react-dom`, and
@@ -291,6 +291,17 @@ import { ThemePortal } from "@bzync/rui"
 </ThemePortal>
 ```
 
+### Light-only subtrees
+
+Add the `rui-light` class to keep a subtree on the light tokens while the rest of the
+scope is dark — for content whose colors must match what gets exported or printed.
+`ThemeProvider` re-applies your `lightPalette` inside it. `Signature` uses it so dark ink
+stays legible on its signing pad.
+
+```tsx
+<div className="rui-light bg-surface text-foreground">Always light</div>
+```
+
 ### Stacking order
 
 Every layer the library renders uses one z-index scale, defined as CSS variables in
@@ -369,6 +380,7 @@ Import any of these from the root or from `@bzync/rui/<kebab-name>`.
 | `ThemeProvider` | Token-driven theme scope; light/dark, controlled or uncontrolled, persistence, `applyToRoot` |
 | `useTheme()` | `{ theme, resolvedTheme, setTheme, toggleTheme }` |
 | `ThemeToggle` | Accessible light/dark switch with custom icons and labels |
+| `ThemeSwitcher` | `variant: segmented \| dropdown \| switch \| radio \| icon-button`, `size`, `includeSystem`, `showLabels`, `value` / `onChange` |
 | `SnackbarProvider` / `useSnackbar()` | Programmatic toast notifications |
 | `CommandProvider` / `CommandPalette` | App-wide searchable command palette |
 | `cn()` | `clsx` + `tailwind-merge` class combiner |
@@ -377,12 +389,13 @@ Import any of these from the root or from `@bzync/rui/<kebab-name>`.
 
 | Component | Key props |
 |---|---|
-| `Button` | `variant: primary \| secondary \| ghost \| outline \| destructive \| link`, `size: sm \| md \| lg \| icon`, `loading`, `icon`, `iconPosition` |
+| `Button` | `variant: primary \| secondary \| ghost \| outline \| danger \| link` (`destructive` is a deprecated alias), `size: sm \| md \| lg \| icon`, `loading`, `icon`, `iconPosition` |
 | `ButtonGroup` | `orientation`, `aria-label`; wraps `Button` children with `role="group"` |
 | `IconButton` / `InfoButton` | `label` (required for a11y), icon |
 | `CopyButton` | `value` (text to copy), `label`, `timeout` |
 | `Toggle` / `ToggleGroup` / `ToggleGroupItem` | `pressed` / `defaultPressed`, `onPressedChange`, `type: single \| multiple`, `variant`, `size`, `orientation`, `loop` |
 | `BillingIntervalToggle` | `value: monthly \| yearly`, `onChange` |
+| `InlineEdit` | `value` / `defaultValue`, `onSave`, `onCancel`, `validate`, `multiline`, `saveOnBlur` |
 
 ### Forms
 
@@ -390,6 +403,10 @@ Import any of these from the root or from `@bzync/rui/<kebab-name>`.
 |---|---|
 | `Input` | `label`, `hint`, `error`, `prefix` / `suffix`, `size` |
 | `Textarea` | `label`, `hint`, `error`, `rows` |
+| `PasswordInput` | `Input` props plus `showStrength`, `requirements`, `visible` / `defaultVisible`, `onVisibleChange` |
+| `SearchInput` | `onSearch`, `debounceMs`, `shortcut`, `loading`, `clearLabel` |
+| `MaskedInput` / `CurrencyInput` / `PhoneInput` | `mask`; `currency`, `locale`, `decimals`, `allowNegative`; `country`, `countries`, `onCountryChange` |
+| `TagInput` | `value` / `defaultValue`, `onChange`, `separators`, `validate`, `transform`, `maxTags`, `allowDuplicates` |
 | `NumberInput` | `value` / `defaultValue`, `min`, `max`, `step`, `onChange` |
 | `OtpInput` | `length`, `value`, `onChange`, `label` |
 | `Select` | `options`, `label`, `multiple`, groups, searchable, `onChange` |
@@ -398,13 +415,19 @@ Import any of these from the root or from `@bzync/rui/<kebab-name>`.
 | `Radio` / `RadioGroup` | `value`, `onChange`, `options` |
 | `Switch` | `label`, `checked`, `onCheckedChange` |
 | `Slider` | `value` / `defaultValue`, `min`, `max`, `step`, `label` |
+| `RangeSlider` | `value` / `defaultValue: [min, max]`, `min`, `max`, `step`, `minStepsBetweenThumbs`, `marks`, `showTooltip`, `formatValue`, `onChangeEnd` |
 | `Rating` | `value` / `defaultValue`, `max`, `size`, `readOnly`, `onValueChange` |
 | `DatePicker` | `label`, `value`, `onChange` |
+| `DateRangePicker` | `value` / `defaultValue`, `presets`, `numberOfMonths`, `minDate` / `maxDate`, `clearable` |
+| `DateTimePicker` | `value` / `defaultValue`, `format: 12 \| 24`, `showSeconds`, `minuteStep`, `presets`, `minDate` / `maxDate` |
 | `Calendar` | `value: Date`, `onChange`, month/week views |
 | `TimePicker` | `value` / `defaultValue`, `format: 12 \| 24`, `minuteStep`, `showSeconds`, `min` / `max`, `clearable` |
 | `FileUpload` | `label`, `accept`, `multiple`, `onFilesChange` |
+| `ColorPicker` | `value` / `defaultValue`, `presets`, `swatches`, `showAlpha`, `showEyeDropper`, `size` |
+| `Signature` / `SignaturePad` | `modes: draw \| upload`, `strokeColor`, `colors`, `strokeWidth`, `enableEditor` (background removal, crop, zoom), `signatureRef` (`clear`, `undo`, `toDataURL`, `toSVG`, `openEditor`) |
 | `Label` | `htmlFor`, `required`, `hint` |
-| `FormField` | `label`, `htmlFor`, `required`, `hint`, `error` — wraps a control |
+| `FormField` (`FieldLabel` / `FieldDescription` / `FieldError` / `FieldContent`) | `label`, `htmlFor`, `required`, `hint`, `error` — wraps a control |
+| `Form` | `form`, `onSubmit`, `onInvalid`, `errorSummary` |
 | `Stepper` | `steps`, `activeStep` |
 | `Kbd` | keyboard-key children |
 
@@ -413,6 +436,9 @@ Import any of these from the root or from `@bzync/rui/<kebab-name>`.
 | Component | Key props |
 |---|---|
 | `Badge` / `Tag` | `variant`, `dot`; `Tag` adds `onRemove` |
+| `Icon` / `Icons` | `name`, `size: xs‥xl \| number`, `tone`, `spin`, `label`; or `Icons.<Name>` components |
+| `Image` | `src`, `alt`, `aspectRatio`, `fit`, `placeholder`, `blurDataURL`, `fallbackSrc`, `rounded` |
+| `Banner` | `tone`, `variant`, `title`, `action`, `dismissible`, `storageKey`, `sticky` |
 | `Avatar` / `AvatarGroup` / `AvatarGroupOverflow` | `name`, `src`, `size`, initials fallback; group `spacing`, `count` |
 | `Card` (`CardHeader` / `CardTitle` / `CardDescription` / `CardBody` / `CardFooter`) | composition |
 | `Callout` / `Alert` | `title`, `variant`; `Alert` adds `dismissable`, `onDismiss` |
@@ -429,23 +455,35 @@ Import any of these from the root or from `@bzync/rui/<kebab-name>`.
 | `Divider` / `Separator` | `orientation`, `variant`, `spacing`, optional `label` |
 | `ScrollArea` | `orientation: vertical \| horizontal \| both`, `hideScrollbar`, `keyboardNavigable` |
 | `AspectRatio` | `ratio: number` |
+| `Collapsible` (`CollapsibleTrigger` / `CollapsibleContent`) | `open` / `defaultOpen`, `onOpenChange`, `disabled` |
+| `VisuallyHidden` | screen-reader-only content; `focusable` |
 | `Skeleton` (+ `SkeletonAvatar` / `SkeletonCard` / `SkeletonTable` / `SkeletonText` / `SkeletonTopbar`) | loading placeholders |
 | `Spinner` / `Progressbar` | `size`; `value`, `max` |
 | `EmptyState` / `ErrorState` | `title`, `description`, `error`, action slot |
 | `RichText` / `RichTextEditor` | rendered content and editor |
 | `AuthBackdrop` | decorative auth-screen background |
+| `DevMode` | `enabled`, `breakpoints`, `hotkey`, `floating`, `storageKey` — development-only viewport/breakpoint HUD |
 
 ### Overlays and feedback
 
 | Component | Key props |
 |---|---|
 | `Modal` (`ModalHeader` / `ModalTitle` / `ModalDescription` / `ModalBody` / `ModalFooter`) | `open`, `onClose`, `title`, `size: sm‥7xl \| full`, `ModalBody` `scrollable` |
-| `Drawer` | `open`, `onClose`, `title`, `size`, focus trap |
+| `Drawer` (`DrawerHeader` / `DrawerBody` / `DrawerFooter`) | `open`, `onClose`, `title`, `size`, focus trap |
+| `Sheet` | `open` / `onOpenChange`, `snapPoints`, `defaultSnap`, `onSnapChange`, `modal`, `dismissible` |
+| `ResponsiveDialog` (`ResponsiveDialogTrigger` / `ResponsiveDialogContent` / `ResponsiveDialogHeader` / `ResponsiveDialogTitle` / `ResponsiveDialogDescription` / `ResponsiveDialogBody` / `ResponsiveDialogFooter` / `ResponsiveDialogClose`) | modal on desktop, bottom sheet on mobile; `open` / `defaultOpen`, `onOpenChange` |
+| `Overlay` / `OverlayBackdrop` | low-level primitive: `open`, `onClose`, `portal`, `closeOnEscape`, `closeOnOutsideClick`, `disableScrollLock` |
 | `ConfirmDialog` | `open`, `onConfirm`, `onCancel`, `title` |
 | `Popover` / `PopoverContent` | trigger, `open` / `onOpenChange` |
+| `HoverCard` | `content`, `side`, `align`, `openDelay`, `closeDelay`, `open` / `onOpenChange` |
 | `DropdownMenu` | `trigger`, `items: { label, onClick }[]` |
+| `ContextMenu` | `items`, `ariaLabel`, `asChild`; opens on right-click or Shift+F10 |
+| `Menubar` | `menus`, `ariaLabel` |
 | `Command` / `CommandPalette` / `CommandProvider` | searchable command palette |
 | `SnackbarProvider` / `useSnackbar()` | queue and dismiss toasts programmatically |
+| `NotificationCenter` | `items` / `defaultItems`, `onItemsChange`, `onItemClick`, `onMarkAllAsRead`, `onClearAll`, `categories`, `trigger` |
+| `Tour` | `steps`, `open` / `onOpenChange`, `step` / `onStepChange`, `mask`, `onFinish`, `onSkip` |
+| `Lightbox` | `images`, `open` / `onOpenChange`, `index` / `onIndexChange`, `loop`, `thumbnails` |
 | `Tabs` (`TabsList` / `TabsTrigger` / `TabsContent`) | `value`, `onValueChange` |
 | `Accordion` | `items: { id, trigger, content }[]` |
 | `Pagination` | `page`, `totalPages`, `onPageChange` |
@@ -458,16 +496,22 @@ Import any of these from the root or from `@bzync/rui/<kebab-name>`.
 | `AppShell` (`AppShellHeader` / `AppShellBody` / `AppShellMain` / `Footer`) | app frame; `sticky`, `scrollable`, `fixed` |
 | `Container` | `size: sm‥xl \| full`, `gutter` |
 | `Stack` / `Inline` / `PageHeader` | spacing and header primitives |
-| `Navbar` / `Sidebar` / `Topbar` / `BottomBar` | `items: NavigationItem[]`, `activeId`, `onSelect` |
+| `Navbar` / `Sidebar` / `Topbar` / `BottomBar` (+ `TopbarTitle` / `BrandLink`) | `items: NavigationItem[]`, `activeId`, `onSelect` |
+| `NavigationMenu` | `items`, `openDelay`, `closeDelay` |
+| `Resizable` / `ResizablePanel` | `direction`, `defaultSizes` / `sizes`, `onResize`, `minSizes` / `maxSizes`, `storageKey`, `withHandle` |
 | `NavigationLink` | `id`, `label`, `href`, `icon`, `badge`, `active`, `compact` |
 | `Breadcrumb` | `items` |
-| `SEO` | document head tags |
+| `SEO` (+ `SeoImage` / `StructuredData` / `BreadcrumbJsonLd` / `ArticleJsonLd`) | document head tags and JSON-LD |
+| `Slot` | `asChild` composition primitive |
 
 ### Data
 
 | Component | Key props |
 |---|---|
 | `DataTable<T>` | `columns: ColumnDef<T>[]` (`{ key, header, cell, sortable?, searchable?, align?, width? }`), `data: T[]`, `searchable`, `searchPlaceholder`, `pageSizeOptions`, `density`, `loading`, `emptyMessage`, `onRowClick`, `unstyled` — built-in sort, search, and pagination. `T` must have an `id`. |
+| `SortableList` / `Kanban` | `items` + `onReorder`; `columns` + `onChange`; `renderItem` / `renderCard`, `getLabel`; keyboard and pointer reordering |
+| `DndContext` / `Droppable` / `Draggable` / `DragOverlay` / `DragHandle` | low-level drag-and-drop primitives with keyboard support |
+| `PanoViewer` / `PanoTourDialog` / `PanoTourButton` / `PanoTourEditor` | 360° panorama tours with hotspots and narration, plus an editor |
 
 ## Common recipes
 
@@ -599,8 +643,9 @@ import { BarChart, LineChart, DonutChart } from "@bzync/rui/charts"
 <BarChart data={[{ label: "Jan", value: 42 }, { label: "Feb", value: 55 }]} />
 ```
 
-Available: `BarChart`, `LineChart`, `MultiLineChart`, `DonutChart`, `ScatterChart`,
-`GanttChart`, `HeatmapChart`, `RadarChart`, `FunnelChart`, `WaterfallChart`. See
+Available: `BarChart`, `StackedBarChart`, `LineChart`, `MultiLineChart`, `AreaChart`,
+`DonutChart`, `ScatterChart`, `GanttChart`, `HeatmapChart`, `RadarChart`, `FunnelChart`,
+`WaterfallChart`, `Sparkline`, `Gauge`. See
 [`src/components/charts`](./src/components/charts) for exact per-chart props.
 
 ## Hooks and utilities
@@ -656,7 +701,7 @@ review the release notes before upgrading. Releases are published from CI with n
 ## Documentation
 
 Full component documentation and live, themeable demos are published at
-**[bzync.github.io/rui](https://bzync.github.io/rui/)**. A push to `main` deploys the
+**[rui.bzync.com](https://rui.bzync.com)**. A push to `main` deploys the
 latest docs via GitHub Pages.
 
 ## Contributing
